@@ -1,7 +1,9 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const authMiddleware = async (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
+    const authHeader = req.headers.authorization?.split(' ')[1];
+    const queryToken = req.query.token;
+    const token = authHeader || queryToken;
 
     if (!token) {
         return res.status(401).json({ error: 'Missing authorization token' });
