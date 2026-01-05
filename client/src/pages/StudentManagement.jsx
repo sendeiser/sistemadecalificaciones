@@ -10,6 +10,9 @@ const StudentManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [isAdding, setIsAdding] = useState(false);
+    const [isBulkAdding, setIsBulkAdding] = useState(false);
+    const [bulkText, setBulkText] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const [formData, setFormData] = useState({
         nombre: '',
@@ -106,6 +109,50 @@ const StudentManagement = () => {
         }
     };
 
+    const handleBulkAI = async () => {
+        if (!bulkText.trim()) return alert('Por favor, ingresa algún texto para procesar');
+
+        setIsProcessing(true);
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/students/bulk-ai`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+                },
+                body: JSON.stringify({ rawText: bulkText })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) throw new Error(result.error || 'Error en el procesamiento masivo');
+
+            // Update local list
+            if (result.success.length > 0) {
+                setStudents(prev => [...prev, ...result.success].sort((a, b) => a.nombre.localeCompare(b.nombre)));
+            }
+
+            const successCount = result.success.length;
+            const errorCount = result.errors.length;
+
+            let message = `Procesamiento completado.\n- Exitosos: ${successCount}`;
+            if (errorCount > 0) {
+                message += `\n- Errores: ${errorCount} (Ver consola para detalles)`;
+                console.error('Errores en carga masiva:', result.errors);
+            }
+
+            alert(message);
+            if (successCount > 0) {
+                setIsBulkAdding(false);
+                setBulkText('');
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
     const startEdit = (student) => {
         setEditingId(student.id);
         setIsAdding(false);
@@ -140,17 +187,31 @@ const StudentManagement = () => {
                         <p className="text-slate-400 text-sm">Administrar perfiles de estudiantes y sus accesos.</p>
                     </div>
                 </div>
-                <button
-                    onClick={() => {
-                        setIsAdding(true);
-                        setEditingId(null);
-                        setFormData({ nombre: '', dni: '', email: '', password: '' });
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm font-medium"
-                >
-                    <Plus size={18} />
-                    Nuevo Alumno
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => {
+                            setIsBulkAdding(!isBulkAdding);
+                            setIsAdding(false);
+                            setEditingId(null);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors text-sm font-medium"
+                    >
+                        <Users size={18} />
+                        Carga Masiva (IA)
+                    </button>
+                    <button
+                        onClick={() => {
+                            setIsAdding(true);
+                            setIsBulkAdding(false);
+                            setEditingId(null);
+                            setFormData({ nombre: '', dni: '', email: '', password: '' });
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm font-medium"
+                    >
+                        <Plus size={18} />
+                        Nuevo Alumno
+                    </button>
+                </div>
             </header>
 
             <div className="max-w-7xl mx-auto">
@@ -227,6 +288,60 @@ const StudentManagement = () => {
                                 <button
                                     onClick={() => setIsAdding(false)}
                                     className="px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    )
+                }
+
+                {
+                    isBulkAdding && (
+                        <div className="mb-8 p-6 bg-slate-800 rounded-xl border border-purple-500/30 animate-in fade-in slide-in-from-top-4 duration-300">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xl font-bold flex items-center gap-2 text-purple-400">
+                                    <Plus size={20} />
+                                    Carga Masiva con Inteligencia Artificial
+                                </h3>
+                                <div className="text-xs px-2 py-1 bg-purple-500/10 text-purple-400 rounded-full border border-purple-500/20">
+                                    Gemini v1.5 Flash
+                                </div>
+                            </div>
+                            <p className="text-sm text-slate-400 mb-4">
+                                Pega aquí la lista de alumnos en cualquier formato (nombres, DNIs y correos). La IA extraerá los datos y creará las cuentas automáticamente.
+                            </p>
+                            <textarea
+                                className="w-full h-40 bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-300 focus:border-purple-500 outline-none transition-all placeholder:text-slate-600"
+                                placeholder={"Ejemplo:\nJuan Perez 45678912 juan@mail.com\nMaria Gomez DNI 12345678 correomaria@test.com"}
+                                value={bulkText}
+                                onChange={(e) => setBulkText(e.target.value)}
+                                disabled={isProcessing}
+                            ></textarea>
+                            <div className="mt-6 flex gap-3">
+                                <button
+                                    onClick={handleBulkAI}
+                                    disabled={isProcessing}
+                                    className={`flex items-center gap-2 px-6 py-2 rounded-lg font-bold transition-all ${isProcessing
+                                            ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                                            : 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/20'
+                                        }`}
+                                >
+                                    {isProcessing ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-slate-500 border-t-white rounded-full animate-spin"></div>
+                                            Procesando con IA...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Check size={18} />
+                                            Procesar y Crear Cuentas
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => setIsBulkAdding(false)}
+                                    className="px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition-colors"
                                 >
                                     Cancelar
                                 </button>

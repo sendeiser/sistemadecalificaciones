@@ -124,4 +124,100 @@ router.delete('/:id', isAdmin, async (req, res) => {
     }
 });
 
+
+// AI Integration for Bulk Registration
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+/**
+ * POST /api/students/bulk-ai
+ * Parses raw text using Gemini and registers multiple students.
+ */
+router.post('/bulk-ai', isAdmin, async (req, res) => {
+    const { rawText } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+        return res.status(500).json({ error: 'GEMINI_API_KEY no detectada en el servidor. Asegúrate de añadirla en server/.env y reiniciar el servidor.' });
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey); // Standard init, default usually v1beta or handles exp
+
+    if (!rawText || rawText.trim().length === 0) {
+        return res.status(400).json({ error: 'Raw text is required' });
+    }
+
+    try {
+        console.log('Iniciando procesamiento con Gemini (gemini-3-flash-preview)...');
+        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+        const prompt = `Extrae una lista de estudiantes del siguiente texto desordenado. 
+        Para cada estudiante necesito: NOMBRE completo, DNI (solo números) y EMAIL.
+        Devuelve SOLO un array JSON con el formato: [{"nombre": "...", "dni": "...", "email": "..."}]
+        Si falta algún dato inventa uno coherente (ej: si falta el email, genera uno basado en el nombre).
+        Si no hay estudiantes en el texto, devuelve un array vacío [].
+        Texto: ${rawText}`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        // Clean markdown backticks if any
+        const jsonString = text.replace(/```json|```/g, '').trim();
+        const extractedStudents = JSON.parse(jsonString);
+
+        if (!Array.isArray(extractedStudents) || extractedStudents.length === 0) {
+            return res.status(400).json({ error: 'No se pudieron extraer estudiantes del texto.' });
+        }
+
+        const results = {
+            success: [],
+            errors: []
+        };
+
+        // Process each student
+        // Using a temporary password of "Escuela123" for bulk imports
+        const defaultPassword = "Escuela123";
+
+        for (const student of extractedStudents) {
+            try {
+                // 1. Create Auth User
+                const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+                    email: student.email,
+                    password: defaultPassword,
+                    email_confirm: true,
+                    user_metadata: {
+                        nombre: student.nombre,
+                        dni: student.dni,
+                        rol: 'alumno'
+                    }
+                });
+
+                if (authError) throw authError;
+
+                const userId = authData.user.id;
+
+                // 2. Fetch Profile (Triggered automatically)
+                const { data: profile, error: profileError } = await req.supabase
+                    .from('perfiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+
+                if (profileError) throw profileError;
+
+                results.success.push(profile);
+            } catch (err) {
+                results.errors.push({
+                    student: student.nombre || student.email,
+                    error: err.message
+                });
+            }
+        }
+
+        res.json(results);
+    } catch (err) {
+        console.error('Bulk AI Error:', err);
+        res.status(500).json({ error: 'Error procesando el texto con IA: ' + err.message });
+    }
+});
+
 module.exports = router;
