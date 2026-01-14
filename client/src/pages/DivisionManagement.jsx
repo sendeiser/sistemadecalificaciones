@@ -92,21 +92,21 @@ const DivisionManagement = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-900 text-slate-100 p-6 md:p-10">
+        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
             {/* Navigation Header */}
-            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-slate-800 pb-6">
+            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white"
+                        className="p-2 hover:bg-tech-surface rounded transition-colors text-slate-400 hover:text-white"
                     >
                         <ArrowLeft size={24} />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                        <h1 className="text-3xl font-bold text-white tracking-tight uppercase">
                             Divisiones
                         </h1>
-                        <p className="text-slate-400 text-sm">Configurar los cursos y secciones de la institución.</p>
+                        <p className="text-slate-400 text-sm font-mono">GESTIÓN DE CURSOS Y SECCIONES</p>
                     </div>
                 </div>
                 <button
@@ -115,7 +115,7 @@ const DivisionManagement = () => {
                         setEditingId(null);
                         setFormData({ anio: '', seccion: '', ciclo_lectivo: 2024, campo_formacion: '' });
                     }}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors text-sm font-medium shadow-lg shadow-purple-900/20"
+                    className="flex items-center gap-2 px-4 py-2 bg-tech-accent hover:bg-violet-600 rounded transition-colors text-sm font-bold shadow-[0_0_15px_rgba(139,92,246,0.3)] uppercase tracking-wider text-white"
                 >
                     <Plus size={18} />
                     Nueva División
@@ -125,101 +125,104 @@ const DivisionManagement = () => {
             <div className="max-w-7xl mx-auto">
 
                 {isAdding && (
-                    <div className="mb-8 p-6 bg-slate-800 rounded-xl border border-slate-700 animate-in fade-in slide-in-from-top-4 duration-300">
-                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                            <Plus size={20} className="text-purple-400" />
+                    <div className="mb-8 p-6 bg-tech-secondary rounded border border-tech-surface animate-in fade-in slide-in-from-top-4 duration-300 shadow-lg relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                            <Layers size={100} />
+                        </div>
+                        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white uppercase tracking-wider border-b border-tech-surface pb-2 relative z-10">
+                            <Plus size={20} className="text-tech-accent" />
                             Crear Nueva División
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-400 uppercase font-bold">Año</label>
+                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Año</label>
                                 <input
                                     type="text"
                                     placeholder="Ej: 1ro, 2do..."
-                                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 focus:border-purple-500 outline-none"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-slate-600 text-white"
                                     value={formData.anio}
                                     onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-400 uppercase font-bold">Sección</label>
+                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Sección</label>
                                 <input
                                     type="text"
                                     placeholder="Ej: A, B, 1ra..."
-                                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 focus:border-purple-500 outline-none"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-slate-600 text-white"
                                     value={formData.seccion}
                                     onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-400 uppercase font-bold">Ciclo Lectivo</label>
+                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Ciclo Lectivo</label>
                                 <input
                                     type="number"
-                                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 focus:border-purple-500 outline-none"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-slate-600 text-white font-mono"
                                     value={formData.ciclo_lectivo}
                                     onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-400 uppercase font-bold">Campo de Formación</label>
+                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Campo de Formación</label>
                                 <input
                                     type="text"
                                     placeholder="Ej: Informática"
-                                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 focus:border-purple-500 outline-none"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-slate-600 text-white"
                                     value={formData.campo_formacion}
                                     onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
                                 />
                             </div>
                         </div>
-                        <div className="mt-6 flex gap-3">
-                            <button onClick={() => handleSave()} className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-bold">
+                        <div className="mt-6 flex gap-3 relative z-10">
+                            <button onClick={() => handleSave()} className="flex items-center gap-2 px-6 py-2 bg-tech-success hover:bg-emerald-600 rounded font-bold transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)] text-white uppercase tracking-wider text-sm">
                                 <Save size={18} />
                                 Guardar División
                             </button>
-                            <button onClick={() => setIsAdding(false)} className="px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold">
+                            <button onClick={() => setIsAdding(false)} className="px-6 py-2 bg-tech-surface hover:bg-slate-700 rounded font-bold text-slate-300 uppercase tracking-wider text-sm transition-colors">
                                 Cancelar
                             </button>
                         </div>
                     </div>
                 )}
 
-                <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
+                <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-xl">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-slate-700/50 text-slate-400 text-sm">
+                        <thead className="bg-tech-primary text-slate-400 text-sm border-b border-tech-surface">
                             <tr>
-                                <th className="p-4 font-bold border-b border-slate-700">Año y Sección</th>
-                                <th className="p-4 font-bold border-b border-slate-700">Ciclo Lectivo</th>
-                                <th className="p-4 font-bold border-b border-slate-700">Campo Formación</th>
-                                <th className="p-4 font-bold border-b border-slate-700 text-center">Acciones</th>
+                                <th className="p-4 uppercase text-xs font-bold tracking-wider">Año y Sección</th>
+                                <th className="p-4 uppercase text-xs font-bold tracking-wider">Ciclo Lectivo</th>
+                                <th className="p-4 uppercase text-xs font-bold tracking-wider">Campo Formación</th>
+                                <th className="p-4 text-center uppercase text-xs font-bold tracking-wider">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-tech-surface">
                             {loading ? (
-                                <tr><td colSpan="4" className="p-10 text-center text-slate-500">Cargando divisiones...</td></tr>
+                                <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono animate-pulse">Cargando divisiones...</td></tr>
                             ) : divisions.length === 0 ? (
-                                <tr><td colSpan="4" className="p-10 text-center text-slate-500">No hay divisiones creadas.</td></tr>
+                                <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono italic">No hay divisiones creadas.</td></tr>
                             ) : divisions.map(d => (
-                                <tr key={d.id} className="border-t border-slate-700 hover:bg-slate-700/30 transition-colors">
+                                <tr key={d.id} className="hover:bg-tech-primary/50 transition-colors">
                                     <td className="p-4">
                                         {editingId === d.id ? (
                                             <div className="flex gap-2">
                                                 <input
                                                     type="text"
-                                                    className="bg-slate-900 border border-purple-500 rounded px-2 py-1 w-20 outline-none"
+                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-white text-sm"
                                                     value={formData.anio}
                                                     onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                                 />
                                                 <input
                                                     type="text"
-                                                    className="bg-slate-900 border border-purple-500 rounded px-2 py-1 w-20 outline-none"
+                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-white text-sm"
                                                     value={formData.seccion}
                                                     onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
                                                 />
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-2">
-                                                <span className="font-bold text-lg">{d.anio}</span>
-                                                <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-sm font-mono border border-purple-500/30">
+                                                <span className="font-bold text-white uppercase">{d.anio}</span>
+                                                <span className="px-2 py-0.5 bg-tech-primary text-tech-accent rounded text-sm font-mono border border-tech-surface font-bold">
                                                     {d.seccion}
                                                 </span>
                                             </div>
@@ -229,50 +232,51 @@ const DivisionManagement = () => {
                                         {editingId === d.id ? (
                                             <input
                                                 type="number"
-                                                className="bg-slate-900 border border-purple-500 rounded px-2 py-1 w-24 outline-none"
+                                                className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-24 outline-none text-white text-sm"
                                                 value={formData.ciclo_lectivo}
                                                 onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
                                             />
                                         ) : (
-                                            <span className="text-slate-300 font-medium">{d.ciclo_lectivo}</span>
+                                            <span className="text-slate-300 font-mono">{d.ciclo_lectivo}</span>
                                         )}
                                     </td>
                                     <td className="p-4">
                                         {editingId === d.id ? (
                                             <input
                                                 type="text"
-                                                className="bg-slate-900 border border-purple-500 rounded px-2 py-1 w-full outline-none"
+                                                className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-full outline-none text-white text-sm"
                                                 value={formData.campo_formacion}
                                                 onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
                                             />
                                         ) : (
-                                            <span className="text-slate-400 italic">{d.campo_formacion || '-'}</span>
+                                            <span className="text-slate-400 italic font-mono text-sm">{d.campo_formacion || '-'}</span>
                                         )}
                                     </td>
                                     <td className="p-4 text-center">
                                         <div className="flex justify-center gap-2">
                                             <button
                                                 onClick={() => navigate('/enrollment')}
-                                                className="p-2 bg-purple-600/10 text-purple-400 rounded-lg hover:bg-purple-600/20 transition-colors"
+                                                className="p-1.5 bg-tech-primary text-slate-400 hover:text-white border border-tech-surface hover:border-white rounded transition-all group"
                                                 title="Gestionar Alumnos"
                                             >
-                                                <Users size={18} />
+                                                <Users size={18} className="group-hover:scale-110 transition-transform" />
                                             </button>
+                                            <div className="w-px h-8 bg-tech-surface mx-1"></div>
                                             {editingId === d.id ? (
                                                 <>
-                                                    <button onClick={() => handleSave(d.id)} className="p-2 bg-green-600/20 text-green-400 rounded-lg hover:bg-green-600/40 transition-colors shadow-inner">
+                                                    <button onClick={() => handleSave(d.id)} className="p-1.5 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
                                                         <Check size={18} />
                                                     </button>
-                                                    <button onClick={() => setEditingId(null)} className="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 transition-colors">
+                                                    <button onClick={() => setEditingId(null)} className="p-1.5 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
                                                         <X size={18} />
                                                     </button>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <button onClick={() => startEdit(d)} className="p-2 bg-blue-600/10 text-blue-400 rounded-lg hover:bg-blue-600/20 transition-colors">
+                                                    <button onClick={() => startEdit(d)} className="p-1.5 text-tech-accent hover:bg-tech-accent/10 rounded transition-all">
                                                         <Pencil size={18} />
                                                     </button>
-                                                    <button onClick={() => handleDelete(d.id)} className="p-2 bg-red-600/10 text-red-400 rounded-lg hover:bg-red-600/20 transition-colors">
+                                                    <button onClick={() => handleDelete(d.id)} className="p-1.5 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </>

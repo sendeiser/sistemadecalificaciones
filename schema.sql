@@ -150,3 +150,34 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trigger_check_period_open
 BEFORE UPDATE ON calificaciones
 FOR EACH ROW EXECUTE FUNCTION prevent_closed_updates();
+
+-- ASISTENCIAS
+CREATE TYPE estado_asistencia AS ENUM ('presente', 'ausente', 'tarde', 'justificado');
+
+CREATE TABLE asistencias (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    estudiante_id UUID REFERENCES perfiles(id) NOT NULL,
+    asignacion_id UUID REFERENCES asignaciones(id) NOT NULL,
+    fecha DATE DEFAULT CURRENT_DATE,
+    estado estado_asistencia DEFAULT 'presente',
+    observaciones TEXT,
+    UNIQUE(estudiante_id, asignacion_id, fecha)
+);
+
+ALTER TABLE asistencias ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Docentes manage attendance" ON asistencias FOR ALL USING (
+    EXISTS (
+        SELECT 1 FROM asignaciones a
+        WHERE a.id = asistencias.asignacion_id
+        AND a.docente_id = auth.uid()
+    )
+);
+
+CREATE POLICY "Admins full access asistencias" ON asistencias FOR ALL USING (
+    EXISTS (SELECT 1 FROM perfiles WHERE id = auth.uid() AND rol = 'admin')
+);
+
+CREATE POLICY "Students view own attendance" ON asistencias FOR SELECT USING (
+    estudiante_id = auth.uid()
+);

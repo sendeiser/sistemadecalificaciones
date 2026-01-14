@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight } from 'lucide-react';
+import { LogOut, Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, PieChart, BarChart3, CheckSquare } from 'lucide-react';
+import DashboardStats from '../components/DashboardStats';
 
 const Dashboard = () => {
     const { profile, signOut } = useAuth();
@@ -20,150 +21,234 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-900 text-slate-100 p-6 md:p-10">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 border-b border-slate-700 pb-6 gap-4">
+        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 border-b border-tech-surface pb-6 gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                        Hola, {profile.nombre}
+                    <h1 className="text-3xl font-bold text-white tracking-tight">
+                        <span className="text-tech-cyan">Hola,</span> {profile.nombre}
                     </h1>
-                    <p className="text-slate-400 capitalize mt-1 font-medium text-lg">Rol: <span className="text-blue-300">{profile.rol}</span></p>
+                    <p className="text-slate-400 capitalize mt-1 font-medium text-lg font-mono">
+                        ID: <span className="text-tech-cyan">{profile.id.slice(0, 8)}</span> | ROL: <span className="text-tech-accent">{profile.rol}</span>
+                    </p>
                 </div>
                 <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-all border border-slate-700 hover:border-red-500/50"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-300 hover:text-white bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface hover:border-tech-danger/50 transition-all uppercase tracking-wider"
                 >
-                    <LogOut size={18} />
+                    <LogOut size={16} />
                     Cerrar Sesión
                 </button>
             </header>
 
             <main>
+                {/* Stats Section */}
+                <DashboardStats role={profile.rol} profileId={profile.id} />
+
                 {profile.rol === 'admin' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div
                             onClick={() => navigate('/assignments')}
-                            className="p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 transition-all cursor-pointer group hover:shadow-lg hover:shadow-blue-500/10">
-                            <div className="flex items-center gap-4 mb-3 text-blue-400">
-                                <div className="p-3 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
                                     <Users size={24} />
                                 </div>
-                                <h3 className="text-xl font-semibold text-white">Asignaciones</h3>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Asignaciones</h3>
                             </div>
-                            <p className="text-slate-400 text-sm">Vincular docentes, materias y divisiones.</p>
+                            <p className="text-slate-400 text-sm font-mono">Vincular docentes, materias y divisiones.</p>
                         </div>
 
                         <div
                             onClick={() => navigate('/subjects')}
-                            className="p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-400 transition-all cursor-pointer group hover:shadow-lg hover:shadow-blue-400/10">
-                            <div className="flex items-center gap-4 mb-3 text-blue-300">
-                                <div className="p-3 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
                                     <BookOpen size={24} />
                                 </div>
-                                <h3 className="text-xl font-semibold text-white">Materias</h3>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Materias</h3>
                             </div>
-                            <p className="text-slate-400 text-sm">Crear y editar materias del sistema.</p>
+                            <p className="text-slate-400 text-sm font-mono">Crear y editar materias del sistema.</p>
                         </div>
 
                         <div
                             onClick={() => navigate('/students')}
-                            className="p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-green-500 transition-all cursor-pointer group hover:shadow-lg hover:shadow-green-500/10">
-                            <div className="flex items-center gap-4 mb-3 text-green-400">
-                                <div className="p-3 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-colors">
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-success">
+                                <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
                                     <Users size={24} />
                                 </div>
-                                <h3 className="text-xl font-semibold text-white">Alumnos</h3>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Alumnos</h3>
                             </div>
-                            <p className="text-slate-400 text-sm">Administrar perfiles de estudiantes.</p>
+                            <p className="text-slate-400 text-sm font-mono">Administrar perfiles de estudiantes.</p>
                         </div>
 
                         <div
                             onClick={() => navigate('/divisions')}
-                            className="p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-purple-600 transition-all cursor-pointer group hover:shadow-lg hover:shadow-purple-600/10">
-                            <div className="flex items-center gap-4 mb-3 text-purple-500">
-                                <div className="p-3 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
                                     <Layers size={24} />
                                 </div>
-                                <h3 className="text-xl font-semibold text-white">Divisiones</h3>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Divisiones</h3>
                             </div>
-                            <p className="text-slate-400 text-sm">Gestionar cursos y secciones.</p>
+                            <p className="text-slate-400 text-sm font-mono">Gestionar cursos y secciones.</p>
                         </div>
 
                         <div
                             onClick={() => navigate('/enrollment')}
-                            className="p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 transition-all cursor-pointer group hover:shadow-lg hover:shadow-blue-500/10">
-                            <div className="flex items-center gap-4 mb-3 text-blue-400">
-                                <div className="p-3 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
                                     <GraduationCap size={24} />
                                 </div>
-                                <h3 className="text-xl font-semibold text-white">Agrupamiento</h3>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Agrupamiento</h3>
                             </div>
-                            <p className="text-slate-400 text-sm">Asignar alumnos a sus divisiones.</p>
+                            <p className="text-slate-400 text-sm font-mono">Asignar alumnos a sus divisiones.</p>
                         </div>
 
                         <div
                             onClick={() => navigate('/reports')}
-                            className="p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-purple-500 transition-all cursor-pointer group hover:shadow-lg hover:shadow-purple-500/10">
-                            <div className="flex items-center gap-4 mb-3 text-purple-400">
-                                <div className="p-3 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
                                     <FileText size={24} />
                                 </div>
-                                <h3 className="text-xl font-semibold text-white">Reportes</h3>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Reportes</h3>
                             </div>
-                            <p className="text-slate-400 text-sm">Generar boletines y exportar PDF.</p>
+                            <p className="text-slate-400 text-sm font-mono">Generar boletines y exportar PDF.</p>
+                        </div>
+
+                        <div
+                            onClick={() => navigate('/periods')}
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                    <Settings size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Periodos</h3>
+                            </div>
+                            <p className="text-slate-400 text-sm font-mono">Controlar apertura de cargas de notas.</p>
+                        </div>
+
+                        <div
+                            onClick={() => navigate('/admin/reports')}
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-success">
+                                <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
+                                    <FileText size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Reporte Notas</h3>
+                            </div>
+                            <p className="text-slate-400 text-sm font-mono">Consolidado por curso y materia.</p>
+                        </div>
+
+                        <div
+                            onClick={() => navigate('/admin/attendance-stats')}
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                    <BarChart3 size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Estadísticas</h3>
+                            </div>
+                            <p className="text-slate-400 text-sm font-mono">Gráficos de asistencia y progreso.</p>
+                        </div>
+
+                        <div
+                            onClick={() => navigate('/admin/attendance-capture')}
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                    <CheckSquare size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Toma General</h3>
+                            </div>
+                            <p className="text-slate-400 text-sm font-mono">Asistencia por curso y fecha.</p>
                         </div>
                     </div>
                 )}
 
                 {profile.rol === 'docente' && (
-                    <div
-                        onClick={() => navigate('/grades')}
-                        className="bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 transition-all p-6 group cursor-pointer hover:shadow-lg hover:shadow-blue-500/10"
-                    >
-                        <div className="flex items-center gap-4 mb-4 text-blue-400">
-                            <div className="p-3 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
-                                <GraduationCap size={24} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div
+                            onClick={() => navigate('/grades')}
+                            className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-4 text-tech-cyan">
+                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                    <GraduationCap size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Mis Cursos</h3>
                             </div>
-                            <h3 className="text-xl font-semibold text-white">Mis Cursos</h3>
+                            <p className="text-slate-400 mb-6 font-mono">Selecciona un curso para comenzar a cargar calificaciones.</p>
+                            <button className="px-4 py-2 bg-tech-cyan hover:bg-sky-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
+                                Ver Cursos Asignados
+                            </button>
                         </div>
-                        <p className="text-slate-400 mb-6">Selecciona un curso para comenzar a cargar calificaciones.</p>
-                        <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm">
-                            Ver Cursos Asignados
-                        </button>
+
+                        <div
+                            onClick={() => navigate('/attendance')}
+                            className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-4 text-tech-accent">
+                                <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                    <Clock size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Asistencia</h3>
+                            </div>
+                            <p className="text-slate-400 mb-6 font-mono">Registrar asistencia diaria para tus cursos.</p>
+                            <button className="px-4 py-2 bg-tech-accent hover:bg-amber-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
+                                Tomar Asistencia
+                            </button>
+                        </div>
                     </div>
                 )}
 
                 {profile.rol === 'alumno' && (
-                    <div className="p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-green-500 transition-all group">
-                        <div className="flex items-center gap-4 mb-4 text-green-400">
-                            <div className="p-3 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-colors">
+                    <div className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all group relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="flex items-center gap-4 mb-4 text-tech-success">
+                            <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
                                 <FileText size={24} />
                             </div>
-                            <h3 className="text-xl font-semibold text-white">Mis Calificaciones</h3>
+                            <h3 className="text-xl font-bold text-white uppercase tracking-tight">Mis Calificaciones</h3>
                         </div>
-                        <p className="text-slate-400 mb-6">Consulta tu historial académico y notas actuales.</p>
-                        <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium text-sm">
+                        <p className="text-slate-400 mb-6 font-mono">Consulta tu historial académico y notas actuales.</p>
+                        <button className="px-4 py-2 bg-tech-success hover:bg-emerald-600 text-white rounded transition-colors font-medium text-sm uppercase tracking-wider">
                             Ver Mi Boletín
                         </button>
                     </div>
                 )}
 
                 {/* Common Section: Welcome & Info Guide */}
-                <div className="mt-10 border-t border-slate-700 pt-10">
+                <div className="mt-10 border-t border-tech-surface pt-10">
                     <div
                         onClick={() => navigate('/')}
-                        className="p-6 bg-slate-800/50 rounded-2xl border border-slate-700 hover:border-blue-500/40 hover:bg-slate-800 transition-all cursor-pointer group flex items-center gap-6"
+                        className="p-6 bg-tech-secondary/50 rounded border border-tech-surface hover:border-tech-cyan/40 hover:bg-tech-secondary transition-all cursor-pointer group flex items-center gap-6"
                     >
-                        <div className="p-4 bg-blue-500/10 rounded-2xl text-blue-400 group-hover:scale-110 transition-transform">
+                        <div className="p-4 bg-tech-cyan/10 rounded text-tech-cyan group-hover:scale-110 transition-transform">
                             <Info size={32} />
                         </div>
                         <div className="flex-grow">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2 uppercase tracking-tight">
                                 Guía del Sistema
                                 <HelpCircle size={18} className="text-slate-500" />
                             </h3>
-                            <p className="text-slate-400">¿Necesitas ayuda? Revisa las instrucciones de uso, roles y tips de seguridad.</p>
+                            <p className="text-slate-400 font-mono text-sm">¿Necesitas ayuda? Revisa las instrucciones de uso, roles y tips de seguridad.</p>
                         </div>
-                        <ArrowRight className="text-slate-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="text-slate-600 group-hover:text-tech-cyan group-hover:translate-x-1 transition-all" />
                     </div>
                 </div>
             </main>

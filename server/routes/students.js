@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const { supabaseAdmin } = require('../config/supabaseClient');
+const multer = require('multer');
+const fs = require('fs');
+const { parseCSV } = require('../utils/csvHandler');
+
+const upload = multer({ dest: 'uploads/' });
 
 router.use(authMiddleware);
 
@@ -217,6 +222,82 @@ router.post('/bulk-ai', isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Bulk AI Error:', err);
         res.status(500).json({ error: 'Error procesando el texto con IA: ' + err.message });
+    }
+});
+
+/**
+ * POST /api/students/import
+ * Imports students from a CSV file.
+ * Expected columns: dni, nombre, email
+ */
+router.post('/import', isAdmin, upload.single('file'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No CSV file uploaded' });
+    }
+
+    try {
+        const students = await parseCSV(req.file.path);
+
+        if (!students || students.length === 0) {
+            return res.status(400).json({ error: 'CSV file is empty or invalid' });
+        }
+
+        const results = {
+            success: [],
+            errors: []
+        };
+
+        const defaultPassword = "Escuela123";
+
+        for (const student of students) {
+            // Verify required fields (case insensitive logic or strict key matching?)
+            // Assuming strict keys: dni, nombre, email
+            if (!student.dni || !student.nombre || !student.email) {
+                results.errors.push({ student: student, error: 'Missing required fields (dni, nombre, email)' });
+                continue;
+            }
+
+            try {
+                // 1. Create Auth User
+                const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+                    email: student.email,
+                    password: defaultPassword,
+                    email_confirm: true,
+                    user_metadata: {
+                        nombre: student.nombre,
+                        dni: student.dni,
+                        rol: 'alumno'
+                    }
+                });
+
+                if (authError) throw authError;
+
+                const userId = authData.user.id;
+
+                // 2. Fetch Profile
+                const { data: profile, error: profileError } = await req.supabase
+                    .from('perfiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+
+                if (profileError) throw profileError;
+
+                results.success.push(profile);
+            } catch (err) {
+                results.errors.push({
+                    student: student.nombre,
+                    error: err.message
+                });
+            }
+        }
+
+        res.json(results);
+
+    } catch (err) {
+        console.error('CSV Import Error:', err);
+        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        res.status(500).json({ error: err.message });
     }
 });
 

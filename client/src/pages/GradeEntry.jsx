@@ -11,13 +11,23 @@ const GradeEntry = () => {
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const [fullAssignmentData, setFullAssignmentData] = useState(null);
     const [grades, setGrades] = useState([]);
+    const [periods, setPeriods] = useState({});
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState(null);
 
     useEffect(() => {
         if (profile?.id) fetchAssignments();
+        fetchPeriods();
     }, [profile]);
+
+    const fetchPeriods = async () => {
+        const { data } = await supabase.from('periodos_calificacion').select('*');
+        if (data) {
+            const periodMap = data.reduce((acc, p) => ({ ...acc, [p.clave]: p.abierto }), {});
+            setPeriods(periodMap);
+        }
+    };
 
     const fetchAssignments = async () => {
         const { data, error } = await supabase
@@ -169,6 +179,44 @@ const GradeEntry = () => {
         window.open(`${base}${path}/${selectedAssignment}?token=${token}`, '_blank');
     };
 
+    const handleExportCSV = () => {
+        if (grades.length === 0) return alert('No hay datos para exportar');
+
+        const headers = ['Estudiante', 'DNI', 'Nota Intensificacion', 'Parcial 1', 'Parcial 2', 'Parcial 3', 'Parcial 4', 'Promedio', 'Asistencia', 'Promedio Cuatrimestre', 'Trayecto', 'Observaciones'];
+        const rows = grades.map(g => [
+            g.student.nombre,
+            g.student.dni,
+            g.nota_intensificacion || '',
+            g.parcial_1 || '',
+            g.parcial_2 || '',
+            g.parcial_3 || '',
+            g.parcial_4 || '',
+            g.promedio || '',
+            g.asistencia || '',
+            g.promedio_cuatrimestre || '',
+            g.trayecto_acompanamiento || '',
+            g.observaciones || ''
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(r => r.map(c => {
+                if (c === null || c === undefined) return '';
+                const str = String(c);
+                return str.includes(',') ? `"${str}"` : str;
+            }).join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${fullAssignmentData.materia.nombre}_${fullAssignmentData.division.anio}_${fullAssignmentData.division.seccion}_Notas.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const saveGrades = async () => {
         setSaving(true);
         setMessage(null);
@@ -202,22 +250,22 @@ const GradeEntry = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-900 text-slate-100 p-6 md:p-10">
+        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
             {/* Navigation Header */}
-            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-slate-800 pb-6">
+            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => selectedAssignment ? setSelectedAssignment(null) : navigate('/dashboard')}
-                        className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white"
+                        className="p-2 hover:bg-tech-secondary rounded border border-transparent hover:border-tech-surface transition-colors text-slate-400 hover:text-white"
                         title={selectedAssignment ? "Volver a la selección" : "Volver al Dashboard"}
                     >
                         <ArrowLeft size={24} />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                            {selectedAssignment ? 'Carga de Notas' : 'Mis Materias'}
+                        <h1 className="text-3xl font-bold text-white tracking-tight uppercase">
+                            {selectedAssignment ? <span className="text-tech-cyan">Carga de Notas</span> : 'Mis Materias'}
                         </h1>
-                        <p className="text-slate-400 text-sm">
+                        <p className="text-slate-400 text-sm font-mono mt-1">
                             {selectedAssignment
                                 ? `${fullAssignmentData?.materia?.nombre} - ${fullAssignmentData?.division?.anio} ${fullAssignmentData?.division?.seccion}`
                                 : 'Selecciona una materia asignada para cargar calificaciones.'}
@@ -228,15 +276,22 @@ const GradeEntry = () => {
                     <div className="flex items-center gap-3">
                         <button
                             onClick={handleDownloadPDF}
-                            className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-all text-sm font-medium border border-slate-600"
+                            className="flex items-center gap-2 px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-all text-sm font-medium hover:border-tech-accent group"
                         >
-                            <Star size={18} className="text-yellow-400" />
+                            <Star size={18} className="text-slate-400 group-hover:text-tech-accent transition-colors" />
                             PDF Planilla
+                        </button>
+                        <button
+                            onClick={handleExportCSV}
+                            className="flex items-center gap-2 px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-all text-sm font-medium hover:border-tech-success group"
+                        >
+                            <ClipboardList size={18} className="text-slate-400 group-hover:text-tech-success transition-colors" />
+                            CSV
                         </button>
                         <button
                             onClick={saveGrades}
                             disabled={saving}
-                            className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 rounded-lg transition-all font-bold shadow-lg shadow-blue-900/20 active:scale-95"
+                            className="flex items-center gap-2 px-6 py-2 bg-tech-cyan hover:bg-sky-600 disabled:bg-slate-700 rounded transition-all font-bold shadow-[0_0_15px_rgba(14,165,233,0.3)] active:scale-95 text-white uppercase tracking-wider"
                         >
                             {saving ? (
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -258,21 +313,22 @@ const GradeEntry = () => {
                             <button
                                 key={a.id}
                                 onClick={() => fetchGrades(a)}
-                                className="p-6 rounded-xl border border-slate-700 bg-slate-800 hover:border-blue-500/50 hover:bg-slate-800/80 transition-all text-left flex flex-col gap-3 group relative overflow-hidden shadow-md"
+                                className="p-6 rounded border border-tech-surface bg-tech-secondary hover:border-tech-cyan hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] transition-all text-left flex flex-col gap-3 group relative overflow-hidden"
                             >
+                                <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex justify-between items-start">
-                                    <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
+                                    <div className="p-2 bg-tech-cyan/10 rounded text-tech-cyan group-hover:scale-110 transition-transform">
                                         <BookOpen size={24} />
                                     </div>
-                                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-900 text-blue-300">
+                                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-tech-primary text-tech-cyan font-mono border border-tech-surface">
                                         {a.division?.ciclo_lectivo}
                                     </span>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-lg leading-tight text-white group-hover:text-blue-300 transition-colors">
+                                    <p className="font-bold text-lg leading-tight text-white group-hover:text-tech-cyan transition-colors uppercase tracking-tight">
                                         {a.materia?.nombre}
                                     </p>
-                                    <p className="text-sm text-slate-400 mt-1">
+                                    <p className="text-sm text-slate-400 mt-1 font-mono">
                                         {a.division?.anio} {a.division?.seccion}
                                     </p>
                                 </div>
@@ -282,129 +338,132 @@ const GradeEntry = () => {
                 ) : (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         {message && (
-                            <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 border ${message.type === 'success'
-                                ? 'bg-green-600/10 border-green-500/50 text-green-400'
-                                : 'bg-red-600/10 border-red-500/50 text-red-400'
+                            <div className={`mb-6 p-4 rounded flex items-center gap-3 border ${message.type === 'success'
+                                ? 'bg-tech-success/10 border-tech-success/50 text-tech-success'
+                                : 'bg-tech-danger/10 border-tech-danger/50 text-tech-danger'
                                 }`}>
                                 {message.type === 'success' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
-                                <span className="font-medium">{message.text}</span>
+                                <span className="font-medium font-mono">{message.text}</span>
                             </div>
                         )}
 
-                        <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl relative">
+                        <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-2xl relative">
                             {loading && (
-                                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center z-10">
-                                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+                                <div className="absolute inset-0 bg-tech-primary/80 backdrop-blur-[2px] flex items-center justify-center z-20">
+                                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-tech-cyan"></div>
                                 </div>
                             )}
 
                             <div className="overflow-x-auto min-h-[500px]">
                                 <table className="w-full text-left border-collapse min-w-[1200px]">
                                     <thead>
-                                        <tr className="bg-slate-700/50 text-slate-400 text-[10px] uppercase tracking-wider font-bold border-b border-slate-600">
-                                            <th rowSpan="2" className="p-2 border-r border-slate-700 sticky left-0 bg-slate-800 z-10 w-48">Estudiantes</th>
-                                            <th rowSpan="2" className="p-2 border-r border-slate-700 text-center w-24">DNI</th>
-                                            <th colSpan="2" className="p-2 border-r border-slate-700 text-center bg-blue-500/5">Periodo Intensificación</th>
-                                            <th colSpan="4" className="p-2 border-r border-slate-700 text-center">Calificaciones Parciales</th>
-                                            <th rowSpan="2" className="p-2 border-r border-slate-700 text-center bg-blue-500/5 text-blue-300 w-16">Prom.</th>
-                                            <th rowSpan="2" className="p-2 border-r border-slate-700 text-center w-16">% Asist</th>
-                                            <th rowSpan="2" className="p-2 border-r border-slate-700 text-center w-16 text-blue-400">Logro</th>
-                                            <th colSpan="2" className="p-2 border-r border-slate-700 text-center bg-purple-500/5">Trayecto Acompañamiento</th>
-                                            <th rowSpan="2" className="p-2 border-r border-slate-700 text-center w-32 font-bold text-white">Prom. Cuatrimestre</th>
+                                        <tr className="bg-tech-primary/50 text-slate-400 text-[10px] uppercase tracking-wider font-bold border-b border-tech-surface font-mono">
+                                            <th rowSpan="2" className="p-2 border-r border-tech-surface sticky left-0 bg-tech-secondary z-10 w-48 shadow-[4px_0_10px_rgba(0,0,0,0.2)]">Estudiantes</th>
+                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-24">DNI</th>
+                                            <th colSpan="2" className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan">Periodo Intensificación</th>
+                                            <th colSpan="4" className="p-2 border-r border-tech-surface text-center">Calificaciones Parciales</th>
+                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan w-16">Prom.</th>
+                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-16">% Asist</th>
+                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-16 text-tech-cyan">Logro</th>
+                                            <th colSpan="2" className="p-2 border-r border-tech-surface text-center bg-purple-500/5 text-purple-400">Trayecto Acompañamiento</th>
+                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-32 font-bold text-white bg-tech-primary">Prom. Cuatrimestre</th>
                                             <th rowSpan="2" className="p-2 text-center w-40">Observaciones</th>
                                         </tr>
-                                        <tr className="bg-slate-700/50 text-slate-400 text-[9px] uppercase tracking-wider font-bold border-b border-slate-600">
-                                            <th className="p-2 border-r border-slate-700 text-center bg-blue-500/5 w-12 text-[8px]">Calif.</th>
-                                            <th className="p-2 border-r border-slate-700 text-center bg-blue-500/5 w-12 text-[8px]">Logro</th>
-                                            <th className="p-2 border-r border-slate-700 text-center w-12">1</th>
-                                            <th className="p-2 border-r border-slate-700 text-center w-12">2</th>
-                                            <th className="p-2 border-r border-slate-700 text-center w-12">3</th>
-                                            <th className="p-2 border-r border-slate-700 text-center w-12">4</th>
-                                            <th className="p-2 border-r border-slate-700 text-center bg-purple-500/5">Descripción</th>
-                                            <th className="p-2 border-r border-slate-700 text-center bg-purple-500/5 w-12">Logro</th>
+                                        <tr className="bg-tech-primary/50 text-slate-400 text-[9px] uppercase tracking-wider font-bold border-b border-tech-surface font-mono">
+                                            <th className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 w-12 text-[8px]">Calif.</th>
+                                            <th className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 w-12 text-[8px]">Logro</th>
+                                            <th className="p-2 border-r border-tech-surface text-center w-12">1</th>
+                                            <th className="p-2 border-r border-tech-surface text-center w-12">2</th>
+                                            <th className="p-2 border-r border-tech-surface text-center w-12">3</th>
+                                            <th className="p-2 border-r border-tech-surface text-center w-12">4</th>
+                                            <th className="p-2 border-r border-tech-surface text-center bg-purple-500/5">Descripción</th>
+                                            <th className="p-2 border-r border-tech-surface text-center bg-purple-500/5 w-12">Logro</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {grades.length === 0 && !loading ? (
                                             <tr>
-                                                <td colSpan="15" className="p-12 text-center text-slate-500 italic font-medium">
+                                                <td colSpan="15" className="p-12 text-center text-slate-500 italic font-medium font-mono">
                                                     No hay alumnos asignados a esta división.
                                                 </td>
                                             </tr>
                                         ) : grades.map((g, index) => (
-                                            <tr key={g.alumno_id} className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors group">
-                                                <td className="p-2 border-r border-slate-700 sticky left-0 bg-slate-800 z-10 group-hover:bg-slate-700/40 transition-colors">
+                                            <tr key={g.alumno_id} className="border-b border-tech-surface hover:bg-tech-surface/30 transition-colors group">
+                                                <td className="p-2 border-r border-tech-surface sticky left-0 bg-tech-secondary z-10 group-hover:bg-tech-secondary/80 outline-none shadow-[4px_0_10px_rgba(0,0,0,0.2)]">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] text-slate-500 w-4">{index + 1}</span>
-                                                        <div className="font-bold text-xs truncate max-w-40" title={g.student?.nombre}>
+                                                        <span className="text-[10px] text-slate-500 w-4 font-mono">{index + 1}</span>
+                                                        <div className="font-bold text-xs truncate max-w-40 text-slate-200" title={g.student?.nombre}>
                                                             {g.student?.nombre}
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="p-2 border-r border-slate-700 text-center text-[10px] font-mono text-slate-400">
+                                                <td className="p-2 border-r border-tech-surface text-center text-[10px] font-mono text-slate-400">
                                                     {g.student?.dni}
                                                 </td>
                                                 {/* Periodo Intensificación */}
-                                                <td className="p-1 border-r border-slate-700 text-center bg-blue-500/5">
+                                                <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
                                                     <input
                                                         type="number" min="0" max="10" step="0.5" placeholder="-"
                                                         value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
                                                         onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
-                                                        className="w-10 h-8 bg-slate-900 border border-slate-700 rounded text-center text-xs font-bold focus:border-blue-500 outline-none"
+                                                        disabled={periods['nota_intensificacion'] === false}
+                                                        title={periods['nota_intensificacion'] === false ? "Periodo Cerrado" : ""}
+                                                        className={`w-10 h-8 bg-tech-primary border border-tech-surface rounded-sm text-center text-xs font-bold font-mono focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-white placeholder-slate-600 focus:bg-tech-secondary transition-all ${periods['nota_intensificacion'] === false ? 'opacity-50 cursor-not-allowed bg-slate-800' : ''}`}
                                                     />
                                                 </td>
-                                                <td className="p-1 border-r border-slate-700 text-center bg-blue-500/5">
-                                                    <div className={`text-[10px] font-bold ${getLogro(g.nota_intensificacion) === 'LD' ? 'text-green-400' : 'text-slate-500'}`}>
+                                                <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
+                                                    <div className={`text-[10px] font-mono font-bold ${getLogro(g.nota_intensificacion) === 'LD' ? 'text-tech-success' : 'text-slate-500'}`}>
                                                         {getLogro(g.nota_intensificacion) || '-'}
                                                     </div>
                                                 </td>
                                                 {/* Parciales */}
                                                 {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4'].map(field => (
-                                                    <td key={field} className="p-1 border-r border-slate-700 text-center">
+                                                    <td key={field} className="p-1 border-r border-tech-surface text-center">
                                                         <input
                                                             type="number" min="0" max="10" step="0.5" placeholder="-"
                                                             value={g[field] === null ? '' : g[field]}
                                                             onChange={e => handleGradeChange(g.alumno_id, field, e.target.value)}
-                                                            className="w-10 h-8 bg-slate-900 border border-slate-700 rounded text-center text-xs font-bold focus:border-blue-500 outline-none"
+                                                            disabled={periods[field] === false}
+                                                            title={periods[field] === false ? "Periodo Cerrado" : ""}
+                                                            className={`w-10 h-8 bg-tech-primary border border-tech-surface rounded-sm text-center text-xs font-bold font-mono focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-white placeholder-slate-600 focus:bg-tech-secondary transition-all ${periods[field] === false ? 'opacity-50 cursor-not-allowed bg-slate-800' : ''}`}
                                                         />
                                                     </td>
                                                 ))}
                                                 {/* Promedio Parcial */}
-                                                <td className="p-1 border-r border-slate-700 text-center bg-blue-500/5">
-                                                    <div className="text-xs font-bold text-blue-300">
+                                                <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
+                                                    <div className="text-xs font-bold font-mono text-tech-cyan">
                                                         {g.promedio || '-'}
                                                     </div>
                                                 </td>
                                                 {/* Asistencia */}
-                                                <td className="p-1 border-r border-slate-700 text-center">
+                                                <td className="p-1 border-r border-tech-surface text-center">
                                                     <input
                                                         type="number" min="0" max="100"
                                                         value={g.asistencia === null ? '' : g.asistencia}
                                                         onChange={e => handleGradeChange(g.alumno_id, 'asistencia', e.target.value)}
-                                                        className="w-10 h-8 bg-slate-900 border border-slate-700 rounded text-center text-xs focus:border-blue-500 outline-none"
+                                                        className="w-10 h-8 bg-tech-primary border border-tech-surface rounded-sm text-center text-xs font-mono focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-white focus:bg-tech-secondary transition-all"
                                                     />
                                                 </td>
-                                                {/* Logro Parcial (Separated from Intensification) */}
-                                                <td className="p-1 border-r border-slate-700 text-center">
-                                                    <div className={`text-[10px] font-bold ${parseFloat(g.promedio) >= 7 ? 'text-green-400' : 'text-yellow-400'}`}>
+                                                {/* Logro Parcial */}
+                                                <td className="p-1 border-r border-tech-surface text-center">
+                                                    <div className={`text-[10px] font-mono font-bold ${parseFloat(g.promedio) >= 7 ? 'text-tech-success' : 'text-tech-accent'}`}>
                                                         {getLogro(g.promedio) || '-'}
                                                     </div>
                                                 </td>
-                                                {/* Trayecto Text (Auto-filled) */}
-                                                <td className="p-1 border-r border-slate-700 bg-purple-500/5">
-                                                    <div className="text-[10px] text-purple-300 font-medium px-1">
+                                                {/* Trayecto Text */}
+                                                <td className="p-1 border-r border-tech-surface bg-purple-500/5">
+                                                    <div className="text-[10px] text-purple-300 font-medium px-1 font-mono leading-tight">
                                                         {g.trayecto_acompanamiento || '-'}
                                                     </div>
                                                 </td>
-                                                <td className="p-1 border-r border-slate-700 text-center bg-purple-500/5 w-12">
-                                                    {/* Trayecto Achievement: STRICTLY linked to Regular Parcials (Promedio) per user request */}
-                                                    <div className={`text-[10px] font-bold ${parseFloat(g.promedio) >= 7 ? 'text-green-400' : 'text-purple-400'}`}>
+                                                <td className="p-1 border-r border-tech-surface text-center bg-purple-500/5 w-12">
+                                                    <div className={`text-[10px] font-mono font-bold ${parseFloat(g.promedio) >= 7 ? 'text-tech-success' : 'text-purple-400'}`}>
                                                         {getLogro(g.promedio) || '-'}
                                                     </div>
                                                 </td>
                                                 {/* Promedio Cuatrimestre */}
-                                                <td className="p-1 border-r border-slate-700 text-center bg-slate-900/80">
-                                                    <div className="text-sm font-black text-white py-1">
+                                                <td className="p-1 border-r border-tech-surface text-center bg-tech-primary">
+                                                    <div className="text-sm font-black text-white py-1 font-mono">
                                                         {g.promedio_cuatrimestre || '-'}
                                                     </div>
                                                 </td>
@@ -414,7 +473,7 @@ const GradeEntry = () => {
                                                         type="text" placeholder="Nota..."
                                                         value={g.observaciones || ''}
                                                         onChange={e => handleGradeChange(g.alumno_id, 'observaciones', e.target.value)}
-                                                        className="w-full h-8 bg-slate-900 border border-slate-700 rounded px-2 text-[10px] focus:border-blue-500 outline-none"
+                                                        className="w-full h-8 bg-tech-primary border border-tech-surface rounded-sm px-2 text-[10px] font-mono focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-slate-200 placeholder-slate-600 focus:bg-tech-secondary transition-all"
                                                     />
                                                 </td>
                                             </tr>

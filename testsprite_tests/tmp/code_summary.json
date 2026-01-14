@@ -1,0 +1,86 @@
+{
+    "tech_stack": [
+        "javascript",
+        "node.js",
+        "express",
+        "react",
+        "vite",
+        "supabase",
+        "postgresql",
+        "tailwind"
+    ],
+    "features": [
+        {
+            "name": "authentication",
+            "description": "User authentication using Supabase Auth (Register, Login, Role Management)",
+            "files": [
+                "server/routes/auth.js",
+                "client/src/context/AuthContext.jsx",
+                "client/src/components/Login.jsx",
+                "client/src/components/Register.jsx"
+            ]
+        },
+        {
+            "name": "grades_management",
+            "description": "CRUD operations for student grades, including calculation of averages and achievements.",
+            "files": [
+                "server/routes/grades.js",
+                "client/src/pages/GradeEntry.jsx",
+                "server/migration_periods.sql",
+                "client/src/pages/PeriodManagement.jsx"
+            ]
+        },
+        {
+            "name": "attendance",
+            "description": "Daily attendance tracking for students by course.",
+            "files": [
+                "server/routes/attendance.js",
+                "client/src/pages/Attendance.jsx",
+                "server/migration_attendance.sql"
+            ]
+        },
+        {
+            "name": "students_management",
+            "description": "Admin management of student profiles, including bulk CSV import and AI enrollment.",
+            "files": [
+                "server/routes/students.js",
+                "client/src/pages/StudentManagement.jsx",
+                "server/utils/csvHandler.js",
+                "client/src/components/CSVImporter.jsx"
+            ]
+        },
+        {
+            "name": "reports",
+            "description": "PDF generation for student grade reports (Boletines).",
+            "files": [
+                "server/routes/reports.js",
+                "client/src/pages/ReportView.jsx"
+            ]
+        },
+        {
+            "name": "assignments",
+            "description": "Linking Teachers to Subjects and Divisions.",
+            "files": [
+                "server/routes/assignments.js",
+                "client/src/pages/Assignments.jsx"
+            ]
+        },
+        {
+            "name": "divisions",
+            "description": "Management of school divisions (Courses) and student enrollment.",
+            "files": [
+                "server/routes/divisions.js",
+                "client/src/pages/DivisionManagement.jsx",
+                "client/src/pages/DivisionEnrollment.jsx"
+            ]
+        },
+        {
+            "name": "subjects",
+            "description": "Management of school subjects.",
+            "files": [
+                "server/routes/subjects.js",
+                "client/src/pages/SubjectManagement.jsx"
+            ]
+        }
+    ]
+}

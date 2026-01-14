@@ -10,6 +10,11 @@ import SubjectManagement from './pages/SubjectManagement';
 import StudentManagement from './pages/StudentManagement';
 import DivisionManagement from './pages/DivisionManagement';
 import DivisionEnrollment from './pages/DivisionEnrollment';
+import Attendance from './pages/Attendance';
+import PeriodManagement from './pages/PeriodManagement';
+import GradeReport from './pages/GradeReport';
+import AttendanceOverview from './pages/AttendanceOverview';
+import AttendanceCapture from './components/AttendanceCapture';
 import Welcome from './pages/Welcome';
 
 const ProtectedRoute = ({ children }) => {
@@ -17,8 +22,8 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-900 text-slate-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="flex items-center justify-center min-h-screen bg-tech-primary text-slate-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tech-cyan"></div>
       </div>
     );
   }
@@ -91,6 +96,31 @@ function App() {
           <Route path="/enrollment" element={
             <ProtectedRoute>
               <DivisionEnrollment />
+            </ProtectedRoute>
+          } />
+          <Route path="/attendance" element={
+            <ProtectedRoute>
+              <Attendance />
+            </ProtectedRoute>
+          } />
+          <Route path="/periods" element={
+            <ProtectedRoute>
+              <PeriodManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/reports" element={
+            <ProtectedRoute>
+              <GradeReport />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/attendance-stats" element={
+            <ProtectedRoute>
+              <AttendanceOverview />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/attendance-capture" element={
+            <ProtectedRoute>
+              <AttendanceCapture />
             </ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />

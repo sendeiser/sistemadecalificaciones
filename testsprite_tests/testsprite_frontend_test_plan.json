@@ -1,0 +1,455 @@
+[
+  {
+    "id": "TC001",
+    "title": "Login success with valid credentials",
+    "description": "Verify that a user can log in successfully using valid credentials for each role (Admin, Docente, Alumno).",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page"
+      },
+      {
+        "type": "action",
+        "description": "Input valid username/email and password for Admin role"
+      },
+      {
+        "type": "action",
+        "description": "Click login button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is successful and user is redirected to appropriate dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Logout and repeat for Docente role"
+      },
+      {
+        "type": "action",
+        "description": "Logout and repeat for Alumno role"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Login failure with invalid credentials",
+    "description": "Verify that login fails and an error message is displayed when invalid credentials are used.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page"
+      },
+      {
+        "type": "action",
+        "description": "Input invalid username/email or password"
+      },
+      {
+        "type": "action",
+        "description": "Click login button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is denied and proper error message is shown"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "User role access control enforcement",
+    "description": "Verify that Row Level Security and role-based restrictions correctly prevent unauthorized access to resources for Admin, Docente, and Alumno roles.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as Alumno"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access administration or grade entry pages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied or options are hidden"
+      },
+      {
+        "type": "action",
+        "description": "Log in as Docente"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to perform administrator-only actions such as period management or student imports"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Opening and closing grading periods",
+    "description": "Verify that an administrator can open and close grading periods and that these actions enable or disable grade entry accordingly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as administrator"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to period management page"
+      },
+      {
+        "type": "action",
+        "description": "Open a new grading period"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the period status is updated to open"
+      },
+      {
+        "type": "action",
+        "description": "Log in as Docente, select assigned subject"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify grade entry is enabled for open period"
+      },
+      {
+        "type": "action",
+        "description": "Log back in as administrator and close the grading period"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the period status is updated to closed"
+      },
+      {
+        "type": "action",
+        "description": "Log in as Docente again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify grade entry is disabled for closed period"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Grades entry and automatic calculation of averages and achievements",
+    "description": "Verify that teachers can enter partial grades, intensification, and attendance for students and that the system automatically calculates the final average, achievement, and suggested accompaniment plan according to official norms.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as Docente"
+      },
+      {
+        "type": "action",
+        "description": "Select assigned subject and open grade entry interface"
+      },
+      {
+        "type": "action",
+        "description": "Enter partial grades, intensification scores, and attendance states for multiple students"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the system calculates and displays correct averages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that achievement status and recommended trayecto de acompañamiento is correctly suggested based on normative logic"
+      },
+      {
+        "type": "action",
+        "description": "Modify a grade to an edge case value (e.g., minimum and maximum possible)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recalculation is accurate and UI updates accordingly"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Attendance recording with daily different statuses",
+    "description": "Verify that attendance can be recorded daily with states: Presente, Ausente, Tarde, Justificado and that data can be edited and audited by administrator.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as Docente"
+      },
+      {
+        "type": "action",
+        "description": "Access daily attendance interface for assigned course"
+      },
+      {
+        "type": "action",
+        "description": "Set attendance statuses for students to each possible state"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that attendance data is saved correctly"
+      },
+      {
+        "type": "action",
+        "description": "Log in as administrator"
+      },
+      {
+        "type": "action",
+        "description": "Edit existing attendance data"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changes are saved and audit trail is maintained"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Bulk import of students via CSV",
+    "description": "Ensure the administrator can successfully import a bulk CSV file of student data which automatically creates user accounts in Supabase Auth and student profiles in the database.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as administrator"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to student management and open CSV import component"
+      },
+      {
+        "type": "action",
+        "description": "Upload a valid CSV file with multiple students"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that users and profiles are created successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify correct error handling is shown if CSV contains invalid data or is malformed"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Generation of official PDF grade report (Boletin)",
+    "description": "Verify that the administrator can generate official PDF boletines with correct institutional formatting and accurate data from student records.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as administrator"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to report generation section"
+      },
+      {
+        "type": "action",
+        "description": "Select a course and period"
+      },
+      {
+        "type": "action",
+        "description": "Request generation of boletines"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that PDFs are generated with the official school design"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify data accuracy for all students included"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Responsive UI verification on common devices and browsers",
+    "description": "Verify that the user interface functions correctly and displays properly on common browsers (Chrome, Firefox, Edge, Safari) and devices (desktop, tablet, mobile).",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access the system on desktop browser Chrome"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all pages render properly and are fully functional"
+      },
+      {
+        "type": "action",
+        "description": "Access the system on tablet and mobile devices using multiple browsers"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI elements adjust responsively and no features are broken or inaccessible"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Disallowed grades input outside open grading periods",
+    "description": "Verify that grade entry and editing are disabled for Docente users when grading periods are closed.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as administrator and ensure grading period is closed"
+      },
+      {
+        "type": "action",
+        "description": "Log in as Docente"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to grade entry for assigned subject"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that UI disables grade input fields or shows warning that period is closed"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit grades via API or UI directly"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify grade submission is rejected and relevant error message is shown"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Student read-only access to their own grades and attendance",
+    "description": "Verify that students can log in and view their own historical grades and attendance in read-only mode without access to modify any data.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as Alumno"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to personal grade and attendance history page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that student can view complete histories with accurate data"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that no input fields or editing options are available"
+      },
+      {
+        "type": "action",
+        "description": "Attempt direct URL or API request to modify grades or attendance"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify operation is denied with appropriate error"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Subjects, divisions and assignments management by administrator",
+    "description": "Verify that administrators can create, edit, and delete school subjects, divisions (courses), and assign teachers to them correctly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as administrator"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to subject management and create a new subject"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify new subject is saved and visible in listings"
+      },
+      {
+        "type": "action",
+        "description": "Edit an existing subject"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updates persist"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to division management and create a new course division"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify division creation is successful"
+      },
+      {
+        "type": "action",
+        "description": "Assign a docente to subject and division"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify assignments link teacher correctly to courses and subjects"
+      },
+      {
+        "type": "action",
+        "description": "Delete a subject or division"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify deletion succeeds and UI updates properly"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Error handling on CSV import with invalid or malformed files",
+    "description": "Verify that the system properly detects and reports errors when the CSV import file is invalid, malformed, or missing required fields.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as administrator"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to student CSV import"
+      },
+      {
+        "type": "action",
+        "description": "Upload malformed CSV file (e.g., missing headers, invalid format)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that a clear, specific error message is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Upload CSV with invalid data types or missing mandatory fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that errors are highlighted and import is rejected"
+      }
+    ]
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5173",
+  "loginUser": "martinchox33@gmail.com",
+  "loginPassword": "123456789",
+  "executionArgs": {
+    "projectName": "Calificaciones",
+    "projectPath": "C:\\Users\\TinChoX\\Desktop\\COSAS DE PROGRAMACION\\IAREACTJS\\Calificaciones\\Calificaciones",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-DXaZPY_DY54x6G_pm9x-cnmetEWRy8DZvGwjlR_ArPQe-rERVU2SCPx2fZiHtVtGoJxL18BoQ-nJVTQa-lB43Uk0AYZ0AEoejtnD2Qs0-bS_8QkDiJgmsbeJTYgi4yD7l_A"
+    }
+  },
+  "proxy": "http://9e170b09-f171-4611-a90a-5375ff0e52d8:qUy02ZhGwRPEFuBaxsS2uqceQThV3WMn@tun.testsprite.com:8080"
+}

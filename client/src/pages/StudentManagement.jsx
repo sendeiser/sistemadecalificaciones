@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Pencil, Trash2, X, Check, Search, Save, ArrowLeft } from 'lucide-react';
+import { Users, Plus, Pencil, Trash2, X, Check, Search, Save, ArrowLeft, FileText, Upload } from 'lucide-react';
+import CSVImporter from '../components/CSVImporter';
 
 const StudentManagement = () => {
     const navigate = useNavigate();
@@ -11,6 +12,7 @@ const StudentManagement = () => {
     const [editingId, setEditingId] = useState(null);
     const [isAdding, setIsAdding] = useState(false);
     const [isBulkAdding, setIsBulkAdding] = useState(false);
+    const [isImportingCSV, setIsImportingCSV] = useState(false);
     const [bulkText, setBulkText] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -153,6 +155,12 @@ const StudentManagement = () => {
         }
     };
 
+    const handleCSVImportComplete = (result) => {
+        if (result.success.length > 0) {
+            setStudents(prev => [...prev, ...result.success].sort((a, b) => a.nombre.localeCompare(b.nombre)));
+        }
+    };
+
     const startEdit = (student) => {
         setEditingId(student.id);
         setIsAdding(false);
@@ -170,149 +178,187 @@ const StudentManagement = () => {
     );
 
     return (
-        <div className="min-h-screen bg-slate-900 text-slate-100 p-6 md:p-10">
+        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
             {/* Navigation Header */}
-            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-slate-800 pb-6">
-                <div className="flex items-center gap-4">
+            <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row items-center justify-between border-b border-tech-surface pb-6 gap-6">
+                <div className="flex items-center gap-4 w-full md:w-auto">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white"
+                        className="p-2 hover:bg-tech-surface rounded transition-colors text-slate-400 hover:text-white"
                     >
                         <ArrowLeft size={24} />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                        <h1 className="text-3xl font-bold text-white tracking-tight uppercase">
                             Alumnos
                         </h1>
-                        <p className="text-slate-400 text-sm">Administrar perfiles de estudiantes y sus accesos.</p>
+                        <p className="text-slate-400 text-sm font-mono">BASE DE DATOS DE ESTUDIANTES</p>
                     </div>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto justify-end">
+                    <button
+                        onClick={() => {
+                            setIsImportingCSV(!isImportingCSV);
+                            setIsBulkAdding(false);
+                            setIsAdding(false);
+                            setEditingId(null);
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 bg-tech-surface hover:bg-slate-700 rounded transition-colors text-xs font-bold border border-tech-surface uppercase tracking-wider text-slate-300"
+                    >
+                        <Upload size={16} />
+                        Importar CSV
+                    </button>
                     <button
                         onClick={() => {
                             setIsBulkAdding(!isBulkAdding);
                             setIsAdding(false);
+                            setIsImportingCSV(false);
                             setEditingId(null);
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors text-sm font-medium"
+                        className="flex items-center gap-2 px-3 py-2 bg-tech-accent hover:bg-violet-600 rounded transition-colors text-xs font-bold shadow-[0_0_15px_rgba(139,92,246,0.3)] uppercase tracking-wider text-white"
                     >
-                        <Users size={18} />
-                        Carga Masiva (IA)
+                        <Users size={16} />
+                        Carga IA
                     </button>
                     <button
                         onClick={() => {
                             setIsAdding(true);
                             setIsBulkAdding(false);
+                            setIsImportingCSV(false);
                             setEditingId(null);
                             setFormData({ nombre: '', dni: '', email: '', password: '' });
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm font-medium"
+                        className="flex items-center gap-2 px-3 py-2 bg-tech-cyan hover:bg-sky-600 rounded transition-colors text-xs font-bold shadow-[0_0_15px_rgba(14,165,233,0.3)] uppercase tracking-wider text-white"
                     >
-                        <Plus size={18} />
-                        Nuevo Alumno
+                        <Plus size={16} />
+                        Nuevo
                     </button>
                 </div>
             </header>
 
             <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                    <div className="relative w-full md:w-96">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Buscar por nombre o DNI..."
-                            className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-white"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                {/* Filters */}
+                {!isImportingCSV && !isBulkAdding && !isAdding && (
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                        <div className="relative w-full md:w-96">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                            <input
+                                type="text"
+                                placeholder="BUSCAR POR NOMBRE O DNI..."
+                                className="w-full pl-10 pr-4 py-2 bg-tech-secondary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-white placeholder-slate-600 transition-all font-mono text-sm"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* CSV Import */}
+                {isImportingCSV && (
+                    <div className="mb-8 p-6 bg-tech-secondary rounded border border-tech-surface animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="flex justify-between items-center mb-6 border-b border-tech-surface pb-2">
+                            <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <Upload className="text-tech-cyan" size={20} />
+                                Importar desde archivo CSV
+                            </h3>
+                            <button onClick={() => setIsImportingCSV(false)} className="text-slate-500 hover:text-white">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <CSVImporter
+                            endpoint={`${import.meta.env.VITE_API_URL}/students/import`}
+                            onComplete={handleCSVImportComplete}
+                            requiredColumns={['dni', 'nombre', 'email']}
                         />
                     </div>
-                </div>
+                )}
 
-                {
-                    isAdding && (
-                        <div className="mb-8 p-6 bg-slate-800 rounded-xl border border-slate-700 animate-in fade-in slide-in-from-top-4 duration-300">
-                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                <Plus className="text-green-400" size={20} />
-                                Registrar Nuevo Estudiante
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-xs text-slate-400 uppercase font-bold">Nombre Completo</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Ej: Juan Pérez"
-                                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 focus:border-green-500 outline-none"
-                                        value={formData.nombre}
-                                        onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-slate-400 uppercase font-bold">DNI</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Sin puntos"
-                                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 focus:border-green-500 outline-none"
-                                        value={formData.dni}
-                                        onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-slate-400 uppercase font-bold">Correo Electrónico</label>
-                                    <input
-                                        type="email"
-                                        placeholder="usuario@escuela.com"
-                                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 focus:border-green-500 outline-none"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-slate-400 uppercase font-bold">Contraseña Inicial</label>
-                                    <input
-                                        type="password"
-                                        placeholder="Min. 6 caracteres"
-                                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 focus:border-green-500 outline-none"
-                                        value={formData.password}
-                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    />
-                                </div>
+                {/* Manual Add Form */}
+                {isAdding && (
+                    <div className="mb-8 p-6 bg-tech-secondary rounded border border-tech-surface animate-in fade-in slide-in-from-top-4 duration-300 shadow-lg">
+                        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white uppercase tracking-wider border-b border-tech-surface pb-2">
+                            <Plus className="text-tech-success" size={20} />
+                            Registrar Nuevo Estudiante
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="space-y-1">
+                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Nombre Completo</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ej: Juan Pérez"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-slate-600 text-white"
+                                    value={formData.nombre}
+                                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                                />
                             </div>
-                            <div className="mt-6 flex gap-3">
-                                <button
-                                    onClick={() => handleSave()}
-                                    className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-bold"
-                                >
-                                    <Save size={18} />
-                                    Crear Cuenta
-                                </button>
-                                <button
-                                    onClick={() => setIsAdding(false)}
-                                    className="px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold"
-                                >
-                                    Cancelar
-                                </button>
+                            <div className="space-y-1">
+                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">DNI</label>
+                                <input
+                                    type="text"
+                                    placeholder="Sin puntos"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-slate-600 text-white font-mono"
+                                    value={formData.dni}
+                                    onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Correo Electrónico</label>
+                                <input
+                                    type="email"
+                                    placeholder="usuario@escuela.com"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-slate-600 text-white font-mono"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Contraseña Inicial</label>
+                                <input
+                                    type="password"
+                                    placeholder="Min. 6 caracteres"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-slate-600 text-white"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                />
                             </div>
                         </div>
-                    )
-                }
+                        <div className="mt-6 flex gap-3">
+                            <button
+                                onClick={() => handleSave()}
+                                className="flex items-center gap-2 px-6 py-2 bg-tech-success hover:bg-emerald-600 rounded font-bold transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)] text-white uppercase tracking-wider text-sm"
+                            >
+                                <Save size={18} />
+                                Crear Cuenta
+                            </button>
+                            <button
+                                onClick={() => setIsAdding(false)}
+                                className="px-6 py-2 bg-tech-surface hover:bg-slate-700 rounded font-bold text-slate-300 uppercase tracking-wider text-sm transaction-colors"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                )}
 
+                {/* Bulk AI */}
                 {
                     isBulkAdding && (
-                        <div className="mb-8 p-6 bg-slate-800 rounded-xl border border-purple-500/30 animate-in fade-in slide-in-from-top-4 duration-300">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-xl font-bold flex items-center gap-2 text-purple-400">
-                                    <Plus size={20} />
+                        <div className="mb-8 p-6 bg-tech-secondary rounded border border-tech-accent/30 animate-in fade-in slide-in-from-top-4 duration-300 shadow-[0_0_30px_rgba(139,92,246,0.1)]">
+                            <div className="flex items-center justify-between mb-4 border-b border-tech-surface pb-4">
+                                <h3 className="text-xl font-bold flex items-center gap-2 text-white uppercase tracking-wider">
+                                    <Plus size={20} className="text-tech-accent" />
                                     Carga Masiva con Inteligencia Artificial
                                 </h3>
-                                <div className="text-xs px-2 py-1 bg-purple-500/10 text-purple-400 rounded-full border border-purple-500/20">
-                                    Gemini v1.5 Flash
+                                <div className="text-xs px-2 py-1 bg-tech-accent/10 text-tech-accent rounded border border-tech-accent/20 font-mono font-bold">
+                                    GEMINI v1.5 FLASH
                                 </div>
                             </div>
-                            <p className="text-sm text-slate-400 mb-4">
-                                Pega aquí la lista de alumnos en cualquier formato (nombres, DNIs y correos). La IA extraerá los datos y creará las cuentas automáticamente.
+                            <p className="text-sm text-slate-400 mb-4 font-mono">
+                                // PEGAR LISTA DE ALUMNOS (NOMBRES, DNI, EMAILS) PARA EXTRACCIÓN AUTOMÁTICA
                             </p>
                             <textarea
-                                className="w-full h-40 bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-300 focus:border-purple-500 outline-none transition-all placeholder:text-slate-600"
+                                className="w-full h-40 bg-tech-primary border border-tech-surface rounded p-4 text-slate-300 focus:border-tech-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-slate-700 font-mono text-sm"
                                 placeholder={"Ejemplo:\nJuan Perez 45678912 juan@mail.com\nMaria Gomez DNI 12345678 correomaria@test.com"}
                                 value={bulkText}
                                 onChange={(e) => setBulkText(e.target.value)}
@@ -322,26 +368,26 @@ const StudentManagement = () => {
                                 <button
                                     onClick={handleBulkAI}
                                     disabled={isProcessing}
-                                    className={`flex items-center gap-2 px-6 py-2 rounded-lg font-bold transition-all ${isProcessing
-                                            ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                                            : 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/20'
+                                    className={`flex items-center gap-2 px-6 py-2 rounded font-bold transition-all uppercase tracking-wider text-sm ${isProcessing
+                                        ? 'bg-tech-surface text-slate-500 cursor-not-allowed'
+                                        : 'bg-tech-accent hover:bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)]'
                                         }`}
                                 >
                                     {isProcessing ? (
                                         <>
                                             <div className="w-4 h-4 border-2 border-slate-500 border-t-white rounded-full animate-spin"></div>
-                                            Procesando con IA...
+                                            PROCESANDO...
                                         </>
                                     ) : (
                                         <>
                                             <Check size={18} />
-                                            Procesar y Crear Cuentas
+                                            PROCESAR Y CREAR
                                         </>
                                     )}
                                 </button>
                                 <button
                                     onClick={() => setIsBulkAdding(false)}
-                                    className="px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transition-colors"
+                                    className="px-6 py-2 bg-tech-surface hover:bg-slate-700 rounded font-bold text-slate-300 uppercase tracking-wider text-sm"
                                 >
                                     Cancelar
                                 </button>
@@ -350,41 +396,41 @@ const StudentManagement = () => {
                     )
                 }
 
-                <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
+                <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-xl">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-slate-700/50 text-slate-400 text-sm">
+                        <thead className="bg-tech-primary text-slate-400 text-sm border-b border-tech-surface">
                             <tr>
-                                <th className="p-4 font-bold border-b border-slate-700">Nombre</th>
-                                <th className="p-4 font-bold border-b border-slate-700">DNI</th>
-                                <th className="p-4 font-bold border-b border-slate-700">Email</th>
-                                <th className="p-4 font-bold border-b border-slate-700 text-center">Acciones</th>
+                                <th className="p-4 uppercase text-xs font-bold tracking-wider">Nombre</th>
+                                <th className="p-4 uppercase text-xs font-bold tracking-wider">DNI</th>
+                                <th className="p-4 uppercase text-xs font-bold tracking-wider">Email</th>
+                                <th className="p-4 text-center uppercase text-xs font-bold tracking-wider">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-tech-surface">
                             {loading ? (
-                                <tr><td colSpan="4" className="p-10 text-center text-slate-500">Cargando alumnos...</td></tr>
+                                <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono animate-pulse">Cargando alumnos...</td></tr>
                             ) : filteredStudents.length === 0 ? (
-                                <tr><td colSpan="4" className="p-10 text-center text-slate-500">No se encontraron alumnos.</td></tr>
+                                <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono italic">No se encontraron alumnos.</td></tr>
                             ) : filteredStudents.map(s => (
-                                <tr key={s.id} className="border-t border-slate-700 hover:bg-slate-700/30 transition-colors">
+                                <tr key={s.id} className="hover:bg-tech-primary/50 transition-colors">
                                     <td className="p-4">
                                         {editingId === s.id ? (
                                             <input
                                                 type="text"
-                                                className="bg-slate-900 border border-blue-500 rounded-lg px-2 py-1 w-full outline-none"
+                                                className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-white text-sm"
                                                 value={formData.nombre}
                                                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                                 autoFocus
                                             />
                                         ) : (
-                                            <span className="font-semibold">{s.nombre}</span>
+                                            <span className="font-bold text-slate-200">{s.nombre}</span>
                                         )}
                                     </td>
                                     <td className="p-4">
                                         {editingId === s.id ? (
                                             <input
                                                 type="text"
-                                                className="bg-slate-900 border border-blue-500 rounded-lg px-2 py-1 w-full outline-none"
+                                                className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-white text-sm font-mono"
                                                 value={formData.dni}
                                                 onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
                                             />
@@ -396,31 +442,31 @@ const StudentManagement = () => {
                                         {editingId === s.id ? (
                                             <input
                                                 type="text"
-                                                className="bg-slate-900 border border-blue-500 rounded-lg px-2 py-1 w-full outline-none"
+                                                className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-white text-sm font-mono"
                                                 value={formData.email}
                                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                             />
                                         ) : (
-                                            <span className="text-slate-400">{s.email || '-'}</span>
+                                            <span className="text-slate-400 font-mono text-sm">{s.email || '-'}</span>
                                         )}
                                     </td>
                                     <td className="p-4 text-center">
                                         <div className="flex justify-center gap-2">
                                             {editingId === s.id ? (
                                                 <>
-                                                    <button onClick={() => handleSave(s.id)} className="p-2 bg-green-600/20 text-green-400 rounded-lg hover:bg-green-600/40 transition-colors shadow-inner" title="Guardar">
+                                                    <button onClick={() => handleSave(s.id)} className="p-1.5 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
                                                         <Check size={18} />
                                                     </button>
-                                                    <button onClick={() => setEditingId(null)} className="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/40 transition-colors" title="Cancelar">
+                                                    <button onClick={() => setEditingId(null)} className="p-1.5 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
                                                         <X size={18} />
                                                     </button>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <button onClick={() => startEdit(s)} className="p-2 bg-blue-600/10 text-blue-400 rounded-lg hover:bg-blue-600/20 transition-colors" title="Editar">
+                                                    <button onClick={() => startEdit(s)} className="p-1.5 text-tech-cyan hover:bg-tech-cyan/10 rounded transition-all">
                                                         <Pencil size={18} />
                                                     </button>
-                                                    <button onClick={() => handleDelete(s.id)} className="p-2 bg-red-600/10 text-red-400 rounded-lg hover:bg-red-600/20 transition-colors" title="Eliminar">
+                                                    <button onClick={() => handleDelete(s.id)} className="p-1.5 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </>
@@ -433,12 +479,12 @@ const StudentManagement = () => {
                     </table>
                 </div>
 
-                <div className="mt-8 p-4 bg-blue-500/5 rounded-lg border border-blue-500/20 flex gap-3 text-sm text-blue-300 items-center">
-                    <div className="p-2 bg-blue-500/10 rounded-full">
-                        <Save size={16} />
+                <div className="mt-8 p-4 bg-tech-primary/50 rounded border border-tech-surface flex gap-3 text-sm text-slate-400 items-center font-mono">
+                    <div className="p-2 bg-tech-secondary rounded border border-tech-surface">
+                        <Save size={16} className="text-tech-cyan" />
                     </div>
                     <p>
-                        Al crear un alumno, se genera automáticamente su cuenta de acceso en el sistema. Los datos de prueba se guardan temporalmente en la base de datos de Auth.
+                        NOTA: LA CREACIÓN DE CUENTAS DE ALUMNO GENERA CREDENCIALES DE ACCESO AUTOMÁTICAMENTE.
                     </p>
                 </div>
             </div>

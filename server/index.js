@@ -19,6 +19,7 @@ app.use('/api/reports', require('./routes/reports'));
 app.use('/api/assignments', require('./routes/assignments'));
 app.use('/api/subjects', require('./routes/subjects'));
 app.use('/api/students', require('./routes/students'));
+app.use('/api/attendance', require('./routes/attendance'));
 
 // Simple health check route
 app.get('/api/health', (req, res) => {
