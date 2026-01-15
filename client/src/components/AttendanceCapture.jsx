@@ -104,41 +104,59 @@ const AttendanceCapture = () => {
                 />
             </div>
             {students.length > 0 && (
-                <div className="grid gap-2 max-h-[500px] overflow-y-auto">
+                <div className="grid gap-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                     {students.map(s => (
-                        <div key={s.id} className="flex items-center justify-between p-2 bg-tech-secondary rounded">
-                            <span>{s.nombre} ({s.dni || 'N/A'})</span>
-                            <div className="flex gap-2">
+                        <div key={s.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan/30 transition-all gap-4">
+                            <div className="flex flex-col">
+                                <span className="font-bold text-white uppercase tracking-tight">{s.nombre}</span>
+                                <span className="text-[10px] text-slate-500 font-mono">DNI: {s.dni || 'N/A'}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 w-full sm:w-auto">
                                 <button
-                                    className={`p-1 rounded ${attendance[s.id] === 'presente' ? 'bg-tech-cyan text-white' : 'bg-tech-primary text-slate-400'}`}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${attendance[s.id] === 'presente' ? 'bg-tech-success border-tech-success shadow-[0_0_10px_rgba(16,185,129,0.3)] text-white' : 'bg-tech-primary border-tech-surface text-slate-500 hover:border-slate-600'}`}
                                     onClick={() => handleChange(s.id, 'presente')}
                                 >
-                                    <Check size={16} />
+                                    <Check size={20} />
+                                    <span className="text-[8px] uppercase font-bold mt-1">Pres.</span>
                                 </button>
                                 <button
-                                    className={`p-1 rounded ${attendance[s.id] === 'ausente' ? 'bg-red-600 text-white' : 'bg-tech-primary text-slate-400'}`}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${attendance[s.id] === 'ausente' ? 'bg-tech-danger border-tech-danger shadow-[0_0_10px_rgba(239,68,68,0.3)] text-white' : 'bg-tech-primary border-tech-surface text-slate-500 hover:border-slate-600'}`}
                                     onClick={() => handleChange(s.id, 'ausente')}
                                 >
-                                    <X size={16} />
+                                    <X size={20} />
+                                    <span className="text-[8px] uppercase font-bold mt-1">Aus.</span>
                                 </button>
                                 <button
-                                    className={`p-1 rounded ${attendance[s.id] === 'tarde' ? 'bg-yellow-500 text-white' : 'bg-tech-primary text-slate-400'}`}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${attendance[s.id] === 'tarde' ? 'bg-tech-accent border-tech-accent shadow-[0_0_10px_rgba(245,158,11,0.3)] text-white' : 'bg-tech-primary border-tech-surface text-slate-500 hover:border-slate-600'}`}
                                     onClick={() => handleChange(s.id, 'tarde')}
                                 >
-                                    <Calendar size={16} />
+                                    <Calendar size={20} />
+                                    <span className="text-[8px] uppercase font-bold mt-1">Tarde</span>
                                 </button>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
-            <button
-                onClick={submitAttendance}
-                className="mt-4 flex items-center gap-2 px-6 py-2 bg-tech-cyan hover:bg-sky-600 rounded text-white"
-                disabled={saving}
-            >
-                {saving ? 'Guardando...' : 'Guardar Asistencia'}
-            </button>
+            <div className="mt-8 flex justify-end">
+                <button
+                    onClick={submitAttendance}
+                    className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-tech-cyan hover:bg-sky-600 rounded-lg text-white font-bold uppercase tracking-widest shadow-lg active:scale-95 transition-all text-lg"
+                    disabled={saving}
+                >
+                    {saving ? (
+                        <>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            Guardando...
+                        </>
+                    ) : (
+                        <>
+                            <Check size={24} />
+                            Guardar Asistencia
+                        </>
+                    )}
+                </button>
+            </div>
         </div>
     );
 };

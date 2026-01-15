@@ -3,13 +3,15 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
-import { Search } from 'lucide-react';
+import { Search, FileDown } from 'lucide-react';
 
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 const AttendanceOverview = () => {
     const [divisions, setDivisions] = useState([]);
     const [selectedDivision, setSelectedDivision] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -26,7 +28,11 @@ const AttendanceOverview = () => {
         setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const res = await fetch(`/api/reports/attendance?division_id=${selectedDivision}`, {
+            let url = `/api/reports/attendance?division_id=${selectedDivision}`;
+            if (startDate) url += `&start_date=${startDate}`;
+            if (endDate) url += `&end_date=${endDate}`;
+
+            const res = await fetch(url, {
                 headers: {
                     'Authorization': `Bearer ${session?.access_token}`
                 }
@@ -38,6 +44,10 @@ const AttendanceOverview = () => {
             alert('Error al cargar estadísticas');
         }
         setLoading(false);
+    };
+
+    const handleDownloadPDF = () => {
+        alert('Utilice el nuevo módulo de Reportes de Asistencia para exportar PDFs.');
     };
 
     const pieData = stats ? {
@@ -73,13 +83,36 @@ const AttendanceOverview = () => {
                         </option>
                     ))}
                 </select>
-                <button
-                    onClick={fetchStats}
-                    className="flex items-center gap-2 px-4 py-2 bg-tech-cyan hover:bg-sky-600 rounded text-white"
-                    disabled={loading}
-                >
-                    <Search size={18} /> Cargar Estadísticas
-                </button>
+
+                <div className="flex items-center gap-2 bg-tech-secondary p-2 rounded border border-tech-surface">
+                    <label className="text-xs text-slate-500 font-mono">DESDE:</label>
+                    <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="bg-tech-primary border border-tech-surface rounded px-2 py-1 text-sm text-white focus:border-tech-cyan outline-none font-mono"
+                    />
+                </div>
+
+                <div className="flex items-center gap-2 bg-tech-secondary p-2 rounded border border-tech-surface">
+                    <label className="text-xs text-slate-500 font-mono">HASTA:</label>
+                    <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="bg-tech-primary border border-tech-surface rounded px-2 py-1 text-sm text-white focus:border-tech-cyan outline-none font-mono"
+                    />
+                </div>
+
+                <div className="flex gap-2">
+                    <button
+                        onClick={fetchStats}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-tech-cyan hover:bg-sky-600 rounded text-white font-bold uppercase text-xs tracking-wider transition-colors"
+                        disabled={loading}
+                    >
+                        <Search size={16} /> Cargar Estadísticas
+                    </button>
+                </div>
             </div>
             {stats && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

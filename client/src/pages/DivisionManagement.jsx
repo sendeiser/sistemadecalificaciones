@@ -187,106 +187,194 @@ const DivisionManagement = () => {
                 )}
 
                 <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-xl">
-                    <table className="w-full text-left border-collapse">
-                        <thead className="bg-tech-primary text-slate-400 text-sm border-b border-tech-surface">
-                            <tr>
-                                <th className="p-4 uppercase text-xs font-bold tracking-wider">Año y Sección</th>
-                                <th className="p-4 uppercase text-xs font-bold tracking-wider">Ciclo Lectivo</th>
-                                <th className="p-4 uppercase text-xs font-bold tracking-wider">Campo Formación</th>
-                                <th className="p-4 text-center uppercase text-xs font-bold tracking-wider">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-tech-surface">
-                            {loading ? (
-                                <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono animate-pulse">Cargando divisiones...</td></tr>
-                            ) : divisions.length === 0 ? (
-                                <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono italic">No hay divisiones creadas.</td></tr>
-                            ) : divisions.map(d => (
-                                <tr key={d.id} className="hover:bg-tech-primary/50 transition-colors">
-                                    <td className="p-4">
-                                        {editingId === d.id ? (
-                                            <div className="flex gap-2">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto custom-scrollbar">
+                        <table className="w-full text-left">
+                            <thead className="bg-tech-primary text-slate-400 text-sm border-b border-tech-surface font-heading">
+                                <tr>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Año y Sección</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Ciclo Lectivo</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Campo Formación</th>
+                                    <th className="p-4 text-center uppercase text-[10px] font-bold tracking-widest">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-tech-surface">
+                                {loading ? (
+                                    <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando divisiones...</td></tr>
+                                ) : divisions.length === 0 ? (
+                                    <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono italic">No hay divisiones creadas.</td></tr>
+                                ) : divisions.map(d => (
+                                    <tr key={d.id} className="hover:bg-tech-primary/50 transition-colors">
+                                        <td className="p-4">
+                                            {editingId === d.id ? (
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-white text-sm"
+                                                        value={formData.anio}
+                                                        onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-white text-sm"
+                                                        value={formData.seccion}
+                                                        onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-white uppercase">{d.anio}</span>
+                                                    <span className="px-2 py-0.5 bg-tech-primary text-tech-accent rounded text-sm font-mono border border-tech-surface font-bold">
+                                                        {d.seccion}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="p-4">
+                                            {editingId === d.id ? (
+                                                <input
+                                                    type="number"
+                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-24 outline-none text-white text-sm font-mono"
+                                                    value={formData.ciclo_lectivo}
+                                                    onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
+                                                />
+                                            ) : (
+                                                <span className="text-slate-300 font-mono">{d.ciclo_lectivo}</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4">
+                                            {editingId === d.id ? (
                                                 <input
                                                     type="text"
-                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-white text-sm"
-                                                    value={formData.anio}
-                                                    onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
+                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-full outline-none text-white text-sm"
+                                                    value={formData.campo_formacion}
+                                                    onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
                                                 />
-                                                <input
-                                                    type="text"
-                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-white text-sm"
-                                                    value={formData.seccion}
-                                                    onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
-                                                />
+                                            ) : (
+                                                <span className="text-slate-400 italic font-mono text-sm">{d.campo_formacion || '-'}</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-center">
+                                            <div className="flex justify-center gap-2">
+                                                <button
+                                                    onClick={() => navigate('/enrollment')}
+                                                    className="p-1.5 bg-tech-primary text-slate-400 hover:text-white border border-tech-surface hover:border-tech-cyan rounded transition-all group"
+                                                    title="Gestionar Alumnos"
+                                                >
+                                                    <Users size={18} className="group-hover:scale-110 transition-transform" />
+                                                </button>
+                                                <div className="w-px h-8 bg-tech-surface mx-1"></div>
+                                                {editingId === d.id ? (
+                                                    <>
+                                                        <button onClick={() => handleSave(d.id)} className="p-1.5 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
+                                                            <Check size={18} />
+                                                        </button>
+                                                        <button onClick={() => setEditingId(null)} className="p-1.5 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
+                                                            <X size={18} />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button onClick={() => startEdit(d)} className="p-1.5 text-tech-accent hover:bg-tech-accent/10 rounded transition-all">
+                                                            <Pencil size={18} />
+                                                        </button>
+                                                        <button onClick={() => handleDelete(d.id)} className="p-1.5 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
-                                        ) : (
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Card List View */}
+                    <div className="md:hidden divide-y divide-tech-surface">
+                        {loading ? (
+                            <div className="p-10 text-center text-slate-500 font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando...</div>
+                        ) : divisions.length === 0 ? (
+                            <div className="p-10 text-center text-slate-500 font-mono italic">No hay divisiones.</div>
+                        ) : divisions.map(d => (
+                            <div key={d.id} className="p-4 space-y-4">
+                                {editingId === d.id ? (
+                                    <div className="space-y-3">
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                className="flex-1 bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-white text-sm"
+                                                value={formData.anio}
+                                                onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
+                                                placeholder="Año"
+                                            />
+                                            <input
+                                                type="text"
+                                                className="flex-1 bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-white text-sm"
+                                                value={formData.seccion}
+                                                onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
+                                                placeholder="Sec"
+                                            />
+                                        </div>
+                                        <input
+                                            type="number"
+                                            inputmode="numeric"
+                                            className="w-full bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-white text-sm font-mono"
+                                            value={formData.ciclo_lectivo}
+                                            onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
+                                            placeholder="Ciclo Lectivo"
+                                        />
+                                        <input
+                                            type="text"
+                                            className="w-full bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-white text-sm"
+                                            value={formData.campo_formacion}
+                                            onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
+                                            placeholder="Campo de Formación"
+                                        />
+                                        <div className="flex gap-2">
+                                            <button onClick={() => handleSave(d.id)} className="flex-1 py-2 bg-tech-success text-white rounded font-bold text-xs uppercase tracking-widest">
+                                                Guardar
+                                            </button>
+                                            <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-tech-surface text-slate-400 rounded font-bold text-xs uppercase tracking-widest">
+                                                Cancelar
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex-1">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-bold text-white uppercase">{d.anio}</span>
-                                                <span className="px-2 py-0.5 bg-tech-primary text-tech-accent rounded text-sm font-mono border border-tech-surface font-bold">
+                                                <h3 className="font-bold text-white text-lg uppercase tracking-tight">{d.anio}</h3>
+                                                <span className="px-2 py-0.5 bg-tech-primary text-tech-accent rounded text-sm font-mono font-bold border border-tech-surface">
                                                     {d.seccion}
                                                 </span>
                                             </div>
-                                        )}
-                                    </td>
-                                    <td className="p-4">
-                                        {editingId === d.id ? (
-                                            <input
-                                                type="number"
-                                                className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-24 outline-none text-white text-sm"
-                                                value={formData.ciclo_lectivo}
-                                                onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
-                                            />
-                                        ) : (
-                                            <span className="text-slate-300 font-mono">{d.ciclo_lectivo}</span>
-                                        )}
-                                    </td>
-                                    <td className="p-4">
-                                        {editingId === d.id ? (
-                                            <input
-                                                type="text"
-                                                className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-full outline-none text-white text-sm"
-                                                value={formData.campo_formacion}
-                                                onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
-                                            />
-                                        ) : (
-                                            <span className="text-slate-400 italic font-mono text-sm">{d.campo_formacion || '-'}</span>
-                                        )}
-                                    </td>
-                                    <td className="p-4 text-center">
-                                        <div className="flex justify-center gap-2">
+                                            <div className="mt-1 flex items-center gap-3 text-xs font-mono">
+                                                <span className="text-slate-500 uppercase">Ciclo {d.ciclo_lectivo}</span>
+                                                <span className="text-slate-600">|</span>
+                                                <span className="text-slate-400 italic">{d.campo_formacion || 'General'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-1">
                                             <button
                                                 onClick={() => navigate('/enrollment')}
-                                                className="p-1.5 bg-tech-primary text-slate-400 hover:text-white border border-tech-surface hover:border-white rounded transition-all group"
-                                                title="Gestionar Alumnos"
+                                                className="p-2.5 bg-tech-primary border border-tech-surface text-slate-400 rounded-lg hover:text-white"
                                             >
-                                                <Users size={18} className="group-hover:scale-110 transition-transform" />
+                                                <Users size={20} />
                                             </button>
-                                            <div className="w-px h-8 bg-tech-surface mx-1"></div>
-                                            {editingId === d.id ? (
-                                                <>
-                                                    <button onClick={() => handleSave(d.id)} className="p-1.5 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
-                                                        <Check size={18} />
-                                                    </button>
-                                                    <button onClick={() => setEditingId(null)} className="p-1.5 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
-                                                        <X size={18} />
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => startEdit(d)} className="p-1.5 text-tech-accent hover:bg-tech-accent/10 rounded transition-all">
-                                                        <Pencil size={18} />
-                                                    </button>
-                                                    <button onClick={() => handleDelete(d.id)} className="p-1.5 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </>
-                                            )}
+                                            <button onClick={() => startEdit(d)} className="p-2.5 bg-tech-primary border border-tech-surface text-tech-accent rounded-lg">
+                                                <Pencil size={20} />
+                                            </button>
+                                            <button onClick={() => handleDelete(d.id)} className="p-2.5 bg-tech-primary border border-tech-surface text-tech-danger rounded-lg">
+                                                <Trash2 size={20} />
+                                            </button>
                                         </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

@@ -45,136 +45,185 @@ const Dashboard = () => {
                 <DashboardStats role={profile.rol} profileId={profile.id} />
 
                 {profile.rol === 'admin' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div
-                            onClick={() => navigate('/assignments')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                    <Users size={24} />
+                    <div className="space-y-12">
+                        {/* Section 1: Administración Base */}
+                        <section>
+                            <h2 className="text-xl font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-3">
+                                <span className="w-2 h-8 bg-tech-cyan rounded-full"></span>
+                                Administración Base
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div
+                                    onClick={() => navigate('/students')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-success">
+                                        <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
+                                            <Users size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Alumnos</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Administrar perfiles de estudiantes.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Asignaciones</h3>
-                            </div>
-                            <p className="text-slate-400 text-sm font-mono">Vincular docentes, materias y divisiones.</p>
-                        </div>
 
-                        <div
-                            onClick={() => navigate('/subjects')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                    <BookOpen size={24} />
+                                <div
+                                    onClick={() => navigate('/subjects')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                            <BookOpen size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Materias</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Crear y editar materias del sistema.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Materias</h3>
-                            </div>
-                            <p className="text-slate-400 text-sm font-mono">Crear y editar materias del sistema.</p>
-                        </div>
 
-                        <div
-                            onClick={() => navigate('/students')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-success">
-                                <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
-                                    <Users size={24} />
+                                <div
+                                    onClick={() => navigate('/divisions')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                            <Layers size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Divisiones</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Gestionar cursos y secciones.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Alumnos</h3>
                             </div>
-                            <p className="text-slate-400 text-sm font-mono">Administrar perfiles de estudiantes.</p>
-                        </div>
+                        </section>
 
-                        <div
-                            onClick={() => navigate('/divisions')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
-                                    <Layers size={24} />
+                        {/* Section 2: Configuración de Ciclo */}
+                        <section>
+                            <h2 className="text-xl font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-3">
+                                <span className="w-2 h-8 bg-tech-accent rounded-full"></span>
+                                Configuración de Ciclo
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div
+                                    onClick={() => navigate('/assignments')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                            <Users size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Asignaciones</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Vincular docentes, materias y divisiones.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Divisiones</h3>
-                            </div>
-                            <p className="text-slate-400 text-sm font-mono">Gestionar cursos y secciones.</p>
-                        </div>
 
-                        <div
-                            onClick={() => navigate('/enrollment')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                    <GraduationCap size={24} />
+                                <div
+                                    onClick={() => navigate('/enrollment')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                            <GraduationCap size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Agrupamiento</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Asignar alumnos a sus divisiones.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Agrupamiento</h3>
-                            </div>
-                            <p className="text-slate-400 text-sm font-mono">Asignar alumnos a sus divisiones.</p>
-                        </div>
 
-                        <div
-                            onClick={() => navigate('/reports')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
-                                    <FileText size={24} />
+                                <div
+                                    onClick={() => navigate('/periods')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                            <Settings size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Periodos</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Controlar apertura de cargas de notas.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Reportes</h3>
                             </div>
-                            <p className="text-slate-400 text-sm font-mono">Generar boletines y exportar PDF.</p>
-                        </div>
+                        </section>
 
-                        <div
-                            onClick={() => navigate('/periods')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                    <Settings size={24} />
+                        {/* Section 3: Gestión Diaria */}
+                        <section>
+                            <h2 className="text-xl font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-3">
+                                <span className="w-2 h-8 bg-tech-cyan rounded-full"></span>
+                                Control Diario
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div
+                                    onClick={() => navigate('/admin/attendance-capture')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                            <CheckSquare size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Toma General</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Registrar asistencia por curso y fecha.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Periodos</h3>
                             </div>
-                            <p className="text-slate-400 text-sm font-mono">Controlar apertura de cargas de notas.</p>
-                        </div>
+                        </section>
 
-                        <div
-                            onClick={() => navigate('/admin/reports')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-success">
-                                <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
-                                    <FileText size={24} />
+                        {/* Section 4: Reportes y Seguimiento */}
+                        <section>
+                            <h2 className="text-xl font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-3">
+                                <span className="w-2 h-8 bg-tech-success rounded-full"></span>
+                                Reportes y Análisis
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div
+                                    onClick={() => navigate('/admin/reports')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-success">
+                                        <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
+                                            <FileText size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Reporte Notas</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Consolidado por curso y materia.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Reporte Notas</h3>
-                            </div>
-                            <p className="text-slate-400 text-sm font-mono">Consolidado por curso y materia.</p>
-                        </div>
 
-                        <div
-                            onClick={() => navigate('/admin/attendance-stats')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
-                                    <BarChart3 size={24} />
+                                <div
+                                    onClick={() => navigate('/admin/reports/attendance')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                            <FileText size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Reporte Asist.</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Exportar PDF de asistencia general.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Estadísticas</h3>
-                            </div>
-                            <p className="text-slate-400 text-sm font-mono">Gráficos de asistencia y progreso.</p>
-                        </div>
 
-                        <div
-                            onClick={() => navigate('/admin/attendance-capture')}
-                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                    <CheckSquare size={24} />
+                                <div
+                                    onClick={() => navigate('/admin/attendance-stats')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                            <BarChart3 size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Estadísticas</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Gráficos de asistencia y progreso.</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Toma General</h3>
+
+                                <div
+                                    onClick={() => navigate('/reports')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                            <FileText size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">Boletines</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-mono">Generar boletines individuales.</p>
+                                </div>
                             </div>
-                            <p className="text-slate-400 text-sm font-mono">Asistencia por curso y fecha.</p>
-                        </div>
+                        </section>
                     </div>
                 )}
 
@@ -213,6 +262,23 @@ const Dashboard = () => {
                                 Tomar Asistencia
                             </button>
                         </div>
+
+                        <div
+                            onClick={() => navigate('/teacher/reports')}
+                            className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-4 text-tech-success">
+                                <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
+                                    <FileText size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Mis Reportes</h3>
+                            </div>
+                            <p className="text-slate-400 mb-6 font-mono">Exportar PDFs de notas y asistencias de tus cursos.</p>
+                            <button className="px-4 py-2 bg-tech-success hover:bg-emerald-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
+                                Generar PDFs
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -226,7 +292,10 @@ const Dashboard = () => {
                             <h3 className="text-xl font-bold text-white uppercase tracking-tight">Mis Calificaciones</h3>
                         </div>
                         <p className="text-slate-400 mb-6 font-mono">Consulta tu historial académico y notas actuales.</p>
-                        <button className="px-4 py-2 bg-tech-success hover:bg-emerald-600 text-white rounded transition-colors font-medium text-sm uppercase tracking-wider">
+                        <button
+                            onClick={() => navigate('/student/report')}
+                            className="px-4 py-2 bg-tech-success hover:bg-emerald-600 text-white rounded transition-colors font-medium text-sm uppercase tracking-wider"
+                        >
                             Ver Mi Boletín
                         </button>
                     </div>

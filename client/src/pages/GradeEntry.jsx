@@ -273,32 +273,35 @@ const GradeEntry = () => {
                     </div>
                 </div>
                 {selectedAssignment && (
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                         <button
                             onClick={handleDownloadPDF}
                             className="flex items-center gap-2 px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-all text-sm font-medium hover:border-tech-accent group"
                         >
                             <Star size={18} className="text-slate-400 group-hover:text-tech-accent transition-colors" />
-                            PDF Planilla
+                            <span className="hidden sm:inline">PDF Planilla</span>
+                            <span className="sm:hidden text-xs">PDF</span>
                         </button>
                         <button
                             onClick={handleExportCSV}
                             className="flex items-center gap-2 px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-all text-sm font-medium hover:border-tech-success group"
                         >
                             <ClipboardList size={18} className="text-slate-400 group-hover:text-tech-success transition-colors" />
-                            CSV
+                            <span className="hidden sm:inline">CSV</span>
+                            <span className="sm:hidden text-xs">CSV</span>
                         </button>
                         <button
                             onClick={saveGrades}
                             disabled={saving}
-                            className="flex items-center gap-2 px-6 py-2 bg-tech-cyan hover:bg-sky-600 disabled:bg-slate-700 rounded transition-all font-bold shadow-[0_0_15px_rgba(14,165,233,0.3)] active:scale-95 text-white uppercase tracking-wider"
+                            className="flex items-center gap-2 px-4 sm:px-6 py-2 bg-tech-cyan hover:bg-sky-600 disabled:bg-slate-700 rounded transition-all font-bold shadow-[0_0_15px_rgba(14,165,233,0.3)] active:scale-95 text-white uppercase tracking-wider text-xs sm:text-sm"
                         >
                             {saving ? (
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                             ) : (
                                 <>
                                     <Save size={20} />
-                                    Guardar Cambios
+                                    <span className="hidden sm:inline">Guardar Cambios</span>
+                                    <span className="sm:hidden">Guardar</span>
                                 </>
                             )}
                         </button>
@@ -354,7 +357,7 @@ const GradeEntry = () => {
                                 </div>
                             )}
 
-                            <div className="overflow-x-auto min-h-[500px]">
+                            <div className="hidden md:block overflow-x-auto min-h-[500px]">
                                 <table className="w-full text-left border-collapse min-w-[1200px]">
                                     <thead>
                                         <tr className="bg-tech-primary/50 text-slate-400 text-[10px] uppercase tracking-wider font-bold border-b border-tech-surface font-mono">
@@ -392,7 +395,7 @@ const GradeEntry = () => {
                                                 <td className="p-2 border-r border-tech-surface sticky left-0 bg-tech-secondary z-10 group-hover:bg-tech-secondary/80 outline-none shadow-[4px_0_10px_rgba(0,0,0,0.2)]">
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-[10px] text-slate-500 w-4 font-mono">{index + 1}</span>
-                                                        <div className="font-bold text-xs truncate max-w-40 text-slate-200" title={g.student?.nombre}>
+                                                        <div className="font-bold text-xs truncate max-w-[200px] text-slate-200" title={g.student?.nombre}>
                                                             {g.student?.nombre}
                                                         </div>
                                                     </div>
@@ -404,6 +407,7 @@ const GradeEntry = () => {
                                                 <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
                                                     <input
                                                         type="number" min="0" max="10" step="0.5" placeholder="-"
+                                                        inputMode="decimal"
                                                         value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
                                                         onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
                                                         disabled={periods['nota_intensificacion'] === false}
@@ -421,6 +425,7 @@ const GradeEntry = () => {
                                                     <td key={field} className="p-1 border-r border-tech-surface text-center">
                                                         <input
                                                             type="number" min="0" max="10" step="0.5" placeholder="-"
+                                                            inputMode="decimal"
                                                             value={g[field] === null ? '' : g[field]}
                                                             onChange={e => handleGradeChange(g.alumno_id, field, e.target.value)}
                                                             disabled={periods[field] === false}
@@ -439,6 +444,7 @@ const GradeEntry = () => {
                                                 <td className="p-1 border-r border-tech-surface text-center">
                                                     <input
                                                         type="number" min="0" max="100"
+                                                        inputMode="numeric"
                                                         value={g.asistencia === null ? '' : g.asistencia}
                                                         onChange={e => handleGradeChange(g.alumno_id, 'asistencia', e.target.value)}
                                                         className="w-10 h-8 bg-tech-primary border border-tech-surface rounded-sm text-center text-xs font-mono focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-white focus:bg-tech-secondary transition-all"
@@ -480,6 +486,93 @@ const GradeEntry = () => {
                                         ))}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            {/* Mobile Card View */}
+                            <div className="md:hidden p-4 space-y-4">
+                                {grades.map((g, index) => (
+                                    <div key={g.alumno_id} className="bg-tech-primary/50 rounded border border-tech-surface p-4 space-y-4">
+                                        <div className="flex justify-between items-start border-b border-tech-surface pb-2">
+                                            <div>
+                                                <div className="text-[10px] text-tech-cyan font-mono uppercase font-bold">Estudiante {index + 1}</div>
+                                                <div className="font-bold text-white uppercase">{g.student?.nombre}</div>
+                                                <div className="text-xs text-slate-500 font-mono">DNI: {g.student?.dni}</div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-[10px] text-slate-500 font-mono uppercase">Promedio</div>
+                                                <div className="text-xl font-black text-tech-cyan">{g.promedio || '-'}</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-3">
+                                                <div className="text-[10px] text-slate-400 uppercase font-bold tracking-widest border-l-2 border-tech-cyan pl-2">Parciales</div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4'].map((field, i) => (
+                                                        <div key={field} className="flex flex-col items-center gap-1">
+                                                            <span className="text-[8px] text-slate-500 font-mono">{i + 1}</span>
+                                                            <input
+                                                                type="number" min="0" max="10" step="0.5" placeholder="-"
+                                                                inputMode="decimal"
+                                                                value={g[field] === null ? '' : g[field]}
+                                                                onChange={e => handleGradeChange(g.alumno_id, field, e.target.value)}
+                                                                disabled={periods[field] === false}
+                                                                className={`w-12 h-10 bg-tech-secondary border border-tech-surface rounded text-center text-sm font-bold font-mono focus:border-tech-cyan outline-none text-white ${periods[field] === false ? 'opacity-50' : ''}`}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <div className="text-[10px] text-slate-400 uppercase font-bold tracking-widest border-l-2 border-tech-success pl-2">Asistencia</div>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[8px] text-slate-500 font-mono">% actual</span>
+                                                    <input
+                                                        type="number" min="0" max="100"
+                                                        inputMode="numeric"
+                                                        value={g.asistencia === null ? '' : g.asistencia}
+                                                        onChange={e => handleGradeChange(g.alumno_id, 'asistencia', e.target.value)}
+                                                        className="w-full h-10 bg-tech-secondary border border-tech-surface rounded text-center text-sm font-bold font-mono focus:border-tech-success outline-none text-white"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 pt-2">
+                                            <div className="space-y-2">
+                                                <div className="text-[10px] text-slate-400 uppercase font-bold tracking-widest border-l-2 border-tech-accent pl-2">Intensificación</div>
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="number" min="0" max="10" step="0.5" placeholder="-"
+                                                        inputMode="decimal"
+                                                        value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
+                                                        onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
+                                                        disabled={periods['nota_intensificacion'] === false}
+                                                        className={`w-14 h-10 bg-tech-secondary border border-tech-surface rounded text-center text-sm font-bold font-mono focus:border-tech-cyan outline-none text-white ${periods['nota_intensificacion'] === false ? 'opacity-50' : ''}`}
+                                                    />
+                                                    <span className="text-[10px] font-mono font-bold text-tech-cyan">{getLogro(g.nota_intensificacion) || '-'}</span>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <div className="text-[10px] text-slate-400 uppercase font-bold tracking-widest border-l-2 border-purple-500 pl-2">Trayecto</div>
+                                                <div className="text-[10px] text-purple-300 font-mono leading-tight bg-purple-500/10 p-2 rounded border border-purple-500/20">
+                                                    {g.trayecto_acompanamiento || 'No definido'}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <div className="text-[10px] text-slate-400 uppercase font-bold tracking-widest border-l-2 border-slate-500 pl-2">Observaciones</div>
+                                            <input
+                                                type="text" placeholder="Agregar nota..."
+                                                value={g.observaciones || ''}
+                                                onChange={e => handleGradeChange(g.alumno_id, 'observaciones', e.target.value)}
+                                                className="w-full h-10 bg-tech-secondary border border-tech-surface rounded px-3 text-xs font-mono focus:border-tech-cyan outline-none text-slate-200"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

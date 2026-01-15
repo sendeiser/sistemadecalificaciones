@@ -7,51 +7,33 @@ const DashboardStats = ({ role, profileId }) => {
         studentCount: 0,
         divisionCount: 0,
         subjectCount: 0,
+        globalAttendancePct: 0,
         studentsPerDivision: [],
-        subjectAverages: []
+        teacherSubjectCount: 0,
+        teacherStudentCount: 0,
     });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                if (role === 'admin') {
-                    // Fetch counts
-                    const { count: studentCount } = await supabase.from('perfiles').select('*', { count: 'exact', head: true }).eq('rol', 'alumno');
-                    const { count: divisionCount } = await supabase.from('divisiones').select('*', { count: 'exact', head: true });
-                    const { count: subjectCount } = await supabase.from('materias').select('*', { count: 'exact', head: true });
+                const { data: { session } } = await supabase.auth.getSession();
 
-                    // Distribution of students per division
-                    const { data: divisions } = await supabase.from('divisiones').select('id, anio, seccion');
+                const apiUrl = import.meta.env.VITE_API_URL || '';
+                let base = apiUrl || (window.location.origin.includes('localhost') ? 'http://localhost:5000' : '');
+                if (base.endsWith('/')) base = base.slice(0, -1);
+                const path = base.endsWith('/api') ? '/reports/dashboard-stats' : '/api/reports/dashboard-stats';
 
-                    const studentsPerDiv = [];
-                    if (divisions) {
-                        for (const div of divisions) {
-                            const { count } = await supabase
-                                .from('inscripciones_division')
-                                .select('*', { count: 'exact', head: true })
-                                .eq('division_id', div.id);
-
-                            studentsPerDiv.push({
-                                name: `${div.anio} ${div.seccion}`,
-                                count: count || 0
-                            });
-                        }
+                const res = await fetch(`${base}${path}`, {
+                    headers: {
+                        'Authorization': `Bearer ${session?.access_token}`
                     }
+                });
 
-                    setStats({
-                        studentCount: studentCount || 0,
-                        divisionCount: divisionCount || 0,
-                        subjectCount: subjectCount || 0,
-                        studentsPerDivision: studentsPerDiv,
-                        subjectAverages: []
-                    });
-                } else if (role === 'docente') {
-                    // For teachers: Count their subjects and students in those subjects
-                    // Note: This requires complex joins, for now we will show generic stats or just return
-                    // A real implementation would query 'asignaciones_profesor'
+                if (res.ok) {
+                    const data = await res.json();
+                    setStats(prev => ({ ...prev, ...data }));
                 }
-
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching stats:', error);
@@ -155,9 +137,45 @@ const DashboardStats = ({ role, profileId }) => {
                         <TrendingUp size={32} className="text-tech-success" />
                     </div>
                     <h3 className="text-xl font-bold text-white uppercase mb-2">Rendimiento Global</h3>
-                    <p className="text-slate-400 text-sm mb-6">El promedio general de la institución se mantiene estable.</p>
-                    <div className="text-4xl font-bold text-tech-success font-mono mb-2">96%</div>
+                    <p className="text-slate-400 text-sm mb-6">El promedio general de asistencia de la institución.</p>
+                    <div className="text-4xl font-bold text-tech-success font-mono mb-2">{stats.globalAttendancePct}%</div>
                     <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">ASISTENCIA PROMEDIO</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (role === 'docente') {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-lg relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <BookOpen size={64} />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-tech-cyan/20 text-tech-cyan rounded-lg">
+                            <BookOpen size={24} />
+                        </div>
+                        <div>
+                            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Mis Materias</p>
+                            <h3 className="text-3xl font-bold text-white font-mono">{stats.subjectCount}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-lg relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <Users size={64} />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-tech-accent/20 text-tech-accent rounded-lg">
+                            <Users size={24} />
+                        </div>
+                        <div>
+                            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Alumnos a cargo</p>
+                            <h3 className="text-3xl font-bold text-white font-mono">{stats.studentCount}</h3>
+                        </div>
+                    </div>
                 </div>
             </div>
         );

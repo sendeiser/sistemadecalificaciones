@@ -95,7 +95,8 @@ const Attendance = () => {
 
             // Default to 'presente' if no record? Or null?
             // Usually easier to start with empty/null to force explicit check, or default Present.
-            // Let's default to null (unset) visually, but maybe 'presente' for logic if we want "Mark all present".
+            // Let's default to null (unset) visually,- [x] Optimize `Attendance.jsx` for mobile (Stacked view + larger touch targets)
+            // [/] Optimize `AttendanceCapture.jsx` for mobile (Card refinements)
 
             attendanceData.forEach(record => {
                 newAttendanceMap[record.estudiante_id] = record.estado;
@@ -271,74 +272,134 @@ const Attendance = () => {
                             {loading ? (
                                 <div className="p-12 text-center text-slate-500 font-mono animate-pulse">Cargando alumnos...</div>
                             ) : (
-                                <table className="w-full">
-                                    <thead className="bg-tech-primary text-slate-400 text-xs uppercase font-bold tracking-wider border-b border-tech-surface">
-                                        <tr>
-                                            <th className="p-4 text-left">Alumno</th>
-                                            <th className="p-4 text-center">Estado</th>
-                                            <th className="p-4 text-left">Observaciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-tech-surface">
+                                <>
+                                    {/* Desktop Table */}
+                                    <div className="hidden md:block">
+                                        <table className="w-full">
+                                            <thead className="bg-tech-primary text-slate-400 text-xs uppercase font-bold tracking-wider border-b border-tech-surface">
+                                                <tr>
+                                                    <th className="p-4 text-left">Alumno</th>
+                                                    <th className="p-4 text-center">Estado</th>
+                                                    <th className="p-4 text-left">Observaciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-tech-surface">
+                                                {students.map(student => {
+                                                    const status = attendanceMap[student.id];
+                                                    return (
+                                                        <tr key={student.id} className="hover:bg-tech-surface/30 transition-colors">
+                                                            <td className="p-4">
+                                                                <div className="font-bold text-white uppercase">{student.nombre}</div>
+                                                                <div className="text-xs text-slate-500 font-mono">{student.dni}</div>
+                                                            </td>
+                                                            <td className="p-4">
+                                                                <div className="flex items-center justify-center gap-2">
+                                                                    <button
+                                                                        onClick={() => handleStatusChange(student.id, 'presente')}
+                                                                        className={`p-2 rounded transition-all ${status === 'presente' ? 'bg-tech-success text-white shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
+                                                                        title="Presente"
+                                                                    >
+                                                                        <Check size={20} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleStatusChange(student.id, 'ausente')}
+                                                                        className={`p-2 rounded transition-all ${status === 'ausente' ? 'bg-tech-danger text-white shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
+                                                                        title="Ausente"
+                                                                    >
+                                                                        <X size={20} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleStatusChange(student.id, 'tarde')}
+                                                                        className={`p-2 rounded transition-all ${status === 'tarde' ? 'bg-tech-accent text-white shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
+                                                                        title="Tarde"
+                                                                    >
+                                                                        <Clock size={20} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleStatusChange(student.id, 'justificado')}
+                                                                        className={`p-2 rounded transition-all ${status === 'justificado' ? 'bg-tech-cyan text-white shadow-[0_0_10px_rgba(14,165,233,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
+                                                                        title="Justificado"
+                                                                    >
+                                                                        <AlertCircle size={20} />
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                            <td className="p-4">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="..."
+                                                                    value={observationsMap[student.id] || ''}
+                                                                    onChange={(e) => handleObservationChange(student.id, e.target.value)}
+                                                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-slate-200 focus:border-tech-cyan outline-none transition-colors"
+                                                                />
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Mobile Card List */}
+                                    <div className="md:hidden divide-y divide-tech-surface">
                                         {students.map(student => {
                                             const status = attendanceMap[student.id];
                                             return (
-                                                <tr key={student.id} className="hover:bg-tech-surface/30 transition-colors">
-                                                    <td className="p-4">
-                                                        <div className="font-bold text-white">{student.nombre}</div>
-                                                        <div className="text-xs text-slate-500 font-mono">{student.dni}</div>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <div className="flex items-center justify-center gap-2">
-                                                            <button
-                                                                onClick={() => handleStatusChange(student.id, 'presente')}
-                                                                className={`p-2 rounded transition-all ${status === 'presente' ? 'bg-tech-success text-white shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
-                                                                title="Presente"
-                                                            >
-                                                                <Check size={20} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleStatusChange(student.id, 'ausente')}
-                                                                className={`p-2 rounded transition-all ${status === 'ausente' ? 'bg-tech-danger text-white shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
-                                                                title="Ausente"
-                                                            >
-                                                                <X size={20} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleStatusChange(student.id, 'tarde')}
-                                                                className={`p-2 rounded transition-all ${status === 'tarde' ? 'bg-tech-accent text-white shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
-                                                                title="Tarde"
-                                                            >
-                                                                <Clock size={20} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleStatusChange(student.id, 'justificado')}
-                                                                className={`p-2 rounded transition-all ${status === 'justificado' ? 'bg-tech-cyan text-white shadow-[0_0_10px_rgba(14,165,233,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
-                                                                title="Justificado"
-                                                            >
-                                                                <AlertCircle size={20} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <input
-                                                            type="text"
-                                                            placeholder="..."
-                                                            value={observationsMap[student.id] || ''}
-                                                            onChange={(e) => handleObservationChange(student.id, e.target.value)}
-                                                            className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-1 text-sm text-slate-200 focus:border-tech-cyan outline-none transition-colors"
-                                                        />
-                                                    </td>
-                                                </tr>
+                                                <div key={student.id} className="p-4 space-y-4">
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="font-bold text-white uppercase tracking-tight">{student.nombre}</div>
+                                                        <div className="text-[10px] text-slate-500 font-mono">DNI: {student.dni}</div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-4 gap-2">
+                                                        <button
+                                                            onClick={() => handleStatusChange(student.id, 'presente')}
+                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'presente' ? 'bg-tech-success border-tech-success shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-tech-primary border-tech-surface text-slate-500'}`}
+                                                        >
+                                                            <Check size={24} />
+                                                            <span className="text-[8px] uppercase font-bold mt-1">Pres.</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleStatusChange(student.id, 'ausente')}
+                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'ausente' ? 'bg-tech-danger border-tech-danger shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-tech-primary border-tech-surface text-slate-500'}`}
+                                                        >
+                                                            <X size={24} />
+                                                            <span className="text-[8px] uppercase font-bold mt-1">Aus.</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleStatusChange(student.id, 'tarde')}
+                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'tarde' ? 'bg-tech-accent border-tech-accent shadow-[0_0_15px_rgba(245,158,11,0.3)]' : 'bg-tech-primary border-tech-surface text-slate-500'}`}
+                                                        >
+                                                            <Clock size={24} />
+                                                            <span className="text-[8px] uppercase font-bold mt-1">Tarde</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleStatusChange(student.id, 'justificado')}
+                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'justificado' ? 'bg-tech-cyan border-tech-cyan shadow-[0_0_15px_rgba(14,165,233,0.3)]' : 'bg-tech-primary border-tech-surface text-slate-500'}`}
+                                                        >
+                                                            <AlertCircle size={24} />
+                                                            <span className="text-[8px] uppercase font-bold mt-1">Just.</span>
+                                                        </button>
+                                                    </div>
+
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Observaciones..."
+                                                        value={observationsMap[student.id] || ''}
+                                                        onChange={(e) => handleObservationChange(student.id, e.target.value)}
+                                                        className="w-full bg-tech-primary border border-tech-surface rounded-lg px-4 py-3 text-sm text-slate-200 focus:border-tech-cyan outline-none transition-colors"
+                                                    />
+                                                </div>
                                             );
                                         })}
-                                        {students.length === 0 && (
-                                            <tr>
-                                                <td colSpan="3" className="p-8 text-center text-slate-500 font-mono">No hay alumnos en esta división.</td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                    </div>
+
+                                    {students.length === 0 && (
+                                        <div className="p-8 text-center text-slate-500 font-mono uppercase tracking-widest text-xs">
+                                            No hay alumnos en esta división.
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
 

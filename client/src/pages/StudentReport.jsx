@@ -1,0 +1,274 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
+import { useNavigate } from 'react-router-dom';
+import { FileText, Download, ArrowLeft, GraduationCap, Clock, AlertCircle, BookOpen } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { getApiEndpoint } from '../utils/api';
+
+const StudentReport = () => {
+    const { profile } = useAuth();
+    const navigate = useNavigate();
+    const [grades, setGrades] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [downloading, setDownloading] = useState(false);
+    const [division, setDivision] = useState(null);
+
+    useEffect(() => {
+        if (profile) {
+            fetchData();
+        }
+    }, [profile]);
+
+    const fetchData = async () => {
+        try {
+            // 1. Fetch Student Division
+            const { data: enrollment, error: eErr } = await supabase
+                .from('estudiantes_divisiones')
+                .select('division:divisiones(*)')
+                .eq('alumno_id', profile.id)
+                .single();
+
+            if (eErr) throw eErr;
+            setDivision(enrollment.division);
+
+            // 2. Fetch Assignments for this division
+            const { data: assignments, error: aErr } = await supabase
+                .from('asignaciones')
+                .select('id, materia:materias(nombre), docente:perfiles(nombre)')
+                .eq('division_id', enrollment.division.id);
+
+            if (aErr) throw aErr;
+
+            // 3. Fetch My Grades
+            const { data: myGrades, error: gErr } = await supabase
+                .from('calificaciones')
+                .select('*')
+                .eq('alumno_id', profile.id);
+
+            if (gErr) throw gErr;
+
+            // Merge
+            const report = assignments.map(asig => {
+                const g = myGrades.find(grade => grade.asignacion_id === asig.id) || {};
+                return {
+                    id: asig.id,
+                    materia: asig.materia.nombre,
+                    docente: asig.docente?.nombre || 'No asignado',
+                    parcial_1: g.parcial_1 || '-',
+                    parcial_2: g.parcial_2 || '-',
+                    parcial_3: g.parcial_3 || '-',
+                    parcial_4: g.parcial_4 || '-',
+                    promedio: g.promedio || '-',
+                    trayecto: g.trayecto_acompanamiento || '-'
+                };
+            }).sort((a, b) => a.materia.localeCompare(b.materia));
+
+            setGrades(report);
+        } catch (error) {
+            console.error('Error fetching student report:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const downloadPDF = async () => {
+        setDownloading(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const endpoint = getApiEndpoint('/reports/bulletin');
+
+            const response = await fetch(endpoint, {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Error al descargar el boletín');
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Boletin_${profile.nombre}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } catch (error) {
+            console.error(error);
+            alert('Error al descargar reporte');
+        } finally {
+            setDownloading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-tech-primary">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tech-cyan"></div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
+            <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row items-start md:items-center justify-between border-b border-tech-surface pb-6 gap-6">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-slate-400 hover:text-white border border-transparent hover:border-tech-surface"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-bold text-white uppercase tracking-tight flex items-center gap-3">
+                            <div className="p-2 bg-tech-success/20 rounded text-tech-success">
+                                <GraduationCap size={32} />
+                            </div>
+                            Mi Boletín de Calificaciones
+                        </h1>
+                        <p className="text-slate-400 font-mono mt-2">
+                            {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo}` : 'Cargando división...'}
+                        </p>
+                    </div>
+                </div>
+                <button
+                    onClick={downloadPDF}
+                    disabled={downloading}
+                    className="flex items-center gap-2 px-6 py-3 bg-tech-success hover:bg-emerald-600 text-white rounded font-bold transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+                >
+                    {downloading ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    ) : (
+                        <Download size={20} />
+                    )}
+                    Descargar PDF
+                </button>
+            </header>
+
+            <main className="max-w-7xl mx-auto">
+                <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-xl">
+                    <div className="p-4 bg-tech-primary/50 border-b border-tech-surface">
+                        <h2 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <BookOpen size={20} className="text-tech-cyan" />
+                            Calificaciones Consolidadas
+                        </h2>
+                    </div>
+
+                    {/* Desktop Table */}
+                    <div className="hidden md:block overflow-x-auto custom-scrollbar">
+                        <table className="w-full text-left">
+                            <thead className="bg-tech-primary text-slate-400 text-xs uppercase font-bold tracking-wider border-b border-tech-surface">
+                                <tr>
+                                    <th className="p-4">Materia</th>
+                                    <th className="p-4 text-center">P1</th>
+                                    <th className="p-4 text-center">P2</th>
+                                    <th className="p-4 text-center">P3</th>
+                                    <th className="p-4 text-center">P4</th>
+                                    <th className="p-4 text-center">Promedio</th>
+                                    <th className="p-4 text-center">Rata.</th>
+                                    <th className="p-4 text-center">Final</th>
+                                    <th className="p-4">Observaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-tech-surface">
+                                {grades.map((g, idx) => {
+                                    const avg = g.promedio;
+                                    return (
+                                        <tr key={idx} className="hover:bg-tech-primary/30 transition-colors">
+                                            <td className="p-4 font-bold text-white">{g.materia}</td>
+                                            <td className="p-4 text-center font-mono">{g.parcial_1}</td>
+                                            <td className="p-4 text-center font-mono">{g.parcial_2}</td>
+                                            <td className="p-4 text-center font-mono">{g.parcial_3}</td>
+                                            <td className="p-4 text-center font-mono">{g.parcial_4}</td>
+                                            <td className={`p-4 text-center font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
+                                                {avg}
+                                            </td>
+                                            <td className="p-4 text-center font-mono">-</td>
+                                            <td className={`p-4 text-center font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-cyan'}`}>
+                                                {avg}
+                                            </td>
+                                            <td className="p-4 text-sm text-slate-400 italic max-w-xs truncate" title={g.trayecto}>
+                                                {g.trayecto}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                                {grades.length === 0 && (
+                                    <tr>
+                                        <td colSpan="9" className="p-12 text-center text-slate-500 font-mono uppercase tracking-widest">
+                                            No hay calificaciones registradas.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Card List */}
+                    <div className="md:hidden divide-y divide-tech-surface">
+                        {grades.map((g, idx) => {
+                            const avg = g.promedio;
+                            return (
+                                <div key={idx} className="p-4 space-y-3">
+                                    <div className="flex justify-between items-start">
+                                        <h3 className="font-bold text-white text-lg leading-tight">{g.materia}</h3>
+                                        <div className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-widest ${avg !== '-' && Number(avg) < 7 ? 'bg-tech-danger/20 text-tech-danger' : 'bg-tech-cyan/20 text-tech-cyan'}`}>
+                                            FINAL: {avg}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-4 gap-2">
+                                        <div className="bg-tech-primary p-2 rounded border border-tech-surface text-center">
+                                            <div className="text-[10px] text-slate-500 uppercase font-bold mb-1">P1</div>
+                                            <div className="font-mono text-sm">{g.parcial_1}</div>
+                                        </div>
+                                        <div className="bg-tech-primary p-2 rounded border border-tech-surface text-center">
+                                            <div className="text-[10px] text-slate-500 uppercase font-bold mb-1">P2</div>
+                                            <div className="font-mono text-sm">{g.parcial_2}</div>
+                                        </div>
+                                        <div className="bg-tech-primary p-2 rounded border border-tech-surface text-center">
+                                            <div className="text-[10px] text-slate-500 uppercase font-bold mb-1">P3</div>
+                                            <div className="font-mono text-sm">{g.parcial_3}</div>
+                                        </div>
+                                        <div className="bg-tech-primary p-2 rounded border border-tech-surface text-center">
+                                            <div className="text-[10px] text-slate-500 uppercase font-bold mb-1">P4</div>
+                                            <div className="font-mono text-sm">{g.parcial_4}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center text-sm p-2 bg-tech-primary/30 rounded border border-tech-surface/50">
+                                        <div>
+                                            <span className="text-slate-500 uppercase text-[10px] font-bold mr-2">Promedio:</span>
+                                            <span className={`font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>{avg}</span>
+                                        </div>
+                                    </div>
+
+                                    {g.trayecto && g.trayecto !== '-' && (
+                                        <div className="text-xs text-slate-500 italic bg-tech-primary/20 p-2 rounded">
+                                            "{g.trayecto}"
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                        {grades.length === 0 && (
+                            <div className="p-12 text-center text-slate-500 font-mono uppercase tracking-widest text-xs">
+                                No hay calificaciones registradas.
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="mt-8 bg-tech-secondary/30 p-6 rounded border border-tech-surface border-dashed flex items-center gap-4 text-slate-400">
+                    <AlertCircle size={24} className="text-tech-cyan shrink-0" />
+                    <p className="text-sm font-mono italic">
+                        Este boletín muestra las calificaciones cargadas hasta la fecha por los docentes.
+                        Para reclamos o consultas, dirígete a preceptoría.
+                    </p>
+                </div>
+            </main>
+        </div>
+    );
+};
+
+export default StudentReport;

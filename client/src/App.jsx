@@ -15,7 +15,10 @@ import PeriodManagement from './pages/PeriodManagement';
 import GradeReport from './pages/GradeReport';
 import AttendanceOverview from './pages/AttendanceOverview';
 import AttendanceCapture from './components/AttendanceCapture';
+import TeacherReports from './pages/TeacherReports';
+import AdminAttendanceReport from './pages/AdminAttendanceReport';
 import Welcome from './pages/Welcome';
+import StudentReport from './pages/StudentReport';
 
 const ProtectedRoute = ({ children }) => {
   const { session, loading } = useAuth();
@@ -121,6 +124,21 @@ function App() {
           <Route path="/admin/attendance-capture" element={
             <ProtectedRoute>
               <AttendanceCapture />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/reports/attendance" element={
+            <ProtectedRoute>
+              <AdminAttendanceReport />
+            </ProtectedRoute>
+          } />
+          <Route path="/teacher/reports" element={
+            <ProtectedRoute>
+              <TeacherReports />
+            </ProtectedRoute>
+          } />
+          <Route path="/student/report" element={
+            <ProtectedRoute>
+              <StudentReport />
             </ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />

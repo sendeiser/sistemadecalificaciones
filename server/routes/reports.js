@@ -1,6 +1,6 @@
 // server/routes/reports.js
 const express = require('express');
-const { generateGradeReport, getAttendanceStats } = require('../controllers/reportController');
+const { generateGradeReport, getAttendanceStats, getGeneralDashboardStats, generateStudentBulletinPDF } = require('../controllers/reportController');
 const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -12,7 +12,14 @@ router.get('/grades', generateGradeReport);
 // GET /reports/attendance?division_id=...&start_date=...&end_date=...
 router.get('/attendance', getAttendanceStats);
 
-// GET /reports/division/:assignmentId
+// GET /reports/dashboard-stats
+router.get('/dashboard-stats', getGeneralDashboardStats);
+
+// PDF Reports
+router.get('/bulletin', generateStudentBulletinPDF);
+router.get('/bulletin/:studentId', generateStudentBulletinPDF);
 router.get('/division/:assignmentId', require('../controllers/reportController').generateDivisionReport);
+router.get('/attendance/assignment/:assignmentId', require('../controllers/reportController').generateAssignmentAttendancePDF);
+router.get('/attendance/division/:divisionId', require('../controllers/reportController').generateDivisionAttendancePDF);
 
 module.exports = router;

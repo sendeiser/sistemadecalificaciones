@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Download, Search } from 'lucide-react';
+import { getApiEndpoint } from '../utils/api';
 
 const GradeReport = () => {
     const [divisions, setDivisions] = useState([]);
@@ -27,8 +28,10 @@ const GradeReport = () => {
         setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
+            const endpoint = getApiEndpoint(`/reports/grades?division_id=${selectedDivision}&materia_id=${selectedSubject}`);
+
             const res = await fetch(
-                `/api/reports/grades?division_id=${selectedDivision}&materia_id=${selectedSubject}`,
+                endpoint,
                 {
                     headers: {
                         'Authorization': `Bearer ${session?.access_token}`
@@ -113,32 +116,43 @@ const GradeReport = () => {
                     >
                         <Download size={16} /> Exportar CSV
                     </button>
-                    <table className="w-full table-auto border-collapse bg-tech-secondary">
-                        <thead className="bg-tech-primary/50 text-slate-300">
-                            <tr>
-                                <th className="p-2 border">Alumno</th>
-                                <th className="p-2 border">DNI</th>
-                                <th className="p-2 border">P1</th>
-                                <th className="p-2 border">P2</th>
-                                <th className="p-2 border">P3</th>
-                                <th className="p-2 border">P4</th>
-                                <th className="p-2 border">Prom</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {report.map(r => (
-                                <tr key={r.alumno_id} className="border-t border-tech-surface">
-                                    <td className="p-2 border">{r.nombre}</td>
-                                    <td className="p-2 border text-center">{r.dni}</td>
-                                    <td className="p-2 border text-center">{r.parcial_1 ?? '-'}</td>
-                                    <td className="p-2 border text-center">{r.parcial_2 ?? '-'}</td>
-                                    <td className="p-2 border text-center">{r.parcial_3 ?? '-'}</td>
-                                    <td className="p-2 border text-center">{r.parcial_4 ?? '-'}</td>
-                                    <td className="p-2 border text-center">{r.promedio ?? '-'}</td>
+                    <div className="overflow-x-auto custom-scrollbar rounded border border-tech-surface shadow-inner">
+                        <table className="w-full min-w-[600px] table-auto border-collapse bg-tech-secondary">
+                            <thead className="bg-tech-primary/50 text-slate-300 font-mono text-xs uppercase tracking-wider">
+                                <tr>
+                                    <th className="p-3 border border-tech-surface text-left">Alumno</th>
+                                    <th className="p-3 border border-tech-surface text-center">DNI</th>
+                                    <th className="p-3 border border-tech-surface text-center">P1</th>
+                                    <th className="p-3 border border-tech-surface text-center">P2</th>
+                                    <th className="p-3 border border-tech-surface text-center">P3</th>
+                                    <th className="p-3 border border-tech-surface text-center">P4</th>
+                                    <th className="p-3 border border-tech-surface text-center">Prom</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-tech-surface">
+                                {report.map(r => (
+                                    <tr key={r.alumno_id} className="hover:bg-tech-primary/30 transition-colors">
+                                        <td className="p-3 border border-tech-surface font-bold text-white">{r.nombre}</td>
+                                        <td className="p-3 border border-tech-surface text-center font-mono text-sm">{r.dni}</td>
+                                        <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_1 ?? '-'}</td>
+                                        <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_2 ?? '-'}</td>
+                                        <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_3 ?? '-'}</td>
+                                        <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_4 ?? '-'}</td>
+                                        <td className={`p-3 border border-tech-surface text-center font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
+                                            {r.promedio ?? '-'}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {report.length === 0 && (
+                                    <tr>
+                                        <td colSpan="7" className="p-12 text-center text-slate-500 font-mono uppercase tracking-widest text-xs">
+                                            No hay registros para mostrar.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </>
             )}
         </div>
