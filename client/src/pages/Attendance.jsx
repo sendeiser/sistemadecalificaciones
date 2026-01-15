@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { Calendar, Save, Check, X, Clock, AlertCircle, ArrowLeft, Users, CheckSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Attendance = () => {
     const { profile } = useAuth();
@@ -163,36 +164,39 @@ const Attendance = () => {
 
     if (loading && !selectedAssignment) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-tech-primary text-slate-100">
+            <div className="flex items-center justify-center min-h-screen bg-tech-primary text-tech-text">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tech-cyan"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
+        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             {/* Header */}
             <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-white uppercase tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
                         <div className="p-2 bg-tech-cyan/20 rounded text-tech-cyan">
                             <Clock size={32} />
                         </div>
                         Control de Asistencia
                     </h1>
-                    <p className="text-slate-400 font-mono mt-2">
+                    <p className="text-tech-muted font-mono mt-2">
                         {selectedAssignment
                             ? `${selectedAssignment.materia.nombre} - ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
                             : 'Selecciona una materia para registrar la asistencia del día.'}
                     </p>
                 </div>
-                <button
-                    onClick={() => navigate('/dashboard')}
-                    className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white hover:bg-tech-surface rounded transition-colors"
-                >
-                    <ArrowLeft size={20} />
-                    Volver
-                </button>
+                <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="flex items-center gap-2 px-4 py-2 text-tech-muted hover:text-tech-text hover:bg-tech-surface rounded transition-colors"
+                    >
+                        <ArrowLeft size={20} />
+                        Volver
+                    </button>
+                </div>
             </header>
 
             <div className="max-w-7xl mx-auto">
@@ -219,18 +223,18 @@ const Attendance = () => {
                                     <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors text-tech-cyan">
                                         <Users size={24} />
                                     </div>
-                                    <span className="text-xs font-mono text-slate-500 border border-tech-surface px-2 py-1 rounded">
+                                    <span className="text-xs font-mono text-tech-muted border border-tech-surface px-2 py-1 rounded">
                                         ID: {assign.id.slice(0, 6)}
                                     </span>
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-2">{assign.materia.nombre}</h3>
-                                <p className="text-slate-400 font-mono">
+                                <h3 className="text-xl font-bold text-tech-text mb-2">{assign.materia.nombre}</h3>
+                                <p className="text-tech-muted font-mono">
                                     {assign.division.anio} "{assign.division.seccion}"
                                 </p>
                             </div>
                         ))}
                         {assignments.length === 0 && !loading && (
-                            <div className="col-span-full text-center py-12 text-slate-500 font-mono">
+                            <div className="col-span-full text-center py-12 text-tech-muted font-mono">
                                 No tienes cursos asignados.
                             </div>
                         )}
@@ -241,26 +245,26 @@ const Attendance = () => {
                         {/* Controls */}
                         <div className="bg-tech-secondary p-6 rounded border border-tech-surface flex flex-col md:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-4 w-full md:w-auto">
-                                <label className="text-slate-400 font-mono uppercase text-sm">Fecha:</label>
+                                <label className="text-tech-muted font-mono uppercase text-sm">Fecha:</label>
                                 <input
                                     type="date"
                                     value={selectedDate}
                                     onChange={(e) => setSelectedDate(e.target.value)}
-                                    className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-white focus:border-tech-cyan outline-none font-mono"
+                                    className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none font-mono"
                                 />
                             </div>
 
                             <div className="flex items-center gap-4 w-full md:w-auto">
                                 <button
                                     onClick={markAllPresent}
-                                    className="flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-slate-600 text-white rounded transition-colors text-sm uppercase font-bold tracking-wider"
+                                    className="flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-colors text-sm uppercase font-bold tracking-wider"
                                 >
                                     <CheckSquare size={18} />
                                     Todos Presentes
                                 </button>
                                 <button
                                     onClick={() => setSelectedAssignment(null)}
-                                    className="px-4 py-2 text-slate-400 hover:text-white transition-colors text-sm underline"
+                                    className="px-4 py-2 text-tech-muted hover:text-tech-text transition-colors text-sm underline"
                                 >
                                     Cambiar Curso
                                 </button>
@@ -270,13 +274,13 @@ const Attendance = () => {
                         {/* Student List */}
                         <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden">
                             {loading ? (
-                                <div className="p-12 text-center text-slate-500 font-mono animate-pulse">Cargando alumnos...</div>
+                                <div className="p-12 text-center text-tech-muted font-mono animate-pulse">Cargando alumnos...</div>
                             ) : (
                                 <>
                                     {/* Desktop Table */}
                                     <div className="hidden md:block">
                                         <table className="w-full">
-                                            <thead className="bg-tech-primary text-slate-400 text-xs uppercase font-bold tracking-wider border-b border-tech-surface">
+                                            <thead className="bg-tech-primary text-tech-muted text-xs uppercase font-bold tracking-wider border-b border-tech-surface">
                                                 <tr>
                                                     <th className="p-4 text-left">Alumno</th>
                                                     <th className="p-4 text-center">Estado</th>
@@ -289,8 +293,8 @@ const Attendance = () => {
                                                     return (
                                                         <tr key={student.id} className="hover:bg-tech-surface/30 transition-colors">
                                                             <td className="p-4">
-                                                                <div className="font-bold text-white uppercase">{student.nombre}</div>
-                                                                <div className="text-xs text-slate-500 font-mono">{student.dni}</div>
+                                                                <div className="font-bold text-tech-text uppercase">{student.nombre}</div>
+                                                                <div className="text-xs text-tech-muted font-mono">{student.dni}</div>
                                                             </td>
                                                             <td className="p-4">
                                                                 <div className="flex items-center justify-center gap-2">
@@ -310,14 +314,14 @@ const Attendance = () => {
                                                                     </button>
                                                                     <button
                                                                         onClick={() => handleStatusChange(student.id, 'tarde')}
-                                                                        className={`p-2 rounded transition-all ${status === 'tarde' ? 'bg-tech-accent text-white shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
+                                                                        className={`p-2 rounded transition-all ${status === 'tarde' ? 'bg-tech-accent text-white shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 'bg-tech-primary text-tech-muted hover:bg-tech-surface'}`}
                                                                         title="Tarde"
                                                                     >
                                                                         <Clock size={20} />
                                                                     </button>
                                                                     <button
                                                                         onClick={() => handleStatusChange(student.id, 'justificado')}
-                                                                        className={`p-2 rounded transition-all ${status === 'justificado' ? 'bg-tech-cyan text-white shadow-[0_0_10px_rgba(14,165,233,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
+                                                                        className={`p-2 rounded transition-all ${status === 'justificado' ? 'bg-tech-cyan text-white shadow-[0_0_10px_rgba(14,165,233,0.4)]' : 'bg-tech-primary text-tech-muted hover:bg-tech-surface'}`}
                                                                         title="Justificado"
                                                                     >
                                                                         <AlertCircle size={20} />
@@ -330,7 +334,7 @@ const Attendance = () => {
                                                                     placeholder="..."
                                                                     value={observationsMap[student.id] || ''}
                                                                     onChange={(e) => handleObservationChange(student.id, e.target.value)}
-                                                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-slate-200 focus:border-tech-cyan outline-none transition-colors"
+                                                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text placeholder-tech-muted/50 focus:border-tech-cyan outline-none transition-colors"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -347,35 +351,35 @@ const Attendance = () => {
                                             return (
                                                 <div key={student.id} className="p-4 space-y-4">
                                                     <div className="flex justify-between items-center">
-                                                        <div className="font-bold text-white uppercase tracking-tight">{student.nombre}</div>
-                                                        <div className="text-[10px] text-slate-500 font-mono">DNI: {student.dni}</div>
+                                                        <div className="font-bold text-tech-text uppercase tracking-tight">{student.nombre}</div>
+                                                        <div className="text-[10px] text-tech-muted font-mono">DNI: {student.dni}</div>
                                                     </div>
 
                                                     <div className="grid grid-cols-4 gap-2">
                                                         <button
                                                             onClick={() => handleStatusChange(student.id, 'presente')}
-                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'presente' ? 'bg-tech-success border-tech-success shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-tech-primary border-tech-surface text-slate-500'}`}
+                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'presente' ? 'bg-tech-success border-tech-success shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-tech-primary border-tech-surface text-tech-muted'}`}
                                                         >
                                                             <Check size={24} />
                                                             <span className="text-[8px] uppercase font-bold mt-1">Pres.</span>
                                                         </button>
                                                         <button
                                                             onClick={() => handleStatusChange(student.id, 'ausente')}
-                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'ausente' ? 'bg-tech-danger border-tech-danger shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-tech-primary border-tech-surface text-slate-500'}`}
+                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'ausente' ? 'bg-tech-danger border-tech-danger shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-tech-primary border-tech-surface text-tech-muted'}`}
                                                         >
                                                             <X size={24} />
                                                             <span className="text-[8px] uppercase font-bold mt-1">Aus.</span>
                                                         </button>
                                                         <button
                                                             onClick={() => handleStatusChange(student.id, 'tarde')}
-                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'tarde' ? 'bg-tech-accent border-tech-accent shadow-[0_0_15px_rgba(245,158,11,0.3)]' : 'bg-tech-primary border-tech-surface text-slate-500'}`}
+                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'tarde' ? 'bg-tech-accent border-tech-accent shadow-[0_0_15px_rgba(245,158,11,0.3)]' : 'bg-tech-primary border-tech-surface text-tech-muted'}`}
                                                         >
                                                             <Clock size={24} />
                                                             <span className="text-[8px] uppercase font-bold mt-1">Tarde</span>
                                                         </button>
                                                         <button
                                                             onClick={() => handleStatusChange(student.id, 'justificado')}
-                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'justificado' ? 'bg-tech-cyan border-tech-cyan shadow-[0_0_15px_rgba(14,165,233,0.3)]' : 'bg-tech-primary border-tech-surface text-slate-500'}`}
+                                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${status === 'justificado' ? 'bg-tech-cyan border-tech-cyan shadow-[0_0_15px_rgba(14,165,233,0.3)]' : 'bg-tech-primary border-tech-surface text-tech-muted'}`}
                                                         >
                                                             <AlertCircle size={24} />
                                                             <span className="text-[8px] uppercase font-bold mt-1">Just.</span>
@@ -387,7 +391,7 @@ const Attendance = () => {
                                                         placeholder="Observaciones..."
                                                         value={observationsMap[student.id] || ''}
                                                         onChange={(e) => handleObservationChange(student.id, e.target.value)}
-                                                        className="w-full bg-tech-primary border border-tech-surface rounded-lg px-4 py-3 text-sm text-slate-200 focus:border-tech-cyan outline-none transition-colors"
+                                                        className="w-full bg-tech-primary border border-tech-surface rounded-lg px-4 py-3 text-sm text-tech-text focus:border-tech-cyan outline-none transition-colors placeholder-tech-muted/50"
                                                     />
                                                 </div>
                                             );
@@ -395,7 +399,7 @@ const Attendance = () => {
                                     </div>
 
                                     {students.length === 0 && (
-                                        <div className="p-8 text-center text-slate-500 font-mono uppercase tracking-widest text-xs">
+                                        <div className="p-8 text-center text-tech-muted font-mono uppercase tracking-widest text-xs">
                                             No hay alumnos en esta división.
                                         </div>
                                     )}

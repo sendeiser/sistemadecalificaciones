@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { Layers, Plus, Pencil, Trash2, X, Check, Save, Users, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ThemeToggle from '../components/ThemeToggle';
 
 const DivisionManagement = () => {
     const navigate = useNavigate();
@@ -92,34 +93,38 @@ const DivisionManagement = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
+        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             {/* Navigation Header */}
             <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-surface rounded transition-colors text-slate-400 hover:text-white"
+                        className="flex items-center gap-2 px-4 py-2 text-tech-muted hover:text-tech-text bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-colors"
                     >
-                        <ArrowLeft size={24} />
+                        <ArrowLeft size={20} />
+                        Volver
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight uppercase">
+                        <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
                             Divisiones
                         </h1>
-                        <p className="text-slate-400 text-sm font-mono">GESTIÓN DE CURSOS Y SECCIONES</p>
+                        <p className="text-tech-muted text-sm font-mono">GESTIÓN DE CURSOS Y SECCIONES</p>
                     </div>
                 </div>
-                <button
-                    onClick={() => {
-                        setIsAdding(true);
-                        setEditingId(null);
-                        setFormData({ anio: '', seccion: '', ciclo_lectivo: 2024, campo_formacion: '' });
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-tech-accent hover:bg-violet-600 rounded transition-colors text-sm font-bold shadow-[0_0_15px_rgba(139,92,246,0.3)] uppercase tracking-wider text-white"
-                >
-                    <Plus size={18} />
-                    Nueva División
-                </button>
+                <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    <button
+                        onClick={() => {
+                            setIsAdding(true);
+                            setEditingId(null);
+                            setFormData({ anio: '', seccion: '', ciclo_lectivo: 2024, campo_formacion: '' });
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-tech-accent hover:bg-violet-600 rounded transition-colors text-sm font-bold shadow-[0_0_15px_rgba(139,92,246,0.3)] uppercase tracking-wider text-white"
+                    >
+                        <Plus size={18} />
+                        Nueva División
+                    </button>
+                </div>
             </header>
 
             <div className="max-w-7xl mx-auto">
@@ -129,46 +134,46 @@ const DivisionManagement = () => {
                         <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                             <Layers size={100} />
                         </div>
-                        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white uppercase tracking-wider border-b border-tech-surface pb-2 relative z-10">
+                        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-tech-text uppercase tracking-wider border-b border-tech-surface pb-2 relative z-10">
                             <Plus size={20} className="text-tech-accent" />
                             Crear Nueva División
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Año</label>
+                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Año</label>
                                 <input
                                     type="text"
                                     placeholder="Ej: 1ro, 2do..."
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-slate-600 text-white"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-tech-muted/50 text-tech-text"
                                     value={formData.anio}
                                     onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Sección</label>
+                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Sección</label>
                                 <input
                                     type="text"
                                     placeholder="Ej: A, B, 1ra..."
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-slate-600 text-white"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-tech-muted/50 text-tech-text"
                                     value={formData.seccion}
                                     onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Ciclo Lectivo</label>
+                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Ciclo Lectivo</label>
                                 <input
                                     type="number"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-slate-600 text-white font-mono"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-tech-muted/50 text-tech-text font-mono"
                                     value={formData.ciclo_lectivo}
                                     onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Campo de Formación</label>
+                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Campo de Formación</label>
                                 <input
                                     type="text"
                                     placeholder="Ej: Informática"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-slate-600 text-white"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-tech-muted/50 text-tech-text"
                                     value={formData.campo_formacion}
                                     onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
                                 />
@@ -179,7 +184,7 @@ const DivisionManagement = () => {
                                 <Save size={18} />
                                 Guardar División
                             </button>
-                            <button onClick={() => setIsAdding(false)} className="px-6 py-2 bg-tech-surface hover:bg-slate-700 rounded font-bold text-slate-300 uppercase tracking-wider text-sm transition-colors">
+                            <button onClick={() => setIsAdding(false)} className="px-6 py-2 bg-tech-surface hover:bg-tech-secondary rounded font-bold text-tech-muted hover:text-tech-text uppercase tracking-wider text-sm transition-colors">
                                 Cancelar
                             </button>
                         </div>
@@ -190,7 +195,7 @@ const DivisionManagement = () => {
                     {/* Desktop Table View */}
                     <div className="hidden md:block overflow-x-auto custom-scrollbar">
                         <table className="w-full text-left">
-                            <thead className="bg-tech-primary text-slate-400 text-sm border-b border-tech-surface font-heading">
+                            <thead className="bg-tech-primary text-tech-muted text-sm border-b border-tech-surface font-heading">
                                 <tr>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Año y Sección</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Ciclo Lectivo</th>
@@ -200,9 +205,9 @@ const DivisionManagement = () => {
                             </thead>
                             <tbody className="divide-y divide-tech-surface">
                                 {loading ? (
-                                    <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando divisiones...</td></tr>
+                                    <tr><td colSpan="4" className="p-10 text-center text-tech-muted font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando divisiones...</td></tr>
                                 ) : divisions.length === 0 ? (
-                                    <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono italic">No hay divisiones creadas.</td></tr>
+                                    <tr><td colSpan="4" className="p-10 text-center text-tech-muted font-mono italic">No hay divisiones creadas.</td></tr>
                                 ) : divisions.map(d => (
                                     <tr key={d.id} className="hover:bg-tech-primary/50 transition-colors">
                                         <td className="p-4">
@@ -223,7 +228,7 @@ const DivisionManagement = () => {
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-bold text-white uppercase">{d.anio}</span>
+                                                    <span className="font-bold text-tech-text uppercase">{d.anio}</span>
                                                     <span className="px-2 py-0.5 bg-tech-primary text-tech-accent rounded text-sm font-mono border border-tech-surface font-bold">
                                                         {d.seccion}
                                                     </span>
@@ -234,31 +239,31 @@ const DivisionManagement = () => {
                                             {editingId === d.id ? (
                                                 <input
                                                     type="number"
-                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-24 outline-none text-white text-sm font-mono"
+                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-24 outline-none text-tech-text text-sm font-mono"
                                                     value={formData.ciclo_lectivo}
                                                     onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
                                                 />
                                             ) : (
-                                                <span className="text-slate-300 font-mono">{d.ciclo_lectivo}</span>
+                                                <span className="text-tech-text font-mono">{d.ciclo_lectivo}</span>
                                             )}
                                         </td>
                                         <td className="p-4">
                                             {editingId === d.id ? (
                                                 <input
                                                     type="text"
-                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-full outline-none text-white text-sm"
+                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-full outline-none text-tech-text text-sm"
                                                     value={formData.campo_formacion}
                                                     onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
                                                 />
                                             ) : (
-                                                <span className="text-slate-400 italic font-mono text-sm">{d.campo_formacion || '-'}</span>
+                                                <span className="text-tech-muted italic font-mono text-sm">{d.campo_formacion || '-'}</span>
                                             )}
                                         </td>
                                         <td className="p-4 text-center">
                                             <div className="flex justify-center gap-2">
                                                 <button
                                                     onClick={() => navigate('/enrollment')}
-                                                    className="p-1.5 bg-tech-primary text-slate-400 hover:text-white border border-tech-surface hover:border-tech-cyan rounded transition-all group"
+                                                    className="p-1.5 bg-tech-primary text-tech-muted hover:text-tech-text border border-tech-surface hover:border-tech-cyan rounded transition-all group"
                                                     title="Gestionar Alumnos"
                                                 >
                                                     <Users size={18} className="group-hover:scale-110 transition-transform" />
@@ -294,9 +299,9 @@ const DivisionManagement = () => {
                     {/* Mobile Card List View */}
                     <div className="md:hidden divide-y divide-tech-surface">
                         {loading ? (
-                            <div className="p-10 text-center text-slate-500 font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando...</div>
+                            <div className="p-10 text-center text-tech-muted font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando...</div>
                         ) : divisions.length === 0 ? (
-                            <div className="p-10 text-center text-slate-500 font-mono italic">No hay divisiones.</div>
+                            <div className="p-10 text-center text-tech-muted font-mono italic">No hay divisiones.</div>
                         ) : divisions.map(d => (
                             <div key={d.id} className="p-4 space-y-4">
                                 {editingId === d.id ? (
@@ -320,14 +325,14 @@ const DivisionManagement = () => {
                                         <input
                                             type="number"
                                             inputmode="numeric"
-                                            className="w-full bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-white text-sm font-mono"
+                                            className="w-full bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-tech-text text-sm font-mono"
                                             value={formData.ciclo_lectivo}
                                             onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
                                             placeholder="Ciclo Lectivo"
                                         />
                                         <input
                                             type="text"
-                                            className="w-full bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-white text-sm"
+                                            className="w-full bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-tech-text text-sm"
                                             value={formData.campo_formacion}
                                             onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
                                             placeholder="Campo de Formación"
@@ -336,7 +341,7 @@ const DivisionManagement = () => {
                                             <button onClick={() => handleSave(d.id)} className="flex-1 py-2 bg-tech-success text-white rounded font-bold text-xs uppercase tracking-widest">
                                                 Guardar
                                             </button>
-                                            <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-tech-surface text-slate-400 rounded font-bold text-xs uppercase tracking-widest">
+                                            <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-tech-surface text-tech-muted rounded font-bold text-xs uppercase tracking-widest">
                                                 Cancelar
                                             </button>
                                         </div>
@@ -345,21 +350,21 @@ const DivisionManagement = () => {
                                     <div className="flex justify-between items-center">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
-                                                <h3 className="font-bold text-white text-lg uppercase tracking-tight">{d.anio}</h3>
+                                                <h3 className="font-bold text-tech-text text-lg uppercase tracking-tight">{d.anio}</h3>
                                                 <span className="px-2 py-0.5 bg-tech-primary text-tech-accent rounded text-sm font-mono font-bold border border-tech-surface">
                                                     {d.seccion}
                                                 </span>
                                             </div>
                                             <div className="mt-1 flex items-center gap-3 text-xs font-mono">
-                                                <span className="text-slate-500 uppercase">Ciclo {d.ciclo_lectivo}</span>
+                                                <span className="text-tech-muted uppercase">Ciclo {d.ciclo_lectivo}</span>
                                                 <span className="text-slate-600">|</span>
-                                                <span className="text-slate-400 italic">{d.campo_formacion || 'General'}</span>
+                                                <span className="text-tech-muted italic">{d.campo_formacion || 'General'}</span>
                                             </div>
                                         </div>
                                         <div className="flex gap-1">
                                             <button
                                                 onClick={() => navigate('/enrollment')}
-                                                className="p-2.5 bg-tech-primary border border-tech-surface text-slate-400 rounded-lg hover:text-white"
+                                                className="p-2.5 bg-tech-primary border border-tech-surface text-tech-muted rounded-lg hover:text-tech-text"
                                             >
                                                 <Users size={20} />
                                             </button>

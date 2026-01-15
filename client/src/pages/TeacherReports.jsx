@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { FileText, Calendar, Download, ArrowLeft, Users, Clock } from 'lucide-react';
+import { Calendar, Download, FileText, ArrowLeft, BarChart3 } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
 
@@ -22,10 +23,10 @@ const TeacherReports = () => {
             const { data, error } = await supabase
                 .from('asignaciones')
                 .select(`
-                    id,
-                    materia:materias(nombre),
-                    division:divisiones(id, anio, seccion)
-                `)
+id,
+    materia: materias(nombre),
+        division: divisiones(id, anio, seccion)
+            `)
                 .eq('docente_id', profile.id);
 
             if (error) throw error;
@@ -44,37 +45,40 @@ const TeacherReports = () => {
 
         let endpoint = '';
         if (type === 'asistencia') {
-            endpoint = getApiEndpoint(`/reports/attendance/assignment/${assignmentId}`);
+            endpoint = getApiEndpoint(`/ reports / attendance / assignment / ${assignmentId} `);
         } else {
-            endpoint = getApiEndpoint(`/reports/division/${assignmentId}`);
+            endpoint = getApiEndpoint(`/ reports / division / ${assignmentId} `);
         }
 
-        let queryParams = `?token=${token}`;
-        if (startDate) queryParams += `&start_date=${startDate}`;
-        if (endDate) queryParams += `&end_date=${endDate}`;
+        let queryParams = `? token = ${token} `;
+        if (startDate) queryParams += `& start_date=${startDate} `;
+        if (endDate) queryParams += `& end_date=${endDate} `;
 
-        window.open(`${endpoint}${queryParams}`, '_blank');
+        window.open(`${endpoint}${queryParams} `, '_blank');
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
+        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-white uppercase tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
                         <div className="p-2 bg-tech-cyan/20 rounded text-tech-cyan">
                             <FileText size={32} />
                         </div>
                         Mis Reportes
                     </h1>
-                    <p className="text-slate-400 font-mono mt-2">Exportación de planillas de calificaciones y asistencia.</p>
+                    <p className="text-tech-muted font-mono mt-2">Exportación de planillas de calificaciones y asistencia.</p>
                 </div>
-                <button
-                    onClick={() => navigate('/dashboard')}
-                    className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white hover:bg-tech-surface rounded transition-colors"
-                >
-                    <ArrowLeft size={20} />
-                    Volver
-                </button>
+                <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="flex items-center gap-2 px-4 py-2 text-tech-muted hover:text-tech-text hover:bg-tech-surface rounded transition-colors"
+                    >
+                        <ArrowLeft size={20} />
+                        Volver
+                    </button>
+                </div>
             </header>
 
             <div className="max-w-7xl mx-auto space-y-8">
@@ -82,11 +86,11 @@ const TeacherReports = () => {
                 <div className="bg-tech-secondary p-6 rounded border border-tech-surface flex flex-wrap items-center gap-6">
                     <div className="flex items-center gap-3">
                         <Calendar size={20} className="text-tech-cyan" />
-                        <span className="text-sm font-bold uppercase tracking-wider text-slate-400">Rango de Fechas:</span>
+                        <span className="text-sm font-bold uppercase tracking-wider text-tech-muted">Rango de Fechas:</span>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                            <label className="text-xs text-slate-500 font-mono">DESDE:</label>
+                            <label className="text-xs text-tech-muted font-mono">DESDE:</label>
                             <input
                                 type="date"
                                 value={startDate}
@@ -95,7 +99,7 @@ const TeacherReports = () => {
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <label className="text-xs text-slate-500 font-mono">HASTA:</label>
+                            <label className="text-xs text-tech-muted font-mono">HASTA:</label>
                             <input
                                 type="date"
                                 value={endDate}
@@ -104,13 +108,13 @@ const TeacherReports = () => {
                             />
                         </div>
                     </div>
-                    <p className="text-xs text-slate-500 font-mono italic md:ml-auto">
+                    <p className="text-xs text-tech-muted font-mono italic md:ml-auto">
                         * Los filtros afectan solo al reporte de asistencia.
                     </p>
                 </div>
 
                 {loading ? (
-                    <div className="text-center py-20 animate-pulse text-slate-500 font-mono">Cargando tus materias...</div>
+                    <div className="text-center py-20 animate-pulse text-tech-muted font-mono">Cargando tus materias...</div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {assignments.map(assign => (
@@ -119,9 +123,9 @@ const TeacherReports = () => {
                                     <div className="p-3 bg-tech-cyan/10 rounded text-tech-cyan">
                                         <Users size={24} />
                                     </div>
-                                    <span className="text-[10px] font-mono text-slate-500 uppercase">Asignación: {assign.id.slice(0, 6)}</span>
+                                    <span className="text-[10px] font-mono text-tech-muted uppercase">Asignación: {assign.id.slice(0, 6)}</span>
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-1 uppercase tracking-tight">{assign.materia.nombre}</h3>
+                                <h3 className="text-xl font-bold text-tech-text mb-1 uppercase tracking-tight">{assign.materia.nombre}</h3>
                                 <p className="text-tech-accent font-mono text-sm mb-6 pb-4 border-b border-tech-surface/50">
                                     {assign.division.anio} "{assign.division.seccion}"
                                 </p>
@@ -129,14 +133,14 @@ const TeacherReports = () => {
                                 <div className="space-y-3">
                                     <button
                                         onClick={() => downloadPDF(assign.id, 'notas')}
-                                        className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-slate-700 text-white rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-cyan"
+                                        className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-cyan"
                                     >
                                         <FileText size={16} className="text-tech-cyan" />
                                         Planilla de Notas
                                     </button>
                                     <button
                                         onClick={() => downloadPDF(assign.id, 'asistencia')}
-                                        className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-slate-700 text-white rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-accent"
+                                        className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-accent"
                                     >
                                         <Clock size={16} className="text-tech-accent" />
                                         Registro Asistencia
@@ -146,7 +150,7 @@ const TeacherReports = () => {
                         ))}
                         {assignments.length === 0 && (
                             <div className="col-span-full text-center py-20 bg-tech-secondary/30 rounded border border-dashed border-tech-surface">
-                                <p className="text-slate-500 font-mono">No tienes cursos asignados para generar reportes.</p>
+                                <p className="text-tech-muted font-mono">No tienes cursos asignados para generar reportes.</p>
                             </div>
                         )}
                     </div>

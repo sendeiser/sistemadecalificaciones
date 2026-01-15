@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
 import { supabase } from '../supabaseClient';
 import { UserPlus, Mail, Lock, User, CreditCard, ArrowRight, CheckCircle2 } from 'lucide-react';
 
@@ -56,7 +57,7 @@ const Register = () => {
 
     if (success) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-tech-primary text-slate-100 p-6 font-sans relative">
+            <div className="flex items-center justify-center min-h-screen bg-tech-primary text-tech-text p-6 font-sans relative">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-tech-success/5 rounded-full blur-[120px] pointer-events-none"></div>
 
                 <div className="w-full max-w-md p-8 space-y-6 bg-tech-secondary rounded border border-tech-surface shadow-[0_0_50px_rgba(0,0,0,0.5)] text-center animate-in zoom-in duration-500 relative z-10">
@@ -65,8 +66,8 @@ const Register = () => {
                             <CheckCircle2 className="text-tech-success" size={64} />
                         </div>
                     </div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight uppercase">¡Registro Exitoso!</h2>
-                    <p className="text-slate-400 font-mono text-sm leading-relaxed">
+                    <h2 className="text-3xl font-bold text-tech-text tracking-tight uppercase">¡Registro Exitoso!</h2>
+                    <p className="text-tech-muted font-mono text-sm leading-relaxed">
                         Tu cuenta de docente ha sido creada. Por favor, verifica tu correo electrónico si el sistema lo requiere.
                     </p>
                     <button
@@ -82,7 +83,10 @@ const Register = () => {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-tech-primary text-slate-100 p-6 font-sans relative overflow-hidden">
+        <div className="flex items-center justify-center min-h-screen bg-tech-primary text-tech-text p-6 font-sans relative overflow-hidden">
+            <div className="fixed top-6 right-6 z-50">
+                <ThemeToggle />
+            </div>
             {/* Background elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-tech-cyan/5 rounded-full blur-[120px]"></div>
@@ -95,16 +99,16 @@ const Register = () => {
                     <div className="inline-flex p-3 bg-tech-cyan/10 rounded mb-4 border border-tech-cyan/20">
                         <UserPlus className="text-tech-cyan" size={32} />
                     </div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight uppercase">
+                    <h2 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
                         Registro de Docente
                     </h2>
-                    <p className="text-slate-400 mt-2 font-mono text-sm">Crea tu cuenta para comenzar la gestión académica.</p>
+                    <p className="text-tech-muted mt-2 font-mono text-sm">Crea tu cuenta para comenzar la gestión académica.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2 tracking-wider">
+                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
                                 <User size={14} /> Nombre Completo
                             </label>
                             <input
@@ -112,13 +116,13 @@ const Register = () => {
                                 type="text"
                                 required
                                 placeholder="Ej: Juan Pérez"
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-white transition-all placeholder-slate-600"
+                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
                                 value={formData.nombre}
                                 onChange={handleChange}
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2 tracking-wider">
+                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
                                 <CreditCard size={14} /> DNI
                             </label>
                             <input
@@ -126,7 +130,7 @@ const Register = () => {
                                 type="text"
                                 required
                                 placeholder="Sin puntos ni espacios"
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-white transition-all placeholder-slate-600"
+                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
                                 value={formData.dni}
                                 onChange={handleChange}
                             />
@@ -134,7 +138,7 @@ const Register = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2 tracking-wider">
+                        <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
                             <Mail size={14} /> Correo Electrónico
                         </label>
                         <input
@@ -142,7 +146,7 @@ const Register = () => {
                             type="email"
                             required
                             placeholder="docente@escuela.edu.ar"
-                            className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-white transition-all placeholder-slate-600"
+                            className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
                             value={formData.email}
                             onChange={handleChange}
                         />
@@ -158,7 +162,7 @@ const Register = () => {
                                 type="password"
                                 required
                                 minLength="6"
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-white transition-all placeholder-slate-600"
+                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
                                 value={formData.password}
                                 onChange={handleChange}
                             />
@@ -171,7 +175,7 @@ const Register = () => {
                                 name="confirmPassword"
                                 type="password"
                                 required
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-white transition-all placeholder-slate-600"
+                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                             />
@@ -194,9 +198,9 @@ const Register = () => {
                     </button>
 
                     <div className="text-center pt-2 border-t border-tech-surface mt-6">
-                        <p className="text-slate-500 text-sm">
+                        <p className="text-tech-muted text-sm">
                             ¿Ya tienes una cuenta? {' '}
-                            <Link to="/login" className="text-tech-cyan font-bold hover:text-white transition-colors uppercase text-xs tracking-wider">
+                            <Link to="/login" className="text-tech-cyan font-bold hover:text-tech-text transition-colors uppercase text-xs tracking-wider">
                                 Iniciar Sesión
                             </Link>
                         </p>

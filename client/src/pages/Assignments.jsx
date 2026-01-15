@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus, Trash2, BookOpen, Layers, ArrowLeft } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Assignments = () => {
     const navigate = useNavigate();
@@ -65,37 +66,38 @@ const Assignments = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
+        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             {/* Navigation Header */}
             <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-surface rounded transition-colors text-slate-400 hover:text-white"
+                        className="p-2 hover:bg-tech-surface rounded transition-colors text-tech-muted hover:text-tech-text"
                     >
                         <ArrowLeft size={24} />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight uppercase">
+                        <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
                             Asignaciones
                         </h1>
-                        <p className="text-slate-400 text-sm font-mono">VINCULACIÓN DOCENTE - MATERIA - CURSO</p>
+                        <p className="text-tech-muted text-sm font-mono">VINCULACIÓN DOCENTE - MATERIA - CURSO</p>
                     </div>
                 </div>
+                <ThemeToggle />
             </header>
 
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Form Section */}
                 <div className="bg-tech-secondary p-6 rounded border border-tech-surface h-fit shadow-lg shadow-black/20">
-                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white uppercase tracking-wider border-b border-tech-surface pb-2">
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-tech-text uppercase tracking-wider border-b border-tech-surface pb-2">
                         <UserPlus className="text-tech-cyan" size={20} />
                         Nueva Asignación
                     </h3>
                     <form onSubmit={handleCreate} className="space-y-4">
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1 tracking-wider">Docente</label>
+                            <label className="block text-xs font-bold text-tech-muted uppercase mb-1 tracking-wider">Docente</label>
                             <select
-                                className="w-full bg-tech-primary border border-tech-surface rounded p-2.5 focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-white transition-all text-sm"
+                                className="w-full bg-tech-primary border border-tech-surface rounded p-2.5 focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text transition-all text-sm"
                                 value={form.docente_id}
                                 onChange={e => setForm({ ...form, docente_id: e.target.value })}
                                 required
@@ -105,9 +107,9 @@ const Assignments = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1 tracking-wider">Materia</label>
+                            <label className="block text-xs font-bold text-tech-muted uppercase mb-1 tracking-wider">Materia</label>
                             <select
-                                className="w-full bg-tech-primary border border-tech-surface rounded p-2.5 focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-white transition-all text-sm"
+                                className="w-full bg-tech-primary border border-tech-surface rounded p-2.5 focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text transition-all text-sm"
                                 value={form.materia_id}
                                 onChange={e => setForm({ ...form, materia_id: e.target.value })}
                                 required
@@ -117,9 +119,9 @@ const Assignments = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1 tracking-wider">División</label>
+                            <label className="block text-xs font-bold text-tech-muted uppercase mb-1 tracking-wider">División</label>
                             <select
-                                className="w-full bg-tech-primary border border-tech-surface rounded p-2.5 focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-white transition-all text-sm"
+                                className="w-full bg-tech-primary border border-tech-surface rounded p-2.5 focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text transition-all text-sm"
                                 value={form.division_id}
                                 onChange={e => setForm({ ...form, division_id: e.target.value })}
                                 required
@@ -140,23 +142,23 @@ const Assignments = () => {
 
                 {/* List Section */}
                 <div className="lg:col-span-2 space-y-4">
-                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white uppercase tracking-wider">
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-tech-text uppercase tracking-wider">
                         <Layers className="text-purple-400" size={20} />
                         Asignaciones Actuales
                     </h3>
 
-                    {loading ? <p className="text-slate-500 font-mono animate-pulse">Cargando base de datos...</p> : (
+                    {loading ? <p className="text-tech-muted font-mono animate-pulse">Cargando base de datos...</p> : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {assignments.map(as => (
                                 <div key={as.id} className="bg-tech-secondary p-5 rounded border border-tech-surface hover:border-tech-cyan/50 transition-all flex justify-between items-start shadow-md group">
                                     <div className="space-y-2">
-                                        <p className="text-lg font-bold text-white leading-tight font-heading">{as.materia?.nombre}</p>
-                                        <div className="flex items-center gap-2 text-slate-400 text-sm font-mono">
+                                        <p className="text-lg font-bold text-tech-text leading-tight font-heading">{as.materia?.nombre}</p>
+                                        <div className="flex items-center gap-2 text-tech-muted text-sm font-mono">
                                             <span className="px-2 py-0.5 bg-tech-primary rounded border border-tech-surface text-tech-cyan font-bold">
                                                 {as.division?.anio} {as.division?.seccion}
                                             </span>
                                             <span className="text-slate-600">|</span>
-                                            <span className="text-slate-300">{as.docente?.nombre}</span>
+                                            <span className="text-tech-text">{as.docente?.nombre}</span>
                                         </div>
                                     </div>
                                     <button
@@ -167,7 +169,7 @@ const Assignments = () => {
                                     </button>
                                 </div>
                             ))}
-                            {assignments.length === 0 && <p className="text-slate-500 font-mono italic">No hay asignaciones registradas.</p>}
+                            {assignments.length === 0 && <p className="text-tech-muted font-mono italic">No hay asignaciones registradas.</p>}
                         </div>
                     )}
                 </div>

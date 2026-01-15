@@ -1,5 +1,7 @@
 // client/src/pages/GradeReport.jsx
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ThemeToggle from '../components/ThemeToggle';
 import { supabase } from '../supabaseClient';
 import { Download, Search } from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
@@ -28,13 +30,13 @@ const GradeReport = () => {
         setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const endpoint = getApiEndpoint(`/reports/grades?division_id=${selectedDivision}&materia_id=${selectedSubject}`);
+            const endpoint = getApiEndpoint(`/ reports / grades ? division_id = ${selectedDivision}& materia_id=${selectedSubject} `);
 
             const res = await fetch(
                 endpoint,
                 {
                     headers: {
-                        'Authorization': `Bearer ${session?.access_token}`
+                        'Authorization': `Bearer ${session?.access_token} `
                     }
                 }
             );
@@ -73,11 +75,14 @@ const GradeReport = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
-            <h1 className="text-3xl font-bold mb-6">Reporte de Calificaciones</h1>
+        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
+            <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
+                <h1 className="text-3xl font-bold text-tech-text">Reporte de Calificaciones</h1>
+                <ThemeToggle />
+            </header>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <select
-                    className="p-2 bg-tech-secondary border border-tech-surface rounded text-white"
+                    className="p-2 bg-tech-secondary border border-tech-surface rounded text-tech-text"
                     value={selectedDivision}
                     onChange={e => setSelectedDivision(e.target.value)}
                 >
@@ -89,7 +94,7 @@ const GradeReport = () => {
                     ))}
                 </select>
                 <select
-                    className="p-2 bg-tech-secondary border border-tech-surface rounded text-white"
+                    className="p-2 bg-tech-secondary border border-tech-surface rounded text-tech-text"
                     value={selectedSubject}
                     onChange={e => setSelectedSubject(e.target.value)}
                 >
@@ -112,13 +117,13 @@ const GradeReport = () => {
                 <>
                     <button
                         onClick={exportCSV}
-                        className="flex items-center gap-2 px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded text-white mb-4"
+                        className="flex items-center gap-2 px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded text-tech-text mb-4"
                     >
                         <Download size={16} /> Exportar CSV
                     </button>
                     <div className="overflow-x-auto custom-scrollbar rounded border border-tech-surface shadow-inner">
                         <table className="w-full min-w-[600px] table-auto border-collapse bg-tech-secondary">
-                            <thead className="bg-tech-primary/50 text-slate-300 font-mono text-xs uppercase tracking-wider">
+                            <thead className="bg-tech-primary/50 text-tech-muted font-mono text-xs uppercase tracking-wider">
                                 <tr>
                                     <th className="p-3 border border-tech-surface text-left">Alumno</th>
                                     <th className="p-3 border border-tech-surface text-center">DNI</th>
@@ -132,20 +137,20 @@ const GradeReport = () => {
                             <tbody className="divide-y divide-tech-surface">
                                 {report.map(r => (
                                     <tr key={r.alumno_id} className="hover:bg-tech-primary/30 transition-colors">
-                                        <td className="p-3 border border-tech-surface font-bold text-white">{r.nombre}</td>
-                                        <td className="p-3 border border-tech-surface text-center font-mono text-sm">{r.dni}</td>
+                                        <td className="p-3 border border-tech-surface font-bold text-tech-text">{r.nombre}</td>
+                                        <td className="p-3 border border-tech-surface text-center font-mono text-sm text-tech-muted">{r.dni}</td>
                                         <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_1 ?? '-'}</td>
                                         <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_2 ?? '-'}</td>
                                         <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_3 ?? '-'}</td>
                                         <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_4 ?? '-'}</td>
-                                        <td className={`p-3 border border-tech-surface text-center font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
+                                        <td className={`p - 3 border border - tech - surface text - center font - bold font - mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'} `}>
                                             {r.promedio ?? '-'}
                                         </td>
                                     </tr>
                                 ))}
                                 {report.length === 0 && (
                                     <tr>
-                                        <td colSpan="7" className="p-12 text-center text-slate-500 font-mono uppercase tracking-widest text-xs">
+                                        <td colSpan="7" className="p-12 text-center text-tech-muted font-mono uppercase tracking-widest text-xs">
                                             No hay registros para mostrar.
                                         </td>
                                     </tr>

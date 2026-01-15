@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
 
 const Login = () => {
     const { signIn } = useAuth();
@@ -26,7 +27,10 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-tech-primary text-slate-100 font-sans relative overflow-hidden">
+        <div className="flex items-center justify-center min-h-screen bg-tech-primary text-tech-text font-sans relative overflow-hidden">
+            <div className="fixed top-6 right-6 z-50">
+                <ThemeToggle />
+            </div>
             {/* Background elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-tech-cyan/5 rounded-full blur-[120px]"></div>
@@ -35,30 +39,30 @@ const Login = () => {
 
             <div className="w-full max-w-md p-8 space-y-6 bg-tech-secondary rounded border border-tech-surface shadow-[0_0_50px_rgba(0,0,0,0.5)] relative z-10 animate-in fade-in zoom-in duration-500">
                 <div className="text-center space-y-2">
-                    <h2 className="text-3xl font-bold text-center text-white tracking-tight uppercase">
+                    <h2 className="text-3xl font-bold text-center text-tech-text tracking-tight uppercase">
                         Sistema de <span className="text-tech-cyan">Calificaciones</span>
                     </h2>
-                    <p className="text-slate-400 text-sm font-mono tracking-wide">INGRESO AL PORTAL ACADÉMICO</p>
+                    <p className="text-tech-muted text-sm font-mono tracking-wide">INGRESO AL PORTAL ACADÉMICO</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">Email Institucional</label>
+                        <label className="block text-xs font-bold text-tech-muted uppercase mb-2 tracking-wider">Email Institucional</label>
                         <input
                             type="email"
                             required
-                            className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-white transition-all placeholder-slate-600"
+                            className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
                             placeholder="usuario@escuela.edu"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">Contraseña</label>
+                        <label className="block text-xs font-bold text-tech-muted uppercase mb-2 tracking-wider">Contraseña</label>
                         <input
                             type="password"
                             required
-                            className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-white transition-all placeholder-slate-600"
+                            className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -79,9 +83,9 @@ const Login = () => {
                     </button>
 
                     <div className="text-center mt-6 pt-6 border-t border-tech-surface">
-                        <p className="text-slate-400 text-sm">
+                        <p className="text-tech-muted text-sm">
                             ¿No tienes cuenta? {' '}
-                            <Link to="/register" className="text-tech-cyan font-bold hover:text-white transition-colors uppercase text-xs tracking-wider">
+                            <Link to="/register" className="text-tech-cyan font-bold hover:text-tech-text transition-colors uppercase text-xs tracking-wider">
                                 Regístrate como Docente
                             </Link>
                         </p>

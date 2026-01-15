@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Users, Plus, Pencil, Trash2, X, Check, Search, Save, ArrowLeft, FileText, Upload } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 import CSVImporter from '../components/CSVImporter';
 
 const StudentManagement = () => {
@@ -178,7 +179,7 @@ const StudentManagement = () => {
     );
 
     return (
-        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
+        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             {/* Navigation Header */}
             <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row items-center justify-between border-b border-tech-surface pb-6 gap-6">
                 <div className="flex items-center gap-4 w-full md:w-auto">
@@ -189,13 +190,14 @@ const StudentManagement = () => {
                         <ArrowLeft size={24} />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight uppercase">
+                        <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
                             Alumnos
                         </h1>
-                        <p className="text-slate-400 text-sm font-mono">BASE DE DATOS DE ESTUDIANTES</p>
+                        <p className="text-tech-muted text-sm font-mono">BASE DE DATOS DE ESTUDIANTES</p>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto justify-end">
+                <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto items-center justify-end">
+                    <ThemeToggle />
                     <button
                         onClick={() => {
                             setIsImportingCSV(!isImportingCSV);
@@ -241,11 +243,11 @@ const StudentManagement = () => {
                 {!isImportingCSV && !isBulkAdding && !isAdding && (
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                         <div className="relative w-full md:w-96">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
                             <input
                                 type="text"
                                 placeholder="BUSCAR POR NOMBRE O DNI..."
-                                className="w-full pl-10 pr-4 py-2 bg-tech-secondary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-white placeholder-slate-600 transition-all font-mono text-sm"
+                                className="w-full pl-10 pr-4 py-2 bg-tech-secondary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text placeholder-tech-muted/50 transition-all font-mono text-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -257,11 +259,11 @@ const StudentManagement = () => {
                 {isImportingCSV && (
                     <div className="mb-8 p-6 bg-tech-secondary rounded border border-tech-surface animate-in fade-in slide-in-from-top-4 duration-300">
                         <div className="flex justify-between items-center mb-6 border-b border-tech-surface pb-2">
-                            <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-wider flex items-center gap-2">
                                 <Upload className="text-tech-cyan" size={20} />
                                 Importar desde archivo CSV
                             </h3>
-                            <button onClick={() => setIsImportingCSV(false)} className="text-slate-500 hover:text-white">
+                            <button onClick={() => setIsImportingCSV(false)} className="text-tech-muted hover:text-tech-text">
                                 <X size={24} />
                             </button>
                         </div>
@@ -277,47 +279,47 @@ const StudentManagement = () => {
                 {/* Manual Add Form */}
                 {isAdding && (
                     <div className="mb-8 p-6 bg-tech-secondary rounded border border-tech-surface animate-in fade-in slide-in-from-top-4 duration-300 shadow-lg">
-                        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white uppercase tracking-wider border-b border-tech-surface pb-2">
+                        <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-tech-text uppercase tracking-wider border-b border-tech-surface pb-2">
                             <Plus className="text-tech-success" size={20} />
                             Registrar Nuevo Estudiante
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Nombre Completo</label>
+                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Nombre Completo</label>
                                 <input
                                     type="text"
                                     placeholder="Ej: Juan Pérez"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-slate-600 text-white"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-tech-muted/50 text-tech-text"
                                     value={formData.nombre}
                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">DNI</label>
+                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">DNI</label>
                                 <input
                                     type="text"
                                     placeholder="Sin puntos"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-slate-600 text-white font-mono"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-tech-muted/50 text-tech-text font-mono"
                                     value={formData.dni}
                                     onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Correo Electrónico</label>
+                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Correo Electrónico</label>
                                 <input
                                     type="email"
                                     placeholder="usuario@escuela.com"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-slate-600 text-white font-mono"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-tech-muted/50 text-tech-text font-mono"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs text-slate-500 uppercase font-bold tracking-wider">Contraseña Inicial</label>
+                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Contraseña Inicial</label>
                                 <input
                                     type="password"
                                     placeholder="Min. 6 caracteres"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-slate-600 text-white"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-tech-muted/50 text-tech-text"
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
@@ -333,7 +335,7 @@ const StudentManagement = () => {
                             </button>
                             <button
                                 onClick={() => setIsAdding(false)}
-                                className="px-6 py-2 bg-tech-surface hover:bg-slate-700 rounded font-bold text-slate-300 uppercase tracking-wider text-sm transaction-colors"
+                                className="px-6 py-2 bg-tech-surface hover:bg-tech-secondary rounded font-bold text-tech-muted hover:text-tech-text uppercase tracking-wider text-sm transition-colors"
                             >
                                 Cancelar
                             </button>
@@ -346,7 +348,7 @@ const StudentManagement = () => {
                     isBulkAdding && (
                         <div className="mb-8 p-6 bg-tech-secondary rounded border border-tech-accent/30 animate-in fade-in slide-in-from-top-4 duration-300 shadow-[0_0_30px_rgba(139,92,246,0.1)]">
                             <div className="flex items-center justify-between mb-4 border-b border-tech-surface pb-4">
-                                <h3 className="text-xl font-bold flex items-center gap-2 text-white uppercase tracking-wider">
+                                <h3 className="text-xl font-bold flex items-center gap-2 text-tech-text uppercase tracking-wider">
                                     <Plus size={20} className="text-tech-accent" />
                                     Carga Masiva con Inteligencia Artificial
                                 </h3>
@@ -354,11 +356,11 @@ const StudentManagement = () => {
                                     GEMINI v1.5 FLASH
                                 </div>
                             </div>
-                            <p className="text-sm text-slate-400 mb-4 font-mono">
+                            <p className="text-sm text-tech-muted mb-4 font-mono">
                                 // PEGAR LISTA DE ALUMNOS (NOMBRES, DNI, EMAILS) PARA EXTRACCIÓN AUTOMÁTICA
                             </p>
                             <textarea
-                                className="w-full h-40 bg-tech-primary border border-tech-surface rounded p-4 text-slate-300 focus:border-tech-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-slate-700 font-mono text-sm"
+                                className="w-full h-40 bg-tech-primary border border-tech-surface rounded p-4 text-tech-text focus:border-tech-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-tech-muted/30 font-mono text-sm"
                                 placeholder={"Ejemplo:\nJuan Perez 45678912 juan@mail.com\nMaria Gomez DNI 12345678 correomaria@test.com"}
                                 value={bulkText}
                                 onChange={(e) => setBulkText(e.target.value)}
@@ -400,7 +402,7 @@ const StudentManagement = () => {
                     {/* Desktop Table View */}
                     <div className="hidden md:block overflow-x-auto custom-scrollbar">
                         <table className="w-full text-left">
-                            <thead className="bg-tech-primary text-slate-400 text-sm border-b border-tech-surface font-heading">
+                            <thead className="bg-tech-primary text-tech-muted text-sm border-b border-tech-surface font-heading">
                                 <tr>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Nombre</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">DNI</th>
@@ -410,46 +412,46 @@ const StudentManagement = () => {
                             </thead>
                             <tbody className="divide-y divide-tech-surface">
                                 {loading ? (
-                                    <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono animate-pulse uppercase text-xs tracking-widest">Cargando base de datos...</td></tr>
+                                    <tr><td colSpan="4" className="p-10 text-center text-tech-muted font-mono animate-pulse uppercase text-xs tracking-widest">Cargando base de datos...</td></tr>
                                 ) : filteredStudents.length === 0 ? (
-                                    <tr><td colSpan="4" className="p-10 text-center text-slate-500 font-mono italic">No se encontraron alumnos.</td></tr>
+                                    <tr><td colSpan="4" className="p-10 text-center text-tech-muted font-mono italic">No se encontraron alumnos.</td></tr>
                                 ) : filteredStudents.map(s => (
                                     <tr key={s.id} className="hover:bg-tech-primary/50 transition-colors">
                                         <td className="p-4">
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-white text-sm"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-tech-text text-sm"
                                                     value={formData.nombre}
                                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                                     autoFocus
                                                 />
                                             ) : (
-                                                <span className="font-bold text-slate-200">{s.nombre}</span>
+                                                <span className="font-bold text-tech-text">{s.nombre}</span>
                                             )}
                                         </td>
                                         <td className="p-4">
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-white text-sm font-mono"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-tech-text text-sm font-mono"
                                                     value={formData.dni}
                                                     onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
                                                 />
                                             ) : (
-                                                <span className="text-slate-300 font-mono">{s.dni || '-'}</span>
+                                                <span className="text-tech-text font-mono">{s.dni || '-'}</span>
                                             )}
                                         </td>
                                         <td className="p-4">
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-white text-sm font-mono"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-tech-text text-sm font-mono"
                                                     value={formData.email}
                                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                                 />
                                             ) : (
-                                                <span className="text-slate-400 font-mono text-sm">{s.email || '-'}</span>
+                                                <span className="text-tech-muted font-mono text-sm">{s.email || '-'}</span>
                                             )}
                                         </td>
                                         <td className="p-4 text-center">
@@ -484,16 +486,16 @@ const StudentManagement = () => {
                     {/* Mobile Card List View */}
                     <div className="md:hidden divide-y divide-tech-surface">
                         {loading ? (
-                            <div className="p-10 text-center text-slate-500 font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando...</div>
+                            <div className="p-10 text-center text-tech-muted font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando...</div>
                         ) : filteredStudents.length === 0 ? (
-                            <div className="p-10 text-center text-slate-500 font-mono italic">No hay resultados.</div>
+                            <div className="p-10 text-center text-tech-muted font-mono italic">No hay resultados.</div>
                         ) : filteredStudents.map(s => (
                             <div key={s.id} className="p-4 space-y-4">
                                 {editingId === s.id ? (
                                     <div className="space-y-3">
                                         <input
                                             type="text"
-                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-white text-sm"
+                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-tech-text text-sm"
                                             value={formData.nombre}
                                             onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                             placeholder="Nombre"
@@ -501,14 +503,14 @@ const StudentManagement = () => {
                                         <input
                                             type="text"
                                             inputmode="numeric"
-                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-white text-sm font-mono"
+                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-tech-text text-sm font-mono"
                                             value={formData.dni}
                                             onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
                                             placeholder="DNI"
                                         />
                                         <input
                                             type="email"
-                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-white text-sm font-mono"
+                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-tech-text text-sm font-mono"
                                             value={formData.email}
                                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                             placeholder="Email"
@@ -517,7 +519,7 @@ const StudentManagement = () => {
                                             <button onClick={() => handleSave(s.id)} className="flex-1 py-2 bg-tech-success text-white rounded font-bold text-xs uppercase tracking-widest">
                                                 Guardar
                                             </button>
-                                            <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-tech-surface text-slate-400 rounded font-bold text-xs uppercase tracking-widest">
+                                            <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-tech-surface text-tech-muted rounded font-bold text-xs uppercase tracking-widest">
                                                 Cancelar
                                             </button>
                                         </div>
@@ -526,9 +528,9 @@ const StudentManagement = () => {
                                     <>
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <h3 className="font-bold text-white text-base leading-tight uppercase tracking-tight">{s.nombre}</h3>
+                                                <h3 className="font-bold text-tech-text text-base leading-tight uppercase tracking-tight">{s.nombre}</h3>
                                                 <p className="text-tech-cyan font-mono text-xs mt-1">DNI: {s.dni || 'S/D'}</p>
-                                                <p className="text-slate-500 text-xs font-mono mt-0.5">{s.email || 'Sin correo'}</p>
+                                                <p className="text-tech-muted text-xs font-mono mt-0.5">{s.email || 'Sin correo'}</p>
                                             </div>
                                             <div className="flex gap-1">
                                                 <button onClick={() => startEdit(s)} className="p-2 bg-tech-primary border border-tech-surface text-tech-cyan rounded-lg">
@@ -546,7 +548,7 @@ const StudentManagement = () => {
                     </div>
                 </div>
 
-                <div className="mt-8 p-4 bg-tech-primary/50 rounded border border-tech-surface flex gap-3 text-sm text-slate-400 items-center font-mono">
+                <div className="mt-8 p-4 bg-tech-primary/50 rounded border border-tech-surface flex gap-3 text-sm text-tech-muted items-center font-mono">
                     <div className="p-2 bg-tech-secondary rounded border border-tech-surface">
                         <Save size={16} className="text-tech-cyan" />
                     </div>

@@ -44,7 +44,7 @@ const DashboardStats = ({ role, profileId }) => {
         fetchStats();
     }, [role, profileId]);
 
-    if (loading) return <div className="p-4 text-center text-slate-500 font-mono animate-pulse">Cargando estadísticas...</div>;
+    if (loading) return <div className="p-4 text-center text-tech-muted font-mono animate-pulse">Cargando estadísticas...</div>;
 
     if (role === 'admin') {
         const maxStudents = Math.max(...stats.studentsPerDivision.map(d => d.count), 1);
@@ -62,8 +62,8 @@ const DashboardStats = ({ role, profileId }) => {
                                 <Users size={24} />
                             </div>
                             <div>
-                                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Alumnos</p>
-                                <h3 className="text-3xl font-bold text-white font-mono">{stats.studentCount}</h3>
+                                <p className="text-tech-muted text-xs font-bold uppercase tracking-wider">Total Alumnos</p>
+                                <h3 className="text-3xl font-bold text-tech-text font-mono">{stats.studentCount}</h3>
                             </div>
                         </div>
                         <div className="mt-4 w-full bg-tech-primary h-1 rounded-full overflow-hidden">
@@ -80,8 +80,8 @@ const DashboardStats = ({ role, profileId }) => {
                                 <Layers size={24} />
                             </div>
                             <div>
-                                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Divisiones</p>
-                                <h3 className="text-3xl font-bold text-white font-mono">{stats.divisionCount}</h3>
+                                <p className="text-tech-muted text-xs font-bold uppercase tracking-wider">Divisiones</p>
+                                <h3 className="text-3xl font-bold text-tech-text font-mono">{stats.divisionCount}</h3>
                             </div>
                         </div>
                         <div className="mt-4 w-full bg-tech-primary h-1 rounded-full overflow-hidden">
@@ -98,8 +98,8 @@ const DashboardStats = ({ role, profileId }) => {
                                 <BookOpen size={24} />
                             </div>
                             <div>
-                                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Materias</p>
-                                <h3 className="text-3xl font-bold text-white font-mono">{stats.subjectCount}</h3>
+                                <p className="text-tech-muted text-xs font-bold uppercase tracking-wider">Materias</p>
+                                <h3 className="text-3xl font-bold text-tech-text font-mono">{stats.subjectCount}</h3>
                             </div>
                         </div>
                         <div className="mt-4 w-full bg-tech-primary h-1 rounded-full overflow-hidden">
@@ -110,14 +110,14 @@ const DashboardStats = ({ role, profileId }) => {
 
                 {/* Charts */}
                 <div className="lg:col-span-2 bg-tech-secondary p-6 rounded border border-tech-surface shadow-lg">
-                    <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-tight">
+                    <h3 className="text-lg font-bold text-tech-text mb-6 flex items-center gap-2 uppercase tracking-tight">
                         <BarChart2 size={20} className="text-tech-cyan" />
                         Distribución de Alumnos
                     </h3>
                     <div className="space-y-4">
                         {stats.studentsPerDivision.map((div, index) => (
                             <div key={index} className="flex items-center gap-4">
-                                <div className="w-16 text-xs font-bold text-slate-400 font-mono text-right">{div.name}</div>
+                                <div className="w-16 text-xs font-bold text-tech-muted font-mono text-right">{div.name}</div>
                                 <div className="flex-grow bg-tech-primary h-3 rounded-full overflow-hidden relative">
                                     <div
                                         className="h-full bg-tech-cyan relative group"
@@ -126,7 +126,7 @@ const DashboardStats = ({ role, profileId }) => {
                                         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-white/50 opacity-0 group-hover:opacity-100"></div>
                                     </div>
                                 </div>
-                                <div className="w-8 text-xs font-bold text-white font-mono text-right">{div.count}</div>
+                                <div className="w-8 text-xs font-bold text-tech-text font-mono text-right">{div.count}</div>
                             </div>
                         ))}
                     </div>
@@ -136,10 +136,10 @@ const DashboardStats = ({ role, profileId }) => {
                     <div className="p-4 bg-tech-primary rounded-full mb-4 border border-tech-surface">
                         <TrendingUp size={32} className="text-tech-success" />
                     </div>
-                    <h3 className="text-xl font-bold text-white uppercase mb-2">Rendimiento Global</h3>
-                    <p className="text-slate-400 text-sm mb-6">El promedio general de asistencia de la institución.</p>
+                    <h3 className="text-xl font-bold text-tech-text uppercase mb-2">Rendimiento Global</h3>
+                    <p className="text-tech-muted text-sm mb-6">El promedio general de asistencia de la institución.</p>
                     <div className="text-4xl font-bold text-tech-success font-mono mb-2">{stats.globalAttendancePct}%</div>
-                    <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">ASISTENCIA PROMEDIO</p>
+                    <p className="text-xs text-tech-muted/80 uppercase tracking-widest font-bold">ASISTENCIA PROMEDIO</p>
                 </div>
             </div>
         );
@@ -157,8 +157,8 @@ const DashboardStats = ({ role, profileId }) => {
                             <BookOpen size={24} />
                         </div>
                         <div>
-                            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Mis Materias</p>
-                            <h3 className="text-3xl font-bold text-white font-mono">{stats.subjectCount}</h3>
+                            <p className="text-tech-muted text-xs font-bold uppercase tracking-wider">Mis Materias</p>
+                            <h3 className="text-3xl font-bold text-tech-text font-mono">{stats.subjectCount}</h3>
                         </div>
                     </div>
                 </div>
@@ -172,8 +172,8 @@ const DashboardStats = ({ role, profileId }) => {
                             <Users size={24} />
                         </div>
                         <div>
-                            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Alumnos a cargo</p>
-                            <h3 className="text-3xl font-bold text-white font-mono">{stats.studentCount}</h3>
+                            <p className="text-tech-muted text-xs font-bold uppercase tracking-wider">Alumnos a cargo</p>
+                            <h3 className="text-3xl font-bold text-tech-text font-mono">{stats.studentCount}</h3>
                         </div>
                     </div>
                 </div>

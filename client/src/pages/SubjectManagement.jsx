@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Plus, Pencil, Trash2, X, Check, ArrowLeft } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 const SubjectManagement = () => {
     const navigate = useNavigate();
@@ -72,60 +73,63 @@ const SubjectManagement = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
+        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             {/* Navigation Header */}
             <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-surface rounded transition-colors text-slate-400 hover:text-white"
+                        className="p-2 hover:bg-tech-surface rounded transition-colors text-tech-muted hover:text-tech-text"
                     >
                         <ArrowLeft size={24} />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight uppercase">
+                        <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
                             Materias
                         </h1>
-                        <p className="text-slate-400 text-sm font-mono">GESTIÓN DE UNIDADES CURRICULARES</p>
+                        <p className="text-tech-muted text-sm font-mono">GESTIÓN DE UNIDADES CURRICULARES</p>
                     </div>
                 </div>
-                <button
-                    onClick={() => {
-                        setIsAdding(true);
-                        setEditingId(null);
-                        setFormData({ nombre: '', descripcion: '' });
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-tech-cyan hover:bg-sky-600 rounded transition-all text-sm font-bold shadow-[0_0_15px_rgba(14,165,233,0.3)] uppercase tracking-wider text-white"
-                >
-                    <Plus size={18} />
-                    Nueva Materia
-                </button>
+                <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    <button
+                        onClick={() => {
+                            setIsAdding(true);
+                            setEditingId(null);
+                            setFormData({ nombre: '', descripcion: '' });
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-tech-cyan hover:bg-sky-600 rounded transition-all text-sm font-bold shadow-[0_0_15px_rgba(14,165,233,0.3)] uppercase tracking-wider text-white"
+                    >
+                        <Plus size={18} />
+                        Nueva Materia
+                    </button>
+                </div>
             </header>
 
             <div className="max-w-6xl mx-auto">
 
                 {isAdding && (
                     <div className="mb-8 p-6 bg-tech-secondary rounded border border-tech-surface shadow-lg animate-in fade-in slide-in-from-top-4">
-                        <h3 className="text-xl font-bold mb-4 text-white uppercase tracking-wider">Cargar Nueva Materia</h3>
+                        <h3 className="text-xl font-bold mb-4 text-tech-text uppercase tracking-wider">Cargar Nueva Materia</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input
                                 type="text"
                                 placeholder="NOMBRE DE LA MATERIA"
-                                className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-white focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none transition-all placeholder-slate-600"
+                                className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none transition-all placeholder-tech-muted/50"
                                 value={formData.nombre}
                                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                             />
                             <input
                                 type="text"
                                 placeholder="DESCRIPCIÓN (OPCIONAL)"
-                                className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-white focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none transition-all placeholder-slate-600"
+                                className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none transition-all placeholder-tech-muted/50"
                                 value={formData.descripcion}
                                 onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                             />
                         </div>
                         <div className="mt-4 flex gap-3">
                             <button onClick={() => handleSave()} className="px-4 py-2 bg-tech-success hover:bg-emerald-600 rounded font-bold text-white uppercase tracking-wider text-sm transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)]">Guardar</button>
-                            <button onClick={() => setIsAdding(false)} className="px-4 py-2 bg-tech-surface hover:bg-slate-700 rounded font-bold text-slate-300 uppercase tracking-wider text-sm">Cancelar</button>
+                            <button onClick={() => setIsAdding(false)} className="px-4 py-2 bg-tech-surface hover:bg-tech-secondary rounded font-bold text-tech-muted hover:text-tech-text uppercase tracking-wider text-sm">Cancelar</button>
                         </div>
                     </div>
                 )}
@@ -134,7 +138,7 @@ const SubjectManagement = () => {
                     {/* Desktop Table View */}
                     <div className="hidden md:block overflow-x-auto custom-scrollbar">
                         <table className="w-full text-left">
-                            <thead className="bg-tech-primary text-slate-400 border-b border-tech-surface font-heading">
+                            <thead className="bg-tech-primary text-tech-muted border-b border-tech-surface font-heading">
                                 <tr>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Nombre</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Descripción</th>
@@ -143,7 +147,7 @@ const SubjectManagement = () => {
                             </thead>
                             <tbody className="divide-y divide-tech-surface">
                                 {loading ? (
-                                    <tr><td colSpan="3" className="p-10 text-center text-slate-500 font-mono animate-pulse uppercase text-xs tracking-widest">Cargando unidades curriculares...</td></tr>
+                                    <tr><td colSpan="3" className="p-10 text-center text-tech-muted font-mono animate-pulse uppercase text-xs tracking-widest">Cargando unidades curriculares...</td></tr>
                                 ) : subjects.map(s => (
                                     <tr key={s.id} className="hover:bg-tech-primary/50 transition-colors">
                                         <td className="p-4">
@@ -155,7 +159,7 @@ const SubjectManagement = () => {
                                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                                 />
                                             ) : (
-                                                <span className="font-bold text-slate-200">{s.nombre}</span>
+                                                <span className="font-bold text-tech-text">{s.nombre}</span>
                                             )}
                                         </td>
                                         <td className="p-4 text-slate-400">
@@ -167,7 +171,7 @@ const SubjectManagement = () => {
                                                     onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                                                 />
                                             ) : (
-                                                s.descripcion || <span className="text-slate-600 italic font-mono">-</span>
+                                                s.descripcion || <span className="text-tech-muted/50 italic font-mono">-</span>
                                             )}
                                         </td>
                                         <td className="p-4 text-center">
@@ -202,23 +206,23 @@ const SubjectManagement = () => {
                     {/* Mobile Card List View */}
                     <div className="md:hidden divide-y divide-tech-surface">
                         {loading ? (
-                            <div className="p-10 text-center text-slate-500 font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando...</div>
+                            <div className="p-10 text-center text-tech-muted font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando...</div>
                         ) : subjects.length === 0 ? (
-                            <div className="p-10 text-center text-slate-500 font-mono italic">No hay materias.</div>
+                            <div className="p-10 text-center text-tech-muted font-mono italic">No hay materias.</div>
                         ) : subjects.map(s => (
                             <div key={s.id} className="p-4 space-y-4">
                                 {editingId === s.id ? (
                                     <div className="space-y-3">
                                         <input
                                             type="text"
-                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-white text-sm"
+                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-tech-text text-sm"
                                             value={formData.nombre}
                                             onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                             placeholder="Materia"
                                         />
                                         <input
                                             type="text"
-                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-white text-sm"
+                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-tech-text text-sm"
                                             value={formData.descripcion}
                                             onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                                             placeholder="Descripción"
@@ -227,7 +231,7 @@ const SubjectManagement = () => {
                                             <button onClick={() => handleSave(s.id)} className="flex-1 py-2 bg-tech-success text-white rounded font-bold text-xs uppercase tracking-widest">
                                                 Guardar
                                             </button>
-                                            <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-tech-surface text-slate-400 rounded font-bold text-xs uppercase tracking-widest">
+                                            <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-tech-surface text-tech-muted rounded font-bold text-xs uppercase tracking-widest">
                                                 Cancelar
                                             </button>
                                         </div>
@@ -235,8 +239,8 @@ const SubjectManagement = () => {
                                 ) : (
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1 mr-4">
-                                            <h3 className="font-bold text-white text-base leading-tight uppercase tracking-tight">{s.nombre}</h3>
-                                            <p className="text-slate-400 text-xs mt-1 leading-relaxed">
+                                            <h3 className="font-bold text-tech-text text-base leading-tight uppercase tracking-tight">{s.nombre}</h3>
+                                            <p className="text-tech-muted text-xs mt-1 leading-relaxed">
                                                 {s.descripcion || <span className="italic opacity-50">Sin descripción</span>}
                                             </p>
                                         </div>

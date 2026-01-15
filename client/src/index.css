@@ -1,13 +1,40 @@
 @import "tailwindcss";
 
+:root {
+  --tech-primary: #f8fafc;
+  --tech-secondary: #ffffff;
+  --tech-surface: #e2e8f0;
+  --tech-cyan: #0284c7;
+  --tech-accent: #d97706;
+  --tech-success: #059669;
+  --tech-danger: #dc2626;
+  --tech-text-main: #0f172a;
+  --tech-text-muted: #64748b;
+}
+
+.dark {
+  --tech-primary: #0f172a;
+  --tech-secondary: #1e293b;
+  --tech-surface: #334155;
+  --tech-cyan: #0ea5e9;
+  --tech-accent: #f59e0b;
+  --tech-success: #10b981;
+  --tech-danger: #ef4444;
+  --tech-text-main: #f8fafc;
+  --tech-text-muted: #94a3b8;
+}
+
 @theme {
-  --color-tech-primary: #0f172a;
-  --color-tech-secondary: #1e293b;
-  --color-tech-surface: #334155;
-  --color-tech-cyan: #0ea5e9;
-  --color-tech-accent: #f59e0b;
-  --color-tech-success: #10b981;
-  --color-tech-danger: #ef4444;
+  --color-tech-primary: var(--tech-primary);
+  --color-tech-secondary: var(--tech-secondary);
+  --color-tech-surface: var(--tech-surface);
+  --color-tech-cyan: var(--tech-cyan);
+  --color-tech-accent: var(--tech-accent);
+  --color-tech-success: var(--tech-success);
+  --color-tech-danger: var(--tech-danger);
+  /* Semantic Text Colors */
+  --color-tech-text: var(--tech-text-main);
+  --color-tech-muted: var(--tech-text-muted);
 
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: 'Roboto Mono', monospace;
@@ -15,8 +42,9 @@
 
 @layer base {
   body {
-    background-color: var(--color-tech-primary);
-    color: #e2e8f0;
+    background-color: var(--tech-primary);
+    color: var(--tech-text-main);
     font-family: var(--font-sans);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { FileDown, Calendar, ArrowLeft, Layers } from 'lucide-react';
+import { FileText, Calendar, Layers, Download, ArrowLeft, Search } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
 
@@ -44,24 +45,23 @@ const AdminAttendanceReport = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-slate-100 p-6 md:p-10 font-sans">
-            <header className="max-w-4xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-white uppercase tracking-tight flex items-center gap-3">
-                        <div className="p-2 bg-tech-accent/20 rounded text-tech-accent">
-                            <Layers size={32} />
-                        </div>
-                        Reportes de Asistencia
-                    </h1>
-                    <p className="text-slate-400 font-mono mt-2">Exportación de asistencia general por división (Preceptoría).</p>
+        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-12 font-sans overflow-x-hidden">
+            <header className="max-w-4xl mx-auto mb-12 flex items-center justify-between border-b border-tech-surface pb-6 gap-6">
+                <div className="flex items-center gap-6">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-3 bg-tech-secondary border border-tech-surface rounded-xl text-tech-muted hover:text-tech-text transition-all hover:scale-110 active:scale-95 shadow-lg"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-4xl font-black text-white tracking-widest uppercase">
+                            Reporte <span className="text-tech-accent uppercase">Asistencia</span>
+                        </h1>
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.2em] mt-1">SISTEMA DE CONTROL DE PRESENTISMO</p>
+                    </div>
                 </div>
-                <button
-                    onClick={() => navigate('/dashboard')}
-                    className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white hover:bg-tech-surface rounded transition-colors"
-                >
-                    <ArrowLeft size={20} />
-                    Volver
-                </button>
+                <ThemeToggle />
             </header>
 
             <main className="max-w-4xl mx-auto">
@@ -76,7 +76,7 @@ const AdminAttendanceReport = () => {
                                 Seleccionar División
                             </label>
                             <select
-                                className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-white font-mono focus:border-tech-accent outline-none transition-all"
+                                className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-tech-text font-mono focus:border-tech-accent outline-none transition-all"
                                 value={selectedDivision}
                                 onChange={e => setSelectedDivision(e.target.value)}
                             >
@@ -92,7 +92,7 @@ const AdminAttendanceReport = () => {
                         {/* Date Filters */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-3">
-                                <label className="text-sm font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                <label className="text-sm font-bold uppercase tracking-widest text-tech-muted flex items-center gap-2">
                                     <Calendar size={16} />
                                     Fecha Desde
                                 </label>
@@ -100,11 +100,11 @@ const AdminAttendanceReport = () => {
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-white font-mono focus:border-tech-cyan outline-none transition-all"
+                                    className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-tech-text font-mono focus:border-tech-cyan outline-none transition-all"
                                 />
                             </div>
                             <div className="space-y-3">
-                                <label className="text-sm font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                <label className="text-sm font-bold uppercase tracking-widest text-tech-muted flex items-center gap-2">
                                     <Calendar size={16} />
                                     Fecha Hasta
                                 </label>
@@ -112,7 +112,7 @@ const AdminAttendanceReport = () => {
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-white font-mono focus:border-tech-cyan outline-none transition-all"
+                                    className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-tech-text font-mono focus:border-tech-cyan outline-none transition-all"
                                 />
                             </div>
                         </div>
@@ -127,7 +127,7 @@ const AdminAttendanceReport = () => {
                                 <FileDown size={24} />
                                 Generar Reporte PDF
                             </button>
-                            <p className="text-center text-slate-500 text-xs mt-4 font-mono">
+                            <p className="text-center text-tech-muted text-xs mt-4 font-mono">
                                 El reporte incluirá todos los registros de asistencia del preceptor para el periodo seleccionado.
                             </p>
                         </div>
