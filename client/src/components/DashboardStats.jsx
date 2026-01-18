@@ -11,6 +11,7 @@ const DashboardStats = ({ role, profileId }) => {
         studentsPerDivision: [],
         teacherSubjectCount: 0,
         teacherStudentCount: 0,
+        atRiskStudents: []
     });
     const [loading, setLoading] = useState(true);
 
@@ -33,6 +34,18 @@ const DashboardStats = ({ role, profileId }) => {
                 if (res.ok) {
                     const data = await res.json();
                     setStats(prev => ({ ...prev, ...data }));
+                }
+
+                // Fetch At Risk Students
+                const riskRes = await fetch(`${base}${base.endsWith('/api') ? '/reports/at-risk' : '/api/reports/at-risk'}`, {
+                    headers: {
+                        'Authorization': `Bearer ${session?.access_token}`
+                    }
+                });
+
+                if (riskRes.ok) {
+                    const riskData = await riskRes.json();
+                    setStats(prev => ({ ...prev, atRiskStudents: riskData }));
                 }
                 setLoading(false);
             } catch (error) {
@@ -141,6 +154,33 @@ const DashboardStats = ({ role, profileId }) => {
                     <div className="text-4xl font-bold text-tech-success font-mono mb-2">{stats.globalAttendancePct}%</div>
                     <p className="text-xs text-tech-muted/80 uppercase tracking-widest font-bold">ASISTENCIA PROMEDIO</p>
                 </div>
+
+                {/* At Risk Students Alerts - Admin View */}
+                {stats.atRiskStudents.length > 0 && (
+                    <div className="lg:col-span-3 bg-tech-secondary border border-tech-danger/30 rounded p-6 shadow-lg relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 text-tech-danger opacity-10">
+                            <AlertCircle size={48} />
+                        </div>
+                        <h3 className="text-lg font-bold text-tech-danger mb-4 flex items-center gap-2 uppercase tracking-tight">
+                            <AlertCircle size={20} />
+                            Alumnos en Riesgo (Baja Asistencia)
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {stats.atRiskStudents.map((s, idx) => (
+                                <div key={idx} className="bg-tech-primary/50 p-4 rounded border border-tech-surface flex flex-col gap-1">
+                                    <span className="font-bold text-tech-text truncate">{s.nombre}</span>
+                                    <div className="flex justify-between items-center text-xs font-mono">
+                                        <span className="text-tech-muted">{s.division} {s.materia ? `| ${s.materia}` : ''}</span>
+                                        <span className="text-tech-danger font-bold">{s.pct}%</span>
+                                    </div>
+                                    <div className="w-full bg-tech-secondary h-1.5 rounded-full mt-2 overflow-hidden">
+                                        <div className="h-full bg-tech-danger" style={{ width: `${s.pct}%` }}></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
@@ -177,6 +217,32 @@ const DashboardStats = ({ role, profileId }) => {
                         </div>
                     </div>
                 </div>
+
+                {/* Teacher At Risk Alerts */}
+                {stats.atRiskStudents.length > 0 && (
+                    <div className="bg-tech-secondary border border-tech-danger/30 rounded p-6 shadow-lg">
+                        <h3 className="text-lg font-bold text-tech-danger mb-4 flex items-center gap-2 uppercase tracking-tight">
+                            <AlertCircle size={20} />
+                            Alertas de Inasistencia en mis Materias
+                        </h3>
+                        <div className="space-y-3">
+                            {stats.atRiskStudents.map((s, idx) => (
+                                <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between p-3 bg-tech-primary/30 rounded border border-tech-surface gap-2">
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-tech-text">{s.nombre}</span>
+                                        <span className="text-xs text-tech-muted font-mono">{s.materia} - {s.division}</span>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-sm font-bold text-tech-danger font-mono">{s.pct}% Asist.</span>
+                                        <div className="w-24 bg-tech-secondary h-2 rounded-full overflow-hidden">
+                                            <div className="h-full bg-tech-danger" style={{ width: `${s.pct}%` }}></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }

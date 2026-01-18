@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Calendar, Download, FileText, ArrowLeft, BarChart3 } from 'lucide-react';
+import { Calendar, Download, FileText, ArrowLeft, BarChart3, Users, Clock } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
@@ -10,6 +10,7 @@ const TeacherReports = () => {
     const { profile } = useAuth();
     const navigate = useNavigate();
     const [assignments, setAssignments] = useState([]);
+    const [stats, setStats] = useState({});
     const [loading, setLoading] = useState(true);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -23,18 +24,41 @@ const TeacherReports = () => {
             const { data, error } = await supabase
                 .from('asignaciones')
                 .select(`
-id,
-    materia: materias(nombre),
-        division: divisiones(id, anio, seccion)
-            `)
+                    id,
+                    materia: materias(nombre),
+                    division: divisiones(id, anio, seccion)
+                `)
                 .eq('docente_id', profile.id);
 
             if (error) throw error;
             setAssignments(data || []);
+
+            // Proactively fetch stats for each assignment
+            if (data) {
+                data.forEach(asig => fetchStats(asig.id));
+            }
         } catch (error) {
             console.error('Error fetching assignments:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchStats = async (assignmentId) => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            let url = getApiEndpoint(`/reports/attendance-teacher?assignment_id=${assignmentId}`);
+            if (startDate) url += `&start_date=${startDate}`;
+            if (endDate) url += `&end_date=${endDate}`;
+
+            const res = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            setStats(prev => ({ ...prev, [assignmentId]: data }));
+        } catch (e) {
+            console.error(`Error fetching stats for ${assignmentId}:`, e);
         }
     };
 
@@ -45,16 +69,16 @@ id,
 
         let endpoint = '';
         if (type === 'asistencia') {
-            endpoint = getApiEndpoint(`/ reports / attendance / assignment / ${assignmentId} `);
+            endpoint = getApiEndpoint(`/reports/attendance/assignment/${assignmentId}`);
         } else {
-            endpoint = getApiEndpoint(`/ reports / division / ${assignmentId} `);
+            endpoint = getApiEndpoint(`/reports/division/${assignmentId}`);
         }
 
-        let queryParams = `? token = ${token} `;
-        if (startDate) queryParams += `& start_date=${startDate} `;
-        if (endDate) queryParams += `& end_date=${endDate} `;
+        let queryParams = `?token=${token}`;
+        if (startDate) queryParams += `&start_date=${startDate}`;
+        if (endDate) queryParams += `&end_date=${endDate}`;
 
-        window.open(`${endpoint}${queryParams} `, '_blank');
+        window.open(`${endpoint}${queryParams}`, '_blank');
     };
 
     return (
@@ -126,9 +150,26 @@ id,
                                     <span className="text-[10px] font-mono text-tech-muted uppercase">Asignación: {assign.id.slice(0, 6)}</span>
                                 </div>
                                 <h3 className="text-xl font-bold text-tech-text mb-1 uppercase tracking-tight">{assign.materia.nombre}</h3>
-                                <p className="text-tech-accent font-mono text-sm mb-6 pb-4 border-b border-tech-surface/50">
+                                <p className="text-tech-accent font-mono text-sm mb-4 pb-4 border-b border-tech-surface/50">
                                     {assign.division.anio} "{assign.division.seccion}"
                                 </p>
+
+                                {stats[assign.id] && (
+                                    <div className="grid grid-cols-2 gap-2 mb-6">
+                                        <div className="bg-tech-primary/50 p-2 rounded border border-tech-surface">
+                                            <p className="text-[10px] text-tech-muted uppercase font-mono">Presentismo</p>
+                                            <p className="text-lg font-bold text-tech-cyan">
+                                                {stats[assign.id].total > 0
+                                                    ? Math.round(((stats[assign.id].present + stats[assign.id].late) / stats[assign.id].total) * 100)
+                                                    : 0}%
+                                            </p>
+                                        </div>
+                                        <div className="bg-tech-primary/50 p-2 rounded border border-tech-surface">
+                                            <p className="text-[10px] text-tech-muted uppercase font-mono">Ausentes</p>
+                                            <p className="text-lg font-bold text-red-500">{stats[assign.id].absent || 0}</p>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="space-y-3">
                                     <button

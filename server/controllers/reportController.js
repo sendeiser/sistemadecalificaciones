@@ -260,8 +260,43 @@ async function getAttendanceStats(req, res) {
             if (cur.estado === 'ausente') acc.absent++;
             if (cur.estado === 'presente') acc.present++;
             if (cur.estado === 'tarde') acc.late++;
+            if (cur.estado === 'justificado') acc.justified++;
             return acc;
-        }, { total: 0, present: 0, absent: 0, late: 0 });
+        }, { total: 0, present: 0, absent: 0, late: 0, justified: 0 });
+
+        res.json(totals);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+}
+
+async function getTeacherAttendanceStats(req, res) {
+    const { assignment_id, start_date, end_date } = req.query;
+
+    if (!assignment_id) {
+        return res.status(400).json({ error: 'assignment_id required' });
+    }
+    try {
+        let query = supabaseAdmin
+            .from('asistencias')
+            .select('estado')
+            .eq('asignacion_id', assignment_id);
+
+        if (start_date) query = query.gte('fecha', start_date);
+        if (end_date) query = query.lte('fecha', end_date);
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        const totals = data.reduce((acc, cur) => {
+            acc.total++;
+            if (cur.estado === 'ausente') acc.absent++;
+            if (cur.estado === 'presente') acc.present++;
+            if (cur.estado === 'tarde') acc.late++;
+            if (cur.estado === 'justificado') acc.justified++;
+            return acc;
+        }, { total: 0, present: 0, absent: 0, late: 0, justified: 0 });
 
         res.json(totals);
     } catch (e) {
@@ -442,6 +477,60 @@ async function generateAssignmentAttendancePDF(req, res) {
             doc.text(rec.estado, startX + 350, currentY);
             currentY += 15;
         });
+
+        // Statistics Summary
+        const studentStats = {};
+        const globalTotals = { present: 0, absent: 0, late: 0, justified: 0, total: records.length };
+        records.forEach(rec => {
+            const studentId = rec.estudiante?.dni || 'unknown';
+            if (!studentStats[studentId]) {
+                studentStats[studentId] = { nombre: rec.estudiante?.nombre || 'Unknown', present: 0, absent: 0, late: 0, justified: 0, total: 0 };
+            }
+            studentStats[studentId].total++;
+
+            const stateMap = { 'presente': 'present', 'ausente': 'absent', 'tarde': 'late', 'justificado': 'justified' };
+            const engState = stateMap[rec.estado];
+            if (engState) {
+                studentStats[studentId][engState]++;
+                globalTotals[engState]++;
+            }
+        });
+
+        // Individual Stats Table
+        if (currentY > 600) { doc.addPage(); currentY = 40; } else { currentY += 30; }
+        doc.font('Helvetica-Bold').fontSize(14).text('Estadisticas Individuales', startX, currentY);
+        currentY += 25; doc.fontSize(9);
+        doc.text('Estudiante', startX, currentY);
+        doc.text('Pres.', startX + 200, currentY);
+        doc.text('Aus.', startX + 240, currentY);
+        doc.text('Tard.', startX + 280, currentY);
+        doc.text('Just.', startX + 320, currentY);
+        doc.text('% Asist.', startX + 370, currentY);
+        doc.moveTo(startX, currentY + 12).lineTo(555, currentY + 12).stroke();
+        currentY += 20; doc.font('Helvetica');
+        Object.values(studentStats).forEach((s, idx) => {
+            if (currentY > 750) { doc.addPage(); currentY = 40; }
+            if (idx % 2 === 0) doc.save().fillColor('#f9f9f9').rect(startX, currentY - 2, 515, 14).fill().restore();
+            const pct = s.total > 0 ? Math.round(((s.present + s.late) / s.total) * 100) : 0;
+            doc.text(sanitize(s.nombre).substring(0, 35), startX, currentY);
+            doc.text(s.present.toString(), startX + 200, currentY);
+            doc.text(s.absent.toString(), startX + 240, currentY);
+            doc.text(s.late.toString(), startX + 280, currentY);
+            doc.text(s.justified.toString(), startX + 320, currentY);
+            doc.text(`${pct}%`, startX + 370, currentY);
+            currentY += 15;
+        });
+
+        // Final Summary Block
+        if (currentY > 650) { doc.addPage(); currentY = 40; } else { currentY += 30; }
+        doc.font('Helvetica-Bold').fontSize(12).text('Resumen General de la Materia', startX, currentY);
+        currentY += 20; doc.fontSize(10);
+        doc.text(`Total Presentes: ${globalTotals.present}`, startX + 20, currentY);
+        doc.text(`Total Ausentes: ${globalTotals.absent}`, startX + 140, currentY);
+        doc.text(`Total Tardes: ${globalTotals.late}`, startX + 260, currentY);
+        doc.text(`Total Justificados: ${globalTotals.justified}`, startX + 380, currentY);
+        const globalPct = globalTotals.total > 0 ? Math.round(((globalTotals.present + globalTotals.late) / globalTotals.total) * 100) : 0;
+        doc.moveDown(); doc.text(`Porcentaje de Asistencia Real: ${globalPct}%`, startX);
 
         doc.end();
     } catch (e) {
@@ -652,7 +741,161 @@ async function generateDivisionAttendancePDF(req, res) {
             currentY += 15;
         });
 
+        // Statistics Summary
+        const studentStats = {};
+        const globalTotals = { present: 0, absent: 0, late: 0, justified: 0, total: records.length };
+        records.forEach(rec => {
+            const studentId = rec.estudiante?.dni || 'unknown';
+            if (!studentStats[studentId]) {
+                studentStats[studentId] = { nombre: rec.estudiante?.nombre || 'Unknown', present: 0, absent: 0, late: 0, justified: 0, total: 0 };
+            }
+            studentStats[studentId].total++;
+
+            const stateMap = { 'presente': 'present', 'ausente': 'absent', 'tarde': 'late', 'justificado': 'justified' };
+            const engState = stateMap[rec.estado];
+            if (engState) {
+                studentStats[studentId][engState]++;
+                globalTotals[engState]++;
+            }
+        });
+
+        // Individual Stats Table
+        if (currentY > 600) { doc.addPage(); currentY = 40; } else { currentY += 30; }
+        doc.font('Helvetica-Bold').fontSize(14).text('Estadisticas Individuales', startX, currentY);
+        currentY += 25; doc.fontSize(9);
+        doc.text('Estudiante', startX, currentY);
+        doc.text('Pres.', startX + 200, currentY);
+        doc.text('Aus.', startX + 240, currentY);
+        doc.text('Tard.', startX + 280, currentY);
+        doc.text('Just.', startX + 320, currentY);
+        doc.text('% Asist.', startX + 370, currentY);
+        doc.moveTo(startX, currentY + 12).lineTo(555, currentY + 12).stroke();
+        currentY += 20; doc.font('Helvetica');
+        Object.values(studentStats).forEach((s, idx) => {
+            if (currentY > 750) { doc.addPage(); currentY = 40; }
+            if (idx % 2 === 0) doc.save().fillColor('#f9f9f9').rect(startX, currentY - 2, 515, 14).fill().restore();
+            const pct = s.total > 0 ? Math.round(((s.present + s.late) / s.total) * 100) : 0;
+            doc.text(sanitize(s.nombre).substring(0, 35), startX, currentY);
+            doc.text(s.present.toString(), startX + 200, currentY);
+            doc.text(s.absent.toString(), startX + 240, currentY);
+            doc.text(s.late.toString(), startX + 280, currentY);
+            doc.text(s.justified.toString(), startX + 320, currentY);
+            doc.text(`${pct}%`, startX + 370, currentY);
+            currentY += 15;
+        });
+
+        // Final Summary Block
+        if (currentY > 650) { doc.addPage(); currentY = 40; } else { currentY += 30; }
+        doc.font('Helvetica-Bold').fontSize(12).text('Resumen General (Departamento de Preceptoria)', startX, currentY);
+        currentY += 20; doc.fontSize(10);
+        doc.text(`Total Presentes: ${globalTotals.present}`, startX + 20, currentY);
+        doc.text(`Total Ausentes: ${globalTotals.absent}`, startX + 140, currentY);
+        doc.text(`Total Tardes: ${globalTotals.late}`, startX + 260, currentY);
+        doc.text(`Total Justificados: ${globalTotals.justified}`, startX + 380, currentY);
+        const globalPct = globalTotals.total > 0 ? Math.round(((globalTotals.present + globalTotals.late) / globalTotals.total) * 100) : 0;
+        doc.moveDown(); doc.text(`Porcentaje de Asistencia General: ${globalPct}%`, startX);
+
         doc.end();
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+}
+
+// Get students with low attendance (Alumnos en Riesgo)
+async function getStudentsAtRisk(req, res) {
+    try {
+        const { data: profile } = await supabaseAdmin
+            .from('perfiles')
+            .select('rol')
+            .eq('id', req.user.id)
+            .single();
+
+        if (!profile) return res.status(404).json({ error: 'Perfil no encontrado' });
+
+        const { rol: role } = profile;
+        const id = req.user.id;
+        const THRESHOLD = 0.75; // 75% attendance
+
+        let riskList = [];
+
+        if (role === 'admin') {
+            const { data: allAttendance, error: attErr } = await supabaseAdmin
+                .from('asistencias_preceptor')
+                .select('estudiante_id, estado, estudiante:perfiles!estudiante_id(nombre, dni), division:divisiones(anio, seccion)');
+
+            if (attErr) throw attErr;
+
+            const studentMap = {};
+            allAttendance.forEach(a => {
+                if (!studentMap[a.estudiante_id]) {
+                    studentMap[a.estudiante_id] = {
+                        id: a.estudiante_id,
+                        nombre: a.estudiante.nombre,
+                        dni: a.estudiante.dni,
+                        division: `${a.division.anio} ${a.division.seccion}`,
+                        total: 0,
+                        present: 0
+                    };
+                }
+                studentMap[a.estudiante_id].total++;
+                if (a.estado === 'presente' || a.estado === 'tarde') {
+                    studentMap[a.estudiante_id].present++;
+                }
+            });
+
+            riskList = Object.values(studentMap)
+                .map(s => ({
+                    ...s,
+                    pct: Math.round((s.present / s.total) * 100)
+                }))
+                .filter(s => s.pct < (THRESHOLD * 100) && s.total >= 3)
+                .sort((a, b) => a.pct - b.pct);
+
+        } else if (role === 'docente') {
+            const { data: assignments } = await supabaseAdmin
+                .from('asignaciones')
+                .select('id')
+                .eq('docente_id', id);
+
+            if (assignments && assignments.length > 0) {
+                const { data: attData, error: attErr } = await supabaseAdmin
+                    .from('asistencias')
+                    .select('estudiante_id, estado, estudiante:perfiles!estudiante_id(nombre, dni), asignacion:asignaciones(materia:materias(nombre), division:divisiones(anio, seccion))')
+                    .in('asignacion_id', assignments.map(a => a.id));
+
+                if (attErr) throw attErr;
+
+                const studentMap = {};
+                attData.forEach(a => {
+                    const key = `${a.estudiante_id}-${a.asignacion.materia.nombre}`;
+                    if (!studentMap[key]) {
+                        studentMap[key] = {
+                            id: a.estudiante_id,
+                            nombre: a.estudiante.nombre,
+                            materia: a.asignacion.materia.nombre,
+                            division: `${a.asignacion.division.anio} ${a.asignacion.division.seccion}`,
+                            total: 0,
+                            present: 0
+                        };
+                    }
+                    studentMap[key].total++;
+                    if (a.estado === 'presente' || a.estado === 'tarde') {
+                        studentMap[key].present++;
+                    }
+                });
+
+                riskList = Object.values(studentMap)
+                    .map(s => ({
+                        ...s,
+                        pct: Math.round((s.present / s.total) * 100)
+                    }))
+                    .filter(s => s.pct < (THRESHOLD * 100) && s.total >= 2)
+                    .sort((a, b) => a.pct - b.pct);
+            }
+        }
+
+        res.json(riskList.slice(0, 5));
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: e.message });
@@ -666,6 +909,8 @@ module.exports = {
     generateStudentBulletinPDF,
     generateDivisionReport,
     generateAssignmentAttendancePDF,
-    generateDivisionAttendancePDF
+    generateDivisionAttendancePDF,
+    getStudentsAtRisk,
+    getTeacherAttendanceStats
 };
 

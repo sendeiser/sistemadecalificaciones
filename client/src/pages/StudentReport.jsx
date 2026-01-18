@@ -80,7 +80,7 @@ const StudentReport = () => {
 
             const response = await fetch(endpoint, {
                 headers: {
-                    'Authorization': `Bearer ${session?.access_token} `
+                    'Authorization': `Bearer ${session?.access_token}`
                 }
             });
 
@@ -184,11 +184,11 @@ const StudentReport = () => {
                                             <td className="p-4 text-center font-mono">{g.parcial_2}</td>
                                             <td className="p-4 text-center font-mono">{g.parcial_3}</td>
                                             <td className="p-4 text-center font-mono">{g.parcial_4}</td>
-                                            <td className={`p - 4 text - center font - bold font - mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-success'} `}>
+                                            <td className={`p-4 text-center font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
                                                 {avg}
                                             </td>
                                             <td className="p-4 text-center font-mono">-</td>
-                                            <td className={`p - 4 text - center font - bold font - mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-cyan'} `}>
+                                            <td className={`p-4 text-center font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-cyan'}`}>
                                                 {avg}
                                             </td>
                                             <td className="p-4 text-sm text-tech-muted italic max-w-xs truncate" title={g.trayecto}>
@@ -216,7 +216,7 @@ const StudentReport = () => {
                                 <div key={idx} className="p-4 space-y-3">
                                     <div className="flex justify-between items-start">
                                         <h3 className="font-bold text-tech-text text-lg leading-tight">{g.materia}</h3>
-                                        <div className={`px - 2 py - 1 rounded text - xs font - bold uppercase tracking - widest ${avg !== '-' && Number(avg) < 7 ? 'bg-tech-danger/20 text-tech-danger' : 'bg-tech-cyan/20 text-tech-cyan'} `}>
+                                        <div className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-widest ${avg !== '-' && Number(avg) < 7 ? 'bg-tech-danger/20 text-tech-danger' : 'bg-tech-cyan/20 text-tech-cyan'}`}>
                                             FINAL: {avg}
                                         </div>
                                     </div>
@@ -243,7 +243,7 @@ const StudentReport = () => {
                                     <div className="flex justify-between items-center text-sm p-2 bg-tech-primary/30 rounded border border-tech-surface/50">
                                         <div>
                                             <span className="text-tech-muted uppercase text-[10px] font-bold mr-2">Promedio:</span>
-                                            <span className={`font - bold font - mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-success'} `}>{avg}</span>
+                                            <span className={`font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>{avg}</span>
                                         </div>
                                     </div>
 

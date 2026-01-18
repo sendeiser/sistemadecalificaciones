@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
 import { supabase } from '../supabaseClient';
-import { Download, Search } from 'lucide-react';
+import { Download, Search, ArrowLeft } from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
 
 const GradeReport = () => {
+    const navigate = useNavigate();
     const [divisions, setDivisions] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [selectedDivision, setSelectedDivision] = useState('');
@@ -30,7 +31,7 @@ const GradeReport = () => {
         setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const endpoint = getApiEndpoint(`/ reports / grades ? division_id = ${selectedDivision}& materia_id=${selectedSubject} `);
+            const endpoint = getApiEndpoint(`/reports/grades?division_id=${selectedDivision}&materia_id=${selectedSubject}`);
 
             const res = await fetch(
                 endpoint,
@@ -76,8 +77,16 @@ const GradeReport = () => {
 
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
-                <h1 className="text-3xl font-bold text-tech-text">Reporte de Calificaciones</h1>
+            <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6 gap-4">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-2 bg-tech-secondary border border-tech-surface rounded-lg text-tech-muted hover:text-tech-text transition-all hover:scale-105 active:scale-95"
+                    >
+                        <ArrowLeft size={20} />
+                    </button>
+                    <h1 className="text-3xl font-bold text-tech-text">Reporte de Calificaciones</h1>
+                </div>
                 <ThemeToggle />
             </header>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -143,7 +152,7 @@ const GradeReport = () => {
                                         <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_2 ?? '-'}</td>
                                         <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_3 ?? '-'}</td>
                                         <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_4 ?? '-'}</td>
-                                        <td className={`p - 3 border border - tech - surface text - center font - bold font - mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'} `}>
+                                        <td className={`p-3 border border-tech-surface text-center font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
                                             {r.promedio ?? '-'}
                                         </td>
                                     </tr>

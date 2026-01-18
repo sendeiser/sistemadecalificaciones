@@ -1,18 +1,66 @@
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, PieChart, BarChart3, CheckSquare, Sun, Moon } from 'lucide-react';
+import { LogOut, Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, PieChart, BarChart3, CheckSquare, Sun, Moon, Search, X } from 'lucide-react';
 import DashboardStats from '../components/DashboardStats';
 import ThemeToggle from '../components/ThemeToggle';
+import { supabase } from '../supabaseClient';
+import { getApiEndpoint } from '../utils/api';
 
 const Dashboard = () => {
     const { profile, signOut } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showResults, setShowResults] = useState(false);
 
     const handleLogout = async () => {
         await signOut();
         navigate('/login');
+    };
+
+    const handleSearch = async (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+
+        if (query.length < 2) {
+            setSearchResults([]);
+            setShowResults(false);
+            return;
+        }
+
+        setIsSearching(true);
+        setShowResults(true);
+
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const endpoint = getApiEndpoint('/search');
+            const res = await fetch(`${endpoint}?query=${query}`, {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setSearchResults(data);
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const handleResultClick = (result) => {
+        setShowResults(false);
+        setSearchQuery('');
+        if (result.type === 'student') navigate(`/student/report?student_id=${result.id}`); // This would need to be handled by StudentReport or a profile page
+        if (result.type === 'division') navigate('/divisions'); // Simplified navigation
+        if (result.type === 'subject') navigate('/subjects');
     };
 
     if (!profile) {
@@ -34,15 +82,65 @@ const Dashboard = () => {
                         ID: <span className="text-tech-cyan">{profile.id.slice(0, 8)}</span> | ROL: <span className="text-tech-accent">{profile.rol}</span>
                     </p>
                 </div>
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                    <ThemeToggle />
-                    <button
-                        onClick={handleLogout}
-                        className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-tech-muted hover:text-tech-text bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface hover:border-tech-danger/50 transition-all uppercase tracking-wider"
-                    >
-                        <LogOut size={16} />
-                        Cerrar Sesión
-                    </button>
+
+                <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+                    {/* Search Bar - Only for Admin/Preceptor */}
+                    {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
+                        <div className="relative w-full md:w-80">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={handleSearch}
+                                    placeholder="Buscar alumno, materia o división..."
+                                    className="w-full pl-10 pr-10 py-2 bg-tech-secondary border border-tech-surface rounded text-sm focus:outline-none focus:border-tech-cyan transition-colors"
+                                />
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => { setSearchQuery(''); setShowResults(false); }}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-tech-muted hover:text-tech-text"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                )}
+                            </div>
+
+                            {showResults && (
+                                <div className="absolute top-full mt-2 w-full bg-tech-secondary border border-tech-surface rounded shadow-2xl z-50 max-h-80 overflow-y-auto overflow-x-hidden">
+                                    {isSearching ? (
+                                        <div className="p-4 text-center text-tech-muted text-sm font-mono animate-pulse">Buscando...</div>
+                                    ) : searchResults.length > 0 ? (
+                                        <div className="p-2 space-y-1">
+                                            {searchResults.map((res, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => handleResultClick(res)}
+                                                    className="w-full flex flex-col items-start p-3 hover:bg-tech-surface rounded transition-colors border border-transparent hover:border-tech-cyan/30 text-left"
+                                                >
+                                                    <span className="font-bold text-tech-text text-sm">{res.title}</span>
+                                                    <span className="text-xs text-tech-muted capitalize">{res.type} {res.subtitle && `• ${res.subtitle}`}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 text-center text-tech-muted text-sm">No se encontraron resultados</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <ThemeToggle />
+                        <button
+                            onClick={handleLogout}
+                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-tech-muted hover:text-tech-text bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface hover:border-tech-danger/50 transition-all uppercase tracking-wider"
+                        >
+                            <LogOut size={16} />
+                            Cerrar Sesión
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -234,57 +332,93 @@ const Dashboard = () => {
                 )}
 
                 {profile.rol === 'docente' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div
-                            onClick={() => navigate('/grades')}
-                            className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden"
-                        >
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-4 text-tech-cyan">
-                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                    <GraduationCap size={24} />
+                    <div className="space-y-12">
+                        {/* Quick Actions for Teachers */}
+                        <section>
+                            <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest mb-6 flex items-center gap-3">
+                                <span className="w-2 h-8 bg-tech-cyan rounded-full"></span>
+                                Tareas Rápidas
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div
+                                    onClick={() => navigate('/attendance')}
+                                    className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan hover:bg-tech-secondary transition-all cursor-pointer group rounded-xl flex items-center gap-4"
+                                >
+                                    <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform">
+                                        <Clock size={32} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-tech-text uppercase">Tomar Asistencia</h3>
+                                        <p className="text-xs text-tech-muted font-mono whitespace-nowrap">Registrar el día de hoy</p>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Mis Cursos</h3>
-                            </div>
-                            <p className="text-tech-muted mb-6 font-mono">Selecciona un curso para comenzar a cargar calificaciones.</p>
-                            <button className="px-4 py-2 bg-tech-cyan hover:bg-sky-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
-                                Ver Cursos Asignados
-                            </button>
-                        </div>
 
-                        <div
-                            onClick={() => navigate('/attendance')}
-                            className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden"
-                        >
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-4 text-tech-accent">
-                                <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
-                                    <Clock size={24} />
+                                <div
+                                    onClick={() => navigate('/grades')}
+                                    className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-accent hover:bg-tech-secondary transition-all cursor-pointer group rounded-xl flex items-center gap-4"
+                                >
+                                    <div className="p-4 bg-tech-accent/10 rounded-lg text-tech-accent group-hover:scale-110 transition-transform">
+                                        <GraduationCap size={32} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-tech-text uppercase">Cargar Notas</h3>
+                                        <p className="text-xs text-tech-muted font-mono whitespace-nowrap">Actualizar calificaciones</p>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Asistencia</h3>
                             </div>
-                            <p className="text-tech-muted mb-6 font-mono">Registrar asistencia diaria para tus cursos.</p>
-                            <button className="px-4 py-2 bg-tech-accent hover:bg-amber-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
-                                Tomar Asistencia
-                            </button>
-                        </div>
+                        </section>
 
-                        <div
-                            onClick={() => navigate('/teacher/reports')}
-                            className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden"
-                        >
-                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-4 text-tech-success">
-                                <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
-                                    <FileText size={24} />
+                        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div
+                                onClick={() => navigate('/grades')}
+                                className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-cyan">
+                                    <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                        <GraduationCap size={24} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Mis Cursos</h3>
                                 </div>
-                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Mis Reportes</h3>
+                                <p className="text-tech-muted mb-6 font-mono">Selecciona un curso para comenzar a cargar calificaciones.</p>
+                                <button className="px-4 py-2 bg-tech-cyan hover:bg-sky-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
+                                    Ver Cursos Asignados
+                                </button>
                             </div>
-                            <p className="text-tech-muted mb-6 font-mono">Exportar PDFs de notas y asistencias de tus cursos.</p>
-                            <button className="px-4 py-2 bg-tech-success hover:bg-emerald-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
-                                Generar PDFs
-                            </button>
-                        </div>
+
+                            <div
+                                onClick={() => navigate('/attendance')}
+                                className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-accent">
+                                    <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                        <Clock size={24} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Asistencia</h3>
+                                </div>
+                                <p className="text-tech-muted mb-6 font-mono">Registrar asistencia diaria para tus cursos.</p>
+                                <button className="px-4 py-2 bg-tech-accent hover:bg-amber-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
+                                    Tomar Asistencia
+                                </button>
+                            </div>
+
+                            <div
+                                onClick={() => navigate('/teacher/reports')}
+                                className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-success">
+                                    <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
+                                        <FileText size={24} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Mis Reportes</h3>
+                                </div>
+                                <p className="text-tech-muted mb-6 font-mono">Exportar PDFs de notas y asistencias de tus cursos.</p>
+                                <button className="px-4 py-2 bg-tech-success hover:bg-emerald-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
+                                </button>
+                            </div>
+                        </section>
                     </div>
                 )}
 

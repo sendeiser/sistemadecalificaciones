@@ -1,10 +1,12 @@
 // client/src/components/AttendanceCapture.jsx
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { Users, Calendar, Save, ArrowLeft } from 'lucide-react';
+import { Users, Calendar, Save, ArrowLeft, Check, X } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 
 const AttendanceCapture = () => {
+    const navigate = useNavigate();
     const [divisions, setDivisions] = useState([]);
     const [selectedDivision, setSelectedDivision] = useState('');
     const [students, setStudents] = useState([]);
@@ -83,8 +85,16 @@ const AttendanceCapture = () => {
 
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
-                <h1 className="text-3xl font-bold text-tech-text">Captura General de Asistencia</h1>
+            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6 gap-4">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-2 bg-tech-secondary border border-tech-surface rounded-lg text-tech-muted hover:text-tech-text transition-all hover:scale-105 active:scale-95"
+                    >
+                        <ArrowLeft size={20} />
+                    </button>
+                    <h1 className="text-3xl font-bold text-tech-text">Captura General de Asistencia</h1>
+                </div>
                 <ThemeToggle />
             </header>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

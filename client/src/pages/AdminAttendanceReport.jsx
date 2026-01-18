@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { FileText, Calendar, Layers, Download, ArrowLeft, Search } from 'lucide-react';
+import { FileText, Calendar, Layers, Download, ArrowLeft, Search, FileDown } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
