@@ -5,6 +5,8 @@ import { supabase } from '../supabaseClient';
 import { Users, Calendar, Save, ArrowLeft, Check, X } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 
+import { getApiEndpoint } from '../utils/api';
+
 const AttendanceCapture = () => {
     const navigate = useNavigate();
     const [divisions, setDivisions] = useState([]);
@@ -65,7 +67,9 @@ const AttendanceCapture = () => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const payload = { records };
-            const res = await fetch('/api/attendance/general', {
+            const endpoint = getApiEndpoint('/attendance/general');
+
+            const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
