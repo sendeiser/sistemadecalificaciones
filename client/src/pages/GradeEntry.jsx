@@ -44,11 +44,11 @@ const GradeEntry = () => {
         if (data) setAssignments(data);
     };
 
-    const fetchGrades = async (assignmentObj) => {
+    const fetchGrades = async (assignmentObj, keepMessage = false) => {
         setLoading(true);
         setSelectedAssignment(assignmentObj.id);
         setFullAssignmentData(assignmentObj);
-        setMessage(null);
+        if (!keepMessage) setMessage(null);
 
         try {
             // 1. Fetch all students in that division
@@ -243,7 +243,13 @@ const GradeEntry = () => {
 
             if (error) throw error;
             setMessage({ type: 'success', text: 'Calificaciones guardadas correctamente' });
-            fetchGrades(fullAssignmentData);
+
+            // Auto-dismiss toast after 4 seconds
+            setTimeout(() => {
+                setMessage(null);
+            }, 4000);
+
+            fetchGrades(fullAssignmentData, true);
         } catch (err) {
             setMessage({ type: 'error', text: 'Error al guardar: ' + err.message });
         }
@@ -344,16 +350,6 @@ const GradeEntry = () => {
                     </div>
                 ) : (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {message && (
-                            <div className={`mb-6 p-4 rounded flex items-center gap-3 border ${message.type === 'success'
-                                ? 'bg-tech-success/10 border-tech-success/50 text-tech-success'
-                                : 'bg-tech-danger/10 border-tech-danger/50 text-tech-danger'
-                                }`}>
-                                {message.type === 'success' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
-                                <span className="font-medium font-mono">{message.text}</span>
-                            </div>
-                        )}
-
                         <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-2xl relative">
                             {loading && (
                                 <div className="absolute inset-0 bg-tech-primary/80 backdrop-blur-[2px] flex items-center justify-center z-20">
@@ -581,7 +577,32 @@ const GradeEntry = () => {
                         </div>
                     </div>
                 )}
+
             </div>
+
+            {/* Custom Toast Notification */}
+            {message && (
+                <div className={`fixed bottom-6 right-6 p-4 rounded-lg shadow-2xl border flex items-center gap-3 animate-in slide-in-from-right-full duration-300 z-50 ${message.type === 'success'
+                    ? 'bg-tech-secondary border-tech-success text-tech-success'
+                    : 'bg-tech-secondary border-tech-danger text-tech-danger'
+                    }`}>
+                    <div className={`p-2 rounded-full ${message.type === 'success' ? 'bg-tech-success/10' : 'bg-tech-danger/10'}`}>
+                        {message.type === 'success' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-sm uppercase tracking-wide">
+                            {message.type === 'success' ? 'Éxito' : 'Error'}
+                        </h4>
+                        <p className="text-xs font-mono text-tech-muted">{message.text}</p>
+                    </div>
+                    <button
+                        onClick={() => setMessage(null)}
+                        className="ml-4 p-1 hover:bg-tech-surface rounded transition-colors text-tech-muted hover:text-tech-text"
+                    >
+                        <div className="h-4 w-4 flex items-center justify-center font-bold">×</div>
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
