@@ -36,7 +36,7 @@ const ReportView = () => {
             // Adjust URL based on environment or hardcode for now
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-            const response = await fetch(`${API_URL}/reports/${studentId}`, {
+            const response = await fetch(`${API_URL}/reports/bulletin/${studentId}`, {
                 headers: {
                     'Authorization': `Bearer ${session.access_token}`
                 }
