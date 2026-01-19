@@ -95,8 +95,8 @@ const DivisionManagement = () => {
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             {/* Navigation Header */}
-            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
-                <div className="flex items-center gap-4">
+            <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row items-start md:items-center justify-between border-b border-tech-surface pb-6 gap-4">
+                <div className="flex items-center gap-4 w-full md:w-auto">
                     <button
                         onClick={() => navigate('/dashboard')}
                         className="flex items-center gap-2 px-4 py-2 text-tech-muted hover:text-tech-text bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-colors"
@@ -105,13 +105,13 @@ const DivisionManagement = () => {
                         Volver
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
+                        <h1 className="text-2xl md:text-3xl font-bold text-tech-text tracking-tight uppercase">
                             Divisiones
                         </h1>
-                        <p className="text-tech-muted text-sm font-mono">GESTIÓN DE CURSOS Y SECCIONES</p>
+                        <p className="text-tech-muted text-xs md:text-sm font-mono">GESTIÓN DE CURSOS Y SECCIONES</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
                     <ThemeToggle />
                     <button
                         onClick={() => {
