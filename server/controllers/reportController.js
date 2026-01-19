@@ -192,7 +192,7 @@ async function generateGradeReport(req, res) {
         if (asignacion) {
             const { data: gradesData, error: gradesErr } = await supabaseAdmin
                 .from('calificaciones')
-                .select('alumno_id, parcial_1, parcial_2, parcial_3, parcial_4, promedio')
+                .select('alumno_id, parcial_1, parcial_2, parcial_3, parcial_4, promedio, nota_intensificacion, trayecto_acompanamiento')
                 .eq('asignacion_id', asignacion.id);
             if (gradesErr) throw gradesErr;
             grades = gradesData || [];
@@ -223,6 +223,8 @@ async function generateGradeReport(req, res) {
                 parcial_3: g.parcial_3,
                 parcial_4: g.parcial_4,
                 promedio: g.promedio,
+                nota_intensificacion: g.nota_intensificacion,
+                trayecto_acompanamiento: g.trayecto_acompanamiento
             };
         });
 

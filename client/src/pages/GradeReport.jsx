@@ -54,7 +54,7 @@ const GradeReport = () => {
 
     const exportCSV = () => {
         if (report.length === 0) return alert('No hay datos para exportar');
-        const headers = ['Alumno ID', 'Nombre', 'DNI', 'Parcial 1', 'Parcial 2', 'Parcial 3', 'Parcial 4', 'Promedio'];
+        const headers = ['Alumno ID', 'Nombre', 'DNI', 'Parcial 1', 'Parcial 2', 'Parcial 3', 'Parcial 4', 'Promedio', 'Intensificación', 'Trayecto'];
         const rows = report.map(r => [
             r.alumno_id,
             r.nombre,
@@ -63,7 +63,9 @@ const GradeReport = () => {
             r.parcial_2 ?? '',
             r.parcial_3 ?? '',
             r.parcial_4 ?? '',
-            r.promedio ?? ''
+            r.promedio ?? '',
+            r.nota_intensificacion ?? '',
+            r.trayecto_acompanamiento ?? ''
         ]);
         const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -78,7 +80,7 @@ const GradeReport = () => {
 
     const exportPDF = () => {
         if (report.length === 0) return alert('No hay datos para exportar');
-        const doc = new jsPDF();
+        const doc = new jsPDF('l', 'mm', 'a4'); // Landscape for more columns
 
         const divObj = divisions.find(d => d.id === parseInt(selectedDivision));
         const divName = divObj ? `${divObj.anio} ${divObj.seccion}` : '';
@@ -93,7 +95,7 @@ const GradeReport = () => {
         doc.text(`División: ${divName}`, 14, 34);
         doc.text(`Materia: ${matName}`, 14, 40);
 
-        const tableColumn = ["Alumno", "DNI", "P1", "P2", "P3", "P4", "Prom"];
+        const tableColumn = ["Alumno", "DNI", "P1", "P2", "P3", "P4", "Prom", "Intensif.", "Trayecto"];
         const tableRows = [];
 
         report.forEach(r => {
@@ -104,7 +106,9 @@ const GradeReport = () => {
                 r.parcial_2 || '-',
                 r.parcial_3 || '-',
                 r.parcial_4 || '-',
-                r.promedio || '-'
+                r.promedio || '-',
+                r.nota_intensificacion || '-',
+                r.trayecto_acompanamiento || '-'
             ];
             tableRows.push(rowData);
         });
@@ -115,6 +119,7 @@ const GradeReport = () => {
             startY: 45,
             theme: 'striped',
             headStyles: { fillColor: [14, 165, 233] }, // Tech Cyan color roughly
+            styles: { fontSize: 9, cellPadding: 2 }
         });
 
         doc.save(`Reporte_Notas_${divName}_${matName}.pdf`);
@@ -204,6 +209,8 @@ const GradeReport = () => {
                                         <th className="p-3 border border-tech-surface text-center">P3</th>
                                         <th className="p-3 border border-tech-surface text-center">P4</th>
                                         <th className="p-3 border border-tech-surface text-center">Prom</th>
+                                        <th className="p-3 border border-tech-surface text-center text-tech-accent">Intensif.</th>
+                                        <th className="p-3 border border-tech-surface text-center text-tech-cyan">Trayecto</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-tech-surface">
@@ -217,6 +224,12 @@ const GradeReport = () => {
                                             <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_4 ?? '-'}</td>
                                             <td className={`p-3 border border-tech-surface text-center font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
                                                 {r.promedio ?? '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-accent">
+                                                {r.nota_intensificacion ?? '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono text-xs font-bold text-tech-cyan uppercase">
+                                                {r.trayecto_acompanamiento ?? '-'}
                                             </td>
                                         </tr>
                                     ))}
@@ -233,27 +246,39 @@ const GradeReport = () => {
                                             <h3 className="font-bold text-tech-text text-lg">{r.nombre}</h3>
                                             <span className="text-xs text-tech-muted font-mono">DNI: {r.dni}</span>
                                         </div>
-                                        <div className={`text-2xl font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
-                                            {r.promedio ?? '-'}
-                                            <span className="block text-[8px] text-tech-muted font-sans text-right uppercase tracking-wider">Promedio</span>
+                                        <div className="text-right">
+                                            <div className={`text-2xl font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
+                                                {r.promedio ?? '-'}
+                                            </div>
+                                            <span className="block text-[8px] text-tech-muted font-sans uppercase tracking-wider">Promedio</span>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-4 gap-2 text-center text-sm font-mono">
+                                    <div className="grid grid-cols-4 gap-2 text-center text-sm font-mono mb-3">
                                         <div className="bg-tech-primary/50 p-2 rounded">
-                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">Parcial 1</span>
+                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">P1</span>
                                             <span className="text-tech-text font-bold">{r.parcial_1 ?? '-'}</span>
                                         </div>
                                         <div className="bg-tech-primary/50 p-2 rounded">
-                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">Parcial 2</span>
+                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">P2</span>
                                             <span className="text-tech-text font-bold">{r.parcial_2 ?? '-'}</span>
                                         </div>
                                         <div className="bg-tech-primary/50 p-2 rounded">
-                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">Parcial 3</span>
+                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">P3</span>
                                             <span className="text-tech-text font-bold">{r.parcial_3 ?? '-'}</span>
                                         </div>
                                         <div className="bg-tech-primary/50 p-2 rounded">
-                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">Parcial 4</span>
+                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">P4</span>
                                             <span className="text-tech-text font-bold">{r.parcial_4 ?? '-'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 border-t border-tech-surface pt-3">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-tech-muted uppercase font-bold">Intensif.</span>
+                                            <span className="font-mono font-bold text-tech-accent text-lg">{r.nota_intensificacion ?? '-'}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-tech-muted uppercase font-bold">Trayecto</span>
+                                            <span className="font-mono font-bold text-tech-cyan text-sm">{r.trayecto_acompanamiento ?? '-'}</span>
                                         </div>
                                     </div>
                                 </div>
