@@ -7,6 +7,8 @@ import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, PointElement
 import { PieChart, BarChart3, Users, Calendar, ArrowLeft, Search } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 
+import { getApiEndpoint } from '../utils/api';
+
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 const AttendanceOverview = () => {
@@ -31,11 +33,13 @@ const AttendanceOverview = () => {
         setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            let url = `/api/reports/attendance?division_id=${selectedDivision}`;
-            if (startDate) url += `&start_date=${startDate}`;
-            if (endDate) url += `&end_date=${endDate}`;
+            let queryParams = `?division_id=${selectedDivision}`;
+            if (startDate) queryParams += `&start_date=${startDate}`;
+            if (endDate) queryParams += `&end_date=${endDate}`;
 
-            const res = await fetch(url, {
+            const endpoint = getApiEndpoint(`/reports/attendance${queryParams}`);
+
+            const res = await fetch(endpoint, {
                 headers: {
                     'Authorization': `Bearer ${session?.access_token}`
                 }
