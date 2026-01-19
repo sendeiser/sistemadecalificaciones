@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { Users, Layers, BookOpen, TrendingUp, AlertCircle, BarChart2 } from 'lucide-react';
 
+import { getApiEndpoint } from '../utils/api';
+
 const DashboardStats = ({ role, profileId }) => {
     const [stats, setStats] = useState({
         studentCount: 0,
@@ -20,12 +22,10 @@ const DashboardStats = ({ role, profileId }) => {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
 
-                const apiUrl = import.meta.env.VITE_API_URL || '';
-                let base = apiUrl || (window.location.origin.includes('localhost') ? 'http://localhost:5000' : '');
-                if (base.endsWith('/')) base = base.slice(0, -1);
-                const path = base.endsWith('/api') ? '/reports/dashboard-stats' : '/api/reports/dashboard-stats';
+                const statsEndpoint = getApiEndpoint('/reports/dashboard-stats');
+                const riskEndpoint = getApiEndpoint('/reports/at-risk');
 
-                const res = await fetch(`${base}${path}`, {
+                const res = await fetch(statsEndpoint, {
                     headers: {
                         'Authorization': `Bearer ${session?.access_token}`
                     }
@@ -37,7 +37,7 @@ const DashboardStats = ({ role, profileId }) => {
                 }
 
                 // Fetch At Risk Students
-                const riskRes = await fetch(`${base}${base.endsWith('/api') ? '/reports/at-risk' : '/api/reports/at-risk'}`, {
+                const riskRes = await fetch(riskEndpoint, {
                     headers: {
                         'Authorization': `Bearer ${session?.access_token}`
                     }
