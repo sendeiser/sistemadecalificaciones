@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { FileText, Search, Download, ArrowLeft } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 
+import { getApiEndpoint } from '../utils/api';
+
 const ReportView = () => {
     const navigate = useNavigate();
     const [students, setStudents] = useState([]);
@@ -33,10 +35,9 @@ const ReportView = () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) throw new Error('No active session');
 
-            // Adjust URL based on environment or hardcode for now
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const endpoint = getApiEndpoint(`/reports/bulletin/${studentId}`);
 
-            const response = await fetch(`${API_URL}/reports/bulletin/${studentId}`, {
+            const response = await fetch(endpoint, {
                 headers: {
                     'Authorization': `Bearer ${session.access_token}`
                 }
