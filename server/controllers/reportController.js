@@ -266,7 +266,18 @@ async function getAttendanceStats(req, res) {
             return acc;
         }, { total: 0, present: 0, absent: 0, late: 0, justified: 0 });
 
-        res.json(totals);
+        // Calculate average attendance percentage
+        // Consider 'presente' and 'tarde' as attendance, 'ausente' as non-attendance
+        // 'justificado' can be counted as attendance for the percentage
+        const attendanceCount = totals.present + totals.late + totals.justified;
+        const avgAsistencia = totals.total > 0
+            ? Math.round((attendanceCount / totals.total) * 100)
+            : 0;
+
+        res.json({
+            ...totals,
+            avgAsistencia
+        });
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: e.message });
