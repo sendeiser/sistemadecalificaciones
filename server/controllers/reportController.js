@@ -185,38 +185,61 @@ async function getGradeJSON(req, res) {
             .eq('materia_id', materia_id)
             .maybeSingle();
 
-        let grades = [];
-        if (asignacion) {
-            const { data: gradesData } = await supabaseAdmin
-                .from('calificaciones')
-                .select('alumno_id, parcial_1, parcial_2, parcial_3, parcial_4, promedio, nota_intensificacion, trayecto_acompanamiento')
-                .eq('asignacion_id', asignacion.id);
-            grades = gradesData || [];
-        }
+        if (!asignacion) return res.status(404).json({ error: 'Asignación no encontrada' });
 
+        // 1. Fetch Grades
+        const { data: gradesData } = await supabaseAdmin
+            .from('calificaciones')
+            .select('*')
+            .eq('asignacion_id', asignacion.id);
+        const gradesMap = {};
+        (gradesData || []).forEach(g => { gradesMap[g.alumno_id] = g; });
+
+        // 2. Fetch Attendance for this assignment
+        const { data: attData } = await supabaseAdmin
+            .from('asistencias')
+            .select('estudiante_id, estado')
+            .eq('asignacion_id', asignacion.id);
+
+        const attStats = {};
+        (attData || []).forEach(a => {
+            if (!attStats[a.estudiante_id]) attStats[a.estudiante_id] = { total: 0, present: 0 };
+            attStats[a.estudiante_id].total++;
+            if (a.estado === 'presente' || a.estado === 'tarde') {
+                attStats[a.estudiante_id].present++;
+            }
+        });
+
+        // 3. Fetch Enrollment
         const { data: enrollment } = await supabaseAdmin
             .from('estudiantes_divisiones')
             .select(`alumno:perfiles!alumno_id (id, nombre, dni)`)
             .eq('division_id', division_id);
 
-        const gradesMap = {};
-        grades.forEach(g => { gradesMap[g.alumno_id] = g; });
-
         const report = (enrollment || []).map(e => {
             const s = e.alumno;
             const g = gradesMap[s.id] || {};
+            const stats = attStats[s.id] || { total: 0, present: 0 };
+
+            const assistPct = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : '-';
+
             return {
                 alumno_id: s.id,
                 nombre: s.nombre,
                 dni: s.dni,
+                nota_intensificacion: g.nota_intensificacion,
+                logro_intensificacion: getLogro(g.nota_intensificacion),
                 parcial_1: g.parcial_1,
                 parcial_2: g.parcial_2,
                 parcial_3: g.parcial_3,
                 parcial_4: g.parcial_4,
                 promedio: g.promedio,
-                logro: getLogro(g.promedio),
-                nota_intensificacion: g.nota_intensificacion,
-                trayecto_acompanamiento: g.trayecto_acompanamiento
+                logro_promedio: getLogro(g.promedio),
+                asistencia_porc: assistPct,
+                trayecto_acompanamiento: g.trayecto_acompanamiento,
+                logro_trayecto: '', // Placeholder for now or logic if exists
+                observaciones: '', // Placeholder
+                promedio_general: g.promedio // Promedio general matches promedio parcial as requested
             };
         }).sort((a, b) => a.nombre.localeCompare(b.nombre));
 
@@ -272,6 +295,21 @@ async function generateGradeReport(req, res) {
 
         if (gradesErr) throw gradesErr;
 
+        // 2.b Fetch Attendance for this assignment
+        const { data: attData } = await supabaseAdmin
+            .from('asistencias')
+            .select('estudiante_id, estado')
+            .eq('asignacion_id', asignacion.id);
+
+        const attStats = {};
+        (attData || []).forEach(a => {
+            if (!attStats[a.estudiante_id]) attStats[a.estudiante_id] = { total: 0, present: 0 };
+            attStats[a.estudiante_id].total++;
+            if (a.estado === 'presente' || a.estado === 'tarde') {
+                attStats[a.estudiante_id].present++;
+            }
+        });
+
         // 3. Fetch Enrollment (Students)
         const { data: enrollment, error: enrollErr } = await supabaseAdmin
             .from('estudiantes_divisiones')
@@ -286,39 +324,36 @@ async function generateGradeReport(req, res) {
         const gradesMap = {};
         (gradesData || []).forEach(g => { gradesMap[g.alumno_id] = g; });
 
-        const studentRows = enrollment.map(e => {
+        const studentRows = (enrollment || []).map(e => {
             const s = e.alumno;
             const g = gradesMap[s.id] || {};
-            // Calculate attendance percentage (mock or fetch if needed separately)
-            // For this report, we'll placeholder it or fetch if we have time. 
-            // The user asked for "todos los datos", attendance is in another table.
-            // For now, let's leave attendance empty or fetch it if critical.
-            // Given the complexity, I'll fetch attendance stats for each student in a real impl, 
-            // but for now let's focus on the grades layout as requested.
+            const stats = attStats[s.id] || { total: 0, present: 0 };
+            const assistPct = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : '-';
 
             return {
-                orden: '', // Can be index + 1
                 estudiante: s.nombre,
                 dni: s.dni,
+                intensificacion: g.nota_intensificacion,
+                logro_intensificacion: getLogro(g.nota_intensificacion),
                 p1: g.parcial_1,
                 p2: g.parcial_2,
                 p3: g.parcial_3,
                 p4: g.parcial_4,
                 promedio: g.promedio,
-                logro: getLogro(g.promedio),
-                intensificacion: g.nota_intensificacion,
+                logro_promedio: getLogro(g.promedio),
+                asistencia: assistPct,
                 trayecto: g.trayecto_acompanamiento,
-                observaciones: ''
+                logro_trayecto: '', // Placeholder
+                observaciones: '',
+                promedio_general: g.promedio
             };
         }).sort((a, b) => a.estudiante.localeCompare(b.estudiante));
-
 
         // 5. Generate PDF
         const doc = new jsPDF('l', 'mm', 'a4'); // Landscape
 
         // Fix for Node.js environment: apply plugin manually
         const applyAutoTableResult = autoTable.default || autoTable;
-        // In Node, jspdf-autotable typically exports a function that we call with (doc, options)
         const generateAutoTable = (options) => {
             if (typeof doc.autoTable === 'function') {
                 doc.autoTable(options);
@@ -326,6 +361,11 @@ async function generateGradeReport(req, res) {
                 applyAutoTableResult(doc, options);
             }
         };
+
+        // --- Page Border ---
+        doc.setLineWidth(0.5);
+        doc.rect(5, 5, 287, 200); // Frame for A4 Landscape (297x210)
+        doc.setLineWidth(0.1);
 
         // --- Header Rendering ---
         doc.setFontSize(10);
@@ -377,37 +417,39 @@ async function generateGradeReport(req, res) {
                 [
                     { content: 'N°', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'ESTUDIANTES', rowSpan: 2, styles: { valign: 'middle', halign: 'left' } },
-                    { content: 'DNI', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'Perio. Intif', rowSpan: 2, styles: { valign: 'middle' } },
+                    { content: 'Logros', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'Calificaciones Parciales', colSpan: 4, styles: { halign: 'center' } },
                     { content: 'Promedio\nParcial', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: '% Asist', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'Logros', rowSpan: 2, styles: { valign: 'middle' } },
+                    { content: '% Asist', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'Trayecto de\nAcompañamiento', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'Logros', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Observaciones', rowSpan: 2, styles: { valign: 'middle' } }
+                    { content: 'Observaciones', rowSpan: 2, styles: { valign: 'middle' } },
+                    { content: 'Promedio\nGeneral', rowSpan: 2, styles: { valign: 'middle' } },
                 ],
                 ['1', '2', '3', '4']
             ],
             body: studentRows.map((s, index) => [
                 index + 1,
                 s.estudiante,
-                s.dni,
-                s.intensificacion || '', // Periodo Intif / Calif
+                s.intensificacion || '',
+                s.logro_intensificacion || '',
                 s.p1 || '',
                 s.p2 || '',
                 s.p3 || '',
                 s.p4 || '',
                 s.promedio || '',
-                '', // % Asistencia (Need to calc)
-                getLogro(s.promedio), // Logros (Calculated from Promedio)
+                s.logro_promedio || '',
+                s.asistencia !== '-' ? s.asistencia + '%' : '-',
                 s.trayecto || '',
-                '', // Logros (Trayecto)
-                s.observaciones || ''
+                s.logro_trayecto || '',
+                s.observaciones || '',
+                s.promedio_general || ''
             ]),
             styles: {
-                fontSize: 8,
-                cellPadding: 1,
+                fontSize: 7,
+                cellPadding: 0.8,
                 lineColor: [0, 0, 0],
                 lineWidth: 0.1,
                 textColor: [0, 0, 0],
@@ -421,10 +463,21 @@ async function generateGradeReport(req, res) {
                 lineWidth: 0.1
             },
             columnStyles: {
-                0: { cellWidth: 8 }, // Numeracion
-                1: { title: 'ESTUDIANTES', halign: 'left' }, // Nombre
-                2: { cellWidth: 20 }, // DNI
-                // Adjust others as needed
+                0: { cellWidth: 7 }, // N
+                1: { cellWidth: 50, halign: 'left' }, // ESTUDIANTES (increased)
+                2: { cellWidth: 15 }, // Intif
+                3: { cellWidth: 15 }, // Logro Intif
+                4: { cellWidth: 8 }, // P1
+                5: { cellWidth: 8 }, // P2
+                6: { cellWidth: 8 }, // P3
+                7: { cellWidth: 8 }, // P4
+                8: { cellWidth: 15 }, // Prom Parcial
+                9: { cellWidth: 15 }, // Logro Prom
+                10: { cellWidth: 15 }, // % Asist
+                11: { cellWidth: 45 }, // Trayecto
+                12: { cellWidth: 15 }, // Logro Trayecto
+                13: { cellWidth: 35 }, // Observaciones
+                14: { cellWidth: 15 }, // Prom General
             },
             theme: 'grid'
         });
@@ -649,8 +702,8 @@ async function generateAssignmentAttendancePDF(req, res) {
             .from('asignaciones')
             .select(`
                 id,
-                materia:materias(nombre),
-                division:divisiones(anio, seccion),
+                materia:materias(nombre, ciclo, campo_formacion),
+                division:divisiones(anio, seccion, ciclo_lectivo),
                 docente:perfiles(nombre)
             `)
             .eq('id', assignmentId)
@@ -675,47 +728,7 @@ async function generateAssignmentAttendancePDF(req, res) {
         const { data: records, error: rErr } = await query;
         if (rErr) throw rErr;
 
-        const doc = new PDFDocument({ margin: 40, size: 'A4' });
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=Asistencia_${sanitize(assignment.materia.nombre)}.pdf`);
-        doc.pipe(res);
-
-        doc.fontSize(16).text('Reporte de Asistencia por Materia', { align: 'center' });
-        doc.moveDown();
-        doc.fontSize(10).text(`Materia: ${sanitize(assignment.materia.nombre)}`);
-        doc.text(`División: ${assignment.division.anio} ${assignment.division.seccion}`);
-        doc.text(`Docente: ${sanitize(assignment.docente?.nombre)}`);
-        if (start_date || end_date) {
-            doc.text(`Periodo: ${start_date || 'Inicio'} al ${end_date || 'Fin'}`);
-        }
-        doc.moveDown();
-
-        const startX = 40;
-        let currentY = doc.y;
-
-        doc.font('Helvetica-Bold');
-        doc.text('Fecha', startX, currentY);
-        doc.text('Estudiante', startX + 80, currentY);
-        doc.text('Estado', startX + 350, currentY);
-        doc.moveTo(startX, currentY + 12).lineTo(555, currentY + 12).stroke();
-        currentY += 20;
-        doc.font('Helvetica');
-
-        records.forEach((rec, i) => {
-            if (currentY > 750) {
-                doc.addPage();
-                currentY = 40;
-            }
-            if (i % 2 === 0) {
-                doc.save().fillColor('#f9f9f9').rect(startX, currentY - 2, 515, 14).fill().restore();
-            }
-            doc.text(rec.fecha, startX, currentY);
-            doc.text(sanitize(rec.estudiante?.nombre).substring(0, 40), startX + 80, currentY);
-            doc.text(rec.estado, startX + 350, currentY);
-            currentY += 15;
-        });
-
-        // Statistics Summary
+        // Statistics Summary logic
         const studentStats = {};
         const globalTotals = { present: 0, absent: 0, late: 0, justified: 0, total: records.length };
         records.forEach(rec => {
@@ -733,43 +746,95 @@ async function generateAssignmentAttendancePDF(req, res) {
             }
         });
 
-        // Individual Stats Table
-        if (currentY > 600) { doc.addPage(); currentY = 40; } else { currentY += 30; }
-        doc.font('Helvetica-Bold').fontSize(14).text('Estadisticas Individuales', startX, currentY);
-        currentY += 25; doc.fontSize(9);
-        doc.text('Estudiante', startX, currentY);
-        doc.text('Pres.', startX + 200, currentY);
-        doc.text('Aus.', startX + 240, currentY);
-        doc.text('Tard.', startX + 280, currentY);
-        doc.text('Just.', startX + 320, currentY);
-        doc.text('% Asist.', startX + 370, currentY);
-        doc.moveTo(startX, currentY + 12).lineTo(555, currentY + 12).stroke();
-        currentY += 20; doc.font('Helvetica');
-        Object.values(studentStats).forEach((s, idx) => {
-            if (currentY > 750) { doc.addPage(); currentY = 40; }
-            if (idx % 2 === 0) doc.save().fillColor('#f9f9f9').rect(startX, currentY - 2, 515, 14).fill().restore();
-            const pct = s.total > 0 ? Math.round(((s.present + s.late) / s.total) * 100) : 0;
-            doc.text(sanitize(s.nombre).substring(0, 35), startX, currentY);
-            doc.text(s.present.toString(), startX + 200, currentY);
-            doc.text(s.absent.toString(), startX + 240, currentY);
-            doc.text(s.late.toString(), startX + 280, currentY);
-            doc.text(s.justified.toString(), startX + 320, currentY);
-            doc.text(`${pct}%`, startX + 370, currentY);
-            currentY += 15;
+        const doc = new jsPDF('l', 'mm', 'a4');
+
+        const applyAutoTableResult = autoTable.default || autoTable;
+        const generateAutoTable = (options) => {
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable(options);
+            } else {
+                applyAutoTableResult(doc, options);
+            }
+        };
+
+        // Page Border
+        doc.setLineWidth(0.5);
+        doc.rect(5, 5, 287, 200);
+        doc.setLineWidth(0.1);
+
+        // Header Rendering
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Escuela Técnico Agropecuaria', 148.5, 10, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
+        doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
+        doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
+
+        // Title box
+        doc.setFillColor(230, 230, 230);
+        doc.rect(14, 25, 269, 7, 'F');
+        doc.rect(14, 25, 269, 7, 'S');
+        doc.setFont('helvetica', 'bold');
+        doc.text(`REPORTE DE ASISTENCIA POR MATERIA`, 148.5, 30, { align: 'center' });
+
+        // Info Rows
+        const startY = 32;
+        const rowHeight = 7;
+
+        doc.rect(14, startY, 269, rowHeight);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`CURSO: ${assignment.division.anio} "${assignment.division.seccion}"`, 16, startY + 5);
+        doc.text(`Materia: ${assignment.materia.nombre}`, 100, startY + 5);
+        doc.text(`Ciclo Lectivo: ${assignment.division.ciclo_lectivo}`, 200, startY + 5);
+
+        doc.rect(14, startY + rowHeight, 269, rowHeight);
+        doc.text(`PROFESOR/S: ${assignment.docente?.nombre || '-'}`, 16, startY + rowHeight + 5);
+        if (start_date || end_date) {
+            doc.text(`Periodo: ${start_date || 'Inicio'} al ${end_date || 'Fin'}`, 140, startY + rowHeight + 5);
+        }
+
+        // Table 1: Records
+        generateAutoTable({
+            startY: startY + rowHeight * 2 + 5,
+            head: [['Fecha', 'Estudiante', 'Estado']],
+            body: records.map(rec => {
+                const dateParts = rec.fecha.split('-'); // YYYY-MM-DD
+                const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : rec.fecha;
+                return [
+                    formattedDate,
+                    rec.estudiante?.nombre || 'Unknown',
+                    rec.estado.toUpperCase()
+                ];
+            }),
+            styles: { fontSize: 8, cellPadding: 1, lineWidth: 0.1, lineColor: [0, 0, 0], textColor: [0, 0, 0] },
+            headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+            theme: 'grid'
         });
 
-        // Final Summary Block
-        if (currentY > 650) { doc.addPage(); currentY = 40; } else { currentY += 30; }
-        doc.font('Helvetica-Bold').fontSize(12).text('Resumen General de la Materia', startX, currentY);
-        currentY += 20; doc.fontSize(10);
-        doc.text(`Total Presentes: ${globalTotals.present}`, startX + 20, currentY);
-        doc.text(`Total Ausentes: ${globalTotals.absent}`, startX + 140, currentY);
-        doc.text(`Total Tardes: ${globalTotals.late}`, startX + 260, currentY);
-        doc.text(`Total Justificados: ${globalTotals.justified}`, startX + 380, currentY);
-        const globalPct = globalTotals.total > 0 ? Math.round(((globalTotals.present + globalTotals.late) / globalTotals.total) * 100) : 0;
-        doc.moveDown(); doc.text(`Porcentaje de Asistencia Real: ${globalPct}%`, startX);
+        // Table 2: Statistics
+        generateAutoTable({
+            startY: doc.lastAutoTable.finalY + 10,
+            head: [['Estudiante', 'Pres.', 'Aus.', 'Tard.', 'Just.', '% Asist.']],
+            body: Object.values(studentStats).map(s => {
+                const pct = s.total > 0 ? Math.round(((s.present + s.late) / s.total) * 100) : 0;
+                return [s.nombre, s.present, s.absent, s.late, s.justified, `${pct}%`];
+            }),
+            styles: { fontSize: 8, cellPadding: 1, lineWidth: 0.1, lineColor: [0, 0, 0], textColor: [0, 0, 0] },
+            headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+            theme: 'grid'
+        });
 
-        doc.end();
+        // Global Summary
+        const finalY = doc.lastAutoTable.finalY + 10;
+        const globalPct = globalTotals.total > 0 ? Math.round(((globalTotals.present + globalTotals.late) / globalTotals.total) * 100) : 0;
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Resumen General: Presentes: ${globalTotals.present} | Ausentes: ${globalTotals.absent} | Tardes: ${globalTotals.late} | Justificados: ${globalTotals.justified}`, 14, finalY);
+        doc.text(`Porcentaje de Asistencia Real de la Materia: ${globalPct}%`, 14, finalY + 7);
+
+        const pdfOutput = doc.output();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Asistencia_${sanitize(assignment.materia.nombre)}.pdf`);
+        res.send(Buffer.from(pdfOutput, 'binary'));
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: e.message });
@@ -939,46 +1004,7 @@ async function generateDivisionAttendancePDF(req, res) {
         const { data: records, error: rErr } = await query;
         if (rErr) throw rErr;
 
-        const doc = new PDFDocument({ margin: 40, size: 'A4' });
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=Asistencia_General_${division.anio}_${division.seccion}.pdf`);
-        doc.pipe(res);
-
-        doc.fontSize(16).text('Reporte de Asistencia General (Preceptoria)', { align: 'center' });
-        doc.moveDown();
-        doc.fontSize(10).text(`División: ${division.anio} ${division.seccion}`);
-        doc.text(`Ciclo Lectivo: ${division.ciclo_lectivo}`);
-        if (start_date || end_date) {
-            doc.text(`Periodo: ${start_date || 'Inicio'} al ${end_date || 'Fin'}`);
-        }
-        doc.moveDown();
-
-        const startX = 40;
-        let currentY = doc.y;
-
-        doc.font('Helvetica-Bold');
-        doc.text('Fecha', startX, currentY);
-        doc.text('Estudiante', startX + 80, currentY);
-        doc.text('Estado', startX + 350, currentY);
-        doc.moveTo(startX, currentY + 12).lineTo(555, currentY + 12).stroke();
-        currentY += 20;
-        doc.font('Helvetica');
-
-        records.forEach((rec, i) => {
-            if (currentY > 750) {
-                doc.addPage();
-                currentY = 40;
-            }
-            if (i % 2 === 0) {
-                doc.save().fillColor('#f9f9f9').rect(startX, currentY - 2, 515, 14).fill().restore();
-            }
-            doc.text(rec.fecha, startX, currentY);
-            doc.text(sanitize(rec.estudiante?.nombre).substring(0, 40), startX + 80, currentY);
-            doc.text(rec.estado, startX + 350, currentY);
-            currentY += 15;
-        });
-
-        // Statistics Summary
+        // Statistics Summary logic
         const studentStats = {};
         const globalTotals = { present: 0, absent: 0, late: 0, justified: 0, total: records.length };
         records.forEach(rec => {
@@ -996,43 +1022,91 @@ async function generateDivisionAttendancePDF(req, res) {
             }
         });
 
-        // Individual Stats Table
-        if (currentY > 600) { doc.addPage(); currentY = 40; } else { currentY += 30; }
-        doc.font('Helvetica-Bold').fontSize(14).text('Estadisticas Individuales', startX, currentY);
-        currentY += 25; doc.fontSize(9);
-        doc.text('Estudiante', startX, currentY);
-        doc.text('Pres.', startX + 200, currentY);
-        doc.text('Aus.', startX + 240, currentY);
-        doc.text('Tard.', startX + 280, currentY);
-        doc.text('Just.', startX + 320, currentY);
-        doc.text('% Asist.', startX + 370, currentY);
-        doc.moveTo(startX, currentY + 12).lineTo(555, currentY + 12).stroke();
-        currentY += 20; doc.font('Helvetica');
-        Object.values(studentStats).forEach((s, idx) => {
-            if (currentY > 750) { doc.addPage(); currentY = 40; }
-            if (idx % 2 === 0) doc.save().fillColor('#f9f9f9').rect(startX, currentY - 2, 515, 14).fill().restore();
-            const pct = s.total > 0 ? Math.round(((s.present + s.late) / s.total) * 100) : 0;
-            doc.text(sanitize(s.nombre).substring(0, 35), startX, currentY);
-            doc.text(s.present.toString(), startX + 200, currentY);
-            doc.text(s.absent.toString(), startX + 240, currentY);
-            doc.text(s.late.toString(), startX + 280, currentY);
-            doc.text(s.justified.toString(), startX + 320, currentY);
-            doc.text(`${pct}%`, startX + 370, currentY);
-            currentY += 15;
+        const doc = new jsPDF('l', 'mm', 'a4');
+
+        const applyAutoTableResult = autoTable.default || autoTable;
+        const generateAutoTable = (options) => {
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable(options);
+            } else {
+                applyAutoTableResult(doc, options);
+            }
+        };
+
+        // Page Border
+        doc.setLineWidth(0.5);
+        doc.rect(5, 5, 287, 200);
+        doc.setLineWidth(0.1);
+
+        // Header Rendering
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Escuela Técnico Agropecuaria', 148.5, 10, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
+        doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
+        doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
+
+        // Title box
+        doc.setFillColor(230, 230, 230);
+        doc.rect(14, 25, 269, 7, 'F');
+        doc.rect(14, 25, 269, 7, 'S');
+        doc.setFont('helvetica', 'bold');
+        doc.text(`REPORTE DE ASISTENCIA GENERAL (PRECEPTORIA)`, 148.5, 30, { align: 'center' });
+
+        // Info Rows
+        const startY = 32;
+        const rowHeight = 7;
+
+        doc.rect(14, startY, 269, rowHeight);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`CURSO: ${division.anio} "${division.seccion}"`, 16, startY + 5);
+        doc.text(`Ciclo Lectivo: ${division.ciclo_lectivo}`, 148.5, startY + 5, { align: 'center' });
+        if (start_date || end_date) {
+            doc.text(`Periodo: ${start_date || 'Inicio'} al ${end_date || 'Fin'}`, 267, startY + 5, { align: 'right' });
+        }
+
+        // Table 1: Records
+        generateAutoTable({
+            startY: startY + rowHeight + 5,
+            head: [['Fecha', 'Estudiante', 'Estado']],
+            body: records.map(rec => {
+                const dateParts = rec.fecha.split('-'); // YYYY-MM-DD
+                const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : rec.fecha;
+                return [
+                    formattedDate,
+                    rec.estudiante?.nombre || 'Unknown',
+                    rec.estado.toUpperCase()
+                ];
+            }),
+            styles: { fontSize: 8, cellPadding: 1, lineWidth: 0.1, lineColor: [0, 0, 0], textColor: [0, 0, 0] },
+            headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+            theme: 'grid'
         });
 
-        // Final Summary Block
-        if (currentY > 650) { doc.addPage(); currentY = 40; } else { currentY += 30; }
-        doc.font('Helvetica-Bold').fontSize(12).text('Resumen General (Departamento de Preceptoria)', startX, currentY);
-        currentY += 20; doc.fontSize(10);
-        doc.text(`Total Presentes: ${globalTotals.present}`, startX + 20, currentY);
-        doc.text(`Total Ausentes: ${globalTotals.absent}`, startX + 140, currentY);
-        doc.text(`Total Tardes: ${globalTotals.late}`, startX + 260, currentY);
-        doc.text(`Total Justificados: ${globalTotals.justified}`, startX + 380, currentY);
-        const globalPct = globalTotals.total > 0 ? Math.round(((globalTotals.present + globalTotals.late) / globalTotals.total) * 100) : 0;
-        doc.moveDown(); doc.text(`Porcentaje de Asistencia General: ${globalPct}%`, startX);
+        // Table 2: Statistics
+        generateAutoTable({
+            startY: doc.lastAutoTable.finalY + 10,
+            head: [['Estudiante', 'Pres.', 'Aus.', 'Tard.', 'Just.', '% Asist.']],
+            body: Object.values(studentStats).map(s => {
+                const pct = s.total > 0 ? Math.round(((s.present + s.late) / s.total) * 100) : 0;
+                return [s.nombre, s.present, s.absent, s.late, s.justified, `${pct}%`];
+            }),
+            styles: { fontSize: 8, cellPadding: 1, lineWidth: 0.1, lineColor: [0, 0, 0], textColor: [0, 0, 0] },
+            headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+            theme: 'grid'
+        });
 
-        doc.end();
+        // Global Summary
+        const finalY = doc.lastAutoTable.finalY + 10;
+        const globalPct = globalTotals.total > 0 ? Math.round(((globalTotals.present + globalTotals.late) / globalTotals.total) * 100) : 0;
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Resumen General: Presentes: ${globalTotals.present} | Ausentes: ${globalTotals.absent} | Tardes: ${globalTotals.late} | Justificados: ${globalTotals.justified}`, 14, finalY);
+        doc.text(`Porcentaje de Asistencia General de la División: ${globalPct}%`, 14, finalY + 7);
+
+        const pdfOutput = doc.output();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Asistencia_General_${division.anio}_${division.seccion}.pdf`);
+        res.send(Buffer.from(pdfOutput, 'binary'));
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: e.message });

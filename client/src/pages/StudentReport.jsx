@@ -219,7 +219,6 @@ const StudentReport = () => {
                                     <th className="p-4 text-center">P3</th>
                                     <th className="p-4 text-center">P4</th>
                                     <th className="p-4 text-center">Promedio</th>
-                                    <th className="p-4 text-center">Rata.</th>
                                     <th className="p-4 text-center">Final</th>
                                     <th className="p-4">Observaciones</th>
                                 </tr>
@@ -237,7 +236,7 @@ const StudentReport = () => {
                                             <td className={`p-4 text-center font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
                                                 {avg}
                                             </td>
-                                            <td className="p-4 text-center font-mono">-</td>
+
                                             <td className={`p-4 text-center font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-cyan'}`}>
                                                 {avg}
                                             </td>
@@ -249,7 +248,7 @@ const StudentReport = () => {
                                 })}
                                 {grades.length === 0 && (
                                     <tr>
-                                        <td colSpan="9" className="p-12 text-center text-tech-muted font-mono uppercase tracking-widest">
+                                        <td colSpan="8" className="p-12 text-center text-tech-muted font-mono uppercase tracking-widest">
                                             No hay calificaciones registradas.
                                         </td>
                                     </tr>

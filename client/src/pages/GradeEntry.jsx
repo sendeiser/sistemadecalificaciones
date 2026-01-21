@@ -183,20 +183,34 @@ const GradeEntry = () => {
     const handleExportCSV = () => {
         if (grades.length === 0) return alert('No hay datos para exportar');
 
-        const headers = ['Estudiante', 'DNI', 'Nota Intensificacion', 'Parcial 1', 'Parcial 2', 'Parcial 3', 'Parcial 4', 'Promedio', 'Asistencia', 'Promedio Cuatrimestre', 'Trayecto', 'Observaciones'];
-        const rows = grades.map(g => [
+        const getLogro = (grade) => {
+            if (!grade) return '';
+            const num = parseFloat(grade);
+            if (isNaN(num)) return '';
+            if (num >= 9) return 'LD';
+            if (num >= 7) return 'LS';
+            if (num >= 6) return 'LB';
+            if (num >= 1) return 'LAA/LIE';
+            return '';
+        };
+
+        const headers = ['N°', 'Estudiante', 'Perio. Intif', 'Logros Intif.', 'P1', 'P2', 'P3', 'P4', 'Promedio Parcial', 'Logros Prom.', '% Asist', 'Trayecto de Acompañamiento', 'Logros Tray.', 'Observaciones', 'Promedio General'];
+        const rows = grades.map((g, index) => [
+            index + 1,
             g.student.nombre,
-            g.student.dni,
             g.nota_intensificacion || '',
+            getLogro(g.nota_intensificacion),
             g.parcial_1 || '',
             g.parcial_2 || '',
             g.parcial_3 || '',
             g.parcial_4 || '',
             g.promedio || '',
-            g.asistencia || '',
-            g.promedio_cuatrimestre || '',
+            getLogro(g.promedio),
+            g.asistencia !== undefined ? g.asistencia + '%' : '-',
             g.trayecto_acompanamiento || '',
-            g.observaciones || ''
+            '', // Logro Trayecto placeholder
+            g.observaciones || '',
+            g.promedio_cuatrimestre || ''
         ]);
 
         const csvContent = [

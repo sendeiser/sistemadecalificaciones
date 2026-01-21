@@ -89,18 +89,23 @@ const GradeReport = () => {
 
     const exportCSV = () => {
         if (report.length === 0) return alert('No hay datos para exportar');
-        const headers = ['Alumno ID', 'Nombre', 'DNI', 'Parcial 1', 'Parcial 2', 'Parcial 3', 'Parcial 4', 'Promedio', 'Intensificación', 'Trayecto'];
-        const rows = report.map(r => [
-            r.alumno_id,
+        const headers = ['N°', 'Estudiante', 'Perio. Intif', 'Logros Intif.', 'P1', 'P2', 'P3', 'P4', 'Promedio Parcial', 'Logros Prom.', '% Asist', 'Trayecto de Acompañamiento', 'Logros Tray.', 'Observaciones', 'Promedio General'];
+        const rows = report.map((r, index) => [
+            index + 1,
             r.nombre,
-            r.dni,
+            r.nota_intensificacion ?? '',
+            r.logro_intensificacion ?? '',
             r.parcial_1 ?? '',
             r.parcial_2 ?? '',
             r.parcial_3 ?? '',
             r.parcial_4 ?? '',
             r.promedio ?? '',
-            r.nota_intensificacion ?? '',
-            r.trayecto_acompanamiento ?? ''
+            r.logro_promedio ?? '',
+            r.asistencia_porc !== '-' ? r.asistencia_porc + '%' : '-',
+            r.trayecto_acompanamiento ?? '',
+            r.logro_trayecto ?? '',
+            r.observaciones ?? '',
+            r.promedio_general ?? ''
         ]);
         const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -253,40 +258,58 @@ const GradeReport = () => {
                         {/* Desktop Table View */}
                         <div className="hidden md:block overflow-x-auto custom-scrollbar rounded border border-tech-surface shadow-inner">
                             <table className="w-full min-w-[600px] table-auto border-collapse bg-tech-secondary">
-                                <thead className="bg-tech-primary/50 text-tech-muted font-mono text-xs uppercase tracking-wider">
+                                <thead className="bg-tech-primary/50 text-black font-mono text-xs uppercase tracking-wider">
                                     <tr>
                                         <th className="p-3 border border-tech-surface text-left">Alumno</th>
-                                        <th className="p-3 border border-tech-surface text-center">DNI</th>
+                                        <th className="p-3 border border-tech-surface text-center text-tech-accent text-[10px]">Intif.</th>
+                                        <th className="p-3 border border-tech-surface text-center text-tech-accent text-[10px]">Logro</th>
                                         <th className="p-3 border border-tech-surface text-center">P1</th>
                                         <th className="p-3 border border-tech-surface text-center">P2</th>
                                         <th className="p-3 border border-tech-surface text-center">P3</th>
                                         <th className="p-3 border border-tech-surface text-center">P4</th>
-                                        <th className="p-3 border border-tech-surface text-center">Prom</th>
-                                        <th className="p-3 border border-tech-surface text-center">Logro</th>
-                                        <th className="p-3 border border-tech-surface text-center text-tech-accent">Intensif.</th>
-                                        <th className="p-3 border border-tech-surface text-center text-tech-cyan">Trayecto</th>
+                                        <th className="p-3 border border-tech-surface text-center text-[10px]">Prom. Parc.</th>
+                                        <th className="p-3 border border-tech-surface text-center text-[10px]">Logro</th>
+                                        <th className="p-3 border border-tech-surface text-center text-[10px]">% Asist</th>
+                                        <th className="p-3 border border-tech-surface text-center text-tech-cyan text-[10px]">Trayecto</th>
+                                        <th className="p-3 border border-tech-surface text-center text-tech-cyan text-[10px]">Logro</th>
+                                        <th className="p-3 border border-tech-surface text-center text-[10px]">Observ.</th>
+                                        <th className="p-3 border border-tech-surface text-center font-bold text-tech-success text-[10px]">Prom. Gral</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-tech-surface">
                                     {report.map(r => (
-                                        <tr key={r.alumno_id} className="hover:bg-tech-primary/30 transition-colors">
-                                            <td className="p-3 border border-tech-surface font-bold text-tech-text">{r.nombre}</td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-sm text-tech-muted">{r.dni}</td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_1 ?? '-'}</td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_2 ?? '-'}</td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_3 ?? '-'}</td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_4 ?? '-'}</td>
-                                            <td className={`p-3 border border-tech-surface text-center font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
-                                                {r.promedio ?? '-'}
-                                            </td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-text bg-tech-primary/20">
-                                                {r.logro || '-'}
-                                            </td>
+                                        <tr key={r.alumno_id} className="hover:bg-tech-primary/30 transition-colors text-black">
+                                            <td className="p-3 border border-tech-surface font-bold text-sm">{r.nombre}</td>
                                             <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-accent">
                                                 {r.nota_intensificacion ?? '-'}
                                             </td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-xs font-bold text-tech-cyan uppercase">
+                                            <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-accent bg-tech-accent/5 text-[10px]">
+                                                {r.logro_intensificacion || '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono text-[11px]">{r.parcial_1 ?? '-'}</td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono text-[11px]">{r.parcial_2 ?? '-'}</td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono text-[11px]">{r.parcial_3 ?? '-'}</td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono text-[11px]">{r.parcial_4 ?? '-'}</td>
+                                            <td className={`p-3 border border-tech-surface text-center font-bold font-mono text-sm ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
+                                                {r.promedio ?? '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-text bg-tech-primary/20 text-[10px]">
+                                                {r.logro_promedio || '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono text-[10px] text-tech-muted">
+                                                {r.asistencia_porc !== '-' ? `${r.asistencia_porc}%` : '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono text-[10px] font-bold text-tech-cyan uppercase max-w-[120px] truncate">
                                                 {r.trayecto_acompanamiento ?? '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono text-[10px] text-tech-cyan bg-tech-cyan/5">
+                                                {r.logro_trayecto || '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono text-[10px] text-tech-muted italic">
+                                                {r.observaciones || '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-bold font-mono text-sm text-tech-success bg-tech-success/5">
+                                                {r.promedio_general ?? r.promedio ?? '-'}
                                             </td>
                                         </tr>
                                     ))}
@@ -300,14 +323,14 @@ const GradeReport = () => {
                                 <div key={r.alumno_id} className="bg-tech-secondary p-4 rounded border border-tech-surface shadow-md">
                                     <div className="flex justify-between items-start mb-3 border-b border-tech-surface pb-2">
                                         <div>
-                                            <h3 className="font-bold text-tech-text text-lg">{r.nombre}</h3>
-                                            <span className="text-xs text-tech-muted font-mono">DNI: {r.dni}</span>
+                                            <h3 className="font-bold text-black text-lg">{r.nombre}</h3>
+                                            <span className="text-xs text-tech-muted font-mono"><span className="text-tech-success">{r.asistencia_porc}% Asist</span></span>
                                         </div>
                                         <div className="text-right">
                                             <div className={`text-2xl font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
-                                                {r.promedio ?? '-'}
+                                                {r.promedio_general || r.promedio || '-'}
                                             </div>
-                                            <span className="block text-[8px] text-tech-muted font-sans uppercase tracking-wider">Promedio</span>
+                                            <span className="block text-[8px] text-tech-muted font-sans uppercase tracking-wider">Prom. Gral</span>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-4 gap-2 text-center text-sm font-mono mb-3">
@@ -328,18 +351,18 @@ const GradeReport = () => {
                                             <span className="text-tech-text font-bold">{r.parcial_4 ?? '-'}</span>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-3 border-t border-tech-surface pt-3">
-                                        <div className="flex flex-col items-center justify-center bg-tech-primary/30 p-2 rounded">
-                                            <span className="text-[10px] text-tech-muted uppercase font-bold">Logro</span>
-                                            <span className="font-mono font-bold text-tech-text text-base">{r.logro || '-'}</span>
+                                    <div className="grid grid-cols-3 gap-3 border-t border-tech-surface pt-3 text-[10px]">
+                                        <div className="flex flex-col items-center justify-center bg-tech-accent/10 p-2 rounded">
+                                            <span className="text-[8px] text-tech-muted uppercase font-bold">Intif.</span>
+                                            <span className="font-mono font-bold text-tech-accent">{r.nota_intensificacion ?? '-'} ({r.logro_intensificacion || '-'})</span>
                                         </div>
                                         <div className="flex flex-col items-center justify-center bg-tech-primary/30 p-2 rounded">
-                                            <span className="text-[10px] text-tech-muted uppercase font-bold">Intensif.</span>
-                                            <span className="font-mono font-bold text-tech-accent text-base">{r.nota_intensificacion ?? '-'}</span>
+                                            <span className="text-[8px] text-tech-muted uppercase font-bold">Logro Parc</span>
+                                            <span className="font-mono font-bold text-tech-text">{r.logro_promedio || '-'}</span>
                                         </div>
-                                        <div className="flex flex-col items-center justify-center bg-tech-primary/30 p-2 rounded">
-                                            <span className="text-[10px] text-tech-muted uppercase font-bold">Trayecto</span>
-                                            <span className="font-mono font-bold text-tech-cyan text-[10px] text-center leading-tight">{r.trayecto_acompanamiento ?? '-'}</span>
+                                        <div className="flex flex-col items-center justify-center bg-tech-cyan/10 p-2 rounded">
+                                            <span className="text-[8px] text-tech-muted uppercase font-bold">Trayecto</span>
+                                            <span className="font-mono font-bold text-tech-cyan truncate w-full text-center">{r.logro_trayecto || r.trayecto_acompanamiento || '-'}</span>
                                         </div>
                                     </div>
                                 </div>

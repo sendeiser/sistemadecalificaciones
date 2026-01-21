@@ -22,7 +22,6 @@ CREATE TABLE divisiones (
     anio TEXT NOT NULL, -- "1ro", "2do", etc.
     seccion TEXT NOT NULL, -- "A", "B", "C", "Unica"
     ciclo_lectivo INTEGER NOT NULL,
-    campo_formacion TEXT, -- "Cientifico Tecnologico", "Tecnico Especifico"
     estado TEXT DEFAULT 'abierto' CHECK (estado IN ('abierto', 'cerrado'))
 );
 

@@ -14,8 +14,7 @@ const DivisionManagement = () => {
     const [formData, setFormData] = useState({
         anio: '',
         seccion: '',
-        ciclo_lectivo: new Date().getFullYear(),
-        campo_formacion: ''
+        ciclo_lectivo: new Date().getFullYear()
     });
 
     useEffect(() => {
@@ -61,7 +60,7 @@ const DivisionManagement = () => {
                 setDivisions([...divisions, data].sort((a, b) => a.anio.localeCompare(b.anio)));
                 setIsAdding(false);
             }
-            setFormData({ anio: '', seccion: '', ciclo_lectivo: new Date().getFullYear(), campo_formacion: '' });
+            setFormData({ anio: '', seccion: '', ciclo_lectivo: new Date().getFullYear() });
         } catch (err) {
             alert('Error al guardar: ' + err.message);
         }
@@ -87,8 +86,7 @@ const DivisionManagement = () => {
         setFormData({
             anio: division.anio,
             seccion: division.seccion,
-            ciclo_lectivo: division.ciclo_lectivo,
-            campo_formacion: division.campo_formacion || ''
+            ciclo_lectivo: division.ciclo_lectivo
         });
     };
 
@@ -117,7 +115,7 @@ const DivisionManagement = () => {
                         onClick={() => {
                             setIsAdding(true);
                             setEditingId(null);
-                            setFormData({ anio: '', seccion: '', ciclo_lectivo: 2024, campo_formacion: '' });
+                            setFormData({ anio: '', seccion: '', ciclo_lectivo: 2024 });
                         }}
                         className="flex items-center gap-2 px-4 py-2 bg-tech-accent hover:bg-violet-600 rounded transition-colors text-sm font-bold shadow-[0_0_15px_rgba(139,92,246,0.3)] uppercase tracking-wider text-white"
                     >
@@ -168,16 +166,7 @@ const DivisionManagement = () => {
                                     onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Campo de Formación</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ej: Informática"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-tech-muted/50 text-tech-text"
-                                    value={formData.campo_formacion}
-                                    onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
-                                />
-                            </div>
+
                         </div>
                         <div className="mt-6 flex gap-3 relative z-10">
                             <button onClick={() => handleSave()} className="flex items-center gap-2 px-6 py-2 bg-tech-success hover:bg-emerald-600 rounded font-bold transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)] text-white uppercase tracking-wider text-sm">
@@ -199,15 +188,14 @@ const DivisionManagement = () => {
                                 <tr>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Año y Sección</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Ciclo Lectivo</th>
-                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Campo Formación</th>
                                     <th className="p-4 text-center uppercase text-[10px] font-bold tracking-widest">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-tech-surface">
                                 {loading ? (
-                                    <tr><td colSpan="4" className="p-10 text-center text-tech-muted font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando divisiones...</td></tr>
+                                    <tr><td colSpan="3" className="p-10 text-center text-tech-muted font-mono animate-pulse uppercase text-xs tracking-widest">Sincronizando divisiones...</td></tr>
                                 ) : divisions.length === 0 ? (
-                                    <tr><td colSpan="4" className="p-10 text-center text-tech-muted font-mono italic">No hay divisiones creadas.</td></tr>
+                                    <tr><td colSpan="3" className="p-10 text-center text-tech-muted font-mono italic">No hay divisiones creadas.</td></tr>
                                 ) : divisions.map(d => (
                                     <tr key={d.id} className="hover:bg-tech-primary/50 transition-colors">
                                         <td className="p-4">
@@ -247,18 +235,7 @@ const DivisionManagement = () => {
                                                 <span className="text-tech-text font-mono">{d.ciclo_lectivo}</span>
                                             )}
                                         </td>
-                                        <td className="p-4">
-                                            {editingId === d.id ? (
-                                                <input
-                                                    type="text"
-                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-full outline-none text-tech-text text-sm"
-                                                    value={formData.campo_formacion}
-                                                    onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
-                                                />
-                                            ) : (
-                                                <span className="text-tech-muted italic font-mono text-sm">{d.campo_formacion || '-'}</span>
-                                            )}
-                                        </td>
+
                                         <td className="p-4 text-center">
                                             <div className="flex justify-center gap-2">
                                                 <button
@@ -330,13 +307,7 @@ const DivisionManagement = () => {
                                             onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
                                             placeholder="Ciclo Lectivo"
                                         />
-                                        <input
-                                            type="text"
-                                            className="w-full bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-tech-text text-sm"
-                                            value={formData.campo_formacion}
-                                            onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
-                                            placeholder="Campo de Formación"
-                                        />
+
                                         <div className="flex gap-2">
                                             <button onClick={() => handleSave(d.id)} className="flex-1 py-2 bg-tech-success text-white rounded font-bold text-xs uppercase tracking-widest">
                                                 Guardar
@@ -355,10 +326,8 @@ const DivisionManagement = () => {
                                                     {d.seccion}
                                                 </span>
                                             </div>
-                                            <div className="mt-1 flex items-center gap-3 text-xs font-mono">
-                                                <span className="text-tech-muted uppercase">Ciclo {d.ciclo_lectivo}</span>
-                                                <span className="text-slate-600">|</span>
-                                                <span className="text-tech-muted italic">{d.campo_formacion || 'General'}</span>
+                                            <div className="mt-1 flex items-center gap-3 text-xs font-mono text-tech-muted">
+                                                <span className="uppercase">Ciclo {d.ciclo_lectivo}</span>
                                             </div>
                                         </div>
                                         <div className="flex gap-1">

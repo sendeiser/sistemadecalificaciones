@@ -4,16 +4,16 @@
 -- ==========================================
 
 -- 1. Cargar Divisiones (Cursos)
-INSERT INTO public.divisiones (anio, seccion, ciclo_lectivo, campo_formacion)
+INSERT INTO public.divisiones (anio, seccion, ciclo_lectivo)
 VALUES 
-('1ro', 'A', 2024, 'Ciclo Básico'),
-('1ro', 'B', 2024, 'Ciclo Básico'),
-('2do', 'A', 2024, 'Ciclo Básico'),
-('2do', 'B', 2024, 'Ciclo Básico'),
-('3ro', 'A', 2024, 'Ciclo Básico'),
-('4to', '1ra', 2024, 'Informática (Técnico)'),
-('5to', '1ra', 2024, 'Informática (Técnico)'),
-('6to', '1ra', 2024, 'Informática (Técnico)');
+('1ro', 'A', 2024),
+('1ro', 'B', 2024),
+('2do', 'A', 2024),
+('2do', 'B', 2024),
+('3ro', 'A', 2024),
+('4to', '1ra', 2024),
+('5to', '1ra', 2024),
+('6to', '1ra', 2024);
 
 -- 2. Cargar Materias
 -- Nota: Solo incluye columna 'nombre' según schema.sql
