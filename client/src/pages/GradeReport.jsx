@@ -14,6 +14,7 @@ const GradeReport = () => {
     const [selectedDivision, setSelectedDivision] = useState('');
     const [selectedSubject, setSelectedSubject] = useState('');
     const [report, setReport] = useState([]);
+    const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(false);
 
     // Load divisions and subjects on mount
@@ -32,22 +33,56 @@ const GradeReport = () => {
         setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const endpoint = getApiEndpoint(`/reports/grades?division_id=${selectedDivision}&materia_id=${selectedSubject}`);
+            const endpoint = getApiEndpoint(`/reports/grades-json?division_id=${selectedDivision}&materia_id=${selectedSubject}`);
 
             const res = await fetch(
                 endpoint,
                 {
                     headers: {
-                        'Authorization': `Bearer ${session?.access_token} `
+                        'Authorization': `Bearer ${session?.access_token}`
                     }
                 }
             );
             const json = await res.json();
             if (json.message) alert(json.message);
             setReport(json.report || []);
+            setReportData(json);
         } catch (e) {
             console.error(e);
             alert('Error al generar el reporte');
+        }
+        setLoading(false);
+    };
+
+    const downloadPDF = async () => {
+        if (!selectedDivision || !selectedSubject) return alert('Seleccione división y materia');
+        setLoading(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const endpoint = getApiEndpoint(`/reports/grades?division_id=${selectedDivision}&materia_id=${selectedSubject}`);
+
+            const res = await fetch(
+                endpoint,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${session?.access_token}`
+                    }
+                }
+            );
+
+            if (!res.ok) throw new Error('Error al generar PDF');
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reporte_calificaciones.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error(e);
+            alert('Error al descargar el PDF');
         }
         setLoading(false);
     };
@@ -171,31 +206,49 @@ const GradeReport = () => {
                             </option>
                         ))}
                     </select>
+                </div>
+                <div className="flex flex-wrap gap-4 mt-6">
                     <button
                         onClick={generateReport}
-                        className="md:col-span-2 flex items-center justify-center gap-2 px-6 py-2 bg-tech-cyan hover:bg-sky-600 rounded text-white font-bold uppercase text-sm tracking-wider shadow-[0_0_15px_rgba(14,165,233,0.3)] transition-all"
                         disabled={loading}
+                        className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50"
                     >
-                        <Search size={18} /> Generar Reporte
+                        <Search size={20} />
+                        {loading ? 'Generando...' : 'Generar Vista Previa'}
+                    </button>
+
+                    <button
+                        onClick={downloadPDF}
+                        disabled={loading || !selectedDivision || !selectedSubject}
+                        className="flex items-center gap-2 bg-red-600 dark:bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:opacity-50"
+                    >
+                        <FileText size={20} />
+                        Descargar PDF (Oficial)
+                    </button>
+
+                    <button
+                        onClick={exportCSV}
+                        disabled={loading || report.length === 0}
+                        className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50"
+                    >
+                        <Download size={20} />
+                        Exportar CSV
                     </button>
                 </div>
 
                 {report.length > 0 && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="flex gap-3 mb-4">
-                            <button
-                                onClick={exportCSV}
-                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-tech-secondary border border-tech-surface hover:bg-tech-surface rounded text-tech-text transition-colors"
-                            >
-                                <Download size={16} /> <span className="hidden md:inline">Exportar CSV</span><span className="md:hidden">CSV</span>
-                            </button>
-                            <button
-                                onClick={exportPDF}
-                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-tech-accent hover:bg-violet-600 rounded text-white font-bold shadow-[0_0_10px_rgba(139,92,246,0.3)] transition-all"
-                            >
-                                <FileText size={16} /> <span className="hidden md:inline">Exportar PDF</span><span className="md:hidden">PDF</span>
-                            </button>
-                        </div>
+                        {reportData?.asignacion && (
+                            <div className="bg-tech-secondary p-4 rounded border border-tech-surface mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm shadow-sm">
+                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Curso / Sección</span> <span className="text-tech-text font-bold">{reportData.asignacion.division.anio} "{reportData.asignacion.division.seccion}"</span></div>
+                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Materia</span> <span className="text-tech-text font-bold">{reportData.asignacion.materia.nombre}</span></div>
+                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Profesor</span> <span className="text-tech-text font-bold">{reportData.asignacion.docente?.nombre || '-'}</span></div>
+                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Ciclo Lectivo</span> <span className="text-tech-text font-bold">{reportData.asignacion.division.ciclo_lectivo}</span></div>
+                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Ciclo</span> <span className="text-tech-text font-bold">{reportData.asignacion.materia.ciclo || 'Básico'}</span></div>
+                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">C. de Formación</span> <span className="text-tech-text font-bold">{reportData.asignacion.materia.campo_formacion || '-'}</span></div>
+                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Periodo</span> <span className="text-tech-text font-bold">{new Date().getMonth() + 1 <= 7 ? '1er Cuatrimestre' : '2do Cuatrimestre'}</span></div>
+                            </div>
+                        )}
 
                         {/* Desktop Table View */}
                         <div className="hidden md:block overflow-x-auto custom-scrollbar rounded border border-tech-surface shadow-inner">
@@ -209,6 +262,7 @@ const GradeReport = () => {
                                         <th className="p-3 border border-tech-surface text-center">P3</th>
                                         <th className="p-3 border border-tech-surface text-center">P4</th>
                                         <th className="p-3 border border-tech-surface text-center">Prom</th>
+                                        <th className="p-3 border border-tech-surface text-center">Logro</th>
                                         <th className="p-3 border border-tech-surface text-center text-tech-accent">Intensif.</th>
                                         <th className="p-3 border border-tech-surface text-center text-tech-cyan">Trayecto</th>
                                     </tr>
@@ -224,6 +278,9 @@ const GradeReport = () => {
                                             <td className="p-3 border border-tech-surface text-center font-mono">{r.parcial_4 ?? '-'}</td>
                                             <td className={`p-3 border border-tech-surface text-center font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
                                                 {r.promedio ?? '-'}
+                                            </td>
+                                            <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-text bg-tech-primary/20">
+                                                {r.logro || '-'}
                                             </td>
                                             <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-accent">
                                                 {r.nota_intensificacion ?? '-'}
@@ -271,14 +328,18 @@ const GradeReport = () => {
                                             <span className="text-tech-text font-bold">{r.parcial_4 ?? '-'}</span>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3 border-t border-tech-surface pt-3">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-tech-muted uppercase font-bold">Intensif.</span>
-                                            <span className="font-mono font-bold text-tech-accent text-lg">{r.nota_intensificacion ?? '-'}</span>
+                                    <div className="grid grid-cols-3 gap-3 border-t border-tech-surface pt-3">
+                                        <div className="flex flex-col items-center justify-center bg-tech-primary/30 p-2 rounded">
+                                            <span className="text-[10px] text-tech-muted uppercase font-bold">Logro</span>
+                                            <span className="font-mono font-bold text-tech-text text-base">{r.logro || '-'}</span>
                                         </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-tech-muted uppercase font-bold">Trayecto</span>
-                                            <span className="font-mono font-bold text-tech-cyan text-sm">{r.trayecto_acompanamiento ?? '-'}</span>
+                                        <div className="flex flex-col items-center justify-center bg-tech-primary/30 p-2 rounded">
+                                            <span className="text-[10px] text-tech-muted uppercase font-bold">Intensif.</span>
+                                            <span className="font-mono font-bold text-tech-accent text-base">{r.nota_intensificacion ?? '-'}</span>
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center bg-tech-primary/30 p-2 rounded">
+                                            <span className="text-[10px] text-tech-muted uppercase font-bold">Trayecto</span>
+                                            <span className="font-mono font-bold text-tech-cyan text-[10px] text-center leading-tight">{r.trayecto_acompanamiento ?? '-'}</span>
                                         </div>
                                     </div>
                                 </div>

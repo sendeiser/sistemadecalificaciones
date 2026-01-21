@@ -1,6 +1,6 @@
 // server/routes/reports.js
 const express = require('express');
-const { generateGradeReport, getAttendanceStats, getGeneralDashboardStats, generateStudentBulletinPDF, getStudentsAtRisk, getTeacherAttendanceStats } = require('../controllers/reportController');
+const { generateGradeReport, getGradeJSON, getAttendanceStats, getGeneralDashboardStats, generateStudentBulletinPDF, getStudentsAtRisk, getTeacherAttendanceStats } = require('../controllers/reportController');
 const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -8,6 +8,9 @@ router.use(authMiddleware);
 
 // GET /reports/grades?division_id=...&materia_id=...
 router.get('/grades', generateGradeReport);
+
+// GET /reports/grades-json
+router.get('/grades-json', getGradeJSON);
 
 // GET /reports/attendance?division_id=...&start_date=...&end_date=...
 router.get('/attendance', getAttendanceStats);

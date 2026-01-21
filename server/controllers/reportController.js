@@ -1,5 +1,8 @@
 const { supabaseAdmin } = require('../config/supabaseClient');
 const PDFDocument = require('pdfkit');
+const { jsPDF } = require('jspdf');
+// In Node.js environment, jspdf-autotable might be in .default
+const autoTable = require('jspdf-autotable');
 
 // Helper to sanitize text for PDF
 const sanitize = (str) => str ? String(str).replace(/[^\x20-\x7E]/g, '') : '';
@@ -166,6 +169,63 @@ function getLogro(grade) {
     return '';
 }
 
+// Get raw grade data as JSON for the frontend table
+async function getGradeJSON(req, res) {
+    const { division_id, materia_id } = req.query;
+    try {
+        const { data: asignacion } = await supabaseAdmin
+            .from('asignaciones')
+            .select(`
+                id,
+                docente:perfiles(nombre),
+                materia:materias(nombre, campo_formacion, ciclo),
+                division:divisiones(anio, seccion, ciclo_lectivo)
+            `)
+            .eq('division_id', division_id)
+            .eq('materia_id', materia_id)
+            .maybeSingle();
+
+        let grades = [];
+        if (asignacion) {
+            const { data: gradesData } = await supabaseAdmin
+                .from('calificaciones')
+                .select('alumno_id, parcial_1, parcial_2, parcial_3, parcial_4, promedio, nota_intensificacion, trayecto_acompanamiento')
+                .eq('asignacion_id', asignacion.id);
+            grades = gradesData || [];
+        }
+
+        const { data: enrollment } = await supabaseAdmin
+            .from('estudiantes_divisiones')
+            .select(`alumno:perfiles!alumno_id (id, nombre, dni)`)
+            .eq('division_id', division_id);
+
+        const gradesMap = {};
+        grades.forEach(g => { gradesMap[g.alumno_id] = g; });
+
+        const report = (enrollment || []).map(e => {
+            const s = e.alumno;
+            const g = gradesMap[s.id] || {};
+            return {
+                alumno_id: s.id,
+                nombre: s.nombre,
+                dni: s.dni,
+                parcial_1: g.parcial_1,
+                parcial_2: g.parcial_2,
+                parcial_3: g.parcial_3,
+                parcial_4: g.parcial_4,
+                promedio: g.promedio,
+                logro: getLogro(g.promedio),
+                nota_intensificacion: g.nota_intensificacion,
+                trayecto_acompanamiento: g.trayecto_acompanamiento
+            };
+        }).sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+        res.json({ report, asignacion });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+}
+
 // Generate grade report for a specific division and materia (Advanced Layout)
 async function generateGradeReport(req, res) {
     const { division_id, materia_id } = req.query;
@@ -256,7 +316,18 @@ async function generateGradeReport(req, res) {
         // 5. Generate PDF
         const doc = new jsPDF('l', 'mm', 'a4'); // Landscape
 
-        // --- Header ---
+        // Fix for Node.js environment: apply plugin manually
+        const applyAutoTableResult = autoTable.default || autoTable;
+        // In Node, jspdf-autotable typically exports a function that we call with (doc, options)
+        const generateAutoTable = (options) => {
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable(options);
+            } else {
+                applyAutoTableResult(doc, options);
+            }
+        };
+
+        // --- Header Rendering ---
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.text('Escuela Técnico Agropecuaria', 148.5, 10, { align: 'center' });
@@ -265,11 +336,14 @@ async function generateGradeReport(req, res) {
         doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
 
         // Title box
+        const currentMonth = new Date().getMonth() + 1;
+        const cuatrimestre = currentMonth <= 7 ? 'Primer Cuatrimestre' : 'Segundo Cuatrimestre';
+
         doc.setFillColor(230, 230, 230); // Light gray
         doc.rect(14, 25, 269, 7, 'F');
         doc.rect(14, 25, 269, 7, 'S'); // Border
         doc.setFont('helvetica', 'bold');
-        doc.text('PLANILLAS DE CALIFICACIONES - Acreditación de Saberes', 148.5, 30, { align: 'center' });
+        doc.text(`PLANILLAS DE CALIFICACIONES - Acreditación de Saberes (${cuatrimestre})`, 148.5, 30, { align: 'center' });
 
         // Info Rows
         const startY = 32;
@@ -297,7 +371,7 @@ async function generateGradeReport(req, res) {
         // --- Table ---
         const tableStartY = startY + (rowHeight * 4) + 5;
 
-        doc.autoTable({
+        generateAutoTable({
             startY: tableStartY,
             head: [
                 [
@@ -356,7 +430,10 @@ async function generateGradeReport(req, res) {
         });
 
         // Signatures Area
-        const finalY = doc.lastAutoTable.finalY + 20;
+        // Use the doc.lastAutoTable if available, else a fallback
+        const finalYFromTable = doc.lastAutoTable ? doc.lastAutoTable.finalY : tableStartY + 20;
+        const finalY = finalYFromTable + 20;
+
         doc.line(40, finalY, 100, finalY); // Line for Preceptor
         doc.text('Para Preceptores', 70, finalY + 5, { align: 'center' });
 
@@ -364,7 +441,7 @@ async function generateGradeReport(req, res) {
         doc.text('Firma de los Docentes y Fecha', 190, finalY + 5, { align: 'center' });
 
         // Footer table for stats (Cant. De Est. Acreditación, etc.)
-        doc.autoTable({
+        generateAutoTable({
             startY: finalY + 10,
             head: [['Cant. De Est. Acreditación', 'Cant. De Est. Acompañamiento']],
             body: [['', '']], // Fill with logic if needed
@@ -1071,6 +1148,7 @@ module.exports = {
     generateAssignmentAttendancePDF,
     generateDivisionAttendancePDF,
     getStudentsAtRisk,
-    getTeacherAttendanceStats
+    getTeacherAttendanceStats,
+    getGradeJSON
 };
 
