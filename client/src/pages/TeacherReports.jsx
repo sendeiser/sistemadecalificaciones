@@ -25,6 +25,8 @@ const TeacherReports = () => {
                 .from('asignaciones')
                 .select(`
                     id,
+                    materia_id,
+                    division_id,
                     materia: materias(nombre),
                     division: divisiones(id, anio, seccion)
                 `)
@@ -62,23 +64,22 @@ const TeacherReports = () => {
         }
     };
 
-    const downloadPDF = async (assignmentId, type) => {
+    const downloadPDF = async (assignment, type) => {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
         if (!token) return alert('No hay sesión activa');
 
-        let endpoint = '';
+        let url = '';
         if (type === 'asistencia') {
-            endpoint = getApiEndpoint(`/reports/attendance/assignment/${assignmentId}`);
+            url = getApiEndpoint(`/reports/attendance/assignment/${assignment.id}?token=${token}`);
+            if (startDate) url += `&start_date=${startDate}`;
+            if (endDate) url += `&end_date=${endDate}`;
         } else {
-            endpoint = getApiEndpoint(`/reports/division/${assignmentId}`);
+            // Point to the advanced grade report used by preceptors
+            url = getApiEndpoint(`/reports/grades?division_id=${assignment.division_id}&materia_id=${assignment.materia_id}&token=${token}`);
         }
 
-        let queryParams = `?token=${token}`;
-        if (startDate) queryParams += `&start_date=${startDate}`;
-        if (endDate) queryParams += `&end_date=${endDate}`;
-
-        window.open(`${endpoint}${queryParams}`, '_blank');
+        window.open(url, '_blank');
     };
 
     return (
@@ -173,14 +174,14 @@ const TeacherReports = () => {
 
                                 <div className="space-y-3">
                                     <button
-                                        onClick={() => downloadPDF(assign.id, 'notas')}
+                                        onClick={() => downloadPDF(assign, 'notas')}
                                         className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-cyan"
                                     >
                                         <FileText size={16} className="text-tech-cyan" />
                                         Planilla de Notas
                                     </button>
                                     <button
-                                        onClick={() => downloadPDF(assign.id, 'asistencia')}
+                                        onClick={() => downloadPDF(assign, 'asistencia')}
                                         className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-accent"
                                     >
                                         <Clock size={16} className="text-tech-accent" />
