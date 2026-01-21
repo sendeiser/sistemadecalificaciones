@@ -9,7 +9,7 @@ const SubjectManagement = () => {
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState({ nombre: '', descripcion: '' });
+    const [formData, setFormData] = useState({ nombre: '', descripcion: '', campo_formacion: '', ciclo: '' });
     const [isAdding, setIsAdding] = useState(false);
 
     useEffect(() => {
@@ -35,7 +35,12 @@ const SubjectManagement = () => {
             if (id) {
                 const { error } = await supabase
                     .from('materias')
-                    .update({ nombre: formData.nombre, descripcion: formData.descripcion })
+                    .update({
+                        nombre: formData.nombre,
+                        descripcion: formData.descripcion,
+                        campo_formacion: formData.campo_formacion,
+                        ciclo: formData.ciclo
+                    })
                     .eq('id', id);
                 if (error) throw error;
                 setSubjects(subjects.map(s => s.id === id ? { ...s, ...formData } : s));
@@ -50,7 +55,7 @@ const SubjectManagement = () => {
                 setSubjects([...subjects, data].sort((a, b) => a.nombre.localeCompare(b.nombre)));
                 setIsAdding(false);
             }
-            setFormData({ nombre: '', descripcion: '' });
+            setFormData({ nombre: '', descripcion: '', campo_formacion: '', ciclo: '' });
         } catch (err) {
             alert('Error al guardar: ' + err.message);
         }
@@ -69,7 +74,12 @@ const SubjectManagement = () => {
 
     const startEdit = (subject) => {
         setEditingId(subject.id);
-        setFormData({ nombre: subject.nombre, descripcion: subject.descripcion || '' });
+        setFormData({
+            nombre: subject.nombre,
+            descripcion: subject.descripcion || '',
+            campo_formacion: subject.campo_formacion || '',
+            ciclo: subject.ciclo || ''
+        });
     };
 
     return (
@@ -126,6 +136,20 @@ const SubjectManagement = () => {
                                 value={formData.descripcion}
                                 onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                             />
+                            <input
+                                type="text"
+                                placeholder="CAMPO DE FORMACIÓN"
+                                className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none transition-all placeholder-tech-muted/50"
+                                value={formData.campo_formacion}
+                                onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
+                            />
+                            <input
+                                type="text"
+                                placeholder="CICLO"
+                                className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none transition-all placeholder-tech-muted/50"
+                                value={formData.ciclo}
+                                onChange={(e) => setFormData({ ...formData, ciclo: e.target.value })}
+                            />
                         </div>
                         <div className="mt-4 flex gap-3">
                             <button onClick={() => handleSave()} className="px-4 py-2 bg-tech-success hover:bg-emerald-600 rounded font-bold text-white uppercase tracking-wider text-sm transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)]">Guardar</button>
@@ -142,6 +166,8 @@ const SubjectManagement = () => {
                                 <tr>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Nombre</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Descripción</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Campo Formación</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Ciclo</th>
                                     <th className="p-4 text-center uppercase text-[10px] font-bold tracking_widest">Acciones</th>
                                 </tr>
                             </thead>
@@ -172,6 +198,30 @@ const SubjectManagement = () => {
                                                 />
                                             ) : (
                                                 s.descripcion || <span className="text-tech-muted/50 italic font-mono">-</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-slate-400">
+                                            {editingId === s.id ? (
+                                                <input
+                                                    type="text"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-white outline-none"
+                                                    value={formData.campo_formacion}
+                                                    onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
+                                                />
+                                            ) : (
+                                                s.campo_formacion || <span className="text-tech-muted/50 italic font-mono">-</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-slate-400">
+                                            {editingId === s.id ? (
+                                                <input
+                                                    type="text"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-white outline-none"
+                                                    value={formData.ciclo}
+                                                    onChange={(e) => setFormData({ ...formData, ciclo: e.target.value })}
+                                                />
+                                            ) : (
+                                                s.ciclo || <span className="text-tech-muted/50 italic font-mono">-</span>
                                             )}
                                         </td>
                                         <td className="p-4 text-center">
