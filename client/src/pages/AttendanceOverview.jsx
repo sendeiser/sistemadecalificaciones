@@ -74,6 +74,13 @@ const AttendanceOverview = () => {
         }],
     } : null;
 
+    // Debug logging
+    if (stats) {
+        console.log('📊 [AttendanceOverview] Stats received:', stats);
+        console.log('📊 [AttendanceOverview] avgAsistencia value:', stats.avgAsistencia);
+        console.log('📊 [AttendanceOverview] Bar chart data:', barData);
+    }
+
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6 gap-4">
