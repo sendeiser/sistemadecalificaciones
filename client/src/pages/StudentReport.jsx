@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FileText, Download, ArrowLeft, GraduationCap, Clock, AlertCircle, BookOpen } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
@@ -9,27 +9,61 @@ import { getApiEndpoint } from '../utils/api';
 const StudentReport = () => {
     const { profile } = useAuth();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [grades, setGrades] = useState([]);
     const [loading, setLoading] = useState(true);
     const [downloading, setDownloading] = useState(false);
     const [division, setDivision] = useState(null);
+    const [studentInfo, setStudentInfo] = useState(null);
+
+    // Get student ID from URL parameter or use logged-in user's ID
+    const studentId = searchParams.get('student_id') || profile?.id;
 
     useEffect(() => {
-        if (profile) {
+        if (profile && studentId) {
             fetchData();
         }
-    }, [profile]);
+    }, [profile, studentId]);
 
     const fetchData = async () => {
         try {
+            console.log('🔍 [StudentReport] Starting data fetch...');
+            console.log('🔍 [StudentReport] Student ID:', studentId);
+            console.log('🔍 [StudentReport] Logged-in Profile ID:', profile.id);
+
+            // If viewing another student's report, fetch their info
+            if (studentId !== profile.id) {
+                const { data: student, error: sErr } = await supabase
+                    .from('perfiles')
+                    .select('id, nombre, dni')
+                    .eq('id', studentId)
+                    .single();
+
+                console.log('👤 [StudentReport] Student info query:', { student, error: sErr });
+
+                if (sErr) {
+                    console.error('❌ [StudentReport] Error fetching student info:', sErr);
+                    throw sErr;
+                }
+                setStudentInfo(student);
+            } else {
+                // Viewing own report
+                setStudentInfo(profile);
+            }
+
             // 1. Fetch Student Division
             const { data: enrollment, error: eErr } = await supabase
                 .from('estudiantes_divisiones')
                 .select('division:divisiones(*)')
-                .eq('alumno_id', profile.id)
+                .eq('alumno_id', studentId)
                 .single();
 
-            if (eErr) throw eErr;
+            console.log('📚 [StudentReport] Enrollment query result:', { enrollment, error: eErr });
+
+            if (eErr) {
+                console.error('❌ [StudentReport] Error fetching enrollment:', eErr);
+                throw eErr;
+            }
             setDivision(enrollment.division);
 
             // 2. Fetch Assignments for this division
@@ -38,15 +72,27 @@ const StudentReport = () => {
                 .select('id, materia:materias(nombre), docente:perfiles(nombre)')
                 .eq('division_id', enrollment.division.id);
 
-            if (aErr) throw aErr;
+            console.log('📋 [StudentReport] Assignments query result:', { assignments, error: aErr });
+
+            if (aErr) {
+                console.error('❌ [StudentReport] Error fetching assignments:', aErr);
+                throw aErr;
+            }
 
             // 3. Fetch My Grades
             const { data: myGrades, error: gErr } = await supabase
                 .from('calificaciones')
                 .select('*')
-                .eq('alumno_id', profile.id);
+                .eq('alumno_id', studentId);
 
-            if (gErr) throw gErr;
+            console.log('📊 [StudentReport] Grades query result:', { myGrades, error: gErr });
+            console.log('📊 [StudentReport] Number of grades found:', myGrades?.length || 0);
+
+            if (gErr) {
+                console.error('❌ [StudentReport] Error fetching grades:', gErr);
+                console.error('❌ [StudentReport] Error details:', JSON.stringify(gErr, null, 2));
+                throw gErr;
+            }
 
             // Merge
             const report = assignments.map(asig => {
@@ -64,9 +110,13 @@ const StudentReport = () => {
                 };
             }).sort((a, b) => a.materia.localeCompare(b.materia));
 
+            console.log('✅ [StudentReport] Final report:', report);
+            console.log('✅ [StudentReport] Number of subjects:', report.length);
+
             setGrades(report);
         } catch (error) {
-            console.error('Error fetching student report:', error);
+            console.error('💥 [StudentReport] Fatal error:', error);
+            console.error('💥 [StudentReport] Error stack:', error.stack);
         } finally {
             setLoading(false);
         }
@@ -90,7 +140,7 @@ const StudentReport = () => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Boletin_${profile.nombre}.pdf`;
+            a.download = `Boletin_${studentInfo?.nombre || 'Estudiante'}.pdf`;
             document.body.appendChild(a);
             a.click();
             a.remove();
