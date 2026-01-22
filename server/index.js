@@ -21,6 +21,8 @@ app.use('/api/subjects', require('./routes/subjects'));
 app.use('/api/students', require('./routes/students'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/search', require('./routes/search'));
+app.use('/api/calendar', require('./routes/calendar'));
+app.use('/api/announcements', require('./routes/announcements'));
 
 // Simple health check route
 app.get('/api/health', (req, res) => {

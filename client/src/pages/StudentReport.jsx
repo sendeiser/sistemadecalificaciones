@@ -5,6 +5,8 @@ import { FileText, Download, ArrowLeft, GraduationCap, Clock, AlertCircle, BookO
 import ThemeToggle from '../components/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 import { getApiEndpoint } from '../utils/api';
+import { QRCodeSVG } from 'qrcode.react';
+import { QrCode } from 'lucide-react';
 
 const StudentReport = () => {
     const { profile } = useAuth();
@@ -15,6 +17,7 @@ const StudentReport = () => {
     const [downloading, setDownloading] = useState(false);
     const [division, setDivision] = useState(null);
     const [studentInfo, setStudentInfo] = useState(null);
+    const [showQR, setShowQR] = useState(false);
 
     // Get student ID from URL parameter or use logged-in user's ID
     const studentId = searchParams.get('student_id') || profile?.id;
@@ -182,8 +185,16 @@ const StudentReport = () => {
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <ThemeToggle />
+                    <button
+                        onClick={() => setShowQR(true)}
+                        className="flex items-center gap-2 px-4 py-3 bg-tech-secondary hover:bg-tech-surface text-tech-cyan rounded font-bold transition-all border border-tech-cyan/30 uppercase tracking-widest text-sm"
+                        title="Mostrar mi QR de asistencia"
+                    >
+                        <QrCode size={20} />
+                        <span className="hidden sm:inline">Mi Credencial</span>
+                    </button>
                     <button
                         onClick={downloadPDF}
                         disabled={downloading}
@@ -200,6 +211,37 @@ const StudentReport = () => {
             </header>
 
             <main className="max-w-7xl mx-auto">
+                {showQR && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setShowQR(false)}>
+                        <div className="bg-tech-secondary border border-tech-cyan/30 rounded-2xl p-8 max-w-xs w-full text-center space-y-6 animate-in zoom-in-95 duration-200 shadow-[0_0_50px_rgba(14,165,233,0.2)]" onClick={e => e.stopPropagation()}>
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tighter">Credencial Digital</h3>
+                                <p className="text-[10px] text-tech-muted font-mono uppercase">Escolares • Asistencia</p>
+                            </div>
+
+                            <div className="bg-white p-4 rounded-xl inline-block shadow-inner mx-auto">
+                                <QRCodeSVG
+                                    value={studentInfo?.dni || studentInfo?.id || ''}
+                                    size={180}
+                                    level="H"
+                                    includeMargin={true}
+                                />
+                            </div>
+
+                            <div className="space-y-1 pb-2">
+                                <div className="font-black text-tech-text uppercase text-lg leading-tight">{studentInfo?.nombre}</div>
+                                <div className="text-sm text-tech-cyan font-mono font-bold tracking-widest">DNI: {studentInfo?.dni}</div>
+                            </div>
+
+                            <button
+                                onClick={() => setShowQR(false)}
+                                className="w-full py-3 bg-tech-surface hover:bg-tech-primary text-tech-muted hover:text-white rounded-xl transition-colors font-bold uppercase text-xs tracking-widest border border-tech-surface"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                )}
                 <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-xl">
                     <div className="p-4 bg-tech-primary/50 border-b border-tech-surface">
                         <h2 className="text-xl font-bold text-tech-text uppercase tracking-wider flex items-center gap-2">

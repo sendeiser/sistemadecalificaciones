@@ -8,149 +8,32 @@ const autoTable = require('jspdf-autotable');
 const sanitize = (str) => str ? String(str).replace(/[^\x20-\x7E]/g, '') : '';
 
 // Generate PDF report for a specific assignment (Division + Subject)
+// Generate PDF report for a specific assignment (Division + Subject) - Docente View
 async function generateDivisionReport(req, res) {
     const { assignmentId } = req.params;
-    console.log('--- DBG: GenerateDivisionReport ---');
-    console.log('Assignment ID:', assignmentId);
+    console.log('--- DBG: GenerateDivisionReport (Unified) ---');
 
     try {
-        // 1. Fetch Assignment Details (Subject, Division, Teacher)
+        // 1. Fetch Assignment Details to get division_id and materia_id
         const { data: assignment, error: aErr } = await supabaseAdmin
             .from('asignaciones')
-            .select(`
-                id,
-                division_id,
-                materia:materias(nombre),
-                division:divisiones(id, anio, seccion, ciclo_lectivo),
-                docente:perfiles(nombre)
-            `)
+            .select('division_id, materia_id')
             .eq('id', assignmentId)
             .single();
 
         if (aErr || !assignment) {
-            console.error('Assignment error:', aErr);
             return res.status(404).json({ error: 'Asignación no encontrada' });
         }
 
-        // 2. Fetch Students and Grades
-        // We first get all students in the division to ensure inclusive list
-        const { data: students, error: sErr } = await supabaseAdmin
-            .from('estudiantes_divisiones')
-            .select(`
-                alumno:perfiles!alumno_id (id, nombre, dni)
-            `)
-            .eq('division_id', assignment.division_id);
+        // 2. Inject params to reuse the advanced logic
+        req.query.assignment_id = assignmentId;
+        req.query.division_id = assignment.division_id;
+        req.query.materia_id = assignment.materia_id;
 
-        if (sErr) throw sErr;
-
-        // Fetch grades for this assignment
-        const { data: gradesData, error: gErr } = await supabaseAdmin
-            .from('calificaciones')
-            .select('*')
-            .eq('asignacion_id', assignmentId);
-
-        if (gErr) throw gErr;
-
-        // Merge data
-        const reportData = students.map(s => {
-            const grade = gradesData.find(g => g.alumno_id === s.alumno.id) || {};
-            return {
-                nombre: s.alumno.nombre, // Using nombre as full name based on typical profile structure
-                dni: s.alumno.dni,
-                parcial_1: grade.parcial_1,
-                parcial_2: grade.parcial_2,
-                parcial_3: grade.parcial_3,
-                parcial_4: grade.parcial_4,
-                promedio: grade.promedio,
-                logro: grade.logro_parcial,
-                intensificacion: grade.nota_intensificacion,
-                trayecto: grade.trayecto_acompanamiento
-            };
-        }).sort((a, b) => a.nombre.localeCompare(b.nombre));
-
-        // 3. Generate PDF
-        const doc = new PDFDocument({ margin: 30, size: 'A4' });
-
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=Reporte_${sanitize(assignment.materia.nombre)}.pdf`);
-
-        doc.pipe(res);
-
-        // Header
-        doc.fontSize(18).text('Planilla de Calificaciones', { align: 'center' });
-        doc.moveDown();
-
-        doc.fontSize(10);
-        doc.text(`Materia: ${sanitize(assignment.materia.nombre)}`, { continued: true });
-        doc.text(`   División: ${assignment.division.anio} ${assignment.division.seccion}`, { align: 'right' });
-        doc.text(`Docente: ${sanitize(assignment.docente?.nombre)}`);
-
-        doc.moveDown();
-
-        // Table Constants
-        const startX = 30;
-        let currentY = doc.y;
-        const colWidths = {
-            name: 180,
-            dni: 60,
-            grade: 35,
-            prom: 40,
-            trayecto: 100
-        };
-
-        // Table Header
-        doc.font('Helvetica-Bold');
-        doc.text('Estudiante', startX, currentY);
-        doc.text('DNI', startX + 180, currentY);
-        doc.text('P1', startX + 240, currentY);
-        doc.text('P2', startX + 275, currentY);
-        doc.text('P3', startX + 310, currentY);
-        doc.text('P4', startX + 345, currentY);
-        doc.text('Prom', startX + 380, currentY);
-        doc.text('Trayecto', startX + 420, currentY);
-
-        currentY += 20;
-        doc.font('Helvetica');
-
-        // Draw lines
-        doc.moveTo(startX, currentY - 5).lineTo(565, currentY - 5).stroke();
-
-        // Rows
-        reportData.forEach((row, i) => {
-            if (currentY > 750) { // New Page
-                doc.addPage();
-                currentY = 30;
-                doc.font('Helvetica-Bold');
-                doc.text('Estudiante', startX, currentY);
-                // ... (simplified header for next pages)
-                currentY += 20;
-                doc.font('Helvetica');
-            }
-
-            // Alternating background
-            if (i % 2 === 0) {
-                doc.save();
-                doc.fillColor('#f5f5f5');
-                doc.rect(startX, currentY - 5, 535, 20).fill();
-                doc.restore();
-            }
-
-            doc.text(sanitize(row.nombre).substring(0, 30), startX + 2, currentY);
-            doc.text(sanitize(row.dni), startX + 180, currentY);
-            doc.text(row.parcial_1 || '-', startX + 240, currentY);
-            doc.text(row.parcial_2 || '-', startX + 275, currentY);
-            doc.text(row.parcial_3 || '-', startX + 310, currentY);
-            doc.text(row.parcial_4 || '-', startX + 345, currentY);
-            doc.text(row.promedio || '-', startX + 380, currentY);
-            doc.text(sanitize(row.trayecto).substring(0, 20), startX + 420, currentY);
-
-            currentY += 20;
-        });
-
-        doc.end();
+        return generateGradeReport(req, res);
 
     } catch (e) {
-        console.error('Error generating PDF:', e);
+        console.error('Error in unified report redirection:', e);
         if (!res.headersSent) {
             res.status(500).json({ error: 'Error generando reporte PDF' });
         }
@@ -251,43 +134,48 @@ async function getGradeJSON(req, res) {
 
 // Generate grade report for a specific division and materia (Advanced Layout)
 async function generateGradeReport(req, res) {
-    const { division_id, materia_id } = req.query;
+    const { division_id, materia_id, assignment_id } = req.query;
     console.log('--- GenerateGradeReport (Advanced PDF) ---');
 
-    // Security Check
-    const { data: profile } = await req.supabase
-        .from('perfiles')
-        .select('rol')
-        .eq('id', req.user.id)
-        .single();
-
-    if (!profile || (profile.rol !== 'admin' && profile.rol !== 'docente' && profile.rol !== 'preceptor')) {
-        // Allow teachers and preceptors too, assuming logic allows
-        return res.status(403).json({ error: 'Acceso denegado.' });
-    }
-
-    if (!division_id || !materia_id) {
-        return res.status(400).json({ error: 'division_id and materia_id required' });
-    }
-
     try {
-        // 1. Fetch detailed Assignment + Materia + Division + Docente info
-        const { data: asignacion, error: asigErr } = await supabaseAdmin
+        // 1. Security Check
+        const { data: profile, error: pErr } = await supabaseAdmin
+            .from('perfiles')
+            .select('rol')
+            .eq('id', req.user.id)
+            .single();
+
+        if (pErr || !profile || (profile.rol !== 'admin' && profile.rol !== 'docente' && profile.rol !== 'preceptor')) {
+            return res.status(403).json({ error: 'Acceso denegado.' });
+        }
+
+        if (!assignment_id && (!division_id || !materia_id)) {
+            return res.status(400).json({ error: 'assignment_id or (division_id and materia_id) required' });
+        }
+
+        // 2. Fetch detailed Assignment + Materia + Division + Docente info
+        let query = supabaseAdmin
             .from('asignaciones')
             .select(`
                 id,
                 docente:perfiles(nombre),
                 materia:materias(nombre, campo_formacion, ciclo),
-                division:divisiones(anio, seccion, ciclo_lectivo)
-            `)
-            .eq('division_id', division_id)
-            .eq('materia_id', materia_id)
-            .maybeSingle();
+                division:divisiones(id, anio, seccion, ciclo_lectivo)
+            `);
+
+        if (assignment_id) {
+            query = query.eq('id', assignment_id);
+        } else {
+            query = query.eq('division_id', division_id).eq('materia_id', materia_id);
+        }
+
+        // Use limit(1) to avoid "multiple rows" error if data is inconsistent
+        const { data: asignacion, error: asigErr } = await query.limit(1).maybeSingle();
 
         if (asigErr) throw asigErr;
         if (!asignacion) return res.status(404).json({ error: 'Asignación no encontrada' });
 
-        // 2. Fetch Grades
+        // 3. Fetch Grades
         const { data: gradesData, error: gradesErr } = await supabaseAdmin
             .from('calificaciones')
             .select('*')
@@ -295,7 +183,7 @@ async function generateGradeReport(req, res) {
 
         if (gradesErr) throw gradesErr;
 
-        // 2.b Fetch Attendance for this assignment
+        // 3.b Fetch Attendance for this assignment
         const { data: attData } = await supabaseAdmin
             .from('asistencias')
             .select('estudiante_id, estado')
@@ -310,17 +198,17 @@ async function generateGradeReport(req, res) {
             }
         });
 
-        // 3. Fetch Enrollment (Students)
+        // 4. Fetch Enrollment (Students)
         const { data: enrollment, error: enrollErr } = await supabaseAdmin
             .from('estudiantes_divisiones')
             .select(`
                 alumno:perfiles!alumno_id (id, nombre, dni)
             `)
-            .eq('division_id', division_id);
+            .eq('division_id', asignacion.division.id);
 
         if (enrollErr) throw enrollErr;
 
-        // 4. Merge Data
+        // 5. Merge Data
         const gradesMap = {};
         (gradesData || []).forEach(g => { gradesMap[g.alumno_id] = g; });
 
@@ -349,7 +237,7 @@ async function generateGradeReport(req, res) {
             };
         }).sort((a, b) => a.estudiante.localeCompare(b.estudiante));
 
-        // 5. Generate PDF
+        // 6. Generate PDF
         const doc = new jsPDF('l', 'mm', 'a4'); // Landscape
 
         // Fix for Node.js environment: apply plugin manually
@@ -374,6 +262,8 @@ async function generateGradeReport(req, res) {
         doc.setFont('helvetica', 'normal');
         doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
         doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
+        doc.setFontSize(8);
+        doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
 
         // Title box
         const currentMonth = new Date().getMonth() + 1;
@@ -488,10 +378,13 @@ async function generateGradeReport(req, res) {
         const finalY = finalYFromTable + 20;
 
         doc.line(40, finalY, 100, finalY); // Line for Preceptor
-        doc.text('Para Preceptores', 70, finalY + 5, { align: 'center' });
+        doc.text('Firma del Preceptor', 70, finalY + 5, { align: 'center' });
 
-        doc.line(160, finalY, 220, finalY); // Line for Teacher
-        doc.text('Firma de los Docentes y Fecha', 190, finalY + 5, { align: 'center' });
+        doc.line(110, finalY, 170, finalY); // Line for Teacher
+        doc.text('Firma del Docente', 140, finalY + 5, { align: 'center' });
+
+        doc.line(180, finalY, 240, finalY); // Line for Director
+        doc.text('Sello y Firma Dirección', 210, finalY + 5, { align: 'center' });
 
         // Footer table for stats (Cant. De Est. Acreditación, etc.)
         generateAutoTable({
@@ -769,13 +662,15 @@ async function generateAssignmentAttendancePDF(req, res) {
         doc.setFont('helvetica', 'normal');
         doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
         doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
+        doc.setFontSize(8);
+        doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
 
         // Title box
         doc.setFillColor(230, 230, 230);
         doc.rect(14, 25, 269, 7, 'F');
         doc.rect(14, 25, 269, 7, 'S');
         doc.setFont('helvetica', 'bold');
-        doc.text(`REPORTE DE ASISTENCIA POR MATERIA`, 148.5, 30, { align: 'center' });
+        doc.text(`REPORTE DE ASISTENCIA POR MATERIA (CONTROL DOCENTE)`, 148.5, 30, { align: 'center' });
 
         // Info Rows
         const startY = 32;
@@ -790,8 +685,9 @@ async function generateAssignmentAttendancePDF(req, res) {
         doc.rect(14, startY + rowHeight, 269, rowHeight);
         doc.text(`PROFESOR/S: ${assignment.docente?.nombre || '-'}`, 16, startY + rowHeight + 5);
         if (start_date || end_date) {
-            doc.text(`Periodo: ${start_date || 'Inicio'} al ${end_date || 'Fin'}`, 140, startY + rowHeight + 5);
+            doc.text(`Periodo: ${start_date || 'Inicio'} al ${end_date || 'Fin'}`, 130, startY + rowHeight + 5);
         }
+        doc.text(`Ciclo: ${assignment.materia.ciclo || 'Básico'}`, 210, startY + rowHeight + 5);
 
         // Table 1: Records
         generateAutoTable({
@@ -830,6 +726,13 @@ async function generateAssignmentAttendancePDF(req, res) {
         doc.setFont('helvetica', 'bold');
         doc.text(`Resumen General: Presentes: ${globalTotals.present} | Ausentes: ${globalTotals.absent} | Tardes: ${globalTotals.late} | Justificados: ${globalTotals.justified}`, 14, finalY);
         doc.text(`Porcentaje de Asistencia Real de la Materia: ${globalPct}%`, 14, finalY + 7);
+
+        // Standard Signatures for Attendance
+        const sigY = finalY + 25;
+        doc.line(40, sigY, 100, sigY);
+        doc.text('Firma Docente', 70, sigY + 5, { align: 'center' });
+        doc.line(180, sigY, 240, sigY);
+        doc.text('Firma Preceptor / Dirección', 210, sigY + 5, { align: 'center' });
 
         const pdfOutput = doc.output();
         res.setHeader('Content-Type', 'application/pdf');
@@ -1045,6 +948,8 @@ async function generateDivisionAttendancePDF(req, res) {
         doc.setFont('helvetica', 'normal');
         doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
         doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
+        doc.setFontSize(8);
+        doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
 
         // Title box
         doc.setFillColor(230, 230, 230);
@@ -1102,6 +1007,13 @@ async function generateDivisionAttendancePDF(req, res) {
         doc.setFont('helvetica', 'bold');
         doc.text(`Resumen General: Presentes: ${globalTotals.present} | Ausentes: ${globalTotals.absent} | Tardes: ${globalTotals.late} | Justificados: ${globalTotals.justified}`, 14, finalY);
         doc.text(`Porcentaje de Asistencia General de la División: ${globalPct}%`, 14, finalY + 7);
+
+        // Standard Signatures for Attendance
+        const sigY = finalY + 25;
+        doc.line(40, sigY, 100, sigY);
+        doc.text('Firma Docente', 70, sigY + 5, { align: 'center' });
+        doc.line(180, sigY, 240, sigY);
+        doc.text('Firma Preceptor / Dirección', 210, sigY + 5, { align: 'center' });
 
         const pdfOutput = doc.output();
         res.setHeader('Content-Type', 'application/pdf');

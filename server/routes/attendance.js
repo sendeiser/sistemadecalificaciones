@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
+const attendanceController = require('../controllers/attendanceController');
 
 router.use(authMiddleware);
 
@@ -29,6 +30,28 @@ router.get('/:asignacionId', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// POST /api/attendance/mass-justify
+// Admin/Preceptor only
+router.post('/mass-justify', async (req, res, next) => {
+    // Basic role check (could be refined into a separate middleware)
+    const { data: profile } = await req.supabase
+        .from('perfiles')
+        .select('rol')
+        .eq('id', req.user.id)
+        .single();
+
+    if (profile?.rol !== 'admin' && profile?.rol !== 'preceptor') {
+        return res.status(403).json({ error: 'No tienes permisos para realizar esta acción.' });
+    }
+    next();
+}, attendanceController.massJustify);
+
+// GET /api/attendance/alerts/:divisionId
+router.get('/alerts/:divisionId', attendanceController.getCriticalAttendance);
+
+// GET /api/attendance/discrepancies/:divisionId
+router.get('/discrepancies/:divisionId', attendanceController.getAttendanceDiscrepancies);
 
 // POST /api/attendance
 // Upsert attendance record

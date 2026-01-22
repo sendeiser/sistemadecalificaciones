@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Calendar, Save, Check, X, Clock, AlertCircle, ArrowLeft, Users, CheckSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
+import QRScanner from '../components/QRScanner';
+import { QrCode, Clock, ArrowLeft, AlertCircle, Calendar, User, Save, Edit, Search, CheckCircle, X, Users, CheckSquare, Check } from 'lucide-react';
 
 const Attendance = () => {
     const { profile } = useAuth();
@@ -17,6 +18,8 @@ const Attendance = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState(null);
+    const [isScanning, setIsScanning] = useState(false);
+    const [lastScanned, setLastScanned] = useState(null);
 
     useEffect(() => {
         fetchAssignments();
@@ -132,6 +135,25 @@ const Attendance = () => {
         setAttendanceMap(newMap);
     };
 
+    const handleQRScan = (decodedText) => {
+        // Find student by DNI or Profile ID
+        const student = students.find(s => s.dni === decodedText || s.id === decodedText);
+
+        if (student) {
+            handleStatusChange(student.id, 'presente');
+            setLastScanned({
+                name: student.nombre,
+                status: 'presente',
+                time: new Date().toLocaleTimeString()
+            });
+            // Optional: visual feedback
+            setMessage({ type: 'success', text: `Presente registrado: ${student.nombre}` });
+            setTimeout(() => setMessage(null), 3000);
+        } else {
+            console.warn("Student not found for QR:", decodedText);
+        }
+    };
+
     const saveAttendance = async () => {
         try {
             setSaving(true);
@@ -201,13 +223,24 @@ const Attendance = () => {
 
             <div className="max-w-7xl mx-auto">
                 {message && (
-                    <div className={`mb-6 p-4 rounded border flex items-center gap-3 ${message.type === 'error'
+                    <div className={`mb-6 p-4 rounded border flex items-center justify-between gap-3 animate-in slide-in-from-top-4 duration-300 ${message.type === 'error'
                         ? 'bg-tech-danger/10 border-tech-danger text-tech-danger'
                         : 'bg-tech-success/10 border-tech-success text-tech-success'
                         }`}>
-                        <AlertCircle size={20} />
-                        {message.text}
+                        <div className="flex items-center gap-3">
+                            <AlertCircle size={20} />
+                            <span className="font-bold">{message.text}</span>
+                        </div>
+                        <button onClick={() => setMessage(null)} className="text-current opacity-50 hover:opacity-100">×</button>
                     </div>
+                )}
+
+                {isScanning && (
+                    <QRScanner
+                        onScanSuccess={handleQRScan}
+                        onScanError={(err) => console.debug(err)} // Too noisy for console.error
+                        onClose={() => setIsScanning(false)}
+                    />
                 )}
 
                 {!selectedAssignment ? (
@@ -254,19 +287,26 @@ const Attendance = () => {
                                 />
                             </div>
 
-                            <div className="flex items-center gap-4 w-full md:w-auto">
+                            <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                                <button
+                                    onClick={() => setIsScanning(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-tech-cyan/20 hover:bg-tech-cyan/30 text-tech-cyan rounded border border-tech-cyan/30 transition-all text-sm uppercase font-bold tracking-wider whitespace-nowrap"
+                                >
+                                    <QrCode size={18} />
+                                    <span>Escanear QR</span>
+                                </button>
                                 <button
                                     onClick={markAllPresent}
-                                    className="flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-colors text-sm uppercase font-bold tracking-wider"
+                                    className="flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded border border-tech-surface transition-colors text-sm uppercase font-bold tracking-wider whitespace-nowrap"
                                 >
                                     <CheckSquare size={18} />
-                                    Todos Presentes
+                                    <span>Todos Presentes</span>
                                 </button>
                                 <button
                                     onClick={() => setSelectedAssignment(null)}
-                                    className="px-4 py-2 text-tech-muted hover:text-tech-text transition-colors text-sm underline"
+                                    className="px-4 py-2 text-tech-muted hover:text-tech-text transition-colors text-sm underline whitespace-nowrap"
                                 >
-                                    Cambiar Curso
+                                    Curso
                                 </button>
                             </div>
                         </div>

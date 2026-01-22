@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, PieChart, BarChart3, CheckSquare, Sun, Moon, Search, X } from 'lucide-react';
+import { LogOut, Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, PieChart, BarChart3, CheckSquare, Sun, Moon, Search, X, Bell, Calendar as CalendarIcon, AlertCircle, ShieldAlert } from 'lucide-react';
 import DashboardStats from '../components/DashboardStats';
 import ThemeToggle from '../components/ThemeToggle';
 import { supabase } from '../supabaseClient';
@@ -265,6 +265,32 @@ const Dashboard = () => {
                                     </div>
                                     <p className="text-tech-muted text-sm font-mono">Registrar asistencia por curso y fecha.</p>
                                 </div>
+
+                                <div
+                                    onClick={() => navigate('/admin/mass-justification')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                            <FileText size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Justificación</h3>
+                                    </div>
+                                    <p className="text-tech-muted text-sm font-mono">Carga masiva por rango de fechas.</p>
+                                </div>
+
+                                <div
+                                    onClick={() => navigate('/admin/attendance-discrepancies')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                            <AlertCircle size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Discrepancias</h3>
+                                    </div>
+                                    <p className="text-tech-muted text-sm font-mono">Control cruzado Preceptor/Docente.</p>
+                                </div>
                             </div>
                         </section>
 
@@ -315,8 +341,22 @@ const Dashboard = () => {
                                 </div>
 
                                 <div
+                                    onClick={() => navigate('/admin/attendance-alerts')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-danger transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-danger opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-danger">
+                                        <div className="p-3 bg-tech-danger/10 rounded group-hover:bg-tech-danger/20 transition-colors">
+                                            <ShieldAlert size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Alertas Asist.</h3>
+                                    </div>
+                                    <p className="text-tech-muted text-sm font-mono">Control de abandono y citaciones.</p>
+                                </div>
+
+                                <div
                                     onClick={() => navigate('/reports')}
-                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden"
+                                >
                                     <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     <div className="flex items-center gap-4 mb-3 text-tech-accent">
                                         <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
@@ -325,6 +365,34 @@ const Dashboard = () => {
                                         <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Boletines</h3>
                                     </div>
                                     <p className="text-tech-muted text-sm font-mono">Generar boletines individuales.</p>
+                                </div>
+
+                                <div
+                                    onClick={() => navigate('/calendar')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                            <CalendarIcon size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Calendario</h3>
+                                    </div>
+                                    <p className="text-tech-muted text-sm font-mono">Eventos y fechas importantes.</p>
+                                </div>
+
+                                <div
+                                    onClick={() => navigate('/announcements')}
+                                    className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                            <Bell size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Anuncios</h3>
+                                    </div>
+                                    <p className="text-tech-muted text-sm font-mono">Comunicaciones institucionales.</p>
                                 </div>
                             </div>
                         </section>
@@ -350,6 +418,19 @@ const Dashboard = () => {
                                     <div>
                                         <h3 className="text-lg font-bold text-tech-text uppercase">Tomar Asistencia</h3>
                                         <p className="text-xs text-tech-muted font-mono whitespace-nowrap">Registrar el día de hoy</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    onClick={() => navigate('/attendance')}
+                                    className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan hover:bg-tech-secondary transition-all cursor-pointer group rounded-xl flex items-center gap-4"
+                                >
+                                    <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform">
+                                        <Search size={32} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-tech-text uppercase text-tech-cyan">Asistencia QR</h3>
+                                        <p className="text-xs text-tech-muted font-mono whitespace-nowrap">Escanear credenciales</p>
                                     </div>
                                 </div>
 
@@ -418,26 +499,96 @@ const Dashboard = () => {
                                 <button className="px-4 py-2 bg-tech-success hover:bg-emerald-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
                                 </button>
                             </div>
+
+                            <div
+                                onClick={() => navigate('/calendar')}
+                                className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-cyan">
+                                    <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                        <CalendarIcon size={24} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Calendario</h3>
+                                </div>
+                                <p className="text-tech-muted mb-6 font-mono">Ver eventos y fechas importantes del ciclo lectivo.</p>
+                                <button className="px-4 py-2 bg-tech-cyan hover:bg-sky-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
+                                    Ver Calendario
+                                </button>
+                            </div>
+
+                            <div
+                                onClick={() => navigate('/announcements')}
+                                className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-accent">
+                                    <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                        <Bell size={24} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Anuncios</h3>
+                                </div>
+                                <p className="text-tech-muted mb-6 font-mono">Comunicaciones y novedades institucionales.</p>
+                                <button className="px-4 py-2 bg-tech-accent hover:bg-amber-600 text-white rounded transition-colors font-medium text-sm w-full md:w-auto uppercase tracking-wider">
+                                    Ver Anuncios
+                                </button>
+                            </div>
                         </section>
                     </div>
                 )}
 
                 {profile.rol === 'alumno' && (
-                    <div className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all group relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className="flex items-center gap-4 mb-4 text-tech-success">
-                            <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
-                                <FileText size={24} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all group relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-4 text-tech-success">
+                                <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
+                                    <FileText size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Mis Calificaciones</h3>
                             </div>
-                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Mis Calificaciones</h3>
+                            <p className="text-tech-muted mb-6 font-mono">Consulta tu historial académico y notas actuales.</p>
+                            <button
+                                onClick={() => navigate('/student/report')}
+                                className="px-4 py-2 bg-tech-success hover:bg-emerald-600 text-white rounded transition-colors font-medium text-sm uppercase tracking-wider"
+                            >
+                                Ver Mi Boletín
+                            </button>
                         </div>
-                        <p className="text-tech-muted mb-6 font-mono">Consulta tu historial académico y notas actuales.</p>
-                        <button
-                            onClick={() => navigate('/student/report')}
-                            className="px-4 py-2 bg-tech-success hover:bg-emerald-600 text-white rounded transition-colors font-medium text-sm uppercase tracking-wider"
+
+                        <div
+                            onClick={() => navigate('/calendar')}
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all group relative overflow-hidden cursor-pointer"
                         >
-                            Ver Mi Boletín
-                        </button>
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-4 text-tech-cyan">
+                                <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                    <CalendarIcon size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Calendario</h3>
+                            </div>
+                            <p className="text-tech-muted mb-6 font-mono">Ver eventos y fechas importantes del ciclo lectivo.</p>
+                            <button className="px-4 py-2 bg-tech-cyan hover:bg-sky-600 text-white rounded transition-colors font-medium text-sm uppercase tracking-wider">
+                                Ver Calendario
+                            </button>
+                        </div>
+
+                        <div
+                            onClick={() => navigate('/announcements')}
+                            className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all group relative overflow-hidden cursor-pointer"
+                        >
+                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-4 text-tech-accent">
+                                <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                    <Bell size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Anuncios</h3>
+                            </div>
+                            <p className="text-tech-muted mb-6 font-mono">Comunicaciones y novedades institucionales.</p>
+                            <button className="px-4 py-2 bg-tech-accent hover:bg-amber-600 text-white rounded transition-colors font-medium text-sm uppercase tracking-wider">
+                                Ver Anuncios
+                            </button>
+                        </div>
                     </div>
                 )}
 

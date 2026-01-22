@@ -20,6 +20,11 @@ import TeacherReports from './pages/TeacherReports';
 import AdminAttendanceReport from './pages/AdminAttendanceReport';
 import Welcome from './pages/Welcome';
 import StudentReport from './pages/StudentReport';
+import MassJustification from './pages/MassJustification';
+import AttendanceAlerts from './pages/AttendanceAlerts';
+import AttendanceDiscrepancies from './pages/AttendanceDiscrepancies';
+import Calendar from './pages/Calendar';
+import Announcements from './pages/Announcements';
 
 const ProtectedRoute = ({ children }) => {
   const { session, loading } = useAuth();
@@ -141,6 +146,31 @@ function App() {
             <Route path="/student/report" element={
               <ProtectedRoute>
                 <StudentReport />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/mass-justification" element={
+              <ProtectedRoute>
+                <MassJustification />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/attendance-alerts" element={
+              <ProtectedRoute>
+                <AttendanceAlerts />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/attendance-discrepancies" element={
+              <ProtectedRoute>
+                <AttendanceDiscrepancies />
+              </ProtectedRoute>
+            } />
+            <Route path="/calendar" element={
+              <ProtectedRoute>
+                <Calendar />
+              </ProtectedRoute>
+            } />
+            <Route path="/announcements" element={
+              <ProtectedRoute>
+                <Announcements />
               </ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
