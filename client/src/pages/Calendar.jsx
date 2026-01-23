@@ -1,8 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Calendar as CalendarIcon, Plus, ArrowLeft, Edit, Trash2, X, Clock } from 'lucide-react';
+import {
+    Calendar as CalendarIcon,
+    Plus,
+    ArrowLeft,
+    Edit,
+    Trash2,
+    X,
+    Clock,
+    ChevronLeft,
+    ChevronRight,
+    Info,
+    MapPin,
+    AlignLeft
+} from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { getApiEndpoint } from '../utils/api';
 
@@ -16,6 +29,36 @@ const Calendar = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingEvent, setEditingEvent] = useState(null);
     const [message, setMessage] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+
+    const months = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
+
+    // Memoized calculations
+    const calendarDays = useMemo(() => {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay();
+
+        const days = [];
+        // Add empty cells for days before month starts
+        for (let i = 0; i < startingDayOfWeek; i++) {
+            days.push(null);
+        }
+        // Add days of month
+        for (let day = 1; day <= daysInMonth; day++) {
+            days.push(new Date(year, month, day));
+        }
+        return days;
+    }, [currentDate]);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -79,6 +122,16 @@ const Calendar = () => {
         }
     };
 
+    const getEventsForDate = (date) => {
+        if (!date) return [];
+        const dateStr = date.toISOString().split('T')[0];
+        return events.filter(event => {
+            const start = event.fecha_inicio.split('T')[0];
+            const end = (event.fecha_fin || event.fecha_inicio).split('T')[0];
+            return dateStr >= start && dateStr <= end;
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -132,7 +185,13 @@ const Calendar = () => {
         }
     };
 
+    const openDetailModal = (event) => {
+        setSelectedEvent(event);
+        setShowDetailModal(true);
+    };
+
     const openEditModal = (event) => {
+        setShowDetailModal(false); // Close detail modal if open
         setEditingEvent(event);
         setFormData({
             titulo: event.titulo,
@@ -165,41 +224,18 @@ const Calendar = () => {
         });
     };
 
-    const getDaysInMonth = () => {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const daysInMonth = lastDay.getDate();
-        const startingDayOfWeek = firstDay.getDay();
-
-        const days = [];
-
-        // Add empty cells for days before month starts
-        for (let i = 0; i < startingDayOfWeek; i++) {
-            days.push(null);
-        }
-
-        // Add days of month
-        for (let day = 1; day <= daysInMonth; day++) {
-            days.push(new Date(year, month, day));
-        }
-
-        return days;
-    };
-
-    const getEventsForDate = (date) => {
-        if (!date) return [];
-        const dateStr = date.toISOString().split('T')[0];
-        return events.filter(event => {
-            const start = event.fecha_inicio;
-            const end = event.fecha_fin || event.fecha_inicio;
-            return dateStr >= start && dateStr <= end;
-        });
-    };
-
     const changeMonth = (delta) => {
         setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + delta, 1));
+    };
+
+    const handleMonthChange = (e) => {
+        const newMonth = parseInt(e.target.value);
+        setCurrentDate(new Date(currentDate.getFullYear(), newMonth, 1));
+    };
+
+    const handleYearChange = (e) => {
+        const newYear = parseInt(e.target.value);
+        setCurrentDate(new Date(newYear, currentDate.getMonth(), 1));
     };
 
     if (loading) {
@@ -226,10 +262,10 @@ const Calendar = () => {
                             <div className="p-1.5 md:p-2 bg-tech-cyan/20 rounded text-tech-cyan">
                                 <CalendarIcon className="w-6 h-6 md:w-8 md:h-8" />
                             </div>
-                            Calendario
+                            Calendario Académico
                         </h1>
-                        <p className="text-tech-muted font-mono mt-1 text-xs md:text-sm capitalize">
-                            {currentDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
+                        <p className="text-tech-muted font-mono mt-1 text-xs md:text-sm capitalize flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                            <span>Eventos, feriados y fechas importantes</span>
                         </p>
                     </div>
                 </div>
@@ -260,49 +296,86 @@ const Calendar = () => {
                     </div>
                 )}
 
-                {/* Calendar Controls */}
-                <div className="mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
+                {/* Calendar Controls & Navigation */}
+                <div className="mb-6 flex flex-col lg:flex-row items-center justify-between gap-4 bg-tech-secondary/30 p-4 rounded-xl border border-tech-surface">
+                    {/* Month/Year Selectors */}
+                    <div className="flex items-center gap-4 w-full lg:w-auto justify-center lg:justify-start">
                         <button
                             onClick={() => changeMonth(-1)}
-                            className="px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-colors"
+                            className="p-2 hover:bg-tech-surface rounded-full transition-colors text-tech-cyan"
                         >
-                            ←
+                            <ChevronLeft size={24} />
                         </button>
-                        <button
-                            onClick={() => setCurrentDate(new Date())}
-                            className="px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-colors text-sm uppercase font-bold"
-                        >
-                            Hoy
-                        </button>
+
+                        <div className="flex items-center gap-2">
+                            <select
+                                value={currentDate.getMonth()}
+                                onChange={handleMonthChange}
+                                className="bg-tech-primary border border-tech-surface rounded px-3 py-1.5 text-tech-text focus:border-tech-cyan outline-none font-bold uppercase text-sm cursor-pointer hover:border-tech-cyan/50 transition-colors"
+                            >
+                                {months.map((month, index) => (
+                                    <option key={index} value={index}>{month}</option>
+                                ))}
+                            </select>
+                            <select
+                                value={currentDate.getFullYear()}
+                                onChange={handleYearChange}
+                                className="bg-tech-primary border border-tech-surface rounded px-3 py-1.5 text-tech-text focus:border-tech-cyan outline-none font-bold text-sm cursor-pointer hover:border-tech-cyan/50 transition-colors"
+                            >
+                                {years.map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        </div>
+
                         <button
                             onClick={() => changeMonth(1)}
-                            className="px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-colors"
+                            className="p-2 hover:bg-tech-surface rounded-full transition-colors text-tech-cyan"
                         >
-                            →
+                            <ChevronRight size={24} />
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setCurrentDate(new Date())}
+                        className="px-4 py-1.5 bg-tech-surface/50 hover:bg-tech-surface text-tech-muted hover:text-tech-text rounded border border-tech-surface transition-colors text-xs uppercase font-bold tracking-wider"
+                    >
+                        Volver a Hoy
+                    </button>
+
+                    <div className="flex items-center gap-2 w-full lg:w-auto justify-center">
                         <button
                             onClick={() => setViewMode('month')}
-                            className={`px-4 py-2 rounded text-sm uppercase font-bold transition-colors ${viewMode === 'month'
-                                ? 'bg-tech-cyan text-white'
-                                : 'bg-tech-secondary hover:bg-tech-surface text-tech-muted'
+                            className={`flex-1 lg:flex-none px-4 py-2 rounded text-sm uppercase font-bold transition-all ${viewMode === 'month'
+                                ? 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20'
+                                : 'bg-tech-primary hover:bg-tech-surface text-tech-muted border border-tech-surface'
                                 }`}
                         >
                             Mes
                         </button>
                         <button
                             onClick={() => setViewMode('list')}
-                            className={`px-4 py-2 rounded text-sm uppercase font-bold transition-colors ${viewMode === 'list'
-                                ? 'bg-tech-cyan text-white'
-                                : 'bg-tech-secondary hover:bg-tech-surface text-tech-muted'
+                            className={`flex-1 lg:flex-none px-4 py-2 rounded text-sm uppercase font-bold transition-all ${viewMode === 'list'
+                                ? 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20'
+                                : 'bg-tech-primary hover:bg-tech-surface text-tech-muted border border-tech-surface'
                                 }`}
                         >
                             Lista
                         </button>
                     </div>
+                </div>
+
+                {/* Event Legend */}
+                <div className="mb-6 flex flex-wrap items-center justify-center md:justify-start gap-3 bg-tech-secondary/20 p-3 rounded-lg border border-tech-surface/50">
+                    <span className="text-xs font-bold text-tech-muted uppercase mr-2 flex items-center gap-1">
+                        <Info size={14} /> Referencia:
+                    </span>
+                    {eventTypes.map(type => (
+                        <div key={type.value} className="flex items-center gap-1.5">
+                            <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: type.color }}></span>
+                            <span className="text-xs text-tech-text/80">{type.label}</span>
+                        </div>
+                    ))}
                 </div>
 
                 {/* Calendar View */}
@@ -319,7 +392,7 @@ const Calendar = () => {
 
                         {/* Calendar grid */}
                         <div className="grid grid-cols-7">
-                            {getDaysInMonth().map((date, index) => {
+                            {calendarDays.map((date, index) => {
                                 const dayEvents = date ? getEventsForDate(date) : [];
                                 const isToday = date && date.toDateString() === new Date().toDateString();
 
@@ -341,7 +414,7 @@ const Calendar = () => {
                                                     {dayEvents.slice(0, 3).map(event => (
                                                         <div
                                                             key={event.id}
-                                                            onClick={() => profile?.rol === 'admin' ? openEditModal(event) : null}
+                                                            onClick={(e) => { e.stopPropagation(); openDetailModal(event); }}
                                                             className="text-[10px] p-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity font-medium border border-transparent hover:border-current"
                                                             style={{ backgroundColor: event.color + '20', color: event.color }}
                                                             title={event.titulo}
@@ -389,18 +462,24 @@ const Calendar = () => {
                                         <div className="flex-grow">
                                             <div className="flex items-center gap-3 mb-2">
                                                 <div
-                                                    className="w-4 h-4 rounded"
+                                                    className="w-4 h-4 rounded-full shadow-sm"
                                                     style={{ backgroundColor: event.color }}
                                                 ></div>
                                                 <h3 className="text-xl font-bold text-tech-text">{event.titulo}</h3>
-                                                <span className="text-xs px-2 py-1 bg-tech-surface rounded text-tech-muted uppercase font-bold">
+                                                <span className="text-xs px-2 py-0.5 bg-tech-surface rounded-full text-tech-muted uppercase font-bold border border-tech-surface">
                                                     {eventTypes.find(t => t.value === event.tipo)?.label}
                                                 </span>
                                             </div>
                                             {event.descripcion && (
-                                                <p className="text-tech-muted mb-3">{event.descripcion}</p>
+                                                <p className="text-tech-muted mb-3 line-clamp-2 text-sm">{event.descripcion}</p>
                                             )}
-                                            <div className="flex items-center gap-2 text-sm text-tech-muted font-mono">
+                                            <button
+                                                onClick={() => openDetailModal(event)}
+                                                className="text-xs text-tech-cyan hover:underline mt-1 font-bold uppercase mb-3"
+                                            >
+                                                Ver Detalles
+                                            </button>
+                                            <div className="flex items-center gap-3 text-sm text-tech-muted font-mono bg-tech-surface/30 p-2 rounded">
                                                 <Clock size={14} />
                                                 {new Date(event.fecha_inicio).toLocaleDateString('es-AR')}
                                                 {event.fecha_fin && event.fecha_fin !== event.fecha_inicio && (
@@ -569,6 +648,89 @@ const Calendar = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* Event Detail Modal (Quick View) */}
+            {showDetailModal && selectedEvent && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-tech-secondary border border-tech-surface rounded-xl p-0 w-full max-w-md shadow-2xl overflow-hidden">
+                        {/* Modal Header with Color Strip */}
+                        <div className="h-2 w-full" style={{ backgroundColor: selectedEvent.color }}></div>
+
+                        <div className="p-6">
+                            <div className="flex items-start justify-between mb-4">
+                                <div>
+                                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-1 rounded bg-tech-surface text-tech-muted mb-2 inline-block">
+                                        {eventTypes.find(t => t.value === selectedEvent.tipo)?.label}
+                                    </span>
+                                    <h2 className="text-2xl font-bold text-tech-text mt-1">{selectedEvent.titulo}</h2>
+                                </div>
+                                <button
+                                    onClick={() => setShowDetailModal(false)}
+                                    className="text-tech-muted hover:text-white transition-colors bg-tech-surface/50 rounded-full p-1"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {selectedEvent.descripcion && (
+                                    <div className="bg-tech-primary/50 p-3 rounded border border-tech-surface/50">
+                                        <div className="flex gap-2">
+                                            <AlignLeft size={16} className="text-tech-muted mt-0.5 flex-shrink-0" />
+                                            <p className="text-tech-text text-sm leading-relaxed whitespace-pre-wrap">
+                                                {selectedEvent.descripcion}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="space-y-3 font-mono text-sm text-tech-muted bg-tech-primary/30 p-4 rounded-lg">
+                                    <div className="flex items-center gap-3">
+                                        <Clock size={16} className="text-tech-cyan" />
+                                        <div>
+                                            <div className="text-tech-text font-bold">
+                                                {new Date(selectedEvent.fecha_inicio).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                            </div>
+                                            {(selectedEvent.fecha_fin && selectedEvent.fecha_fin !== selectedEvent.fecha_inicio) && (
+                                                <div className="text-xs">
+                                                    Hasta: {new Date(selectedEvent.fecha_fin).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {!selectedEvent.todo_el_dia && selectedEvent.hora_inicio && (
+                                        <div className="flex items-center gap-3 pl-7">
+                                            <div className="bg-tech-cyan/10 text-tech-cyan px-2 py-0.5 rounded text-xs font-bold">
+                                                {selectedEvent.hora_inicio}
+                                                {selectedEvent.hora_fin ? ` - ${selectedEvent.hora_fin}` : ''}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {selectedEvent.todo_el_dia && (
+                                        <div className="flex items-center gap-3 pl-7">
+                                            <span className="text-xs uppercase font-bold bg-tech-accent/10 text-tech-accent px-2 py-0.5 rounded">
+                                                Día Completo
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {profile?.rol === 'admin' && (
+                                <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-tech-surface">
+                                    <button
+                                        onClick={() => openEditModal(selectedEvent)}
+                                        className="flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-primary text-tech-cyan rounded font-bold transition-colors text-sm uppercase"
+                                    >
+                                        <Edit size={16} /> Editar
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

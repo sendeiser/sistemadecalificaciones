@@ -84,17 +84,17 @@ const TeacherReports = () => {
 
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
-                        <div className="p-2 bg-tech-cyan/20 rounded text-tech-cyan">
-                            <FileText size={32} />
+            <header className="max-w-7xl mx-auto mb-6 md:mb-10 flex flex-col md:flex-row items-center md:items-start justify-between border-b border-tech-surface pb-6 gap-6">
+                <div className="w-full md:w-auto">
+                    <h1 className="text-2xl md:text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
+                        <div className="p-1.5 md:p-2 bg-tech-cyan/20 rounded text-tech-cyan">
+                            <FileText className="w-6 h-6 md:w-8 md:h-8" />
                         </div>
                         Mis Reportes
                     </h1>
-                    <p className="text-tech-muted font-mono mt-2">Exportación de planillas de calificaciones y asistencia.</p>
+                    <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">Exportación de planillas de calificaciones y asistencia.</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                     <ThemeToggle />
                     <button
                         onClick={() => navigate('/dashboard')}
@@ -108,33 +108,33 @@ const TeacherReports = () => {
 
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Date Filters */}
-                <div className="bg-tech-secondary p-6 rounded border border-tech-surface flex flex-wrap items-center gap-6">
-                    <div className="flex items-center gap-3">
+                <div className="bg-tech-secondary p-4 md:p-6 rounded border border-tech-surface flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+                    <div className="flex items-center gap-3 mb-2 md:mb-0">
                         <Calendar size={20} className="text-tech-cyan" />
-                        <span className="text-sm font-bold uppercase tracking-wider text-tech-muted">Rango de Fechas:</span>
+                        <span className="text-sm font-bold uppercase tracking-wider text-tech-muted whitespace-nowrap">Rango de Fechas:</span>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <label className="text-xs text-tech-muted font-mono">DESDE:</label>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                            <label className="text-xs text-tech-muted font-mono uppercase">Desde:</label>
                             <input
                                 type="date"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-white focus:border-tech-cyan outline-none font-mono"
+                                className="w-full sm:w-auto bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text focus:border-tech-cyan outline-none font-mono"
                             />
                         </div>
-                        <div className="flex items-center gap-2">
-                            <label className="text-xs text-tech-muted font-mono">HASTA:</label>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                            <label className="text-xs text-tech-muted font-mono uppercase">Hasta:</label>
                             <input
                                 type="date"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-white focus:border-tech-cyan outline-none font-mono"
+                                className="w-full sm:w-auto bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text focus:border-tech-cyan outline-none font-mono"
                             />
                         </div>
                     </div>
-                    <p className="text-xs text-tech-muted font-mono italic md:ml-auto">
-                        * Los filtros afectan solo al reporte de asistencia.
+                    <p className="text-[10px] text-tech-muted font-mono italic md:ml-auto mt-2 md:mt-0">
+                        * Solo reportes de asistencia.
                     </p>
                 </div>
 

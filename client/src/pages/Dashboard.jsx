@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, PieChart, BarChart3, CheckSquare, Sun, Moon, Search, X, Bell, Calendar as CalendarIcon, AlertCircle, ShieldAlert } from 'lucide-react';
 import DashboardStats from '../components/DashboardStats';
+import AnnouncementTicker from '../components/AnnouncementTicker';
 import ThemeToggle from '../components/ThemeToggle';
 import { supabase } from '../supabaseClient';
 import { getApiEndpoint } from '../utils/api';
@@ -145,6 +146,11 @@ const Dashboard = () => {
             </header>
 
             <main>
+                {/* Ticker for Teachers and Students */}
+                {(profile.rol === 'docente' || profile.rol === 'alumno') && (
+                    <AnnouncementTicker />
+                )}
+
                 {/* Stats Section */}
                 <DashboardStats role={profile.rol} profileId={profile.id} />
 

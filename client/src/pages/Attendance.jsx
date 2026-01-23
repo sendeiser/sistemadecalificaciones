@@ -195,21 +195,21 @@ const Attendance = () => {
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             {/* Header */}
-            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
-                        <div className="p-2 bg-tech-cyan/20 rounded text-tech-cyan">
-                            <Clock size={32} />
+            <header className="max-w-7xl mx-auto mb-6 md:mb-10 flex flex-col md:flex-row items-start md:items-center justify-between border-b border-tech-surface pb-6 gap-4">
+                <div className="w-full md:w-auto">
+                    <h1 className="text-2xl md:text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
+                        <div className="p-1.5 md:p-2 bg-tech-cyan/20 rounded text-tech-cyan">
+                            <Clock className="w-6 h-6 md:w-8 md:h-8" />
                         </div>
                         Control de Asistencia
                     </h1>
-                    <p className="text-tech-muted font-mono mt-2">
+                    <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">
                         {selectedAssignment
                             ? `${selectedAssignment.materia.nombre} - ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
                             : 'Selecciona una materia para registrar la asistencia del día.'}
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                     <ThemeToggle />
                     <button
                         onClick={() => navigate('/dashboard')}
@@ -276,37 +276,37 @@ const Attendance = () => {
                     // Attendance Form
                     <div className="space-y-6">
                         {/* Controls */}
-                        <div className="bg-tech-secondary p-6 rounded border border-tech-surface flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="flex items-center gap-4 w-full md:w-auto">
-                                <label className="text-tech-muted font-mono uppercase text-sm">Fecha:</label>
+                        <div className="bg-tech-secondary p-4 md:p-6 rounded border border-tech-surface flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
+                                <label className="text-tech-muted font-mono uppercase text-sm whitespace-nowrap">Fecha:</label>
                                 <input
                                     type="date"
                                     value={selectedDate}
                                     onChange={(e) => setSelectedDate(e.target.value)}
-                                    className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none font-mono"
+                                    className="w-full sm:w-auto bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none font-mono"
                                 />
                             </div>
 
-                            <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
                                 <button
                                     onClick={() => setIsScanning(true)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-tech-cyan/20 hover:bg-tech-cyan/30 text-tech-cyan rounded border border-tech-cyan/30 transition-all text-sm uppercase font-bold tracking-wider whitespace-nowrap"
+                                    className="justify-center flex items-center gap-2 px-4 py-2 bg-tech-cyan/20 hover:bg-tech-cyan/30 text-tech-cyan rounded border border-tech-cyan/30 transition-all text-sm uppercase font-bold tracking-wider"
                                 >
                                     <QrCode size={18} />
                                     <span>Escanear QR</span>
                                 </button>
                                 <button
                                     onClick={markAllPresent}
-                                    className="flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded border border-tech-surface transition-colors text-sm uppercase font-bold tracking-wider whitespace-nowrap"
+                                    className="justify-center flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded border border-tech-surface transition-colors text-sm uppercase font-bold tracking-wider"
                                 >
                                     <CheckSquare size={18} />
                                     <span>Todos Presentes</span>
                                 </button>
                                 <button
                                     onClick={() => setSelectedAssignment(null)}
-                                    className="px-4 py-2 text-tech-muted hover:text-tech-text transition-colors text-sm underline whitespace-nowrap"
+                                    className="justify-center px-4 py-2 text-tech-muted hover:text-tech-text transition-colors text-sm underline"
                                 >
-                                    Curso
+                                    Cambiar Curso
                                 </button>
                             </div>
                         </div>

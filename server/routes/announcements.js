@@ -32,9 +32,20 @@ router.get('/', async (req, res) => {
                 autor:perfiles!autor_id(nombre),
                 anuncios_leidos!left(id, leido_at)
             `)
-            .contains('destinatarios', [profile.rol])
             .order('fecha_publicacion', { ascending: false })
             .range(offset, offset + limit - 1);
+
+        // Visibility Filters
+        if (profile.rol === 'admin') {
+            // Admin sees all announcements (no recipient filter)
+        } else if (profile.rol === 'preceptor') {
+            // Preceptor sees announcements sent to them OR created by them
+            // Using PostgREST syntax for OR with Array contains and ID equals
+            query = query.or(`destinatarios.cs.{${profile.rol}},autor_id.eq.${userId}`);
+        } else {
+            // Other roles (docente, alumno) only see what is sent to them
+            query = query.contains('destinatarios', [profile.rol]);
+        }
 
         // Visibility logic: only admin/preceptor can see unpublished (drafts)
         if (!['admin', 'preceptor'].includes(profile.rol)) {
