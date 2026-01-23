@@ -173,14 +173,16 @@ const StudentReport = () => {
                     >
                         <ArrowLeft size={24} />
                     </button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
-                            <div className="p-2 bg-tech-success/20 rounded text-tech-success">
-                                <GraduationCap size={32} />
+                    <div className="min-w-0 flex-1">
+                        <h1 className="text-lg md:text-3xl font-bold text-tech-text uppercase tracking-tight">
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <div className="p-1.5 md:p-2 bg-tech-success/20 rounded text-tech-success shrink-0">
+                                    <GraduationCap className="w-6 h-6 md:w-8 md:h-8" />
+                                </div>
+                                <span className="break-words leading-tight">Mi Boletín de Calificaciones</span>
                             </div>
-                            Mi Boletín de Calificaciones
                         </h1>
-                        <p className="text-tech-muted font-mono mt-2">
+                        <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">
                             {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo} ` : 'Cargando división...'}
                         </p>
                     </div>
