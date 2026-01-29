@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
 import QRScanner from '../components/QRScanner';
-import { QrCode, Clock, ArrowLeft, AlertCircle, Calendar, User, Save, Edit, Search, CheckCircle, X, Users, CheckSquare, Check } from 'lucide-react';
+import { QrCode, Clock, ArrowLeft, AlertCircle, Calendar, User, Save, Edit, Search, CheckCircle, X, Users, CheckSquare, Check, Wifi, WifiOff, RefreshCw } from 'lucide-react';
+import { db, saveAssignmentsToLocal, saveStudentsToLocal, addToSyncQueue, getPendingSyncs, markAsSynced, syncAllPending } from '../utils/db';
 
 const Attendance = () => {
     const { profile } = useAuth();
@@ -20,6 +21,55 @@ const Attendance = () => {
     const [message, setMessage] = useState(null);
     const [isScanning, setIsScanning] = useState(false);
     const [lastScanned, setLastScanned] = useState(null);
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [pendingSyncs, setPendingSyncs] = useState(0);
+
+    // Connection Listeners
+    useEffect(() => {
+        const handleOnline = () => {
+            setIsOnline(true);
+            syncData();
+        };
+        const handleOffline = () => setIsOnline(false);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        checkPendingSyncs();
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    const checkPendingSyncs = async () => {
+        const pending = await getPendingSyncs();
+        setPendingSyncs(pending.length);
+    };
+
+    const syncData = async () => {
+        if (!navigator.onLine) return;
+
+        try {
+            setSaving(true);
+            const result = await syncAllPending(supabase);
+
+            if (result.success) {
+                if (result.count > 0) {
+                    setMessage({ type: 'success', text: `Se han sincronizado ${result.count} registros.` });
+                }
+                await checkPendingSyncs();
+            } else {
+                throw result.error;
+            }
+        } catch (error) {
+            console.error('Error syncing data:', error);
+            setMessage({ type: 'error', text: 'Error al sincronizar datos offline.' });
+        } finally {
+            setSaving(false);
+        }
+    };
 
     useEffect(() => {
         fetchAssignments();
@@ -35,26 +85,50 @@ const Attendance = () => {
         try {
             if (!profile) return;
 
-            let query = supabase
-                .from('asignaciones')
-                .select(`
-                    id,
-                    materia:materias(nombre),
-                    division:divisiones(id, anio, seccion)
-                `);
+            if (isOnline) {
+                let query = supabase
+                    .from('asignaciones')
+                    .select(`
+                        id,
+                        materia:materias(nombre),
+                        division:divisiones(id, anio, seccion)
+                    `);
 
-            if (profile.rol !== 'admin') {
-                query = query.eq('docente_id', profile.id);
+                if (profile.rol !== 'admin') {
+                    query = query.eq('docente_id', profile.id);
+                }
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                setAssignments(data || []);
+                await saveAssignmentsToLocal(data || []);
+            } else {
+                // Load from Cache
+                const cached = await db.assignments.toArray();
+                const mapped = cached.map(c => ({
+                    id: c.id,
+                    materia: { nombre: c.materia_name },
+                    division: { id: c.division_id, anio: c.division_name.split(' ')[0], seccion: c.division_name.split(' ')[1].replace(/"/g, '') }
+                }));
+                setAssignments(mapped);
             }
-
-            const { data, error } = await query;
-
-            if (error) throw error;
-            setAssignments(data || []);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching assignments:', error);
-            setMessage({ type: 'error', text: 'Error al cargar cursos.' });
+            // Fallback to cache even if error but online failed
+            const cached = await db.assignments.toArray();
+            if (cached.length > 0) {
+                const mapped = cached.map(c => ({
+                    id: c.id,
+                    materia: { nombre: c.materia_name },
+                    division: { id: c.division_id, anio: c.division_name.split(' ')[0], seccion: c.division_name.split(' ')[1].replace(/"/g, '') }
+                }));
+                setAssignments(mapped);
+                setMessage({ type: 'success', text: 'Cargado desde memoria local (Offline).' });
+            } else {
+                setMessage({ type: 'error', text: 'Error al cargar cursos.' });
+            }
             setLoading(false);
         }
     };
@@ -71,44 +145,63 @@ const Attendance = () => {
             const assignment = assignments.find(a => a.id === assignmentId);
             if (!assignment) return;
 
-            // 1. Fetch Students
-            const { data: studentsData, error: studentsError } = await supabase
-                .from('estudiantes_divisiones')
-                .select(`
-                    alumno:perfiles!alumno_id(id, nombre, dni)
-                `)
-                .eq('division_id', assignment.division.id);
+            if (isOnline) {
+                // 1. Fetch Students
+                const { data: studentsData, error: studentsError } = await supabase
+                    .from('estudiantes_divisiones')
+                    .select(`
+                        alumno:perfiles!alumno_id(id, nombre, dni)
+                    `)
+                    .eq('division_id', assignment.division.id);
 
-            if (studentsError) throw studentsError;
+                if (studentsError) throw studentsError;
 
-            const studentList = studentsData.map(s => s.alumno).sort((a, b) => a.nombre.localeCompare(b.nombre));
-            setStudents(studentList);
+                const studentList = studentsData.map(s => s.alumno).sort((a, b) => a.nombre.localeCompare(b.nombre));
+                setStudents(studentList);
+                await saveStudentsToLocal(assignmentId, studentList);
 
-            // 2. Fetch Existing Attendance
-            const { data: attendanceData, error: attendanceError } = await supabase
-                .from('asistencias')
-                .select('*')
-                .eq('asignacion_id', assignmentId)
-                .eq('fecha', date);
+                // 2. Fetch Existing Attendance
+                const { data: attendanceData, error: attendanceError } = await supabase
+                    .from('asistencias')
+                    .select('*')
+                    .eq('asignacion_id', assignmentId)
+                    .eq('fecha', date);
 
-            if (attendanceError) throw attendanceError;
+                if (attendanceError) throw attendanceError;
 
-            // 3. Map Attendance
-            const newAttendanceMap = {};
-            const newObservationsMap = {};
+                // 3. Map Attendance
+                const newAttendanceMap = {};
+                const newObservationsMap = {};
 
-            // Default to 'presente' if no record? Or null?
-            // Usually easier to start with empty/null to force explicit check, or default Present.
-            // Let's default to null (unset) visually,- [x] Optimize `Attendance.jsx` for mobile (Stacked view + larger touch targets)
-            // [/] Optimize `AttendanceCapture.jsx` for mobile (Card refinements)
+                attendanceData.forEach(record => {
+                    newAttendanceMap[record.estudiante_id] = record.estado;
+                    newObservationsMap[record.estudiante_id] = record.observaciones || '';
+                });
 
-            attendanceData.forEach(record => {
-                newAttendanceMap[record.estudiante_id] = record.estado;
-                newObservationsMap[record.estudiante_id] = record.observaciones || '';
-            });
+                setAttendanceMap(newAttendanceMap);
+                setObservationsMap(newObservationsMap);
+            } else {
+                // Offline Mode: Load Students from Cache
+                const cachedStudents = await db.students.where('assignment_id').equals(assignmentId).toArray();
+                setStudents(cachedStudents.sort((a, b) => a.nombre.localeCompare(b.nombre)));
 
-            setAttendanceMap(newAttendanceMap);
-            setObservationsMap(newObservationsMap);
+                // Get local attendance records that are not synced yet for this date/assignment
+                const localRecords = await db.attendance_queue
+                    .where({ asignacion_id: assignmentId, fecha: date })
+                    .toArray();
+
+                const newAttendanceMap = {};
+                const newObservationsMap = {};
+
+                localRecords.forEach(record => {
+                    newAttendanceMap[record.estudiante_id] = record.estado;
+                    newObservationsMap[record.estudiante_id] = record.observaciones || '';
+                });
+
+                setAttendanceMap(newAttendanceMap);
+                setObservationsMap(newObservationsMap);
+                setMessage({ type: 'success', text: 'Trabajando en modo Offline.' });
+            }
             setLoading(false);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -163,19 +256,27 @@ const Attendance = () => {
                 estudiante_id: s.id,
                 asignacion_id: selectedAssignment.id,
                 fecha: selectedDate,
-                estado: attendanceMap[s.id] || 'presente', // Default to present if saving
-                observaciones: observationsMap[s.id]
+                estado: attendanceMap[s.id] || 'presente',
+                observaciones: observationsMap[s.id] || ''
             }));
 
-            // Use backend route or direct Supabase? 
-            // We set up RLS for direct access. Let's use direct Supabase upsert.
-            const { error } = await supabase
-                .from('asistencias')
-                .upsert(records, { onConflict: 'estudiante_id, asignacion_id, fecha' });
+            // Save to Local Queue First
+            await addToSyncQueue(records);
+            await checkPendingSyncs();
 
-            if (error) throw error;
+            if (isOnline) {
+                const result = await syncAllPending(supabase);
+                if (!result.success) {
+                    console.warn("Sync failed, kept in queue:", result.error);
+                    setMessage({ type: 'success', text: 'Asistencia guardada localmente (Error en red).' });
+                } else {
+                    setMessage({ type: 'success', text: 'Asistencia guardada y sincronizada.' });
+                }
+            } else {
+                setMessage({ type: 'success', text: 'Asistencia guardada localmente (Modo Offline).' });
+            }
+            await checkPendingSyncs();
 
-            setMessage({ type: 'success', text: 'Asistencia guardada correctamente.' });
             setSaving(false);
         } catch (error) {
             console.error('Error saving attendance:', error);
@@ -210,6 +311,32 @@ const Attendance = () => {
                     </p>
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                    {/* Status Indicators */}
+                    <div className="flex items-center gap-2 mr-2">
+                        {!isOnline ? (
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-tech-danger/20 text-tech-danger border border-tech-danger/30 rounded-full text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                                <WifiOff size={12} />
+                                Offline
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-tech-success/20 text-tech-success border border-tech-success/30 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                <Wifi size={12} />
+                                Online
+                            </div>
+                        )}
+
+                        {pendingSyncs > 0 && (
+                            <button
+                                onClick={syncData}
+                                disabled={saving || !isOnline}
+                                className={`flex items-center gap-1.5 px-3 py-1 ${isOnline ? 'bg-tech-accent/20 text-tech-accent border-tech-accent/30 hover:bg-tech-accent/30' : 'bg-tech-muted/20 text-tech-muted border-tech-surface'} border rounded-full text-[10px] font-bold uppercase tracking-wider transition-all`}
+                            >
+                                <RefreshCw size={12} className={saving ? 'animate-spin' : ''} />
+                                {pendingSyncs} Pendientes
+                            </button>
+                        )}
+                    </div>
+
                     <ThemeToggle />
                     <button
                         onClick={() => navigate('/dashboard')}

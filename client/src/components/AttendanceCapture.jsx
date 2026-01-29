@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { Users, Calendar, Save, ArrowLeft, Check, X } from 'lucide-react';
+import { Users, Calendar, Save, ArrowLeft, Check, X, Wifi, WifiOff, RefreshCw } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
+import { db, saveDivisionsToLocal, saveGeneralStudentsToLocal, addToSyncQueue, getPendingSyncs, syncAllPending } from '../utils/db';
 
 import { getApiEndpoint } from '../utils/api';
 
@@ -15,14 +16,68 @@ const AttendanceCapture = () => {
     const [date, setDate] = useState('');
     const [attendance, setAttendance] = useState({}); // {studentId: 'presente'|'ausente'|'tarde'}
     const [saving, setSaving] = useState(false);
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [pendingSyncs, setPendingSyncs] = useState(0);
+
+    // Connection Listeners
+    useEffect(() => {
+        const handleOnline = () => {
+            setIsOnline(true);
+            syncData();
+        };
+        const handleOffline = () => setIsOnline(false);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        checkPendingSyncs();
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    const checkPendingSyncs = async () => {
+        const pending = await getPendingSyncs();
+        setPendingSyncs(pending.length);
+    };
+
+    const syncData = async () => {
+        if (!navigator.onLine) return;
+        try {
+            setSaving(true);
+            const result = await syncAllPending(supabase);
+            if (result.success) {
+                await checkPendingSyncs();
+            }
+        } catch (error) {
+            console.error('Error syncing data:', error);
+        } finally {
+            setSaving(false);
+        }
+    };
 
     useEffect(() => {
         const fetchDivisions = async () => {
-            const { data, error } = await supabase.from('divisiones').select('*');
-            if (!error) setDivisions(data);
+            try {
+                if (isOnline) {
+                    const { data, error } = await supabase.from('divisiones').select('*');
+                    if (error) throw error;
+                    setDivisions(data || []);
+                    await saveDivisionsToLocal(data || []);
+                } else {
+                    const cached = await db.divisions.toArray();
+                    setDivisions(cached);
+                }
+            } catch (err) {
+                console.error('Error fetching divisions:', err);
+                const cached = await db.divisions.toArray();
+                setDivisions(cached);
+            }
         };
         fetchDivisions();
-    }, []);
+    }, [isOnline]);
 
     // Load students when division changes
     useEffect(() => {
@@ -31,24 +86,31 @@ const AttendanceCapture = () => {
             return;
         }
         const loadStudents = async () => {
-            const { data, error } = await supabase
-                .from('estudiantes_divisiones')
-                .select(`
-          alumno:perfiles!alumno_id (
-            id,
-            nombre,
-            dni
-          )
-        `)
-                .eq('division_id', selectedDivision);
+            try {
+                if (isOnline) {
+                    const { data, error } = await supabase
+                        .from('estudiantes_divisiones')
+                        .select(`
+                            alumno:perfiles!alumno_id (id, nombre, dni)
+                        `)
+                        .eq('division_id', selectedDivision);
 
-            if (!error) {
-                const studentList = data.map(d => d.alumno).sort((a, b) => a.nombre.localeCompare(b.nombre));
-                setStudents(studentList);
+                    if (error) throw error;
+                    const studentList = data.map(d => d.alumno).sort((a, b) => a.nombre.localeCompare(b.nombre));
+                    setStudents(studentList);
+                    await saveGeneralStudentsToLocal(selectedDivision, studentList);
+                } else {
+                    const cached = await db.students.where('division_id').equals(selectedDivision).toArray();
+                    setStudents(cached.sort((a, b) => a.nombre.localeCompare(b.nombre)));
+                }
+            } catch (err) {
+                console.error('Error loading students:', err);
+                const cached = await db.students.where('division_id').equals(selectedDivision).toArray();
+                setStudents(cached.sort((a, b) => a.nombre.localeCompare(b.nombre)));
             }
         };
         loadStudents();
-    }, [selectedDivision]);
+    }, [selectedDivision, isOnline]);
 
     const handleChange = (studentId, status) => {
         setAttendance(prev => ({ ...prev, [studentId]: status }));
@@ -60,29 +122,31 @@ const AttendanceCapture = () => {
             estudiante_id: alumno_id,
             division_id: selectedDivision,
             fecha: date,
-            estado
+            estado,
+            observaciones: '' // Added for consistency with queue
         }));
         if (records.length === 0) return alert('No se marcó asistencia para ningún alumno');
+
         setSaving(true);
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const payload = { records };
-            const endpoint = getApiEndpoint('/attendance/general');
+            // Save to Local Queue First
+            await addToSyncQueue(records, 'general');
+            await checkPendingSyncs();
 
-            const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
-                },
-                body: JSON.stringify(payload),
-            });
-            const json = await res.json();
-            if (res.ok) alert('Asistencias guardadas');
-            else alert('Error: ' + json.error);
+            if (isOnline) {
+                const result = await syncAllPending(supabase);
+                if (result.success) {
+                    alert('Asistencias guardadas y sincronizadas');
+                } else {
+                    alert('Asistencias guardadas localmente (Error al sincronizar)');
+                }
+            } else {
+                alert('Asistencias guardadas localmente (Modo Offline)');
+            }
+            await checkPendingSyncs();
         } catch (e) {
             console.error(e);
-            alert('Error al enviar');
+            alert('Error al guardar asistencia.');
         }
         setSaving(false);
     };
@@ -99,7 +163,34 @@ const AttendanceCapture = () => {
                     </button>
                     <h1 className="text-3xl font-bold text-tech-text">Captura General de Asistencia</h1>
                 </div>
-                <ThemeToggle />
+                <div className="flex items-center gap-3">
+                    {/* Status Indicators */}
+                    <div className="flex items-center gap-2 mr-2">
+                        {!isOnline ? (
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-tech-danger/20 text-tech-danger border border-tech-danger/30 rounded-full text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                                <WifiOff size={12} />
+                                Offline
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-tech-success/20 text-tech-success border border-tech-success/30 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                <Wifi size={12} />
+                                Online
+                            </div>
+                        )}
+
+                        {pendingSyncs > 0 && (
+                            <button
+                                onClick={syncData}
+                                disabled={saving || !isOnline}
+                                className={`flex items-center gap-1.5 px-3 py-1 ${isOnline ? 'bg-tech-accent/20 text-tech-accent border-tech-accent/30 hover:bg-tech-accent/30' : 'bg-tech-muted/20 text-tech-muted border-tech-surface'} border rounded-full text-[10px] font-bold uppercase tracking-wider transition-all`}
+                            >
+                                <RefreshCw size={12} className={saving ? 'animate-spin' : ''} />
+                                {pendingSyncs} Pendientes
+                            </button>
+                        )}
+                    </div>
+                    <ThemeToggle />
+                </div>
             </header>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <select
