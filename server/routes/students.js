@@ -10,16 +10,16 @@ const upload = multer({ dest: 'uploads/' });
 
 router.use(authMiddleware);
 
-// Middleware to check if user is admin
-const isAdmin = async (req, res, next) => {
+// Middleware to check if user is admin or preceptor
+const isAdminOrPreceptor = async (req, res, next) => {
     const { data: profile, error } = await req.supabase
         .from('perfiles')
         .select('rol')
         .eq('id', req.user.id)
         .single();
 
-    if (error || profile?.rol !== 'admin') {
-        return res.status(403).json({ error: 'Access denied. Admins only.' });
+    if (error || (profile?.rol !== 'admin' && profile?.rol !== 'preceptor')) {
+        return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de administrador o preceptor.' });
     }
     next();
 };
@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
  * Creates a new Auth user and its profile.
  * Requires SUPABASE_SERVICE_ROLE_KEY to be configured.
  */
-router.post('/register', isAdmin, async (req, res) => {
+router.post('/register', isAdminOrPreceptor, async (req, res) => {
     const { email, password, nombre, dni } = req.body;
 
     if (!supabaseAdmin) {
@@ -90,7 +90,7 @@ router.post('/register', isAdmin, async (req, res) => {
 });
 
 // PUT /api/students/:id (Admin)
-router.put('/:id', isAdmin, async (req, res) => {
+router.put('/:id', isAdminOrPreceptor, async (req, res) => {
     try {
         const { id } = req.params;
         const { nombre, dni, email } = req.body;
@@ -109,7 +109,7 @@ router.put('/:id', isAdmin, async (req, res) => {
 });
 
 // DELETE /api/students/:id (Admin)
-router.delete('/:id', isAdmin, async (req, res) => {
+router.delete('/:id', isAdminOrPreceptor, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -137,7 +137,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
  * POST /api/students/bulk-ai
  * Parses raw text using Gemini and registers multiple students.
  */
-router.post('/bulk-ai', isAdmin, async (req, res) => {
+router.post('/bulk-ai', isAdminOrPreceptor, async (req, res) => {
     const { rawText } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -230,7 +230,7 @@ router.post('/bulk-ai', isAdmin, async (req, res) => {
  * Imports students from a CSV file.
  * Expected columns: dni, nombre, email
  */
-router.post('/import', isAdmin, upload.single('file'), async (req, res) => {
+router.post('/import', isAdminOrPreceptor, upload.single('file'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No CSV file uploaded' });
     }

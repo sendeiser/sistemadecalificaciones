@@ -4,16 +4,16 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.use(authMiddleware);
 
-// Middleware to check if user is admin
-const isAdmin = async (req, res, next) => {
+// Middleware to check if user is admin or preceptor
+const isAdminOrPreceptor = async (req, res, next) => {
     const { data: profile, error } = await req.supabase
         .from('perfiles')
         .select('rol')
         .eq('id', req.user.id)
         .single();
 
-    if (error || profile?.rol !== 'admin') {
-        return res.status(403).json({ error: 'Access denied. Admins only.' });
+    if (error || (profile?.rol !== 'admin' && profile?.rol !== 'preceptor')) {
+        return res.status(403).json({ error: 'Acceso denegado. Se requiere rol de administrador o preceptor.' });
     }
     next();
 };
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/subjects (Admin)
-router.post('/', isAdmin, async (req, res) => {
+router.post('/', isAdminOrPreceptor, async (req, res) => {
     try {
         const { nombre, descripcion } = req.body;
         const { data, error } = await req.supabase
@@ -50,8 +50,8 @@ router.post('/', isAdmin, async (req, res) => {
     }
 });
 
-// PUT /api/subjects/:id (Admin)
-router.put('/:id', isAdmin, async (req, res) => {
+// PUT /api/subjects/:id (Admin/Preceptor)
+router.put('/:id', isAdminOrPreceptor, async (req, res) => {
     try {
         const { id } = req.params;
         const { nombre, descripcion } = req.body;
@@ -69,8 +69,8 @@ router.put('/:id', isAdmin, async (req, res) => {
     }
 });
 
-// DELETE /api/subjects/:id (Admin)
-router.delete('/:id', isAdmin, async (req, res) => {
+// DELETE /api/subjects/:id (Admin/Preceptor)
+router.delete('/:id', isAdminOrPreceptor, async (req, res) => {
     try {
         const { id } = req.params;
         const { error } = await req.supabase

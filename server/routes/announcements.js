@@ -36,12 +36,8 @@ router.get('/', async (req, res) => {
             .range(offset, offset + limit - 1);
 
         // Visibility Filters
-        if (profile.rol === 'admin') {
-            // Admin sees all announcements (no recipient filter)
-        } else if (profile.rol === 'preceptor') {
-            // Preceptor sees announcements sent to them OR created by them
-            // Using PostgREST syntax for OR with Array contains and ID equals
-            query = query.or(`destinatarios.cs.{${profile.rol}},autor_id.eq.${userId}`);
+        if (profile.rol === 'admin' || profile.rol === 'preceptor') {
+            // Admin and Preceptor see all announcements (no recipient filter)
         } else {
             // Other roles (docente, alumno) only see what is sent to them
             query = query.contains('destinatarios', [profile.rol]);
@@ -95,13 +91,17 @@ router.get('/unread-count', async (req, res) => {
 
         if (profileError) throw profileError;
 
-        // Get all published announcements for user's role
-        const { data: announcements, error: announcementsError } = await supabaseAdmin
+        let query = supabaseAdmin
             .from('anuncios')
             .select('id')
-            .contains('destinatarios', [profile.rol])
             .eq('publicado', true)
             .or('fecha_expiracion.is.null,fecha_expiracion.gt.' + new Date().toISOString());
+
+        if (profile.rol !== 'admin' && profile.rol !== 'preceptor') {
+            query = query.contains('destinatarios', [profile.rol]);
+        }
+
+        const { data: announcements, error: announcementsError } = await query;
 
         if (announcementsError) throw announcementsError;
 
@@ -281,7 +281,7 @@ router.put('/:id', async (req, res) => {
         if (announcementError) throw announcementError;
 
         // Check authorization
-        if (announcement.autor_id !== userId && profile.rol !== 'admin') {
+        if (announcement.autor_id !== userId && !['admin', 'preceptor'].includes(profile.rol)) {
             return res.status(403).json({ error: 'No autorizado' });
         }
 
@@ -345,7 +345,7 @@ router.delete('/:id', async (req, res) => {
         if (announcementError) throw announcementError;
 
         // Check authorization
-        if (announcement.autor_id !== userId && profile.rol !== 'admin') {
+        if (announcement.autor_id !== userId && !['admin', 'preceptor'].includes(profile.rol)) {
             return res.status(403).json({ error: 'No autorizado' });
         }
 

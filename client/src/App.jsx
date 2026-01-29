@@ -25,6 +25,7 @@ import AttendanceAlerts from './pages/AttendanceAlerts';
 import AttendanceDiscrepancies from './pages/AttendanceDiscrepancies';
 import Calendar from './pages/Calendar';
 import Announcements from './pages/Announcements';
+import AdminUserManagement from './pages/AdminUserManagement';
 
 const ProtectedRoute = ({ children }) => {
   const { session, loading } = useAuth();
@@ -171,6 +172,11 @@ function App() {
             <Route path="/announcements" element={
               <ProtectedRoute>
                 <Announcements />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute>
+                <AdminUserManagement />
               </ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />

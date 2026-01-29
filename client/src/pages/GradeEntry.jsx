@@ -543,7 +543,11 @@ const GradeEntry = () => {
                                                         {activeTemplate?.id === g.alumno_id && activeTemplate?.field === 'obs' && (
                                                             <TemplateMenu
                                                                 templates={OBSERVATION_TEMPLATES}
-                                                                onSelect={(t) => handleGradeChange(g.alumno_id, 'observaciones', t)}
+                                                                onSelect={(t) => {
+                                                                    const currentObs = g.observaciones || '';
+                                                                    const newObs = currentObs ? `${currentObs} ${t}` : t;
+                                                                    handleGradeChange(g.alumno_id, 'observaciones', newObs);
+                                                                }}
                                                                 onClose={() => setActiveTemplate(null)}
                                                             />
                                                         )}
@@ -669,7 +673,11 @@ const GradeEntry = () => {
                                                     <div className="relative">
                                                         <TemplateMenu
                                                             templates={OBSERVATION_TEMPLATES}
-                                                            onSelect={(t) => handleGradeChange(g.alumno_id, 'observaciones', t)}
+                                                            onSelect={(t) => {
+                                                                const currentObs = g.observaciones || '';
+                                                                const newObs = currentObs ? `${currentObs} ${t}` : t;
+                                                                handleGradeChange(g.alumno_id, 'observaciones', newObs);
+                                                            }}
                                                             onClose={() => setActiveTemplate(null)}
                                                         />
                                                     </div>

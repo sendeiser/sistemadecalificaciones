@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }) => {
         password,
         options: {
             data: metadata,
-            emailRedirectTo: window.location.origin
+            // emailRedirectTo: window.location.origin // Removed to avoid 400 if not whitelisted
         }
     });
 

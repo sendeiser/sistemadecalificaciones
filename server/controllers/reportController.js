@@ -503,7 +503,7 @@ async function getGeneralDashboardStats(req, res) {
         const { rol: role } = profile;
         const id = req.user.id;
 
-        if (role === 'admin') {
+        if (role === 'admin' || role === 'preceptor') {
             // 1. Basic Counts
             const { count: studentCount } = await supabaseAdmin.from('perfiles').select('*', { count: 'exact', head: true }).eq('rol', 'alumno');
             const { count: divisionCount } = await supabaseAdmin.from('divisiones').select('*', { count: 'exact', head: true });
@@ -1042,7 +1042,7 @@ async function getStudentsAtRisk(req, res) {
 
         let riskList = [];
 
-        if (role === 'admin') {
+        if (role === 'admin' || role === 'preceptor') {
             const { data: allAttendance, error: attErr } = await supabaseAdmin
                 .from('asistencias_preceptor')
                 .select('estudiante_id, estado, estudiante:perfiles!estudiante_id(nombre, dni), division:divisiones(anio, seccion)');

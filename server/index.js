@@ -23,6 +23,7 @@ app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/search', require('./routes/search'));
 app.use('/api/calendar', require('./routes/calendar'));
 app.use('/api/announcements', require('./routes/announcements'));
+app.use('/api', require('./routes/auth-admin'));
 
 // Simple health check route
 app.get('/api/health', (req, res) => {

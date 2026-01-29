@@ -32,7 +32,7 @@ const AnnouncementTicker = () => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const endpoint = getApiEndpoint('/announcements');
-            const res = await fetch(`${endpoint}?limit=5`, {
+            const res = await fetch(`${endpoint}?limit=20`, {
                 headers: { 'Authorization': `Bearer ${session?.access_token}` }
             });
 

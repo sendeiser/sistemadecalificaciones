@@ -95,6 +95,38 @@ const TeacherReports = () => {
                     <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">Exportación de planillas de calificaciones y asistencia.</p>
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <button
+                        onClick={async () => {
+                            if (!confirm('¿Deseas descargar todas las planillas? Esto puede tomar unos momentos.')) return;
+                            const { data: { session } } = await supabase.auth.getSession();
+                            const token = session?.access_token;
+                            if (!token) return;
+
+                            for (const assign of assignments) {
+                                try {
+                                    // Use fetch/blob to avoid popup blockers
+                                    const url = getApiEndpoint(`/reports/grades?division_id=${assign.division_id}&materia_id=${assign.materia_id}&token=${token}`);
+                                    const res = await fetch(url);
+                                    if (!res.ok) throw new Error('Network response was not ok');
+                                    const blob = await res.blob();
+                                    const link = document.createElement('a');
+                                    link.href = window.URL.createObjectURL(blob);
+                                    link.download = `Planilla_${assign.materia.nombre}_${assign.division.anio}${assign.division.seccion}.pdf`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                    // Small delay to ensure browser handles it
+                                    await new Promise(r => setTimeout(r, 1000));
+                                } catch (e) {
+                                    console.error('Error downloading:', assign.materia.nombre, e);
+                                }
+                            }
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-tech-cyan text-white hover:bg-sky-600 rounded transition-colors text-sm font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/20"
+                    >
+                        <Download size={20} />
+                        <span className="hidden sm:inline">Exportar Todo</span>
+                    </button>
                     <ThemeToggle />
                     <button
                         onClick={() => navigate('/dashboard')}

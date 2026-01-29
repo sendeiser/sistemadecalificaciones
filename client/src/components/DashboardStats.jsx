@@ -59,7 +59,7 @@ const DashboardStats = ({ role, profileId }) => {
 
     if (loading) return <div className="p-4 text-center text-tech-muted font-mono animate-pulse">Cargando estadísticas...</div>;
 
-    if (role === 'admin') {
+    if (role === 'admin' || role === 'preceptor') {
         const maxStudents = Math.max(...stats.studentsPerDivision.map(d => d.count), 1);
 
         return (

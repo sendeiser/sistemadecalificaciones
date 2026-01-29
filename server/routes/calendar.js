@@ -120,7 +120,7 @@ router.post('/events', async (req, res) => {
             .single();
 
         if (profileError) throw profileError;
-        if (profile.rol !== 'admin') {
+        if (!['admin', 'preceptor'].includes(profile.rol)) {
             return res.status(403).json({ error: 'No autorizado' });
         }
 
@@ -185,7 +185,7 @@ router.put('/events/:id', async (req, res) => {
             .single();
 
         if (profileError) throw profileError;
-        if (profile.rol !== 'admin') {
+        if (!['admin', 'preceptor'].includes(profile.rol)) {
             return res.status(403).json({ error: 'No autorizado' });
         }
 
@@ -233,8 +233,7 @@ router.delete('/events/:id', async (req, res) => {
             .eq('id', userId)
             .single();
 
-        if (profileError) throw profileError;
-        if (profile.rol !== 'admin') {
+        if (!['admin', 'preceptor'].includes(profile.rol)) {
             return res.status(403).json({ error: 'No autorizado' });
         }
 

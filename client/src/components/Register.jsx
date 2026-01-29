@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
-import { supabase } from '../supabaseClient';
-import { UserPlus, Mail, Lock, User, CreditCard, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { getApiEndpoint } from '../utils/api';
+import { UserPlus, Mail, Lock, User, CreditCard, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
 
 const Register = () => {
     const { signUp } = useAuth();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get('token');
+
     const [formData, setFormData] = useState({
         nombre: '',
         dni: '',
@@ -15,11 +18,63 @@ const Register = () => {
         password: '',
         confirmPassword: ''
     });
+
+    // Invitation State
+    const [inviteState, setInviteState] = useState({
+        loading: true,
+        valid: false,
+        rol: null,
+        email: null,
+        error: null
+    });
+
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
+    useEffect(() => {
+        if (!token) {
+            setInviteState({ loading: false, valid: false, error: 'Se requiere una invitación para registrarse.' });
+            return;
+        }
+        validateToken();
+    }, [token]);
+
+    const validateToken = async () => {
+        try {
+            const res = await fetch(getApiEndpoint(`/invite/${token}`));
+            const data = await res.json();
+
+            if (data.valid) {
+                setInviteState({
+                    loading: false,
+                    valid: true,
+                    rol: data.rol,
+                    email: data.email,
+                    error: null
+                });
+                if (data.email) {
+                    setFormData(prev => ({ ...prev, email: data.email }));
+                }
+            } else {
+                setInviteState({
+                    loading: false,
+                    valid: false,
+                    error: data.error || 'Invitación inválida'
+                });
+            }
+        } catch (err) {
+            setInviteState({
+                loading: false,
+                valid: false,
+                error: 'Error al validar invitación'
+            });
+        }
+    };
+
     const handleChange = (e) => {
+        // If email is locked by invitation, prevent change
+        if (e.target.name === 'email' && inviteState.email) return;
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
@@ -35,18 +90,25 @@ const Register = () => {
         }
 
         try {
-            // 1. Create Auth User with metadata
-            // nombre, dni, and rol will be captured by the DB trigger
-            const { data, error: authError } = await signUp(formData.email, formData.password, {
-                nombre: formData.nombre,
-                dni: formData.dni,
-                rol: 'docente'
+            // Strategy: Use Backend Admin Registration to bypass public signup issues (400)
+            const res = await fetch(getApiEndpoint('/register-invite'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password,
+                    nombre: formData.nombre,
+                    dni: formData.dni,
+                    token: token
+                })
             });
 
-            if (authError) throw authError;
+            const data = await res.json();
 
-            if (data.user) {
+            if (res.ok) {
                 setSuccess(true);
+            } else {
+                throw new Error(data.error || 'Error al registrar usuario');
             }
         } catch (err) {
             setError(err.message);
@@ -54,6 +116,26 @@ const Register = () => {
             setLoading(false);
         }
     };
+
+    // Render Logic based on Invitation State
+    if (!token || (!inviteState.loading && !inviteState.valid)) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-tech-primary text-tech-text p-6 font-sans relative">
+                <div className="w-full max-w-md p-8 bg-tech-secondary rounded border border-tech-surface shadow-2xl text-center">
+                    <div className="p-4 bg-tech-danger/10 rounded-full inline-flex mb-4">
+                        <Lock className="text-tech-danger" size={48} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-tech-text uppercase mb-2">Registro Cerrado</h2>
+                    <p className="text-tech-muted font-mono text-sm mb-6">
+                        {inviteState.error || 'El registro público está deshabilitado. Debes utilizar el enlace de invitación proporcionado por la administración.'}
+                    </p>
+                    <Link to="/login" className="px-6 py-3 bg-tech-surface hover:bg-tech-primary rounded text-sm font-bold uppercase tracking-wider transition-colors inline-block">
+                        Volver al Login
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     if (success) {
         return (
@@ -68,7 +150,7 @@ const Register = () => {
                     </div>
                     <h2 className="text-3xl font-bold text-tech-text tracking-tight uppercase">¡Registro Exitoso!</h2>
                     <p className="text-tech-muted font-mono text-sm leading-relaxed">
-                        Tu cuenta de docente ha sido creada. Por favor, verifica tu correo electrónico si el sistema lo requiere.
+                        Tu cuenta de <strong>{inviteState.rol}</strong> ha sido creada.
                     </p>
                     <button
                         onClick={() => navigate('/login')}
@@ -87,25 +169,22 @@ const Register = () => {
             <div className="fixed top-6 right-6 z-50">
                 <ThemeToggle />
             </div>
-            {/* Background elements */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-tech-cyan/5 rounded-full blur-[120px]"></div>
-            </div>
 
             <div className="w-full max-w-lg p-8 space-y-8 bg-tech-secondary rounded border border-tech-surface shadow-[0_0_50px_rgba(0,0,0,0.5)] relative z-10">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tech-cyan to-purple-600"></div>
 
                 <div className="text-center">
-                    <div className="inline-flex p-3 bg-tech-cyan/10 rounded mb-4 border border-tech-cyan/20">
-                        <UserPlus className="text-tech-cyan" size={32} />
+                    <div className="inline-flex p-3 bg-tech-accent/10 rounded mb-4 border border-tech-accent/20">
+                        <ShieldCheck className="text-tech-accent" size={32} />
                     </div>
                     <h2 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
-                        Registro de Docente
+                        Registro de {inviteState.rol}
                     </h2>
-                    <p className="text-tech-muted mt-2 font-mono text-sm">Crea tu cuenta para comenzar la gestión académica.</p>
+                    <p className="text-tech-muted mt-2 font-mono text-sm">Invitación verificada. Completa tus datos.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Form Fields ... similar to before but email might be locked */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
@@ -145,11 +224,13 @@ const Register = () => {
                             name="email"
                             type="email"
                             required
+                            readOnly={!!inviteState.email}
                             placeholder="docente@escuela.edu.ar"
-                            className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
+                            className={`w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50 ${inviteState.email ? 'opacity-75 cursor-not-allowed' : ''}`}
                             value={formData.email}
                             onChange={handleChange}
                         />
+                        {inviteState.email && <span className="text-[10px] text-tech-accent block pt-1">* El correo está vinculado a la invitación</span>}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
