@@ -17,6 +17,8 @@ const GradeEntry = () => {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState(null);
+    const [focusMode, setFocusMode] = useState(false);
+    const [activeCell, setActiveCell] = useState({ row: 0, field: 'parcial_1' });
 
     useEffect(() => {
         if (profile?.id) fetchAssignments();
@@ -163,6 +165,42 @@ const GradeEntry = () => {
             return g;
         }));
     };
+
+    // Keyboard Navigation Logic
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.altKey && e.key.toLowerCase() === 'f') {
+                setFocusMode(prev => !prev);
+                return;
+            }
+
+            if (!selectedAssignment || grades.length === 0) return;
+
+            const fields = ['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4', 'asistencia', 'nota_intensificacion'];
+            const { row, field } = activeCell;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActiveCell(prev => ({ ...prev, row: Math.min(prev.row + 1, grades.length - 1) }));
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveCell(prev => ({ ...prev, row: Math.max(prev.row - 1, 0) }));
+            } else if (e.key === 'ArrowRight' && fields.indexOf(field) < fields.length - 1) {
+                // Only navigate if cursor is at the end or field is not a text input
+                setActiveCell(prev => ({ ...prev, field: fields[fields.indexOf(prev.field) + 1] }));
+            } else if (e.key === 'ArrowLeft' && fields.indexOf(field) > 0) {
+                setActiveCell(prev => ({ ...prev, field: fields[fields.indexOf(prev.field) - 1] }));
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                setActiveCell(prev => ({ ...prev, row: Math.min(prev.row + 1, grades.length - 1) }));
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedAssignment, grades.length, activeCell]);
+
+    const activeGrade = grades[activeCell.row];
 
     const [activeTemplate, setActiveTemplate] = useState(null); // { id, field }
 
@@ -352,6 +390,13 @@ const GradeEntry = () => {
                             </button>
                         </div>
                     )}
+                    <button
+                        onClick={() => setFocusMode(!focusMode)}
+                        className={`p-2 rounded border border-tech-surface transition-all ${focusMode ? 'bg-tech-cyan text-white border-tech-cyan shadow-[0_0_15px_rgba(14,165,233,0.4)]' : 'bg-tech-secondary text-tech-muted hover:text-tech-text'}`}
+                        title="Modo Focus (Alt+F)"
+                    >
+                        <Zap size={20} className={focusMode ? 'animate-pulse' : ''} />
+                    </button>
                     <ThemeToggle />
                 </div>
             </header>
@@ -688,6 +733,64 @@ const GradeEntry = () => {
                                 ))}
                             </div>
                         </div>
+
+                        {/* Focus Mode Overlay */}
+                        {focusMode && activeGrade && (
+                            <div className="fixed inset-0 z-[60] bg-tech-primary flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
+                                <div className="absolute top-8 right-8 flex gap-4">
+                                    <button
+                                        onClick={() => setFocusMode(false)}
+                                        className="p-3 bg-tech-secondary rounded-full border border-tech-surface text-tech-muted hover:text-tech-text transition-all"
+                                    >
+                                        <ArrowLeft size={24} />
+                                    </button>
+                                </div>
+
+                                <div className="w-full max-w-2xl space-y-8 text-center">
+                                    <div className="space-y-2">
+                                        <p className="text-tech-cyan font-mono text-sm uppercase tracking-[0.3em]">Modo Focus Activo</p>
+                                        <h2 className="text-4xl font-black text-tech-text uppercase tracking-tighter">
+                                            {activeGrade.student?.nombre}
+                                        </h2>
+                                        <p className="text-tech-muted font-mono">{activeCell.row + 1} de {grades.length} alumnos</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                        {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4', 'asistencia', 'nota_intensificacion'].map(field => (
+                                            <div key={field} className={`p-6 rounded-2xl border-2 transition-all ${activeCell.field === field ? 'bg-tech-secondary border-tech-cyan shadow-[0_0_30px_rgba(14,165,233,0.1)] scale-105' : 'bg-tech-primary/50 border-tech-surface opacity-50'}`}>
+                                                <p className="text-[10px] font-bold text-tech-muted uppercase mb-3 tracking-widest">{field.replace('_', ' ')}</p>
+                                                <input
+                                                    type="number"
+                                                    autoFocus={activeCell.field === field}
+                                                    value={activeGrade[field] === null ? '' : activeGrade[field]}
+                                                    onChange={e => handleGradeChange(activeGrade.alumno_id, field, e.target.value)}
+                                                    onFocus={() => setActiveCell({ row: activeCell.row, field })}
+                                                    className="w-full bg-transparent text-4xl font-black text-center text-tech-text outline-none focus:text-tech-cyan"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="pt-12 flex flex-col items-center gap-4">
+                                        <div className="flex gap-2 text-tech-muted font-mono text-[10px]">
+                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">↑</kbd>
+                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">↓</kbd>
+                                            <span>Navegar Alumnos</span>
+                                            <span className="mx-2">|</span>
+                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">TAB</kbd>
+                                            <span>Siguiente Campo</span>
+                                        </div>
+                                        <button
+                                            onClick={saveGrades}
+                                            disabled={saving}
+                                            className="px-8 py-4 bg-tech-cyan text-white rounded-xl font-bold uppercase tracking-widest shadow-xl hover:scale-105 transition-transform"
+                                        >
+                                            {saving ? 'Guardando...' : 'Finalizar Sesión Focus'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 

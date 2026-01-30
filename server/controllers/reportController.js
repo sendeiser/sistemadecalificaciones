@@ -1,8 +1,10 @@
 const { supabaseAdmin } = require('../config/supabaseClient');
 const PDFDocument = require('pdfkit');
 const { jsPDF } = require('jspdf');
-// In Node.js environment, jspdf-autotable might be in .default
 const autoTable = require('jspdf-autotable');
+const QRCode = require('qrcode');
+const CryptoJS = require('crypto-js');
+const { v4: uuidv4 } = require('uuid');
 
 // Helper to sanitize text for PDF
 const sanitize = (str) => str ? String(str).replace(/[^\x20-\x7E]/g, '') : '';
@@ -397,6 +399,29 @@ async function generateGradeReport(req, res) {
             tableWidth: 120
         });
 
+        // --- QR Validation Section ---
+        try {
+            const validationId = uuidv4();
+            const validationHash = CryptoJS.SHA256(validationId + asignacion.id).toString().slice(0, 16);
+            const validationUrl = `${req.protocol}://${req.get('host')}/verify/${validationHash}`;
+
+            const qrDataUrl = await QRCode.toDataURL(validationUrl);
+
+            await supabaseAdmin.from('document_validations').insert({
+                validation_hash: validationHash,
+                document_type: 'planilla_curso',
+                metadata: { division: asignacion.division.anio, materia: asignacion.materia.nombre },
+                created_by: req.user.id
+            });
+
+            doc.addImage(qrDataUrl, 'PNG', 260, 175, 25, 25);
+            doc.setFontSize(6);
+            doc.text(`ID: ${validationHash}`, 260, 202);
+            doc.text('Verificar Online', 260, 204);
+        } catch (qrErr) {
+            console.error('Error adding QR to course report:', qrErr);
+        }
+
         const pdfBuffer = doc.output('arraybuffer');
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=reporte_detallado.pdf');
@@ -749,8 +774,11 @@ async function generateStudentBulletinPDF(req, res) {
     const studentId = req.params.studentId || req.user.id;
     const { role } = req.user;
 
+    console.log(`[REPORT] generating bulletin for ${studentId} (Role: ${role})`);
+
     // Security check: Student can only see their own, Admin can see any
     if (role === 'alumno' && studentId !== req.user.id) {
+        console.warn(`[REPORT] Forbidden access to bulletin for ${studentId} by student ${req.user.id}`);
         return res.status(403).json({ error: 'No tienes permiso para ver este boletín.' });
     }
 
@@ -866,6 +894,35 @@ async function generateStudentBulletinPDF(req, res) {
 
             currentY += 15;
         });
+
+        // --- QR Validation Section for PDFKit ---
+        try {
+            const validationId = uuidv4();
+            const validationHash = CryptoJS.SHA256(validationId + studentId).toString().slice(0, 16);
+            const validationUrl = `${req.protocol}://${req.get('host')}/verify/${validationHash}`;
+
+            // QRCode.toDataURL returns a base64 string
+            const qrDataUrl = await QRCode.toDataURL(validationUrl);
+            const qrImageBase64 = qrDataUrl.replace(/^data:image\/png;base64,/, "");
+            const qrBuffer = Buffer.from(qrImageBase64, 'base64');
+
+            await supabaseAdmin.from('document_validations').insert({
+                validation_hash: validationHash,
+                document_type: 'boletin_alumno',
+                student_id: studentId,
+                metadata: { alumno: student.nombre, division: division.anio },
+                created_by: req.user.id
+            });
+
+            const qrSize = 60;
+            const bottomY = doc.page.height - 100;
+            doc.image(qrBuffer, 480, bottomY, { width: qrSize });
+            doc.fontSize(7).text(`ID: ${validationHash}`, 480, bottomY + qrSize + 2, { width: qrSize, align: 'center' });
+            doc.text('Validar Online', 480, bottomY + qrSize + 10, { width: qrSize, align: 'center' });
+
+        } catch (qrErr) {
+            console.error('Error adding QR to Bulletin:', qrErr);
+        }
 
         doc.end();
 

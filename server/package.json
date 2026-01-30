@@ -14,13 +14,16 @@
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.89.0",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "csv-parser": "^3.2.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.7",
     "multer": "^2.0.2",
-    "pdfkit": "^0.17.2"
+    "pdfkit": "^0.17.2",
+    "qrcode": "^1.5.4",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "jest": "^30.2.0",

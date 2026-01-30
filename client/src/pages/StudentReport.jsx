@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FileText, Download, ArrowLeft, GraduationCap, Clock, AlertCircle, BookOpen } from 'lucide-react';
+import { FileText, Download, ArrowLeft, GraduationCap, Clock, AlertCircle, BookOpen, Brain } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 import { getApiEndpoint } from '../utils/api';
 import { QRCodeSVG } from 'qrcode.react';
-import { QrCode } from 'lucide-react';
+import { QrCode, Sparkles, Award } from 'lucide-react';
+import AiInsights from '../components/AiInsights';
+import MedalBadge from '../components/MedalBadge';
 
 const StudentReport = () => {
     const { profile } = useAuth();
@@ -18,6 +20,9 @@ const StudentReport = () => {
     const [division, setDivision] = useState(null);
     const [studentInfo, setStudentInfo] = useState(null);
     const [showQR, setShowQR] = useState(false);
+    const [medals, setMedals] = useState([]);
+    const [aiData, setAiData] = useState(null);
+    const [aiLoading, setAiLoading] = useState(false);
 
     // Get student ID from URL parameter or use logged-in user's ID
     const studentId = searchParams.get('student_id') || profile?.id;
@@ -25,8 +30,66 @@ const StudentReport = () => {
     useEffect(() => {
         if (profile && studentId) {
             fetchData();
+            fetchMedals();
+            fetchExistingAiDiagnostic();
         }
     }, [profile, studentId]);
+
+    const fetchMedals = async () => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const res = await fetch(getApiEndpoint(`/gamification/medals/${studentId}`), {
+                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setMedals(data);
+            }
+        } catch (error) {
+            console.error('Error fetching medals:', error);
+        }
+    };
+
+    const fetchExistingAiDiagnostic = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('ai_diagnostics')
+                .select('*')
+                .eq('alumno_id', studentId)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            if (data) {
+                setAiData(data.recomendaciones);
+            }
+        } catch (error) {
+            console.error('Error fetching AI diagnostic:', error);
+        }
+    };
+
+    const generateAiDiagnostic = async () => {
+        setAiLoading(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const res = await fetch(getApiEndpoint(`/ai/diagnostics/${studentId}`), {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setAiData(data);
+            } else {
+                const err = await res.json();
+                alert(`${err.error || 'Error al generar diagnóstico'}${err.details ? ': ' + err.details : ''}`);
+            }
+        } catch (error) {
+            console.error('Error generating AI diagnostic:', error);
+            alert('Error de conexión con el servicio de IA');
+        } finally {
+            setAiLoading(false);
+        }
+    };
 
     const fetchData = async () => {
         try {
@@ -129,7 +192,7 @@ const StudentReport = () => {
         setDownloading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const endpoint = getApiEndpoint('/reports/bulletin');
+            const endpoint = getApiEndpoint(`/reports/bulletin/${studentId}`);
 
             const response = await fetch(endpoint, {
                 headers: {
@@ -244,6 +307,45 @@ const StudentReport = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Seccion de Logros */}
+                {medals.length > 0 && (
+                    <section className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-tech-accent/20 rounded-lg text-tech-accent">
+                                <Award size={24} />
+                            </div>
+                            <h2 className="text-xl font-black text-tech-text uppercase tracking-widest">Logros y Reconocimientos</h2>
+                        </div>
+                        <div className="flex flex-wrap gap-4">
+                            {medals.map((m, i) => (
+                                <MedalBadge key={i} medalKey={m.medal_key} />
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Seccion de IA para Docentes/Admin o Alumno */}
+                <section className="mb-10">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-tech-cyan/20 rounded-lg text-tech-cyan">
+                            <Sparkles size={24} />
+                        </div>
+                        <h2 className="text-xl font-black text-tech-text uppercase tracking-widest">Inteligencia Educativa</h2>
+                    </div>
+                    {(!aiData && profile.rol === 'alumno') ? (
+                        <div className="p-8 bg-tech-secondary/30 rounded-3xl border border-tech-surface border-dashed text-center">
+                            <Brain className="mx-auto text-tech-muted mb-4 opacity-50" size={48} />
+                            <p className="text-tech-muted font-mono text-sm uppercase">El equipo docente aún no ha generado un diagnóstico pedagógico para tu perfil.</p>
+                        </div>
+                    ) : (
+                        <AiInsights
+                            data={aiData}
+                            loading={aiLoading}
+                            onGenerate={generateAiDiagnostic}
+                        />
+                    )}
+                </section>
                 <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-xl">
                     <div className="p-4 bg-tech-primary/50 border-b border-tech-surface">
                         <h2 className="text-xl font-bold text-tech-text uppercase tracking-wider flex items-center gap-2">
