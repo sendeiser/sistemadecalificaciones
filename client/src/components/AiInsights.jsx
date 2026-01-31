@@ -17,23 +17,28 @@ const AiInsights = ({ data, loading, onGenerate }) => {
 
     if (!data) {
         return (
-            <div className="glass-panel p-8 rounded-3xl border border-tech-surface bg-tech-secondary/30 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
+            <div className="glass-panel p-8 rounded-3xl border border-tech-surface bg-tech-secondary/30 flex flex-col items-center text-center justify-center gap-6">
+                <div className="flex flex-col items-center gap-4">
                     <div className="p-4 bg-tech-cyan/10 rounded-2xl">
                         <Brain className="text-tech-cyan" size={32} />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-tech-text">Análisis Pedagógico IA</h3>
-                        <p className="text-tech-muted text-sm font-mono">Genera recomendaciones inteligentes basadas en datos reales.</p>
+                        <h4 className="text-2xl font-black text-tech-text tracking-tighter uppercase mb-2">Análisis de Desempeño</h4>
+                        <p className="text-tech-muted mb-8 leading-relaxed font-mono text-sm max-w-xl mx-auto">
+                            Nuestro motor pedagógico analiza notas y asistencia para proporcionar una visión clara del progreso del alumno.
+                        </p>
+                        <button
+                            onClick={onGenerate}
+                            className="group relative px-8 py-4 bg-tech-cyan text-white rounded-xl font-bold uppercase tracking-widest hover:shadow-[0_0_30px_rgba(14,165,233,0.3)] transition-all overflow-hidden"
+                        >
+                            <span className="relative z-10 flex items-center gap-2">
+                                <Sparkles size={18} />
+                                Generar Diagnóstico
+                            </span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        </button>
                     </div>
                 </div>
-                <button
-                    onClick={onGenerate}
-                    className="px-6 py-3 bg-tech-cyan text-white rounded-xl font-bold flex items-center gap-2 hover:bg-sky-600 transition-all shadow-lg hover:shadow-tech-cyan/20 active:scale-95"
-                >
-                    <Sparkles size={18} />
-                    Generar Diagnóstico
-                </button>
             </div>
         );
     }
@@ -70,10 +75,10 @@ const AiInsights = ({ data, loading, onGenerate }) => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <section className="space-y-4">
-                    <h4 className="text-sm font-bold text-tech-cyan uppercase tracking-widest flex items-center gap-2">
-                        <Brain size={16} />
-                        Análisis Académico
-                    </h4>
+                    <h3 className="text-sm font-bold text-tech-cyan flex items-center gap-2">
+                        <Sparkles size={16} />
+                        ANÁLISIS PEDAGÓGICO
+                    </h3>
                     <p className="text-tech-text leading-relaxed font-medium bg-tech-primary/30 p-4 rounded-2xl border border-tech-surface">
                         {analisis}
                     </p>

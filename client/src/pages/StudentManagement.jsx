@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Pencil, Trash2, X, Check, Search, Save, ArrowLeft, FileText, Upload } from 'lucide-react';
+import { Users, Plus, Pencil, Trash2, X, Check, Search, Save, ArrowLeft, FileText, Upload, Link2, UserRound } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import CSVImporter from '../components/CSVImporter';
 
@@ -23,6 +23,12 @@ const StudentManagement = () => {
         email: '',
         password: ''
     });
+
+    // Tutor Linking State
+    const [tutorModal, setTutorModal] = useState({ isOpen: false, student: null });
+    const [linkedTutors, setLinkedTutors] = useState([]);
+    const [allTutors, setAllTutors] = useState([]);
+    const [tutorSearch, setTutorSearch] = useState('');
 
     useEffect(() => {
         fetchStudents();
@@ -171,6 +177,56 @@ const StudentManagement = () => {
             email: student.email || '',
             password: '' // No editamos password aquí
         });
+    };
+
+    // Tutor Linking Functions
+    const openTutorModal = async (student) => {
+        setTutorModal({ isOpen: true, student });
+        fetchLinkedTutors(student.id);
+        fetchAllTutors();
+    };
+
+    const fetchLinkedTutors = async (studentId) => {
+        const { data, error } = await supabase
+            .from('tutores_alumnos')
+            .select('*, tutor:perfiles!tutor_id(*)')
+            .eq('alumno_id', studentId);
+        if (data) setLinkedTutors(data);
+    };
+
+    const fetchAllTutors = async () => {
+        const { data, error } = await supabase
+            .from('perfiles')
+            .select('*')
+            .eq('rol', 'tutor')
+            .order('nombre');
+        if (data) setAllTutors(data);
+    };
+
+    const handleLinkTutor = async (tutorId) => {
+        const parentesco = prompt('Relación (Ej: Padre, Madre, Tío):', 'Padre/Madre');
+        if (!parentesco) return;
+
+        const { error } = await supabase
+            .from('tutores_alumnos')
+            .insert({
+                tutor_id: tutorId,
+                alumno_id: tutorModal.student.id,
+                parentesco
+            });
+
+        if (error) alert('Error: ' + error.message);
+        else fetchLinkedTutors(tutorModal.student.id);
+    };
+
+    const handleUnlinkTutor = async (id) => {
+        if (!confirm('¿Desvincular tutor?')) return;
+        const { error } = await supabase
+            .from('tutores_alumnos')
+            .delete()
+            .eq('id', id);
+        if (error) alert('Error: ' + error.message);
+        else fetchLinkedTutors(tutorModal.student.id);
     };
 
     const filteredStudents = students.filter(s =>
@@ -407,6 +463,7 @@ const StudentManagement = () => {
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Nombre</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">DNI</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Email</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest text-center">Tutores</th>
                                     <th className="p-4 text-center uppercase text-[10px] font-bold tracking-widest">Acciones</th>
                                 </tr>
                             </thead>
@@ -453,6 +510,15 @@ const StudentManagement = () => {
                                             ) : (
                                                 <span className="text-tech-muted font-mono text-sm">{s.email || '-'}</span>
                                             )}
+                                        </td>
+                                        <td className="p-4 text-center">
+                                            <button
+                                                onClick={() => openTutorModal(s)}
+                                                className="p-1.5 text-tech-accent hover:bg-tech-accent/10 rounded-full transition-all"
+                                                title="Gestionar Tutores"
+                                            >
+                                                <UserRound size={18} />
+                                            </button>
                                         </td>
                                         <td className="p-4 text-center">
                                             <div className="flex justify-center gap-2">
@@ -557,6 +623,87 @@ const StudentManagement = () => {
                     </p>
                 </div>
             </div>
+            {/* Modal de Gestión de Tutores */}
+            {tutorModal.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-tech-secondary w-full max-w-2xl rounded-3xl border border-tech-surface shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                        <header className="p-6 border-b border-tech-surface flex justify-between items-center bg-tech-primary/50">
+                            <div>
+                                <h3 className="text-xl font-bold uppercase tracking-tight">Gestionar Tutores</h3>
+                                <p className="text-tech-muted text-xs font-mono uppercase mt-1">Alumno: <span className="text-tech-cyan">{tutorModal.student.nombre}</span></p>
+                            </div>
+                            <button onClick={() => setTutorModal({ isOpen: false, student: null })} className="p-2 hover:bg-tech-surface rounded-full transition-colors">
+                                <X size={24} />
+                            </button>
+                        </header>
+
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                            {/* Vinculados */}
+                            <section>
+                                <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <Check className="text-tech-success" size={14} /> Tutores Vinculados
+                                </h4>
+                                <div className="space-y-3">
+                                    {linkedTutors.length === 0 ? (
+                                        <p className="text-xs text-tech-muted italic p-4 border border-dashed border-tech-surface rounded-xl">Sin tutores asociados.</p>
+                                    ) : linkedTutors.map(lt => (
+                                        <div key={lt.id} className="p-3 bg-tech-primary/50 rounded-xl border border-tech-surface flex justify-between items-center group">
+                                            <div>
+                                                <p className="text-sm font-bold">{lt.tutor?.nombre}</p>
+                                                <p className="text-[10px] text-tech-cyan uppercase font-mono">{lt.parentesco}</p>
+                                            </div>
+                                            <button onClick={() => handleUnlinkTutor(lt.id)} className="p-1.5 text-tech-danger opacity-0 group-hover:opacity-100 hover:bg-tech-danger/10 rounded-lg transition-all">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+
+                            {/* Buscar y Vincular */}
+                            <section>
+                                <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <Search className="text-tech-cyan" size={14} /> Buscar Tutor
+                                </h4>
+                                <div className="relative mb-4">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={14} />
+                                    <input
+                                        type="text"
+                                        placeholder="Nombre o DNI..."
+                                        className="w-full pl-9 pr-3 py-2 bg-tech-primary border border-tech-surface rounded-xl text-xs focus:ring-1 focus:ring-tech-cyan outline-none transition-all"
+                                        value={tutorSearch}
+                                        onChange={(e) => setTutorSearch(e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                    {allTutors
+                                        .filter(t => t.nombre.toLowerCase().includes(tutorSearch.toLowerCase()))
+                                        .filter(t => !linkedTutors.some(lt => lt.tutor_id === t.id))
+                                        .map(t => (
+                                            <div key={t.id} className="p-2 hover:bg-tech-surface rounded-lg border border-transparent hover:border-tech-surface flex justify-between items-center cursor-pointer transition-colors"
+                                                onClick={() => handleLinkTutor(t.id)}>
+                                                <div>
+                                                    <p className="text-xs font-bold">{t.nombre}</p>
+                                                    <p className="text-[9px] text-tech-muted font-mono">DNI: {t.dni}</p>
+                                                </div>
+                                                <Link2 size={14} className="text-tech-muted group-hover:text-tech-cyan" />
+                                            </div>
+                                        ))}
+                                </div>
+                            </section>
+                        </div>
+
+                        <footer className="p-6 bg-tech-primary/30 border-t border-tech-surface flex justify-end">
+                            <button
+                                onClick={() => setTutorModal({ isOpen: false, student: null })}
+                                className="px-6 py-2 bg-tech-surface hover:bg-tech-primary rounded-xl font-bold uppercase text-xs tracking-widest transition-colors"
+                            >
+                                Cerrar
+                            </button>
+                        </footer>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

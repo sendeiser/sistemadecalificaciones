@@ -22,6 +22,10 @@ const Dashboard = () => {
     const [medals, setMedals] = useState([]);
 
     React.useEffect(() => {
+        if (profile?.rol === 'tutor') {
+            navigate('/tutor');
+            return;
+        }
         if (profile?.rol === 'alumno') {
             checkAchievements();
             fetchMedals();

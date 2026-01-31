@@ -21,7 +21,9 @@ import AdminAttendanceReport from './pages/AdminAttendanceReport';
 import Welcome from './pages/Welcome';
 import StudentReport from './pages/StudentReport';
 import MassJustification from './pages/MassJustification';
+import MobileJustification from './pages/MobileJustification';
 import AttendanceAlerts from './pages/AttendanceAlerts';
+import ParentDashboard from './pages/ParentDashboard';
 import AttendanceDiscrepancies from './pages/AttendanceDiscrepancies';
 import Calendar from './pages/Calendar';
 import Announcements from './pages/Announcements';
@@ -143,21 +145,15 @@ function AnimatedRoutes() {
             <PageTransition><AttendanceCapture /></PageTransition>
           </ProtectedRoute>
         } />
-        <Route path="/admin/reports/attendance" element={
-          <ProtectedRoute>
-            <PageTransition><AdminAttendanceReport /></PageTransition>
-          </ProtectedRoute>
-        } />
+        <Route path="/admin/reports/attendance" element={<ProtectedRoute allowedRoles={['admin', 'preceptor']}><PageTransition><AdminAttendanceReport /></PageTransition></ProtectedRoute>} />
+        <Route path="/tutor" element={<ProtectedRoute allowedRoles={['tutor']}><PageTransition><ParentDashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/tutor/justification" element={<ProtectedRoute allowedRoles={['tutor']}><PageTransition><MobileJustification /></PageTransition></ProtectedRoute>} />
         <Route path="/teacher/reports" element={
           <ProtectedRoute>
             <PageTransition><TeacherReports /></PageTransition>
           </ProtectedRoute>
         } />
-        <Route path="/student/report" element={
-          <ProtectedRoute>
-            <PageTransition><StudentReport /></PageTransition>
-          </ProtectedRoute>
-        } />
+        <Route path="/student/report" element={<ProtectedRoute allowedRoles={['admin', 'docente', 'alumno', 'preceptor', 'tutor']}><PageTransition><StudentReport /></PageTransition></ProtectedRoute>} />
         <Route path="/admin/mass-justification" element={
           <ProtectedRoute>
             <PageTransition><MassJustification /></PageTransition>

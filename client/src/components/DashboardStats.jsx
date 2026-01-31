@@ -278,6 +278,41 @@ const DashboardStats = ({ role, profileId }) => {
         );
     }
 
+    if (role === 'tutor') {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <Users size={64} />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="p-4 bg-tech-cyan/20 text-tech-cyan rounded-xl">
+                            <Users size={28} />
+                        </div>
+                        <div>
+                            <p className="text-tech-muted text-[10px] font-bold uppercase tracking-widest">Estudiantes a Cargo</p>
+                            <h3 className="text-4xl font-black text-tech-text font-mono tracking-tighter">{stats.studentCount || '...'}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <TrendingUp size={64} />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="p-4 bg-tech-success/20 text-tech-success rounded-xl">
+                            <TrendingUp size={28} />
+                        </div>
+                        <div>
+                            <p className="text-tech-muted text-[10px] font-bold uppercase tracking-widest">Monitoreo Activo</p>
+                            <h3 className="text-4xl font-black text-tech-text font-mono tracking-tighter">100%</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return null;
 };
 

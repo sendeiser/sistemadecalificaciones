@@ -122,6 +122,7 @@ const AdminUserManagement = () => {
                                     className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm focus:border-tech-cyan outline-none text-tech-text"
                                 >
                                     <option value="docente">Docente</option>
+                                    <option value="tutor">Tutor (Padre/Madre)</option>
                                     <option value="preceptor">Preceptor (Admin)</option>
                                     <option value="admin">Administrador (Total)</option>
                                 </select>
@@ -186,7 +187,7 @@ const AdminUserManagement = () => {
                         </div>
 
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">                                
+                            <table className="w-full text-left border-collapse">
                                 <thead className="bg-tech-primary/50 text-tech-muted text-xs uppercase tracking-wider font-mono">
                                     <tr>
                                         <th className="p-4 border-b border-tech-surface">Rol</th>
@@ -205,6 +206,7 @@ const AdminUserManagement = () => {
                                         <tr key={inv.token} className="border-b border-tech-surface hover:bg-tech-surface/30 transition-colors">
                                             <td className="p-4 font-bold">
                                                 <span className={`px-2 py-1 rounded text-[10px] uppercase border ${inv.rol === 'admin' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                                    inv.rol === 'tutor' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
                                                         inv.rol === 'preceptor' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
                                                             'bg-cyan-500/10 text-cyan-500 border-cyan-500/20'
                                                     }`}>
