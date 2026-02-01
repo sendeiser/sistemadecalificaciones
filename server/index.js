@@ -31,41 +31,37 @@ app.use('/api/gamification', require('./routes/gamification'));
 app.use('/api/verify', require('./routes/verify'));
 app.use('/api', require('./routes/auth-admin'));
 
-// Redirect QR code scans ONLY on localhost for dev testing
-// In production, the frontend handles /verify/:hash directly if it's a SPA
-app.get('/verify/:hash', (req, res, next) => {
-  const host = req.get('host');
+// Redirect QR code scans to the frontend (Netlify)
+app.get('/verify/:hash', (req, res) => {
   const { hash } = req.params;
+  const host = req.get('host');
 
-  // If it's localhost:5000, redirect to localhost:5173
+  // 1. Dev Redirect (Localhost)
   if (host.includes('localhost:5000')) {
     return res.redirect(`http://localhost:5173/verify/${hash}`);
   }
 
-  // If FRONTEND_URL is set and it's different from the current host, redirect to it
-  if (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes(host)) {
-    return res.redirect(`${process.env.FRONTEND_URL}/verify/${hash}`);
+  // 2. Production Redirect (via FRONTEND_URL environment variable)
+  if (process.env.FRONTEND_URL) {
+    const baseUrl = process.env.FRONTEND_URL.replace(/\/$/, ""); // Remove trailing slash if present
+    return res.redirect(`${baseUrl}/verify/${hash}`);
   }
 
-  // Otherwise, let it pass to static serving or catch-all
-  next();
+  // 3. Fallback: Friendly alert if FRONTEND_URL is not set
+  res.status(404).send(`
+    <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+      <h2 style="color: #06b6d4;">Sistema de Verificación Edumate</h2>
+      <p>Error: No se ha configurado la URL del frontend (FRONTEND_URL) en el servidor de Render.</p>
+      <p>Hash del documento: <code>${hash}</code></p>
+      <hr style="width: 200px; margin: 20px auto;">
+      <p style="font-size: 12px; color: #666;">Por favor, configure FRONTEND_URL en el panel de Render.</p>
+    </div>
+  `);
 });
 
 // Simple health check route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
-});
-
-// Serve static files from the client/dist folder
-app.use(express.static(path.join(__dirname, '../client/dist')));
-
-// SPA Fallback: Serve index.html for any route that doesn't match an API route
-app.get('*', (req, res) => {
-  // If the request is for an API route but reached here, it's a 404 for API
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ error: 'API route not found' });
-  }
-  res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
 });
 
 if (require.main === module) {
