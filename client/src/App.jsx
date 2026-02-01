@@ -200,6 +200,7 @@ function AnimatedRoutes() {
               <PageTransition><AdminUserManagement /></PageTransition>
             </ProtectedRoute>
           } />
+          <Route path="/verify/:hash" element={<PageTransition><VerifyDocument /></PageTransition>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>

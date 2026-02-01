@@ -30,6 +30,21 @@ app.use('/api/gamification', require('./routes/gamification'));
 app.use('/api/verify', require('./routes/verify'));
 app.use('/api', require('./routes/auth-admin'));
 
+// Redirect QR code scans to the frontend
+app.get('/verify/:hash', (req, res) => {
+  const { hash } = req.params;
+  const host = req.get('host');
+
+  // If it's localhost:5000, redirect to localhost:5173 (standard Vite port)
+  if (host.includes('localhost:5000')) {
+    return res.redirect(`http://localhost:5173/verify/${hash}`);
+  }
+
+  // Otherwise, redirect to the same host (relative redirect)
+  // This helps in production or if the ports are the same.
+  res.redirect(`/verify/${hash}`);
+});
+
 // Simple health check route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
