@@ -400,7 +400,10 @@ async function generateGradeReport(req, res) {
         try {
             const validationId = uuidv4();
             const validationHash = CryptoJS.SHA256(validationId + asignacion.id).toString().slice(0, 16);
-            const validationUrl = `${req.protocol}://${req.get('host')}/verify/${validationHash}`;
+
+            // Use FRONTEND_URL from env if available, otherwise fallback to current host
+            const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+            const validationUrl = `${baseUrl}/verify/${validationHash}`;
 
             const qrDataUrl = await QRCode.toDataURL(validationUrl);
 
@@ -896,7 +899,10 @@ async function generateStudentBulletinPDF(req, res) {
         try {
             const validationId = uuidv4();
             const validationHash = CryptoJS.SHA256(validationId + studentId).toString().slice(0, 16);
-            const validationUrl = `${req.protocol}://${req.get('host')}/verify/${validationHash}`;
+
+            // Use FRONTEND_URL from env if available, otherwise fallback to current host
+            const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+            const validationUrl = `${baseUrl}/verify/${validationHash}`;
 
             // QRCode.toDataURL returns a base64 string
             const qrDataUrl = await QRCode.toDataURL(validationUrl);

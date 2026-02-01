@@ -35,12 +35,19 @@ app.use('/api', require('./routes/auth-admin'));
 // In production, the frontend handles /verify/:hash directly if it's a SPA
 app.get('/verify/:hash', (req, res, next) => {
   const host = req.get('host');
+  const { hash } = req.params;
+
+  // If it's localhost:5000, redirect to localhost:5173
   if (host.includes('localhost:5000')) {
-    const { hash } = req.params;
     return res.redirect(`http://localhost:5173/verify/${hash}`);
   }
-  // If not localhost:5000, let it pass (it might be handled by static serving or a 404)
-  // CRITICAL: We don't res.redirect('/verify/...') here because it causes infinite loops
+
+  // If FRONTEND_URL is set and it's different from the current host, redirect to it
+  if (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes(host)) {
+    return res.redirect(`${process.env.FRONTEND_URL}/verify/${hash}`);
+  }
+
+  // Otherwise, let it pass to static serving or catch-all
   next();
 });
 
