@@ -89,7 +89,7 @@ const GradeReport = () => {
 
     const exportCSV = () => {
         if (report.length === 0) return alert('No hay datos para exportar');
-        const headers = ['N°', 'Estudiante', 'Perio. Intif', 'Logros Intif.', 'P1', 'P2', 'P3', 'P4', 'Promedio Parcial', 'Logros Prom.', '% Asist', 'Trayecto de Acompañamiento', 'Logros Tray.', 'Observaciones', 'Promedio General'];
+        const headers = ['N°', 'Estudiante', 'Perio. Intif', 'Logros Intif.', 'P1', 'P2', 'P3', 'P4', 'Promedio Parcial', 'Logros Prom.', '% Asist', 'Trayecto de Acompañamiento', 'Observaciones', 'Promedio General'];
         const rows = report.map((r, index) => [
             index + 1,
             r.nombre,
@@ -103,7 +103,7 @@ const GradeReport = () => {
             r.logro_promedio ?? '',
             r.asistencia_porc !== '-' ? r.asistencia_porc + '%' : '-',
             r.trayecto_acompanamiento ?? '',
-            r.logro_trayecto ?? '',
+
             r.observaciones ?? '',
             r.promedio_general ?? ''
         ]);
@@ -271,7 +271,6 @@ const GradeReport = () => {
                                         <th className="p-3 border border-tech-surface text-center text-[10px]">Logro</th>
                                         <th className="p-3 border border-tech-surface text-center text-[10px]">% Asist</th>
                                         <th className="p-3 border border-tech-surface text-center text-tech-cyan text-[10px]">Trayecto</th>
-                                        <th className="p-3 border border-tech-surface text-center text-tech-cyan text-[10px]">Logro</th>
                                         <th className="p-3 border border-tech-surface text-center text-[10px]">Observ.</th>
                                         <th className="p-3 border border-tech-surface text-center font-bold text-tech-success text-[10px]">Prom. Gral</th>
                                     </tr>
@@ -302,9 +301,7 @@ const GradeReport = () => {
                                             <td className="p-3 border border-tech-surface text-center font-mono text-[10px] font-bold text-tech-cyan uppercase max-w-[120px] truncate">
                                                 {r.trayecto_acompanamiento ?? '-'}
                                             </td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-[10px] text-tech-cyan bg-tech-cyan/5">
-                                                {r.logro_trayecto || '-'}
-                                            </td>
+
                                             <td className="p-3 border border-tech-surface text-center font-mono text-[10px] text-tech-muted italic">
                                                 {r.observaciones || '-'}
                                             </td>
@@ -362,7 +359,7 @@ const GradeReport = () => {
                                         </div>
                                         <div className="flex flex-col items-center justify-center bg-tech-cyan/10 p-2 rounded">
                                             <span className="text-[8px] text-tech-muted uppercase font-bold">Trayecto</span>
-                                            <span className="font-mono font-bold text-tech-cyan truncate w-full text-center">{r.logro_trayecto || r.trayecto_acompanamiento || '-'}</span>
+                                            <span className="font-mono font-bold text-tech-cyan truncate w-full text-center">{r.trayecto_acompanamiento || '-'}</span>
                                         </div>
                                     </div>
                                 </div>

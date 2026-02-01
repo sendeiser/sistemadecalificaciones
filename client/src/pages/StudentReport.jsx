@@ -366,6 +366,7 @@ const StudentReport = () => {
                                     <th className="p-4 text-center">P4</th>
                                     <th className="p-4 text-center">Promedio</th>
                                     <th className="p-4 text-center">Final</th>
+                                    <th className="p-4">Observaciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-tech-surface">
@@ -385,12 +386,15 @@ const StudentReport = () => {
                                             <td className={`p-4 text-center font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-cyan'}`}>
                                                 {avg}
                                             </td>
+                                            <td className="p-4 text-sm text-tech-muted italic max-w-xs truncate" title={g.trayecto}>
+                                                {g.trayecto}
+                                            </td>
                                         </tr>
                                     );
                                 })}
                                 {grades.length === 0 && (
                                     <tr>
-                                        <td colSpan="7" className="p-12 text-center text-tech-muted font-mono uppercase tracking-widest">
+                                        <td colSpan="8" className="p-12 text-center text-tech-muted font-mono uppercase tracking-widest">
                                             No hay calificaciones registradas.
                                         </td>
                                     </tr>
@@ -437,6 +441,12 @@ const StudentReport = () => {
                                             <span className={`font-bold font-mono ${avg !== '-' && Number(avg) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>{avg}</span>
                                         </div>
                                     </div>
+
+                                    {g.trayecto && g.trayecto !== '-' && (
+                                        <div className="text-xs text-tech-muted italic bg-tech-primary/20 p-2 rounded">
+                                            "{g.trayecto}"
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}

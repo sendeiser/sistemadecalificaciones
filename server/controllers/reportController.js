@@ -316,7 +316,6 @@ async function generateGradeReport(req, res) {
                     { content: 'Logros', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: '% Asist', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'Trayecto de\nAcompañamiento', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Logros', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'Observaciones', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'Promedio\nGeneral', rowSpan: 2, styles: { valign: 'middle' } },
                 ],
@@ -335,7 +334,6 @@ async function generateGradeReport(req, res) {
                 s.logro_promedio || '',
                 s.asistencia !== '-' ? s.asistencia + '%' : '-',
                 s.trayecto || '',
-                s.logro_trayecto || '',
                 s.observaciones || '',
                 s.promedio_general || ''
             ]),
@@ -367,9 +365,8 @@ async function generateGradeReport(req, res) {
                 9: { cellWidth: 15 }, // Logro Prom
                 10: { cellWidth: 15 }, // % Asist
                 11: { cellWidth: 45 }, // Trayecto
-                12: { cellWidth: 15 }, // Logro Trayecto
-                13: { cellWidth: 35 }, // Observaciones
-                14: { cellWidth: 15 }, // Prom General
+                12: { cellWidth: 35 }, // Observaciones
+                13: { cellWidth: 15 }, // Prom General
             },
             theme: 'grid'
         });
@@ -858,8 +855,8 @@ async function generateStudentBulletinPDF(req, res) {
         doc.moveDown();
 
         const tableTop = doc.y;
-        const colWidths = [180, 40, 40, 40, 40, 50];
-        const colX = [40, 220, 260, 300, 340, 380];
+        const colWidths = [140, 35, 35, 35, 35, 45, 100];
+        const colX = [40, 180, 215, 250, 285, 320, 365];
 
         // Headers
         doc.font('Helvetica-Bold');
@@ -869,6 +866,7 @@ async function generateStudentBulletinPDF(req, res) {
         doc.text('P3', colX[3], tableTop);
         doc.text('P4', colX[4], tableTop);
         doc.text('Prom', colX[5], tableTop);
+        doc.text('Trayecto', colX[6], tableTop);
         doc.moveDown();
         doc.font('Helvetica');
 
@@ -883,12 +881,13 @@ async function generateStudentBulletinPDF(req, res) {
                 doc.save().fillColor('#f9f9f9').rect(40, currentY - 2, 515, 14).fill().restore();
             }
 
-            doc.text(sanitize(row.materia).substring(0, 40), colX[0], currentY);
+            doc.text(sanitize(row.materia).substring(0, 30), colX[0], currentY);
             doc.text(row.parcial_1, colX[1], currentY);
             doc.text(row.parcial_2, colX[2], currentY);
             doc.text(row.parcial_3, colX[3], currentY);
             doc.text(row.parcial_4, colX[4], currentY);
             doc.text(row.promedio, colX[5], currentY);
+            doc.text(sanitize(row.trayecto).substring(0, 20), colX[6], currentY);
 
             currentY += 15;
         });
