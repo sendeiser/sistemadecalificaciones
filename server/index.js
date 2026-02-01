@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -46,6 +47,18 @@ app.get('/verify/:hash', (req, res, next) => {
 // Simple health check route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Serve static files from the client/dist folder
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// SPA Fallback: Serve index.html for any route that doesn't match an API route
+app.get('*', (req, res) => {
+  // If the request is for an API route but reached here, it's a 404 for API
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'API route not found' });
+  }
+  res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
 });
 
 if (require.main === module) {
