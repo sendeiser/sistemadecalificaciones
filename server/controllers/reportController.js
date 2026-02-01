@@ -858,8 +858,8 @@ async function generateStudentBulletinPDF(req, res) {
         doc.moveDown();
 
         const tableTop = doc.y;
-        const colWidths = [140, 35, 35, 35, 35, 45, 100];
-        const colX = [40, 180, 215, 250, 285, 320, 365];
+        const colWidths = [180, 40, 40, 40, 40, 50];
+        const colX = [40, 220, 260, 300, 340, 380];
 
         // Headers
         doc.font('Helvetica-Bold');
@@ -869,7 +869,6 @@ async function generateStudentBulletinPDF(req, res) {
         doc.text('P3', colX[3], tableTop);
         doc.text('P4', colX[4], tableTop);
         doc.text('Prom', colX[5], tableTop);
-        doc.text('Trayecto', colX[6], tableTop);
         doc.moveDown();
         doc.font('Helvetica');
 
@@ -884,13 +883,12 @@ async function generateStudentBulletinPDF(req, res) {
                 doc.save().fillColor('#f9f9f9').rect(40, currentY - 2, 515, 14).fill().restore();
             }
 
-            doc.text(sanitize(row.materia).substring(0, 30), colX[0], currentY);
+            doc.text(sanitize(row.materia).substring(0, 40), colX[0], currentY);
             doc.text(row.parcial_1, colX[1], currentY);
             doc.text(row.parcial_2, colX[2], currentY);
             doc.text(row.parcial_3, colX[3], currentY);
             doc.text(row.parcial_4, colX[4], currentY);
             doc.text(row.promedio, colX[5], currentY);
-            doc.text(sanitize(row.trayecto).substring(0, 20), colX[6], currentY);
 
             currentY += 15;
         });
