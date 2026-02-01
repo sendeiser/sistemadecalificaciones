@@ -385,7 +385,7 @@ async function generateGradeReport(req, res) {
 
         // Footer table for stats (Cant. De Est. Acreditación, etc.)
         generateAutoTable({
-            startY: finalY + 10,
+            startY: sigY + 10,
             head: [['Cant. De Est. Acreditación', 'Cant. De Est. Acompañamiento']],
             body: [['', '']], // Fill with logic if needed
             theme: 'grid',
