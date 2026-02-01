@@ -30,19 +30,17 @@ app.use('/api/gamification', require('./routes/gamification'));
 app.use('/api/verify', require('./routes/verify'));
 app.use('/api', require('./routes/auth-admin'));
 
-// Redirect QR code scans to the frontend
-app.get('/verify/:hash', (req, res) => {
-  const { hash } = req.params;
+// Redirect QR code scans ONLY on localhost for dev testing
+// In production, the frontend handles /verify/:hash directly if it's a SPA
+app.get('/verify/:hash', (req, res, next) => {
   const host = req.get('host');
-
-  // If it's localhost:5000, redirect to localhost:5173 (standard Vite port)
   if (host.includes('localhost:5000')) {
+    const { hash } = req.params;
     return res.redirect(`http://localhost:5173/verify/${hash}`);
   }
-
-  // Otherwise, redirect to the same host (relative redirect)
-  // This helps in production or if the ports are the same.
-  res.redirect(`/verify/${hash}`);
+  // If not localhost:5000, let it pass (it might be handled by static serving or a 404)
+  // CRITICAL: We don't res.redirect('/verify/...') here because it causes infinite loops
+  next();
 });
 
 // Simple health check route
