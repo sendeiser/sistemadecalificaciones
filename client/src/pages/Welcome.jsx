@@ -80,8 +80,7 @@ const Welcome = () => {
                 >
                     <motion.div
                         variants={itemVariants}
-                        whileHover={{ rotate: 5, scale: 1.1 }}
-                        className="p-5 bg-tech-cyan/10 rounded-2xl border border-tech-cyan/20 mb-8 backdrop-blur-sm shadow-[0_0_30px_rgba(14,165,233,0.1)]"
+                        className="p-5 bg-tech-cyan/10 rounded-2xl border border-tech-cyan/20 mb-8 shadow-[0_0_30px_rgba(14,165,233,0.1)]"
                     >
                         <School className="text-tech-cyan" size={56} />
                     </motion.div>
@@ -106,13 +105,12 @@ const Welcome = () => {
 
                     <motion.button
                         variants={itemVariants}
-                        whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(14,165,233,0.4)' }}
-                        whileTap={{ scale: 0.95 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={handleAccess}
                         className="flex items-center gap-3 px-10 py-5 bg-tech-cyan text-white rounded-lg font-black text-xl transition-all uppercase tracking-widest group border border-white/10"
                     >
                         {profile ? 'Entrar al Command Center' : 'Iniciar Sesión'}
-                        <ArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
+                        <ArrowRight className="transition-transform duration-300" />
                     </motion.button>
                 </motion.div>
             </section>
@@ -126,7 +124,7 @@ const Welcome = () => {
                 className="max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 md:grid-cols-3 gap-10 text-tech-text"
             >
                 {/* Admin Card */}
-                <motion.div variants={itemVariants} className="bg-tech-secondary/40 backdrop-blur-md rounded-2xl border border-tech-surface p-10 hover:border-tech-cyan/50 transition-all group flex flex-col h-full hover:shadow-[0_20px_50px_rgba(14,165,233,0.1)] relative overflow-hidden">
+                <motion.div variants={itemVariants} className="bg-tech-secondary/40 rounded-2xl border border-tech-surface p-10 transition-all group flex flex-col h-full relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-tech-cyan/5 blur-3xl -mr-10 -mt-10 group-hover:bg-tech-cyan/10 transition-colors"></div>
                     <div className="flex items-center gap-4 mb-8">
                         <div className="p-4 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 transition-colors">
@@ -151,7 +149,7 @@ const Welcome = () => {
                 </motion.div>
 
                 {/* Teacher Card */}
-                <motion.div variants={itemVariants} className="bg-tech-secondary/40 backdrop-blur-md rounded-2xl border border-tech-surface p-10 hover:border-tech-success/50 transition-all group flex flex-col h-full hover:shadow-[0_20px_50px_rgba(16,185,129,0.1)] relative overflow-hidden">
+                <motion.div variants={itemVariants} className="bg-tech-secondary/40 rounded-2xl border border-tech-surface p-10 transition-all group flex flex-col h-full relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-tech-success/5 blur-3xl -mr-10 -mt-10 group-hover:bg-tech-success/10 transition-colors"></div>
                     <div className="flex items-center gap-4 mb-8">
                         <div className="p-4 bg-tech-success/10 rounded-xl group-hover:bg-tech-success/20 transition-colors">
@@ -172,7 +170,7 @@ const Welcome = () => {
                 </motion.div>
 
                 {/* Student Card */}
-                <motion.div variants={itemVariants} className="bg-tech-secondary/40 backdrop-blur-md rounded-2xl border border-tech-surface p-10 hover:border-tech-accent/50 transition-all group flex flex-col h-full hover:shadow-[0_20px_50px_rgba(236,72,153,0.1)] relative overflow-hidden">
+                <motion.div variants={itemVariants} className="bg-tech-secondary/40 rounded-2xl border border-tech-surface p-10 transition-all group flex flex-col h-full relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-tech-accent/5 blur-3xl -mr-10 -mt-10 group-hover:bg-tech-accent/10 transition-colors"></div>
                     <div className="flex items-center gap-4 mb-8">
                         <div className="p-4 bg-tech-accent/10 rounded-xl group-hover:bg-tech-accent/20 transition-colors">
@@ -194,7 +192,7 @@ const Welcome = () => {
             </motion.main>
 
             {/* Support and Security Section */}
-            <section className="bg-tech-secondary/20 py-16 px-6 border-t border-tech-surface mt-auto backdrop-blur-sm">
+            <section className="bg-tech-secondary/20 py-16 px-6 border-t border-tech-surface mt-auto">
                 <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
                     <motion.div
                         initial={{ x: -20, opacity: 0 }}

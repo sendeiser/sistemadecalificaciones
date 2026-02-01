@@ -338,7 +338,7 @@ const Announcements = () => {
 
             {/* Announcement Modal */}
             {showModal && canCreateAnnouncement && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
                     <div className="bg-tech-secondary border border-tech-surface rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold text-tech-text uppercase">

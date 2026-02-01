@@ -625,7 +625,7 @@ const StudentManagement = () => {
             </div>
             {/* Modal de Gestión de Tutores */}
             {tutorModal.isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-200">
                     <div className="bg-tech-secondary w-full max-w-2xl rounded-3xl border border-tech-surface shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                         <header className="p-6 border-b border-tech-surface flex justify-between items-center bg-tech-primary/50">
                             <div>

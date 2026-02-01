@@ -277,7 +277,7 @@ const StudentReport = () => {
 
             <main className="max-w-7xl mx-auto">
                 {showQR && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setShowQR(false)}>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={() => setShowQR(false)}>
                         <div className="bg-tech-secondary border border-tech-cyan/30 rounded-2xl p-8 max-w-xs w-full text-center space-y-6 animate-in zoom-in-95 duration-200 shadow-[0_0_50px_rgba(14,165,233,0.2)]" onClick={e => e.stopPropagation()}>
                             <div className="space-y-2">
                                 <h3 className="text-xl font-bold text-tech-text uppercase tracking-tighter">Credencial Digital</h3>

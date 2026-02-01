@@ -21,7 +21,7 @@ const QRScanner = ({ onScanSuccess, onScanError, onClose }) => {
     }, []);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
             <div className="bg-tech-secondary border border-tech-surface rounded-xl p-6 w-full max-w-md relative animate-in zoom-in-95 duration-200">
                 <button
                     onClick={onClose}
