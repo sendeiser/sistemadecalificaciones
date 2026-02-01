@@ -371,19 +371,17 @@ async function generateGradeReport(req, res) {
             theme: 'grid'
         });
 
-        // Signatures Area
-        // Use the doc.lastAutoTable if available, else a fallback
-        const finalYFromTable = doc.lastAutoTable ? doc.lastAutoTable.finalY : tableStartY + 20;
-        const finalY = finalYFromTable + 20;
+        // Signatures Area - Positioned at the bottom of the page
+        const sigY = 175; // Coordinate for landscape A4 bottom
 
-        doc.line(40, finalY, 100, finalY); // Line for Preceptor
-        doc.text('Firma del Preceptor', 70, finalY + 5, { align: 'center' });
+        doc.line(40, sigY, 100, sigY); // Line for Preceptor
+        doc.text('Firma del Preceptor', 70, sigY + 5, { align: 'center' });
 
-        doc.line(110, finalY, 170, finalY); // Line for Teacher
-        doc.text('Firma del Docente', 140, finalY + 5, { align: 'center' });
+        doc.line(110, sigY, 170, sigY); // Line for Teacher
+        doc.text('Firma del Docente', 140, sigY + 5, { align: 'center' });
 
-        doc.line(180, finalY, 240, finalY); // Line for Director
-        doc.text('Sello y Firma Dirección', 210, finalY + 5, { align: 'center' });
+        doc.line(180, sigY, 240, sigY); // Line for Director
+        doc.text('Sello y Firma Dirección', 210, sigY + 5, { align: 'center' });
 
         // Footer table for stats (Cant. De Est. Acreditación, etc.)
         generateAutoTable({
@@ -927,6 +925,15 @@ async function generateStudentBulletinPDF(req, res) {
             console.error('Error adding QR to Bulletin:', qrErr);
         }
 
+        // --- Signature Section (Added to Student Bulletin) ---
+        const sigY = doc.page.height - 100;
+        doc.fontSize(10);
+        doc.moveTo(40, sigY).lineTo(200, sigY).stroke();
+        doc.text('Firma del Docente', 40, sigY + 10, { width: 160, align: 'center' });
+
+        doc.moveTo(250, sigY).lineTo(410, sigY).stroke();
+        doc.text('Firma Preceptor / Dirección', 250, sigY + 10, { width: 160, align: 'center' });
+
         doc.end();
 
     } catch (e) {
@@ -1068,8 +1075,8 @@ async function generateDivisionAttendancePDF(req, res) {
         doc.text(`Resumen General: Presentes: ${globalTotals.present} | Ausentes: ${globalTotals.absent} | Tardes: ${globalTotals.late} | Justificados: ${globalTotals.justified}`, 14, finalY);
         doc.text(`Porcentaje de Asistencia General de la División: ${globalPct}%`, 14, finalY + 7);
 
-        // Standard Signatures for Attendance
-        const sigY = finalY + 25;
+        // Standard Signatures for Attendance - Positioned at bottom
+        const sigY = 175; // Coordinate for landscape A4 bottom
         doc.line(40, sigY, 100, sigY);
         doc.text('Firma Docente', 70, sigY + 5, { align: 'center' });
         doc.line(180, sigY, 240, sigY);
