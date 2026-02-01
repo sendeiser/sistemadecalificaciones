@@ -222,7 +222,7 @@ router.post('/', async (req, res) => {
                 prioridad: prioridad || 'normal',
                 tipo: tipo || 'general',
                 autor_id: userId,
-                destinatarios: destinatarios || ['admin', 'docente', 'alumno', 'preceptor'],
+                destinatarios: destinatarios || ['admin', 'docente', 'alumno', 'preceptor', 'tutor'],
                 division_id: division_id || null,
                 adjunto_url: adjunto_url || null,
                 publicado: publicado || false,

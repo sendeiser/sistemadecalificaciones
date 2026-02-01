@@ -30,7 +30,7 @@ const requireAdmin = async (req, res, next) => {
 router.post('/admin/invite', authMiddleware, requireAdmin, async (req, res) => {
     const { rol, email } = req.body;
 
-    if (!rol || !['docente', 'preceptor', 'admin'].includes(rol)) {
+    if (!rol || !['docente', 'preceptor', 'admin', 'tutor'].includes(rol)) {
         return res.status(400).json({ error: 'Rol inválido' });
     }
 
@@ -101,6 +101,45 @@ router.get('/admin/invites', authMiddleware, requireAdmin, async (req, res) => {
     } catch (err) {
         console.error('List invites error:', err);
         res.status(500).json({ error: 'Error al listar invitaciones' });
+    }
+});
+
+// Eliminar invitación (Solo Admin/Preceptor)
+router.delete('/admin/invite/:token', authMiddleware, requireAdmin, async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const { error } = await supabaseAdmin
+            .from('invitaciones')
+            .delete()
+            .eq('token', token);
+
+        if (error) throw error;
+
+        res.json({ success: true, message: 'Invitación eliminada' });
+    } catch (err) {
+        console.error('Delete invite error:', err);
+        res.status(500).json({ error: 'Error al eliminar la invitación' });
+    }
+});
+
+// Actualizar email de invitación (Solo Admin/Preceptor)
+router.patch('/admin/invite/:token', authMiddleware, requireAdmin, async (req, res) => {
+    const { token } = req.params;
+    const { email } = req.body;
+
+    try {
+        const { error } = await supabaseAdmin
+            .from('invitaciones')
+            .update({ email: email || null })
+            .eq('token', token);
+
+        if (error) throw error;
+
+        res.json({ success: true, message: 'Invitación actualizada' });
+    } catch (err) {
+        console.error('Update invite error:', err);
+        res.status(500).json({ error: 'Error al actualizar la invitación' });
     }
 });
 

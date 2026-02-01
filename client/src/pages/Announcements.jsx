@@ -22,7 +22,7 @@ const Announcements = () => {
         contenido: '',
         prioridad: 'normal',
         tipo: 'general',
-        destinatarios: ['admin', 'docente', 'alumno', 'preceptor'],
+        destinatarios: ['admin', 'docente', 'alumno', 'preceptor', 'tutor'],
         publicado: false,
         fecha_expiracion: ''
     });
@@ -165,7 +165,7 @@ const Announcements = () => {
             contenido: '',
             prioridad: 'normal',
             tipo: 'general',
-            destinatarios: ['admin', 'docente', 'alumno', 'preceptor'],
+            destinatarios: ['admin', 'docente', 'alumno', 'preceptor', 'tutor'],
             publicado: false,
             fecha_expiracion: ''
         });
@@ -406,7 +406,7 @@ const Announcements = () => {
                             <div>
                                 <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Destinatarios</label>
                                 <div className="grid grid-cols-2 gap-2">
-                                    {['admin', 'docente', 'alumno', 'preceptor'].map(rol => (
+                                    {['admin', 'docente', 'alumno', 'preceptor', 'tutor'].map(rol => (
                                         <label key={rol} className="flex items-center gap-2 text-sm">
                                             <input
                                                 type="checkbox"

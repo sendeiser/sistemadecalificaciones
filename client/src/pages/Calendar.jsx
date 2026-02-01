@@ -71,7 +71,7 @@ const Calendar = () => {
         todo_el_dia: true,
         hora_inicio: '',
         hora_fin: '',
-        visible_para: ['admin', 'docente', 'alumno', 'preceptor']
+        visible_para: ['admin', 'docente', 'alumno', 'preceptor', 'tutor']
     });
 
     const eventTypes = [
@@ -220,7 +220,7 @@ const Calendar = () => {
             todo_el_dia: true,
             hora_inicio: '',
             hora_fin: '',
-            visible_para: ['admin', 'docente', 'alumno', 'preceptor']
+            visible_para: ['admin', 'docente', 'alumno', 'preceptor', 'tutor']
         });
     };
 

@@ -1,26 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Send, User, Users, Search, Inbox, MessageSquare, ShieldCheck, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Send, User, Users, Search, Inbox, MessageSquare, ShieldCheck, Zap, ArrowLeft, CheckCircle2, X as CloseIcon } from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Messages = () => {
     const { user, profile } = useAuth();
+    const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newMessage, setNewMessage] = useState('');
+    const [replyText, setReplyText] = useState('');
+    const [replyingTo, setReplyingTo] = useState(null); // ID del mensaje que se está respondiendo
+    const [statusMessage, setStatusMessage] = useState(null); // { type, text }
     const [selectedRecipient, setSelectedRecipient] = useState(null); // { id, nombre, rol }
     const [availableUsers, setAvailableUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState('received'); // 'received', 'sent', 'broadcast'
+    const [activeTab, setActiveTab] = useState('received'); // 'received', 'sent'
 
     useEffect(() => {
         fetchMessages();
-        if (['admin', 'preceptor', 'docente'].includes(profile?.rol)) {
-            fetchUsers();
-        }
+        fetchUsers();
     }, [profile]);
+
+    useEffect(() => {
+        if (activeTab === 'received' && messages.length > 0) {
+            const unreadIds = messages
+                .filter(m => !m.leido && (m.destinatario_id === user?.id || m.rol_destinatario === profile?.rol))
+                .map(m => m.id);
+
+            if (unreadIds.length > 0) {
+                markAllAsRead(unreadIds);
+            }
+        }
+    }, [activeTab, messages, user, profile]);
 
     const fetchMessages = async () => {
         try {
@@ -51,7 +66,7 @@ const Messages = () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
 
-            const response = await fetch(getApiEndpoint('/students'), {
+            const response = await fetch(getApiEndpoint('/messages/users'), {
                 headers: { 'Authorization': `Bearer ${session.access_token}` }
             });
             const data = await response.json();
@@ -63,9 +78,33 @@ const Messages = () => {
         }
     };
 
-    const sendMessage = async (e) => {
-        e.preventDefault();
-        if (!newMessage.trim() || !selectedRecipient) return;
+    const markAllAsRead = async (ids) => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            await Promise.all(ids.map(id =>
+                fetch(getApiEndpoint(`/messages/${id}/read`), {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${session.access_token}` }
+                })
+            ));
+
+            setMessages(prev => prev.map(m =>
+                ids.includes(m.id) ? { ...m, leido: true } : m
+            ));
+        } catch (error) {
+            console.error('Error marking messages as read:', error);
+        }
+    };
+
+    const sendMessage = async (e, customData = null) => {
+        if (e) e.preventDefault();
+
+        const content = customData ? customData.contenido : newMessage;
+        const recipient = customData ? customData.destinatario_id : selectedRecipient?.id;
+
+        if (!content.trim() || !recipient) return;
 
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -78,19 +117,34 @@ const Messages = () => {
                     'Authorization': `Bearer ${session.access_token}`
                 },
                 body: JSON.stringify({
-                    destinatario_id: selectedRecipient.id,
-                    contenido: newMessage,
+                    destinatario_id: recipient,
+                    contenido: content,
                     tipo: 'privado'
                 })
             });
 
             if (response.ok) {
-                setNewMessage('');
+                if (!customData) {
+                    setNewMessage('');
+                    setSelectedRecipient(null);
+                } else {
+                    setReplyText('');
+                    setReplyingTo(null);
+                }
+                showStatus('Mensaje enviado correctamente');
                 fetchMessages();
+            } else {
+                showStatus('Error al enviar el mensaje', 'error');
             }
         } catch (error) {
             console.error('Error sending message:', error);
+            showStatus('Fallo en la conexión', 'error');
         }
+    };
+
+    const showStatus = (text, type = 'success') => {
+        setStatusMessage({ text, type });
+        setTimeout(() => setStatusMessage(null), 3000);
     };
 
     const filteredMessages = Array.isArray(messages) ? messages.filter(m => {
@@ -105,12 +159,19 @@ const Messages = () => {
                 <header className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="space-y-2">
                         <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => navigate('/dashboard')}
+                                className="p-2 mr-2 hover:bg-tech-surface rounded-xl text-tech-muted hover:text-tech-cyan transition-all"
+                                title="Volver al Dashboard"
+                            >
+                                <ArrowLeft size={24} />
+                            </button>
                             <div className="p-3 bg-tech-cyan/20 rounded-2xl">
                                 <MessageSquare className="text-tech-cyan" size={32} />
                             </div>
                             <h1 className="text-4xl font-black text-tech-text uppercase tracking-tighter">Mensajería Interna</h1>
                         </div>
-                        <p className="text-tech-muted font-mono text-sm tracking-widest uppercase">Canal de Comunicación Institucional</p>
+                        <p className="text-tech-muted font-mono text-sm tracking-widest uppercase ml-14">Canal de Comunicación Institucional</p>
                     </div>
 
                     <div className="flex p-1 bg-tech-secondary rounded-xl border border-tech-surface shadow-inner">
@@ -130,6 +191,23 @@ const Messages = () => {
                     </div>
                 </header>
 
+                <AnimatePresence>
+                    {statusMessage && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className={`fixed top-24 right-8 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border ${statusMessage.type === 'error'
+                                ? 'bg-tech-danger/10 border-tech-danger text-tech-danger'
+                                : 'bg-tech-success/10 border-tech-success text-tech-success'
+                                }`}
+                        >
+                            {statusMessage.type === 'error' ? <Zap size={20} /> : <CheckCircle2 size={20} />}
+                            <span className="font-bold tracking-tight">{statusMessage.text}</span>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Lista de Mensajes */}
                     <div className="lg:col-span-2 space-y-6">
@@ -145,7 +223,7 @@ const Messages = () => {
                                     <Inbox className="text-tech-muted" size={40} />
                                 </div>
                                 <h3 className="text-xl font-bold text-tech-text mb-2">No hay mensajes</h3>
-                                <p className="text-tech-muted">Inicia una conversación buscando a un colega.</p>
+                                <p className="text-tech-muted">Inicia una conversación buscando a un usuario.</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -174,14 +252,67 @@ const Messages = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {m.tipo === 'rol' && (
-                                                <div className="flex items-center gap-2 text-tech-accent text-[10px] font-black uppercase tracking-widest bg-tech-accent/10 px-3 py-1 rounded-full border border-tech-accent/20">
-                                                    <Users size={12} />
-                                                    Difusión de Rol
-                                                </div>
-                                            )}
+
+                                            <div className="flex items-center gap-2">
+                                                {m.tipo === 'rol' && (
+                                                    <div className="flex items-center gap-2 text-tech-accent text-[10px] font-black uppercase tracking-widest bg-tech-accent/10 px-3 py-1 rounded-full border border-tech-accent/20">
+                                                        <Users size={12} />
+                                                        Difusión
+                                                    </div>
+                                                )}
+                                                {activeTab === 'received' && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setReplyingTo(replyingTo === m.id ? null : m.id);
+                                                            setReplyText('');
+                                                        }}
+                                                        className={`p-2 rounded-xl transition-all ${replyingTo === m.id ? 'bg-tech-cyan text-white shadow-lg' : 'text-tech-cyan hover:bg-tech-cyan/10'}`}
+                                                        title="Responder"
+                                                    >
+                                                        <MessageSquare size={18} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
-                                        <p className="text-tech-text leading-relaxed pl-16">{m.contenido}</p>
+
+                                        <p className="text-tech-text leading-relaxed pl-16 mb-4">{m.contenido}</p>
+
+                                        <AnimatePresence>
+                                            {replyingTo === m.id && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    className="overflow-hidden bg-tech-primary/50 rounded-2xl p-4 border border-tech-surface mt-2 ml-16"
+                                                >
+                                                    <textarea
+                                                        autoFocus
+                                                        value={replyText}
+                                                        onChange={(e) => setReplyText(e.target.value)}
+                                                        placeholder="Escribe tu respuesta..."
+                                                        className="w-full bg-transparent border-none focus:ring-0 text-sm text-tech-text placeholder:text-tech-muted min-h-[80px] resize-none"
+                                                    />
+                                                    <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-tech-surface">
+                                                        <button
+                                                            onClick={() => setReplyingTo(null)}
+                                                            className="px-4 py-2 text-xs font-bold text-tech-muted hover:text-tech-text uppercase transition-colors"
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                        <button
+                                                            onClick={() => sendMessage(null, {
+                                                                destinatario_id: m.remitente_id,
+                                                                contenido: replyText
+                                                            })}
+                                                            disabled={!replyText.trim()}
+                                                            className="px-6 py-2 bg-tech-cyan text-white rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-all hover:bg-tech-cyan/80"
+                                                        >
+                                                            Enviar Respuesta
+                                                        </button>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </motion.div>
                                 ))}
                             </div>
@@ -206,7 +337,7 @@ const Messages = () => {
                                         </div>
                                         <input
                                             type="text"
-                                            placeholder="Buscar colega o alumno..."
+                                            placeholder="Buscar usuario..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             className="w-full pl-12 pr-4 py-4 bg-tech-primary rounded-2xl border border-tech-surface focus:border-tech-cyan focus:ring-4 focus:ring-tech-cyan/10 outline-none font-bold text-tech-text transition-all"
@@ -253,7 +384,7 @@ const Messages = () => {
                                                 onClick={() => setSelectedRecipient(null)}
                                                 className="text-tech-muted hover:text-tech-danger p-1"
                                             >
-                                                ×
+                                                <CloseIcon size={18} />
                                             </button>
                                         </div>
                                     )}

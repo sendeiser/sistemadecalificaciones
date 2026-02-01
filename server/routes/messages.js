@@ -39,6 +39,25 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Obtener todos los usuarios disponibles para mensajería
+router.get('/users', async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const { data, error } = await supabaseAdmin
+            .from('perfiles')
+            .select('id, nombre, rol, email')
+            .neq('id', userId)
+            .order('nombre');
+
+        if (error) throw error;
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching users for messaging:', error);
+        res.status(500).json({ error: 'Error al obtener usuarios' });
+    }
+});
+
 // Enviar un nuevo mensaje
 router.post('/', async (req, res) => {
     try {
@@ -85,6 +104,25 @@ router.post('/:id/read', async (req, res) => {
     } catch (error) {
         console.error('Error marking message as read:', error);
         res.status(500).json({ error: 'Error al actualizar mensaje' });
+    }
+});
+
+// Obtener contador de mensajes no leídos para el usuario actual
+router.get('/unread-count', async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const { count, error } = await supabaseAdmin
+            .from('mensajes')
+            .select('*', { count: 'exact', head: true })
+            .eq('destinatario_id', userId)
+            .eq('leido', false);
+
+        if (error) throw error;
+        res.json({ count: count || 0 });
+    } catch (error) {
+        console.error('Error fetching unread messages count:', error);
+        res.status(500).json({ error: 'Error al obtener contador de mensajes' });
     }
 });
 

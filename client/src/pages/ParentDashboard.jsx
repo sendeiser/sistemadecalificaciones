@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Users, GraduationCap, Clock, FileText, ChevronRight, AlertCircle, Calendar, MessageSquare, Award, Sparkles, User, UserCheck } from 'lucide-react';
+import { Users, GraduationCap, Clock, FileText, ChevronRight, AlertCircle, Calendar, MessageSquare, Award, Sparkles, User, UserCheck, LogOut } from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
+import useNotifications from '../hooks/useNotifications';
 
 const ParentDashboard = () => {
     const { profile } = useAuth();
     const navigate = useNavigate();
     const [children, setChildren] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { unreadMessages, unreadAnnouncements } = useNotifications();
 
     useEffect(() => {
         fetchChildren();
@@ -52,6 +54,15 @@ const ParentDashboard = () => {
                         <p className="text-tech-muted font-mono mt-1 uppercase text-xs tracking-widest">
                             Seguimiento Académico Institucional
                         </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => supabase.auth.signOut()}
+                            className="flex items-center gap-2 px-4 py-2 bg-tech-danger/10 hover:bg-tech-danger/20 text-tech-danger rounded-xl font-bold transition-all uppercase text-xs tracking-widest border border-tech-danger/30"
+                        >
+                            <LogOut size={16} />
+                            Salir
+                        </button>
                     </div>
                 </div>
             </header>
@@ -96,12 +107,14 @@ const ParentDashboard = () => {
                         title="Mensajería"
                         desc="Comunicación con la escuela"
                         onClick={() => navigate('/messages')}
+                        badgeCount={unreadMessages}
                     />
                     <QuickAccessCard
                         icon={<FileText />}
                         title="Documentos"
                         desc="Informes y autorizaciones"
                         onClick={() => navigate('/announcements')}
+                        badgeCount={unreadAnnouncements}
                     />
                 </div>
             </main>
@@ -153,14 +166,19 @@ const ChildCard = ({ child, relationship, onClick }) => {
     );
 };
 
-const QuickAccessCard = ({ icon, title, desc, onClick }) => (
+const QuickAccessCard = ({ icon, title, desc, onClick, badgeCount }) => (
     <div
         onClick={onClick}
         className="p-6 bg-tech-secondary/50 rounded-2xl border border-tech-surface hover:border-tech-cyan/40 cursor-pointer transition-all group"
     >
         <div className="flex items-center gap-4">
-            <div className="p-3 bg-tech-surface rounded-xl text-tech-muted group-hover:text-tech-cyan transition-colors">
+            <div className="p-3 bg-tech-surface rounded-xl text-tech-muted group-hover:text-tech-cyan transition-colors relative">
                 {icon}
+                {badgeCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-tech-danger text-white text-[10px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse shadow-lg">
+                        {badgeCount}
+                    </span>
+                )}
             </div>
             <div>
                 <h4 className="font-bold text-tech-text">{title}</h4>

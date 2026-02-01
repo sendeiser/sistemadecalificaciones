@@ -10,6 +10,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import { supabase } from '../supabaseClient';
 import { getApiEndpoint } from '../utils/api';
 import CriticalStudentsWidget from '../components/CriticalStudentsWidget';
+import useNotifications from '../hooks/useNotifications';
 
 const Dashboard = () => {
     const { profile, signOut } = useAuth();
@@ -20,6 +21,7 @@ const Dashboard = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [medals, setMedals] = useState([]);
+    const { unreadMessages, unreadAnnouncements } = useNotifications();
 
     React.useEffect(() => {
         if (profile?.rol === 'tutor') {
@@ -414,8 +416,13 @@ const Dashboard = () => {
                                 <div onClick={() => navigate('/announcements')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group relative overflow-hidden">
                                     <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
+                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors relative">
                                             <Bell size={24} />
+                                            {unreadAnnouncements > 0 && (
+                                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-tech-danger text-white text-[10px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
+                                                    {unreadAnnouncements}
+                                                </span>
+                                            )}
                                         </div>
                                         <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Anuncios</h3>
                                     </div>
@@ -425,8 +432,13 @@ const Dashboard = () => {
                                 <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
                                     <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors relative">
                                             <MessageSquare size={24} />
+                                            {unreadMessages > 0 && (
+                                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-tech-danger text-white text-[10px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
+                                                    {unreadMessages}
+                                                </span>
+                                            )}
                                         </div>
                                         <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Mensajes</h3>
                                     </div>
@@ -455,7 +467,14 @@ const Dashboard = () => {
                                     <div><h3 className="text-lg font-bold uppercase">Cargar Notas</h3><p className="text-xs text-tech-muted font-mono">Actualizar materias</p></div>
                                 </div>
                                 <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group rounded-xl flex items-center gap-4">
-                                    <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform"><MessageSquare size={32} /></div>
+                                    <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform relative">
+                                        <MessageSquare size={32} />
+                                        {unreadMessages > 0 && (
+                                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-tech-danger text-white text-[10px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse shadow-lg">
+                                                {unreadMessages}
+                                            </span>
+                                        )}
+                                    </div>
                                     <div><h3 className="text-lg font-bold uppercase">Mensajes</h3><p className="text-xs text-tech-muted font-mono">Ver chat</p></div>
                                 </div>
                             </div>
@@ -487,7 +506,17 @@ const Dashboard = () => {
                             </div>
                             <div onClick={() => navigate('/announcements')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-accent"><Bell size={24} /><h3 className="text-xl font-bold uppercase">Anuncios</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-accent">
+                                    <div className="relative">
+                                        <Bell size={24} />
+                                        {unreadAnnouncements > 0 && (
+                                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-tech-danger text-white text-[8px] flex items-center justify-center rounded-full border border-tech-secondary font-black animate-pulse">
+                                                {unreadAnnouncements}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-xl font-bold uppercase">Anuncios</h3>
+                                </div>
                                 <p className="text-tech-muted mb-6 font-mono font-sm">Novedades institucionales.</p>
                                 <button className="px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Ver Noticias</button>
                             </div>
@@ -506,7 +535,17 @@ const Dashboard = () => {
                             </div>
                             <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-cyan"><MessageSquare size={40} /><h3 className="text-xl font-bold uppercase">Mensajes</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-cyan">
+                                    <div className="relative">
+                                        <MessageSquare size={40} />
+                                        {unreadMessages > 0 && (
+                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse shadow-xl">
+                                                {unreadMessages}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-xl font-bold uppercase">Mensajes</h3>
+                                </div>
                                 <p className="text-tech-muted font-mono text-sm">Comunicación con docentes.</p>
                             </div>
                             <div onClick={() => navigate('/calendar')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
@@ -516,7 +555,17 @@ const Dashboard = () => {
                             </div>
                             <div onClick={() => navigate('/announcements')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-accent"><Bell size={40} /><h3 className="text-xl font-bold uppercase">Anuncios</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-accent">
+                                    <div className="relative">
+                                        <Bell size={40} />
+                                        {unreadAnnouncements > 0 && (
+                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse shadow-xl">
+                                                {unreadAnnouncements}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-xl font-bold uppercase">Anuncios</h3>
+                                </div>
                                 <p className="text-tech-muted font-mono text-sm">Noticias de la escuela.</p>
                             </div>
                         </div>

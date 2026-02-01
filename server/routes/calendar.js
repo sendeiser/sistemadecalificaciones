@@ -141,7 +141,7 @@ router.post('/events', async (req, res) => {
                 todo_el_dia: todo_el_dia !== undefined ? todo_el_dia : true,
                 hora_inicio: hora_inicio || null,
                 hora_fin: hora_fin || null,
-                visible_para: visible_para || ['admin', 'docente', 'alumno', 'preceptor'],
+                visible_para: visible_para || ['admin', 'docente', 'alumno', 'preceptor', 'tutor'],
                 creado_por: userId
             })
             .select()
