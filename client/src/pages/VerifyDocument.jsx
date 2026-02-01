@@ -34,7 +34,7 @@ const VerifyDocument = () => {
                 {/* Logo / Header */}
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-black text-tech-text tracking-tighter flex items-center justify-center gap-2">
-                        <span className="text-tech-cyan italic underline decoration-tech-accent decoration-4 underline-offset-4">EDU</span>MATE
+                        <span className="text-tech-cyan italic underline decoration-tech-accent decoration-4 underline-offset-4">ETA</span>TECNICA
                     </h1>
                     <p className="text-tech-muted uppercase tracking-[0.3em] text-xs mt-2 font-mono">Blockchain-Grade Verification</p>
                 </div>
@@ -118,7 +118,7 @@ const VerifyDocument = () => {
 
                 <div className="mt-10 text-center">
                     <p className="text-tech-muted text-[10px] uppercase font-mono tracking-[0.2em]">
-                        Edumate v2.4 SafeDoc Infrastructure
+                        ETATECNICA v2.4 SafeDoc Infrastructure
                     </p>
                 </div>
             </div>
