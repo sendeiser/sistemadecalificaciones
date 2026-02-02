@@ -383,9 +383,10 @@ async function generateGradeReport(req, res) {
         doc.line(180, sigY, 240, sigY); // Line for Director
         doc.text('Sello y Firma Dirección', 210, sigY + 5, { align: 'center' });
 
-        // Footer table for stats (Cant. De Est. Acreditación, etc.)
+        // Footer table for stats (Cant. De Est. Acreditación, etc.) - Back to original position after main table
+        const statsStartY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : sigY - 20;
         generateAutoTable({
-            startY: sigY + 10,
+            startY: statsStartY,
             head: [['Cant. De Est. Acreditación', 'Cant. De Est. Acompañamiento']],
             body: [['', '']], // Fill with logic if needed
             theme: 'grid',
