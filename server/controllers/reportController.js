@@ -56,7 +56,8 @@ function getLogro(grade) {
 
 // Get raw grade data as JSON for the frontend table
 async function getGradeJSON(req, res) {
-    const { division_id, materia_id } = req.query;
+    const { division_id, materia_id, cuatrimestre } = req.query;
+    const activeSemester = cuatrimestre ? parseInt(cuatrimestre) : (new Date().getMonth() + 1 > 7 ? 2 : 1);
     try {
         const { data: asignacion } = await supabaseAdmin
             .from('asignaciones')
@@ -72,11 +73,12 @@ async function getGradeJSON(req, res) {
 
         if (!asignacion) return res.status(404).json({ error: 'Asignación no encontrada' });
 
-        // 1. Fetch Grades
+        // 1. Fetch Grades for specific semester
         const { data: gradesData } = await supabaseAdmin
             .from('calificaciones')
             .select('*')
-            .eq('asignacion_id', asignacion.id);
+            .eq('asignacion_id', asignacion.id)
+            .eq('cuatrimestre', activeSemester);
         const gradesMap = {};
         (gradesData || []).forEach(g => { gradesMap[g.alumno_id] = g; });
 
@@ -136,8 +138,9 @@ async function getGradeJSON(req, res) {
 
 // Generate grade report for a specific division and materia (Advanced Layout)
 async function generateGradeReport(req, res) {
-    const { division_id, materia_id, assignment_id } = req.query;
-    console.log('--- GenerateGradeReport (Advanced PDF) ---');
+    const { division_id, materia_id, assignment_id, cuatrimestre } = req.query;
+    const activeSemester = cuatrimestre ? parseInt(cuatrimestre) : (new Date().getMonth() + 1 > 7 ? 2 : 1);
+    console.log('--- GenerateGradeReport (Advanced PDF) --- Semester:', activeSemester);
 
     try {
         // 1. Security Check
@@ -177,11 +180,12 @@ async function generateGradeReport(req, res) {
         if (asigErr) throw asigErr;
         if (!asignacion) return res.status(404).json({ error: 'Asignación no encontrada' });
 
-        // 3. Fetch Grades
+        // 3. Fetch Grades for specific semester
         const { data: gradesData, error: gradesErr } = await supabaseAdmin
             .from('calificaciones')
             .select('*')
-            .eq('asignacion_id', asignacion.id);
+            .eq('asignacion_id', asignacion.id)
+            .eq('cuatrimestre', activeSemester);
 
         if (gradesErr) throw gradesErr;
 
@@ -268,14 +272,13 @@ async function generateGradeReport(req, res) {
         doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
 
         // Title box
-        const currentMonth = new Date().getMonth() + 1;
-        const cuatrimestre = currentMonth <= 7 ? 'Primer Cuatrimestre' : 'Segundo Cuatrimestre';
+        const cuatrimestreStr = activeSemester === 1 ? 'Primer Cuatrimestre' : 'Segundo Cuatrimestre';
 
         doc.setFillColor(230, 230, 230); // Light gray
         doc.rect(14, 25, 269, 7, 'F');
         doc.rect(14, 25, 269, 7, 'S'); // Border
         doc.setFont('helvetica', 'bold');
-        doc.text(`PLANILLAS DE CALIFICACIONES - Acreditación de Saberes (${cuatrimestre})`, 148.5, 30, { align: 'center' });
+        doc.text(`PLANILLAS DE CALIFICACIONES - Acreditación de Saberes (${cuatrimestreStr})`, 148.5, 30, { align: 'center' });
 
         // Info Rows
         const startY = 32;
@@ -302,41 +305,118 @@ async function generateGradeReport(req, res) {
 
         // --- Table ---
         const tableStartY = startY + (rowHeight * 4) + 5;
+        const isSecondSemester = activeSemester === 2;
+
+        // Base headers and body mapping
+        let tableHead = [
+            [
+                { content: 'N°', rowSpan: 2, styles: { valign: 'middle' } },
+                { content: 'ESTUDIANTES', rowSpan: 2, styles: { valign: 'middle', halign: 'left' } },
+                { content: 'Perio. Intif', rowSpan: 2, styles: { valign: 'middle' } },
+                { content: 'Logros', rowSpan: 2, styles: { valign: 'middle' } },
+                { content: 'Calificaciones Parciales', colSpan: 4, styles: { halign: 'center' } },
+                { content: 'Promedio\nParcial', rowSpan: 2, styles: { valign: 'middle' } },
+                { content: 'Logros', rowSpan: 2, styles: { valign: 'middle' } },
+                { content: '% Asist', rowSpan: 2, styles: { valign: 'middle' } },
+                { content: 'Trayecto de\nAcompañamiento', rowSpan: 2, styles: { valign: 'middle' } },
+                { content: 'Observaciones', rowSpan: 2, styles: { valign: 'middle' } },
+                { content: 'Promedio\nGeneral', rowSpan: 2, styles: { valign: 'middle' } },
+            ],
+            ['1', '2', '3', '4']
+        ];
+
+        let tableBody = studentRows.map((s, index) => [
+            index + 1,
+            s.estudiante,
+            s.intensificacion || '',
+            s.logro_intensificacion || '',
+            s.p1 || '',
+            s.p2 || '',
+            s.p3 || '',
+            s.p4 || '',
+            s.promedio || '',
+            s.logro_promedio || '',
+            s.asistencia !== '-' ? s.asistencia + '%' : '-',
+            s.trayecto || '',
+            s.observaciones || '',
+            s.promedio_general || ''
+        ]);
+
+        let colStyles = {
+            0: { cellWidth: 7 }, // N
+            1: { cellWidth: 50, halign: 'left' }, // ESTUDIANTES
+            2: { cellWidth: 15 }, // Intif
+            3: { cellWidth: 15 }, // Logro Intif
+            4: { cellWidth: 8 }, // P1
+            5: { cellWidth: 8 }, // P2
+            6: { cellWidth: 8 }, // P3
+            7: { cellWidth: 8 }, // P4
+            8: { cellWidth: 15 }, // Prom Parcial
+            9: { cellWidth: 15 }, // Logro Prom
+            10: { cellWidth: 15 }, // % Asist
+            11: { cellWidth: 45 }, // Trayecto
+            12: { cellWidth: 35 }, // Observaciones
+            13: { cellWidth: 15 }, // Prom General
+        };
+
+        if (activeSemester === 2) {
+            // Header: Remove Intensification columns (Index 2, 3)
+            tableHead[0].splice(2, 2);
+            tableHead[0][2].colSpan = 4; // 'Calificaciones Parciales' is now at index 2
+
+            // Body: Remove from each row (Indices 2, 3)
+            tableBody = tableBody.map(row => {
+                const newRow = [...row];
+                newRow.splice(2, 2); // Remove intensif (2) and logro_int (3)
+                // Note: s.p1, s.p2, s.p3, s.p4 are already correct for the cuatrimestre row
+                return newRow;
+            });
+
+            // Adjust styles
+            colStyles = {
+                0: { cellWidth: 7 }, // N
+                1: { cellWidth: 60, halign: 'left' }, // ESTUDIANTES
+                2: { cellWidth: 8 }, // P1
+                3: { cellWidth: 8 }, // P2
+                4: { cellWidth: 8 }, // P3
+                5: { cellWidth: 8 }, // P4
+                6: { cellWidth: 15 }, // Prom Parcial
+                7: { cellWidth: 15 }, // Logro Prom
+                8: { cellWidth: 15 }, // % Asist
+                9: { cellWidth: 50 }, // Trayecto
+                10: { cellWidth: 40 }, // Observaciones
+                11: { cellWidth: 15 }, // Prom General
+            };
+        } else {
+            // First Semester: Show Intif + 4 Partial columns
+            tableHead[0][4].colSpan = 4;
+
+            // Body: Keep everything (Indices 0..13)
+            // No need to splice tableBody, base map is already 14 cols
+
+            // Adjust styles
+            colStyles = {
+                0: { cellWidth: 7 }, // N
+                1: { cellWidth: 50, halign: 'left' }, // ESTUDIANTES
+                2: { cellWidth: 15 }, // Intif
+                3: { cellWidth: 15 }, // Logro Intif
+                4: { cellWidth: 8 }, // P1
+                5: { cellWidth: 8 }, // P2
+                6: { cellWidth: 8 }, // P3
+                7: { cellWidth: 8 }, // P4
+                8: { cellWidth: 15 }, // Prom Parcial
+                9: { cellWidth: 15 }, // Logro Prom
+                10: { cellWidth: 15 }, // % Asist
+                11: { cellWidth: 45 }, // Trayecto
+                12: { cellWidth: 35 }, // Observaciones
+                13: { cellWidth: 15 }, // Prom General
+            };
+        }
 
         generateAutoTable({
             startY: tableStartY,
-            head: [
-                [
-                    { content: 'N°', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'ESTUDIANTES', rowSpan: 2, styles: { valign: 'middle', halign: 'left' } },
-                    { content: 'Perio. Intif', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Logros', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Calificaciones Parciales', colSpan: 4, styles: { halign: 'center' } },
-                    { content: 'Promedio\nParcial', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Logros', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: '% Asist', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Trayecto de\nAcompañamiento', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Observaciones', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Promedio\nGeneral', rowSpan: 2, styles: { valign: 'middle' } },
-                ],
-                ['1', '2', '3', '4']
-            ],
-            body: studentRows.map((s, index) => [
-                index + 1,
-                s.estudiante,
-                s.intensificacion || '',
-                s.logro_intensificacion || '',
-                s.p1 || '',
-                s.p2 || '',
-                s.p3 || '',
-                s.p4 || '',
-                s.promedio || '',
-                s.logro_promedio || '',
-                s.asistencia !== '-' ? s.asistencia + '%' : '-',
-                s.trayecto || '',
-                s.observaciones || '',
-                s.promedio_general || ''
-            ]),
+            head: tableHead,
+            body: tableBody,
             styles: {
                 fontSize: 7,
                 cellPadding: 0.8,
@@ -352,22 +432,7 @@ async function generateGradeReport(req, res) {
                 fontStyle: 'bold',
                 lineWidth: 0.1
             },
-            columnStyles: {
-                0: { cellWidth: 7 }, // N
-                1: { cellWidth: 50, halign: 'left' }, // ESTUDIANTES (increased)
-                2: { cellWidth: 15 }, // Intif
-                3: { cellWidth: 15 }, // Logro Intif
-                4: { cellWidth: 8 }, // P1
-                5: { cellWidth: 8 }, // P2
-                6: { cellWidth: 8 }, // P3
-                7: { cellWidth: 8 }, // P4
-                8: { cellWidth: 15 }, // Prom Parcial
-                9: { cellWidth: 15 }, // Logro Prom
-                10: { cellWidth: 15 }, // % Asist
-                11: { cellWidth: 45 }, // Trayecto
-                12: { cellWidth: 35 }, // Observaciones
-                13: { cellWidth: 15 }, // Prom General
-            },
+            columnStyles: colStyles,
             theme: 'grid'
         });
 
@@ -820,20 +885,29 @@ async function generateStudentBulletinPDF(req, res) {
 
         if (gErr) throw gErr;
 
-        // Merge Data
+        // Merge Data - Handle multiple semesters
         const reportData = assignments.map(asig => {
-            const g = grades.find(grade => grade.asignacion_id === asig.id) || {};
+            const g1 = grades.find(g => g.asignacion_id === asig.id && g.cuatrimestre === 1) || {};
+            const g2 = grades.find(g => g.asignacion_id === asig.id && g.cuatrimestre === 2) || {};
+
             return {
                 materia: asig.materia.nombre,
                 docente: asig.docente?.nombre || 'No asignado',
-                parcial_1: g.parcial_1 || '-',
-                parcial_2: g.parcial_2 || '-',
-                parcial_3: g.parcial_3 || '-',
-                parcial_4: g.parcial_4 || '-',
-                promedio: g.promedio || '-',
-                logro: g.logro_parcial || '-',
-                intensificacion: g.nota_intensificacion || '-',
-                trayecto: g.trayecto_acompanamiento || '-'
+                // Semester 1
+                c1_p1: g1.parcial_1 || '-',
+                c1_p2: g1.parcial_2 || '-',
+                c1_p3: g1.parcial_3 || '-',
+                c1_p4: g1.parcial_4 || '-',
+                c1_prom: g1.promedio || '-',
+                // Semester 2
+                c2_p1: g2.parcial_1 || '-',
+                c2_p2: g2.parcial_2 || '-',
+                c2_p3: g2.parcial_3 || '-',
+                c2_p4: g2.parcial_4 || '-',
+                c2_prom: g2.promedio || '-',
+
+                intensificacion: g1.nota_intensificacion || g2.nota_intensificacion || '-',
+                trayecto: g1.trayecto_acompanamiento || g2.trayecto_acompanamiento || '-'
             };
         }).sort((a, b) => a.materia.localeCompare(b.materia));
 
@@ -857,22 +931,42 @@ async function generateStudentBulletinPDF(req, res) {
         doc.moveDown();
 
         const tableTop = doc.y;
-        const colWidths = [140, 35, 35, 35, 35, 45, 100];
-        const colX = [40, 180, 215, 250, 285, 320, 365];
 
-        // Headers
+        // Revised columns for dual-semester layout (wider table or multi-line)
+        // Since we have many columns, let's use a very small font and a wider landscape-like layout if needed
+        // but A4 vertical is chosen. We will use two headers or grouped columns.
+
         doc.font('Helvetica-Bold');
-        doc.text('Materia', colX[0], tableTop);
-        doc.text('P1', colX[1], tableTop);
-        doc.text('P2', colX[2], tableTop);
-        doc.text('P3', colX[3], tableTop);
-        doc.text('P4', colX[4], tableTop);
-        doc.text('Prom', colX[5], tableTop);
-        doc.text('Trayecto', colX[6], tableTop);
-        doc.moveDown();
+        doc.fontSize(8);
+
+        // Headers - Line 1: Main Categories
+        doc.text('Materia', 40, tableTop);
+        doc.text('1° Cuatrimestre', 150, tableTop, { width: 150, align: 'center' });
+        doc.text('2° Cuatrimestre', 310, tableTop, { width: 150, align: 'center' });
+        doc.text('Final', 470, tableTop, { width: 85, align: 'center' });
+
+        // Headers - Line 2: Specific fields
+        const tableHeaderY = tableTop + 12;
+        doc.fontSize(7);
+        doc.text('P1', 150, tableHeaderY);
+        doc.text('P2', 175, tableHeaderY);
+        doc.text('P3', 200, tableHeaderY);
+        doc.text('P4', 225, tableHeaderY);
+        doc.text('PR1', 250, tableHeaderY);
+
+        doc.text('P1', 310, tableHeaderY);
+        doc.text('P2', 335, tableHeaderY);
+        doc.text('P3', 360, tableHeaderY);
+        doc.text('P4', 385, tableHeaderY);
+        doc.text('PR2', 410, tableHeaderY);
+
+        doc.text('Int.', 470, tableHeaderY);
+        doc.text('Prom', 500, tableHeaderY);
+
+        doc.moveTo(40, tableHeaderY + 10).lineTo(555, tableHeaderY + 10).stroke();
         doc.font('Helvetica');
 
-        let currentY = tableTop + 20;
+        let currentY = tableHeaderY + 20;
 
         reportData.forEach((row, i) => {
             if (currentY > 750) {
@@ -880,18 +974,39 @@ async function generateStudentBulletinPDF(req, res) {
                 currentY = 40;
             }
             if (i % 2 === 0) {
-                doc.save().fillColor('#f9f9f9').rect(40, currentY - 2, 515, 14).fill().restore();
+                doc.save().fillColor('#f9f9f9').rect(40, currentY - 2, 515, 12).fill().restore();
             }
 
-            doc.text(sanitize(row.materia).substring(0, 30), colX[0], currentY);
-            doc.text(row.parcial_1, colX[1], currentY);
-            doc.text(row.parcial_2, colX[2], currentY);
-            doc.text(row.parcial_3, colX[3], currentY);
-            doc.text(row.parcial_4, colX[4], currentY);
-            doc.text(row.promedio, colX[5], currentY);
-            doc.text(sanitize(row.trayecto).substring(0, 20), colX[6], currentY);
+            doc.fontSize(7);
+            doc.text(sanitize(row.materia).substring(0, 30), 40, currentY);
 
-            currentY += 15;
+            // C1
+            doc.text(row.c1_p1, 150, currentY);
+            doc.text(row.c1_p2, 175, currentY);
+            doc.text(row.c1_p3, 200, currentY);
+            doc.text(row.c1_p4, 225, currentY);
+            doc.text(row.c1_prom, 250, currentY);
+
+            // C2
+            doc.text(row.c2_p1, 310, currentY);
+            doc.text(row.c2_p2, 335, currentY);
+            doc.text(row.c2_p3, 360, currentY);
+            doc.text(row.c2_p4, 385, currentY);
+            doc.text(row.c2_prom, 410, currentY);
+
+            // Total/Final
+            doc.text(row.intensificacion, 470, currentY);
+
+            // General Average (Calculated on the fly or fetched)
+            let finalAvg = '-';
+            if (row.c1_prom !== '-' && row.c2_prom !== '-') {
+                finalAvg = ((parseFloat(row.c1_prom) + parseFloat(row.c2_prom)) / 2).toFixed(2);
+            } else if (row.c1_prom !== '-') finalAvg = row.c1_prom;
+            else if (row.c2_prom !== '-') finalAvg = row.c2_prom;
+
+            doc.text(finalAvg, 500, currentY);
+
+            currentY += 12;
         });
 
         // --- QR Validation Section for PDFKit ---

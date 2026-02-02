@@ -19,11 +19,18 @@ const GradeEntry = () => {
     const [message, setMessage] = useState(null);
     const [focusMode, setFocusMode] = useState(false);
     const [activeCell, setActiveCell] = useState({ row: 0, field: 'parcial_1' });
+    const [isSecondSemester, setIsSecondSemester] = useState(new Date().getMonth() + 1 > 7);
 
     useEffect(() => {
         if (profile?.id) fetchAssignments();
         fetchPeriods();
     }, [profile]);
+
+    useEffect(() => {
+        if (selectedAssignment && fullAssignmentData) {
+            fetchGrades(fullAssignmentData, true);
+        }
+    }, [isSecondSemester]);
 
     const fetchPeriods = async () => {
         const { data } = await supabase.from('periodos_calificacion').select('*');
@@ -68,11 +75,12 @@ const GradeEntry = () => {
 
             if (sErr) throw sErr;
 
-            // 2. Fetch existing grades for this assignment
+            // 2. Fetch existing grades for this assignment and active semester
             const { data: existingGrades, error: gErr } = await supabase
                 .from('calificaciones')
                 .select('*')
-                .eq('asignacion_id', assignmentObj.id);
+                .eq('asignacion_id', assignmentObj.id)
+                .eq('cuatrimestre', isSecondSemester ? 2 : 1);
 
             if (gErr) throw gErr;
 
@@ -93,7 +101,7 @@ const GradeEntry = () => {
                     observaciones: '',
                     nota_intensificacion: null,
                     trayecto_acompanamiento: '',
-                    promedio_cuatrimestre: null,
+                    cuatrimestre: isSecondSemester ? 2 : 1,
                     student: s.alumno
                 };
             }).sort((a, b) => a.student.nombre.localeCompare(b.student.nombre));
@@ -309,12 +317,13 @@ const GradeEntry = () => {
                 trayecto_acompanamiento: g.trayecto_acompanamiento || null,
                 logro_parcial: getLogro(g.promedio) || null,
                 logro_intensificacion: getLogro(g.nota_intensificacion) || null,
-                logro_trayecto: getLogro(g.promedio) || null
+                logro_trayecto: getLogro(g.promedio) || null,
+                cuatrimestre: isSecondSemester ? 2 : 1
             }));
 
             const { error } = await supabase
                 .from('calificaciones')
-                .upsert(updates, { onConflict: 'alumno_id, asignacion_id' });
+                .upsert(updates, { onConflict: 'alumno_id, asignacion_id, cuatrimestre' });
 
             if (error) throw error;
             setMessage({ type: 'success', text: 'Calificaciones guardadas correctamente' });
@@ -390,6 +399,20 @@ const GradeEntry = () => {
                             </button>
                         </div>
                     )}
+                    <div className="flex bg-tech-secondary p-1 rounded-lg border border-tech-surface">
+                        <button
+                            onClick={() => setIsSecondSemester(false)}
+                            className={`px-3 py-1 rounded text-[10px] font-bold uppercase transition-all ${!isSecondSemester ? 'bg-tech-cyan text-white shadow-lg' : 'text-tech-muted hover:text-tech-text'}`}
+                        >
+                            1er Cuatri
+                        </button>
+                        <button
+                            onClick={() => setIsSecondSemester(true)}
+                            className={`px-3 py-1 rounded text-[10px] font-bold uppercase transition-all ${isSecondSemester ? 'bg-tech-cyan text-white shadow-lg' : 'text-tech-muted hover:text-tech-text'}`}
+                        >
+                            2do Cuatri
+                        </button>
+                    </div>
                     <button
                         onClick={() => setFocusMode(!focusMode)}
                         className={`p-2 rounded border border-tech-surface transition-all ${focusMode ? 'bg-tech-cyan text-white border-tech-cyan shadow-[0_0_15px_rgba(14,165,233,0.4)]' : 'bg-tech-secondary text-tech-muted hover:text-tech-text'}`}
@@ -445,7 +468,9 @@ const GradeEntry = () => {
                                         <tr className="bg-tech-primary/50 text-tech-muted text-[10px] uppercase tracking-wider font-bold border-b border-tech-surface font-mono">
                                             <th rowSpan="2" className="p-2 border-r border-tech-surface sticky left-0 bg-tech-secondary z-10 w-48 shadow-[4px_0_10px_rgba(0,0,0,0.2)]">Estudiantes</th>
                                             <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-24">DNI</th>
-                                            <th colSpan="2" className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan">Periodo Intensificación</th>
+                                            {!isSecondSemester && (
+                                                <th colSpan="2" className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan">Periodo Intensificación</th>
+                                            )}
                                             <th colSpan="4" className="p-2 border-r border-tech-surface text-center">Calificaciones Parciales</th>
                                             <th rowSpan="2" className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan w-16">Prom.</th>
                                             <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-16">% Asist</th>
@@ -455,12 +480,16 @@ const GradeEntry = () => {
                                             <th rowSpan="2" className="p-2 text-center w-40">Observaciones</th>
                                         </tr>
                                         <tr className="bg-tech-primary/50 text-tech-muted text-[9px] uppercase tracking-wider font-bold border-b border-tech-surface font-mono">
-                                            <th className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 w-12 text-[8px]">Calif.</th>
-                                            <th className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 w-12 text-[8px]">Logro</th>
-                                            <th className="p-2 border-r border-tech-surface text-center w-12">1</th>
-                                            <th className="p-2 border-r border-tech-surface text-center w-12">2</th>
-                                            <th className="p-2 border-r border-tech-surface text-center w-12">3</th>
-                                            <th className="p-2 border-r border-tech-surface text-center w-12">4</th>
+                                            {!isSecondSemester && (
+                                                <>
+                                                    <th className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 w-12 text-[8px]">Calif.</th>
+                                                    <th className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 w-12 text-[8px]">Logro</th>
+                                                </>
+                                            )}
+                                            <th className="p-2 border-r border-tech-surface text-center w-12 text-tech-cyan/70">1</th>
+                                            <th className="p-2 border-r border-tech-surface text-center w-12 text-tech-cyan/70">2</th>
+                                            <th className="p-2 border-r border-tech-surface text-center w-12 text-tech-cyan/70">3</th>
+                                            <th className="p-2 border-r border-tech-surface text-center w-12 text-tech-cyan/70">4</th>
                                             <th className="p-2 border-r border-tech-surface text-center bg-purple-500/5">Descripción</th>
                                             <th className="p-2 border-r border-tech-surface text-center bg-purple-500/5 w-12">Logro</th>
                                         </tr>
@@ -486,22 +515,26 @@ const GradeEntry = () => {
                                                     {g.student?.dni}
                                                 </td>
                                                 {/* Periodo Intensificación */}
-                                                <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
-                                                    <input
-                                                        type="number" min="0" max="10" step="0.5" placeholder="-"
-                                                        inputMode="decimal"
-                                                        value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
-                                                        onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
-                                                        disabled={periods['nota_intensificacion'] === false}
-                                                        title={periods['nota_intensificacion'] === false ? "Periodo Cerrado" : ""}
-                                                        className={`w-10 h-8 bg-tech-primary border rounded-sm text-center text-xs font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text placeholder-tech-muted/50 focus:bg-tech-secondary transition-all ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : ''}`}
-                                                    />
-                                                </td>
-                                                <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
-                                                    <div className={`text-[10px] font-mono font-bold ${GET_GRADE_COLOR(g.nota_intensificacion)}`}>
-                                                        {getLogro(g.nota_intensificacion) || '-'}
-                                                    </div>
-                                                </td>
+                                                {!isSecondSemester && (
+                                                    <>
+                                                        <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
+                                                            <input
+                                                                type="number" min="0" max="10" step="0.5" placeholder="-"
+                                                                inputMode="decimal"
+                                                                value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
+                                                                onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
+                                                                disabled={periods['nota_intensificacion'] === false}
+                                                                title={periods['nota_intensificacion'] === false ? "Periodo Cerrado" : ""}
+                                                                className={`w-10 h-8 bg-tech-primary border rounded-sm text-center text-xs font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text placeholder-tech-muted/50 focus:bg-tech-secondary transition-all ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : ''}`}
+                                                            />
+                                                        </td>
+                                                        <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
+                                                            <div className={`text-[10px] font-mono font-bold ${GET_GRADE_COLOR(g.nota_intensificacion)}`}>
+                                                                {getLogro(g.nota_intensificacion) || '-'}
+                                                            </div>
+                                                        </td>
+                                                    </>
+                                                )}
                                                 {/* Parciales */}
                                                 {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4'].map(field => (
                                                     <td key={field} className="p-1 border-r border-tech-surface text-center">
@@ -656,21 +689,23 @@ const GradeEntry = () => {
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4 pt-2">
-                                            <div className="space-y-2">
-                                                <div className="text-[10px] text-tech-muted uppercase font-bold tracking-widest border-l-2 border-tech-accent pl-2">Intensificación</div>
-                                                <div className="flex items-center gap-2">
-                                                    <input
-                                                        type="number" min="0" max="10" step="0.5" placeholder="-"
-                                                        inputMode="decimal"
-                                                        value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
-                                                        onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
-                                                        disabled={periods['nota_intensificacion'] === false}
-                                                        className={`w-14 h-10 bg-tech-secondary border rounded text-center text-sm font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text transition-all ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 border-tech-surface' : ''}`}
-                                                    />
-                                                    <span className={`text-[10px] font-mono font-bold ${GET_GRADE_COLOR(g.nota_intensificacion)}`}>{getLogro(g.nota_intensificacion) || '-'}</span>
+                                            {!isSecondSemester && (
+                                                <div className="space-y-2">
+                                                    <div className="text-[10px] text-tech-muted uppercase font-bold tracking-widest border-l-2 border-tech-accent pl-2">Intensificación</div>
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            type="number" min="0" max="10" step="0.5" placeholder="-"
+                                                            inputMode="decimal"
+                                                            value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
+                                                            onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
+                                                            disabled={periods['nota_intensificacion'] === false}
+                                                            className={`w-14 h-10 bg-tech-secondary border rounded text-center text-sm font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text transition-all ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 border-tech-surface' : ''}`}
+                                                        />
+                                                        <span className={`text-[10px] font-mono font-bold ${GET_GRADE_COLOR(g.nota_intensificacion)}`}>{getLogro(g.nota_intensificacion) || '-'}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="space-y-2">
+                                            )}
+                                            <div className={`${isSecondSemester ? 'col-span-2' : ''} space-y-2`}>
                                                 <div className="text-[10px] text-tech-muted uppercase font-bold tracking-widest border-l-2 border-purple-500 pl-2">Trayecto</div>
                                                 <div className="relative">
                                                     <div className="flex items-center justify-between bg-purple-400/10 p-2 rounded border border-purple-400/20">
@@ -756,7 +791,7 @@ const GradeEntry = () => {
                                     </div>
 
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                                        {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4', 'asistencia', 'nota_intensificacion'].map(field => (
+                                        {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4', 'asistencia', !isSecondSemester && 'nota_intensificacion'].filter(Boolean).map(field => (
                                             <div key={field} className={`p-6 rounded-2xl border-2 transition-all ${activeCell.field === field ? 'bg-tech-secondary border-tech-cyan shadow-[0_0_30px_rgba(14,165,233,0.1)] scale-105' : 'bg-tech-primary/50 border-tech-surface opacity-50'}`}>
                                                 <p className="text-[10px] font-bold text-tech-muted uppercase mb-3 tracking-widest">{field.replace('_', ' ')}</p>
                                                 <input

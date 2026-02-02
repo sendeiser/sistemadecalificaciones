@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
 // Update or Insert a grade record
 router.post('/', async (req, res) => {
     try {
-        const { alumno_id, asignacion_id, parcial_1, parcial_2, parcial_3, parcial_4, asistencia, observaciones } = req.body;
+        const { alumno_id, asignacion_id, parcial_1, parcial_2, parcial_3, parcial_4, asistencia, observaciones, cuatrimestre } = req.body;
 
         if (!alumno_id || !asignacion_id) {
             return res.status(400).json({ error: 'alumno_id and asignacion_id are required' });
@@ -51,8 +51,9 @@ router.post('/', async (req, res) => {
                 parcial_3,
                 parcial_4,
                 asistencia,
-                observaciones
-            }, { onConflict: 'alumno_id, asignacion_id' })
+                observaciones,
+                cuatrimestre: cuatrimestre || 1
+            }, { onConflict: 'alumno_id, asignacion_id, cuatrimestre' })
             .select()
             .single();
 

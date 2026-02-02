@@ -10,8 +10,8 @@ router.use(authMiddleware);
 // GET /reports/grades?division_id=...&materia_id=...
 router.get('/grades', reportController.generateGradeReport);
 
-// GET /reports/grades-json
-router.get('/grades-json', reportController.getGradeJSON);
+// GET /reports/json
+router.get('/json', reportController.getGradeJSON);
 
 // GET /reports/attendance?division_id=...&start_date=...&end_date=...
 router.get('/attendance', reportController.getAttendanceStats);

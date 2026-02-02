@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Calendar, Download, FileText, ArrowLeft, BarChart3, Users, Clock } from 'lucide-react';
+import { Calendar, Download, FileText, ArrowLeft, BarChart3, Users, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
@@ -14,6 +14,9 @@ const TeacherReports = () => {
     const [loading, setLoading] = useState(true);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [isSecondSemester, setIsSecondSemester] = useState(new Date().getMonth() + 1 > 7);
+    const [message, setMessage] = useState(null);
+    const [isExportingAll, setIsExportingAll] = useState(false);
 
     useEffect(() => {
         if (profile) fetchAssignments();
@@ -67,7 +70,10 @@ const TeacherReports = () => {
     const downloadPDF = async (assignment, type) => {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
-        if (!token) return alert('No hay sesión activa');
+        if (!token) {
+            setMessage({ type: 'error', text: 'No hay sesión activa' });
+            return;
+        }
 
         let url = '';
         if (type === 'asistencia') {
@@ -76,7 +82,7 @@ const TeacherReports = () => {
             if (endDate) url += `&end_date=${endDate}`;
         } else {
             // Point to the advanced grade report used by preceptors
-            url = getApiEndpoint(`/reports/grades?division_id=${assignment.division_id}&materia_id=${assignment.materia_id}&token=${token}`);
+            url = getApiEndpoint(`/reports/grades?division_id=${assignment.division_id}&materia_id=${assignment.materia_id}&cuatrimestre=${isSecondSemester ? 2 : 1}&token=${token}`);
         }
 
         window.open(url, '_blank');
@@ -100,14 +106,21 @@ const TeacherReports = () => {
                             if (!confirm('¿Deseas descargar todas las planillas? Esto puede tomar unos momentos.')) return;
                             const { data: { session } } = await supabase.auth.getSession();
                             const token = session?.access_token;
-                            if (!token) return;
+                            if (!token) {
+                                setMessage({ type: 'error', text: 'No hay sesión activa' });
+                                return;
+                            }
+
+                            setIsExportingAll(true);
+                            setMessage({ type: 'info', text: 'Iniciando descarga masiva...' });
+                            let count = 0;
+                            let errors = 0;
 
                             for (const assign of assignments) {
                                 try {
-                                    // Use fetch/blob to avoid popup blockers
-                                    const url = getApiEndpoint(`/reports/grades?division_id=${assign.division_id}&materia_id=${assign.materia_id}&token=${token}`);
+                                    const url = getApiEndpoint(`/reports/grades?division_id=${assign.division_id}&materia_id=${assign.materia_id}&cuatrimestre=${isSecondSemester ? 2 : 1}&token=${token}`);
                                     const res = await fetch(url);
-                                    if (!res.ok) throw new Error('Network response was not ok');
+                                    if (!res.ok) throw new Error('Error en descarga');
                                     const blob = await res.blob();
                                     const link = document.createElement('a');
                                     link.href = window.URL.createObjectURL(blob);
@@ -115,17 +128,26 @@ const TeacherReports = () => {
                                     document.body.appendChild(link);
                                     link.click();
                                     document.body.removeChild(link);
-                                    // Small delay to ensure browser handles it
-                                    await new Promise(r => setTimeout(r, 1000));
+                                    count++;
+                                    await new Promise(r => setTimeout(r, 800));
                                 } catch (e) {
                                     console.error('Error downloading:', assign.materia.nombre, e);
+                                    errors++;
                                 }
                             }
+                            setIsExportingAll(false);
+                            if (errors > 0) {
+                                setMessage({ type: 'error', text: `Descarga finalizada. ${count} completados, ${errors} errores.` });
+                            } else {
+                                setMessage({ type: 'success', text: `Se descargaron ${count} planillas correctamente.` });
+                            }
+                            setTimeout(() => setMessage(null), 5000);
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-tech-cyan text-white hover:bg-sky-600 rounded transition-colors text-sm font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/20"
+                        disabled={isExportingAll || assignments.length === 0}
+                        className="flex items-center gap-2 px-4 py-2 bg-tech-cyan text-white hover:bg-sky-600 rounded transition-colors text-sm font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/20 disabled:opacity-50"
                     >
                         <Download size={20} />
-                        <span className="hidden sm:inline">Exportar Todo</span>
+                        <span className="hidden sm:inline">{isExportingAll ? 'Procesando...' : 'Exportar Todo'}</span>
                     </button>
                     <ThemeToggle />
                     <button
@@ -139,11 +161,44 @@ const TeacherReports = () => {
             </header>
 
             <div className="max-w-7xl mx-auto space-y-8">
+                {message && (
+                    <div className={`p-4 rounded-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-300 border ${message.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
+                            message.type === 'info' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+                                'bg-red-500/10 border-red-500/20 text-red-500'
+                        }`}>
+                        <div className="flex items-center gap-3">
+                            {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                            <p className="font-mono text-sm uppercase tracking-wider font-bold">{message.text}</p>
+                        </div>
+                        <button onClick={() => setMessage(null)} className="opacity-50 hover:opacity-100 transition-opacity">✕</button>
+                    </div>
+                )}
                 {/* Date Filters */}
                 <div className="bg-tech-secondary p-4 md:p-6 rounded border border-tech-surface flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+                    <div className="flex items-center gap-3">
+                        <BarChart3 size={20} className="text-tech-cyan" />
+                        <span className="text-sm font-bold uppercase tracking-wider text-tech-muted whitespace-nowrap">Periodo:</span>
+                    </div>
+                    <div className="flex bg-tech-primary/50 p-1 rounded-lg border border-tech-surface w-fit">
+                        <button
+                            onClick={() => setIsSecondSemester(false)}
+                            className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all ${!isSecondSemester ? 'bg-tech-cyan text-white shadow-lg shadow-cyan-500/20' : 'text-tech-muted hover:text-tech-text'}`}
+                        >
+                            1° Cuatrimestre
+                        </button>
+                        <button
+                            onClick={() => setIsSecondSemester(true)}
+                            className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all ${isSecondSemester ? 'bg-tech-cyan text-white shadow-lg shadow-cyan-500/20' : 'text-tech-muted hover:text-tech-text'}`}
+                        >
+                            2° Cuatrimestre
+                        </button>
+                    </div>
+
+                    <div className="h-8 w-px bg-tech-surface hidden md:block mx-2"></div>
+
                     <div className="flex items-center gap-3 mb-2 md:mb-0">
-                        <Calendar size={20} className="text-tech-cyan" />
-                        <span className="text-sm font-bold uppercase tracking-wider text-tech-muted whitespace-nowrap">Rango de Fechas:</span>
+                        <Calendar size={20} className="text-tech-accent" />
+                        <span className="text-sm font-bold uppercase tracking-wider text-tech-muted whitespace-nowrap">Asistencia:</span>
                     </div>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
@@ -166,7 +221,7 @@ const TeacherReports = () => {
                         </div>
                     </div>
                     <p className="text-[10px] text-tech-muted font-mono italic md:ml-auto mt-2 md:mt-0">
-                        * Solo reportes de asistencia.
+                        * Calificaciones por cuatrimestre, asistencia por rango.
                     </p>
                 </div>
 

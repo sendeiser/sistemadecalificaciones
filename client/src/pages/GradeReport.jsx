@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
 import { supabase } from '../supabaseClient';
-import { Download, Search, ArrowLeft, FileText } from 'lucide-react';
+import { Download, Search, ArrowLeft, FileText, ClipboardList, AlertCircle, CheckCircle } from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -16,6 +16,8 @@ const GradeReport = () => {
     const [report, setReport] = useState([]);
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [isSecondSemester, setIsSecondSemester] = useState(new Date().getMonth() + 1 > 7);
+    const [message, setMessage] = useState(null);
 
     // Load divisions and subjects on mount
     useEffect(() => {
@@ -28,12 +30,24 @@ const GradeReport = () => {
         fetchData();
     }, []);
 
+    // Auto-refresh when semester changes if report already generated
+    useEffect(() => {
+        if (report.length > 0) {
+            generateReport();
+        }
+    }, [isSecondSemester]);
+
+
     const generateReport = async () => {
-        if (!selectedDivision || !selectedSubject) return alert('Seleccione división y materia');
+        if (!selectedDivision || !selectedSubject) {
+            setMessage({ type: 'error', text: 'Seleccione división y materia' });
+            return;
+        }
         setLoading(true);
+        setMessage(null);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const endpoint = getApiEndpoint(`/reports/grades-json?division_id=${selectedDivision}&materia_id=${selectedSubject}`);
+            const endpoint = getApiEndpoint(`/reports/json?division_id=${selectedDivision}&materia_id=${selectedSubject}&cuatrimestre=${isSecondSemester ? 2 : 1}`);
 
             const res = await fetch(
                 endpoint,
@@ -44,22 +58,38 @@ const GradeReport = () => {
                 }
             );
             const json = await res.json();
-            if (json.message) alert(json.message);
-            setReport(json.report || []);
-            setReportData(json);
+
+            if (!res.ok) {
+                setMessage({ type: 'error', text: json.error || 'Error al generar el reporte' });
+                return;
+            }
+
+            if (!json.report || json.report.length === 0) {
+                setMessage({ type: 'info', text: 'No se encontraron calificaciones cargadas para este periodo' });
+                setReport([]);
+            } else {
+                setReport(json.report);
+                setReportData(json);
+                setMessage({ type: 'success', text: 'Reporte generado correctamente' });
+            }
         } catch (e) {
             console.error(e);
-            alert('Error al generar el reporte');
+            setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
         }
         setLoading(false);
+        setTimeout(() => setMessage(null), 5000);
     };
 
     const downloadPDF = async () => {
-        if (!selectedDivision || !selectedSubject) return alert('Seleccione división y materia');
+        if (!selectedDivision || !selectedSubject) {
+            setMessage({ type: 'error', text: 'Seleccione división y materia' });
+            return;
+        }
         setLoading(true);
+        setMessage(null);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const endpoint = getApiEndpoint(`/reports/grades?division_id=${selectedDivision}&materia_id=${selectedSubject}`);
+            const endpoint = getApiEndpoint(`/reports/grades?division_id=${selectedDivision}&materia_id=${selectedSubject}&cuatrimestre=${isSecondSemester ? 2 : 1}`);
 
             const res = await fetch(
                 endpoint,
@@ -76,15 +106,18 @@ const GradeReport = () => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `reporte_calificaciones.pdf`;
+            const cuatrimestreStr = isSecondSemester ? '2do_Cuatri' : '1er_Cuatri';
+            a.download = `Reporte_${cuatrimestreStr}_${selectedDivision}.pdf`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
+            setMessage({ type: 'success', text: 'PDF descargado correctamente' });
         } catch (e) {
             console.error(e);
-            alert('Error al descargar el PDF');
+            setMessage({ type: 'error', text: 'Error al descargar el PDF' });
         }
         setLoading(false);
+        setTimeout(() => setMessage(null), 5000);
     };
 
     const exportCSV = () => {
@@ -126,9 +159,11 @@ const GradeReport = () => {
         const divName = divObj ? `${divObj.anio} ${divObj.seccion}` : '';
         const matName = subjects.find(s => s.id === parseInt(selectedSubject))?.nombre || '';
 
+        const cuatrimestreStr = isSecondSemester ? 'Segundo Cuatrimestre' : 'Primer Cuatrimestre';
+
         // Header
         doc.setFontSize(18);
-        doc.text('Reporte de Calificaciones', 14, 20);
+        doc.text(`Reporte de Calificaciones (${cuatrimestreStr})`, 14, 20);
 
         doc.setFontSize(10);
         doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 28);
@@ -162,150 +197,190 @@ const GradeReport = () => {
             styles: { fontSize: 9, cellPadding: 2 }
         });
 
-        doc.save(`Reporte_Notas_${divName}_${matName}.pdf`);
+        const cuatrimestreFile = isSecondSemester ? '2do_Cuatri' : '1er_Cuatri';
+        doc.save(`Reporte_Notas_${cuatrimestreFile}_${divName}_${matName}.pdf`);
+        setMessage({ type: 'success', text: 'PDF exportado correctamente' });
     };
 
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            <header className="max-w-6xl mx-auto mb-10 flex flex-col md:flex-row items-start md:items-center justify-between border-b border-tech-surface pb-6 gap-4">
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="p-2 bg-tech-secondary border border-tech-surface rounded-lg text-tech-muted hover:text-tech-text transition-all hover:scale-105 active:scale-95"
-                    >
-                        <ArrowLeft size={20} />
-                    </button>
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-tech-text uppercase tracking-tight">Reporte de Calificaciones</h1>
-                        <p className="text-tech-muted text-xs font-mono">VISTA PRECEPTOR</p>
+            <header className="max-w-7xl mx-auto mb-10 border-b border-tech-surface pb-6">
+                <div className="flex items-center justify-between mb-2">
+                    <h1 className="text-3xl font-bold text-tech-text flex items-center gap-3">
+                        <FileText className="text-tech-cyan" size={32} />
+                        Planilla de Calificaciones
+                    </h1>
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="p-2 text-tech-muted hover:text-tech-text transition-colors"
+                        >
+                            <ArrowLeft size={24} />
+                        </button>
                     </div>
                 </div>
-                <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                    <ThemeToggle />
-                </div>
+                <p className="text-tech-muted font-mono text-sm uppercase tracking-widest">Generación y exportación de reportes académicos</p>
             </header>
 
-            <div className="max-w-6xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-tech-secondary p-4 rounded border border-tech-surface shadow-sm">
-                    <select
-                        className="p-2 bg-tech-primary border border-tech-surface rounded text-tech-text focus:border-tech-cyan outline-none"
-                        value={selectedDivision}
-                        onChange={e => setSelectedDivision(e.target.value)}
-                    >
-                        <option value="">Seleccionar División</option>
-                        {divisions.map(d => (
-                            <option key={d.id} value={d.id}>
-                                {d.anio} {d.seccion}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        className="p-2 bg-tech-primary border border-tech-surface rounded text-tech-text focus:border-tech-cyan outline-none"
-                        value={selectedSubject}
-                        onChange={e => setSelectedSubject(e.target.value)}
-                    >
-                        <option value="">Seleccionar Materia</option>
-                        {subjects.map(s => (
-                            <option key={s.id} value={s.id}>
-                                {s.nombre}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="flex flex-wrap gap-4 mt-6">
-                    <button
-                        onClick={generateReport}
-                        disabled={loading}
-                        className="flex items-center gap-2 bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50"
-                    >
-                        <Search size={20} />
-                        {loading ? 'Generando...' : 'Generar Vista Previa'}
-                    </button>
+            <div className="max-w-7xl mx-auto">
+                {message && (
+                    <div className={`mb-6 p-4 rounded-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-300 border ${message.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
+                        message.type === 'info' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+                            'bg-red-500/10 border-red-500/20 text-red-500'
+                        }`}>
+                        <div className="flex items-center gap-3">
+                            {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                            <p className="font-mono text-sm uppercase tracking-wider font-bold">{message.text}</p>
+                        </div>
+                        <button onClick={() => setMessage(null)} className="opacity-50 hover:opacity-100 transition-opacity">✕</button>
+                    </div>
+                )}
 
-                    <button
-                        onClick={downloadPDF}
-                        disabled={loading || !selectedDivision || !selectedSubject}
-                        className="flex items-center gap-2 bg-red-600 dark:bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:opacity-50"
-                    >
-                        <FileText size={20} />
-                        Descargar PDF (Oficial)
-                    </button>
+                <div className="bg-tech-secondary p-6 rounded-xl border border-tech-surface shadow-lg mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-tech-muted uppercase tracking-wider">División</label>
+                            <select
+                                className="w-full p-3 bg-tech-primary border border-tech-surface rounded-lg text-tech-text focus:border-tech-cyan outline-none transition-all"
+                                value={selectedDivision}
+                                onChange={e => setSelectedDivision(e.target.value)}
+                            >
+                                <option value="">Seleccionar División</option>
+                                {divisions.map(d => (
+                                    <option key={d.id} value={d.id}>{d.anio} {d.seccion}</option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <button
-                        onClick={exportCSV}
-                        disabled={loading || report.length === 0}
-                        className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50"
-                    >
-                        <Download size={20} />
-                        Exportar CSV
-                    </button>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-tech-muted uppercase tracking-wider">Materia</label>
+                            <select
+                                className="w-full p-3 bg-tech-primary border border-tech-surface rounded-lg text-tech-text focus:border-tech-cyan outline-none transition-all"
+                                value={selectedSubject}
+                                onChange={e => setSelectedSubject(e.target.value)}
+                            >
+                                <option value="">Seleccionar Materia</option>
+                                {subjects.map(s => (
+                                    <option key={s.id} value={s.id}>{s.nombre}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-tech-muted uppercase tracking-wider">Periodo</label>
+                            <div className="flex bg-tech-primary p-1 rounded-lg border border-tech-surface">
+                                <button
+                                    onClick={() => setIsSecondSemester(false)}
+                                    className={`flex-1 px-4 py-2 rounded-md text-[10px] font-bold uppercase transition-all ${!isSecondSemester ? 'bg-tech-cyan text-white shadow-lg shadow-cyan-500/20' : 'text-tech-muted hover:text-tech-text'}`}
+                                >
+                                    1er Cuatri
+                                </button>
+                                <button
+                                    onClick={() => setIsSecondSemester(true)}
+                                    className={`flex-1 px-4 py-2 rounded-md text-[10px] font-bold uppercase transition-all ${isSecondSemester ? 'bg-tech-cyan text-white shadow-lg shadow-cyan-500/20' : 'text-tech-muted hover:text-tech-text'}`}
+                                >
+                                    2do Cuatri
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t border-tech-surface/50">
+                        <button
+                            onClick={generateReport}
+                            disabled={loading}
+                            className="flex items-center gap-2 bg-tech-cyan/10 hover:bg-tech-cyan/20 text-tech-cyan px-6 py-3 rounded-xl border border-tech-cyan/20 transition-all font-bold uppercase text-xs tracking-widest disabled:opacity-50"
+                        >
+                            <Search size={18} />
+                            {loading ? 'Procesando...' : 'Vista Previa'}
+                        </button>
+
+                        <button
+                            onClick={downloadPDF}
+                            disabled={loading || !report.length}
+                            className="flex items-center gap-2 bg-tech-accent/10 hover:bg-tech-accent/20 text-tech-accent px-6 py-3 rounded-xl border border-tech-accent/20 transition-all font-bold uppercase text-xs tracking-widest disabled:opacity-50"
+                        >
+                            <Download size={18} />
+                            Descargar PDF
+                        </button>
+
+                        <button
+                            onClick={exportCSV}
+                            disabled={loading || !report.length}
+                            className="flex items-center gap-2 bg-tech-success/10 hover:bg-tech-success/20 text-tech-success px-6 py-3 rounded-xl border border-tech-success/20 transition-all font-bold uppercase text-xs tracking-widest disabled:opacity-50 ml-auto"
+                        >
+                            <ClipboardList size={18} />
+                            Exportar CSV
+                        </button>
+                    </div>
                 </div>
 
                 {report.length > 0 && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
                         {reportData?.asignacion && (
-                            <div className="bg-tech-secondary p-4 rounded border border-tech-surface mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm shadow-sm">
-                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Curso / Sección</span> <span className="text-tech-text font-bold">{reportData.asignacion.division.anio} "{reportData.asignacion.division.seccion}"</span></div>
-                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Materia</span> <span className="text-tech-text font-bold">{reportData.asignacion.materia.nombre}</span></div>
-                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Profesor</span> <span className="text-tech-text font-bold">{reportData.asignacion.docente?.nombre || '-'}</span></div>
-                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Ciclo Lectivo</span> <span className="text-tech-text font-bold">{reportData.asignacion.division.ciclo_lectivo}</span></div>
-                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Ciclo</span> <span className="text-tech-text font-bold">{reportData.asignacion.materia.ciclo || 'Básico'}</span></div>
-                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">C. de Formación</span> <span className="text-tech-text font-bold">{reportData.asignacion.materia.campo_formacion || '-'}</span></div>
-                                <div><span className="text-tech-muted uppercase font-bold text-[10px] block mb-1">Periodo</span> <span className="text-tech-text font-bold">{new Date().getMonth() + 1 <= 7 ? '1er Cuatrimestre' : '2do Cuatrimestre'}</span></div>
+                            <div className="bg-tech-secondary/50 p-6 rounded-xl border border-tech-surface grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+                                <div>
+                                    <span className="text-tech-muted uppercase font-bold text-[10px] block mb-1 tracking-tighter">Curso / Sección</span>
+                                    <span className="text-tech-text font-bold">{reportData.asignacion.division.anio} "{reportData.asignacion.division.seccion}"</span>
+                                </div>
+                                <div>
+                                    <span className="text-tech-muted uppercase font-bold text-[10px] block mb-1 tracking-tighter">Materia</span>
+                                    <span className="text-tech-text font-bold">{reportData.asignacion.materia.nombre}</span>
+                                </div>
+                                <div>
+                                    <span className="text-tech-muted uppercase font-bold text-[10px] block mb-1 tracking-tighter">Docente</span>
+                                    <span className="text-tech-text font-bold">{reportData.asignacion.docente?.nombre || 'No asignado'}</span>
+                                </div>
+                                <div>
+                                    <span className="text-tech-muted uppercase font-bold text-[10px] block mb-1 tracking-tighter">Ciclo Lectivo</span>
+                                    <span className="text-tech-text font-bold">{reportData.asignacion.division.ciclo_lectivo}</span>
+                                </div>
                             </div>
                         )}
 
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-x-auto custom-scrollbar rounded border border-tech-surface shadow-inner">
-                            <table className="w-full min-w-[600px] table-auto border-collapse bg-tech-secondary">
-                                <thead className="bg-tech-primary/50 text-black font-mono text-xs uppercase tracking-wider">
+                        <div className="hidden md:block overflow-hidden rounded-xl border border-tech-surface shadow-inner bg-tech-secondary">
+                            <table className="w-full table-auto border-collapse">
+                                <thead className="bg-tech-primary/50 text-tech-muted font-mono text-[10px] uppercase tracking-widest">
                                     <tr>
-                                        <th className="p-3 border border-tech-surface text-left">Alumno</th>
-                                        <th className="p-3 border border-tech-surface text-center text-tech-accent text-[10px]">Intif.</th>
-                                        <th className="p-3 border border-tech-surface text-center text-tech-accent text-[10px]">Logro</th>
-                                        <th className="p-3 border border-tech-surface text-center">P1</th>
-                                        <th className="p-3 border border-tech-surface text-center">P2</th>
-                                        <th className="p-3 border border-tech-surface text-center">P3</th>
-                                        <th className="p-3 border border-tech-surface text-center">P4</th>
-                                        <th className="p-3 border border-tech-surface text-center text-[10px]">Prom. Parc.</th>
-                                        <th className="p-3 border border-tech-surface text-center text-[10px]">Logro</th>
-                                        <th className="p-3 border border-tech-surface text-center text-[10px]">% Asist</th>
-                                        <th className="p-3 border border-tech-surface text-center text-tech-cyan text-[10px]">Trayecto</th>
-                                        <th className="p-3 border border-tech-surface text-center text-[10px]">Observ.</th>
-                                        <th className="p-3 border border-tech-surface text-center font-bold text-tech-success text-[10px]">Prom. Gral</th>
+                                        <th className="p-4 text-left border-b border-tech-surface">Alumno</th>
+                                        {!isSecondSemester && (
+                                            <>
+                                                <th className="p-4 text-center border-b border-tech-surface text-tech-accent">Intif.</th>
+                                                <th className="p-4 text-center border-b border-tech-surface text-tech-accent">Logro</th>
+                                            </>
+                                        )}
+                                        <th className="p-4 text-center border-b border-tech-surface">P1</th>
+                                        <th className="p-4 text-center border-b border-tech-surface">P2</th>
+                                        <th className="p-4 text-center border-b border-tech-surface">P3</th>
+                                        <th className="p-4 text-center border-b border-tech-surface">P4</th>
+                                        <th className="p-4 text-center border-b border-tech-surface">Prom</th>
+                                        <th className="p-4 text-center border-b border-tech-surface text-tech-cyan">Trayecto</th>
+                                        <th className="p-4 text-center border-b border-tech-surface text-tech-success">Final</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-tech-surface">
                                     {report.map(r => (
-                                        <tr key={r.alumno_id} className="hover:bg-tech-primary/30 transition-colors text-black">
-                                            <td className="p-3 border border-tech-surface font-bold text-sm">{r.nombre}</td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-accent">
-                                                {r.nota_intensificacion ?? '-'}
-                                            </td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-accent bg-tech-accent/5 text-[10px]">
-                                                {r.logro_intensificacion || '-'}
-                                            </td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-[11px]">{r.parcial_1 ?? '-'}</td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-[11px]">{r.parcial_2 ?? '-'}</td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-[11px]">{r.parcial_3 ?? '-'}</td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-[11px]">{r.parcial_4 ?? '-'}</td>
-                                            <td className={`p-3 border border-tech-surface text-center font-bold font-mono text-sm ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
+                                        <tr key={r.alumno_id} className="hover:bg-tech-primary/30 transition-colors">
+                                            <td className="p-4 font-bold text-sm text-tech-text">{r.nombre}</td>
+                                            {!isSecondSemester && (
+                                                <>
+                                                    <td className="p-4 text-center font-mono font-bold text-tech-accent">{r.nota_intensificacion ?? '-'}</td>
+                                                    <td className="p-4 text-center text-[10px] text-tech-accent">{r.logro_intensificacion || '-'}</td>
+                                                </>
+                                            )}
+                                            <td className="p-4 text-center font-mono text-xs">{r.parcial_1 ?? '-'}</td>
+                                            <td className="p-4 text-center font-mono text-xs">{r.parcial_2 ?? '-'}</td>
+                                            <td className="p-4 text-center font-mono text-xs">{r.parcial_3 ?? '-'}</td>
+                                            <td className="p-4 text-center font-mono text-xs">{r.parcial_4 ?? '-'}</td>
+                                            <td className={`p-4 text-center font-bold font-mono text-sm ${parseFloat(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
                                                 {r.promedio ?? '-'}
                                             </td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono font-bold text-tech-text bg-tech-primary/20 text-[10px]">
-                                                {r.logro_promedio || '-'}
-                                            </td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-[10px] text-tech-muted">
-                                                {r.asistencia_porc !== '-' ? `${r.asistencia_porc}%` : '-'}
-                                            </td>
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-[10px] font-bold text-tech-cyan uppercase max-w-[120px] truncate">
+                                            <td className="p-4 text-center font-mono text-[10px] font-bold text-tech-cyan uppercase truncate max-w-[120px]">
                                                 {r.trayecto_acompanamiento ?? '-'}
                                             </td>
-
-                                            <td className="p-3 border border-tech-surface text-center font-mono text-[10px] text-tech-muted italic">
-                                                {r.observaciones || '-'}
-                                            </td>
-                                            <td className="p-3 border border-tech-surface text-center font-bold font-mono text-sm text-tech-success bg-tech-success/5">
+                                            <td className="p-4 text-center font-bold font-mono text-sm text-tech-success bg-tech-success/5">
                                                 {r.promedio_general ?? r.promedio ?? '-'}
                                             </td>
                                         </tr>
@@ -317,50 +392,38 @@ const GradeReport = () => {
                         {/* Mobile Card View */}
                         <div className="md:hidden space-y-4">
                             {report.map(r => (
-                                <div key={r.alumno_id} className="bg-tech-secondary p-4 rounded border border-tech-surface shadow-md">
-                                    <div className="flex justify-between items-start mb-3 border-b border-tech-surface pb-2">
+                                <div key={r.alumno_id} className="bg-tech-secondary p-4 rounded-xl border border-tech-surface shadow-md">
+                                    <div className="flex justify-between items-start mb-4 border-b border-tech-surface pb-3">
                                         <div>
-                                            <h3 className="font-bold text-black text-lg">{r.nombre}</h3>
-                                            <span className="text-xs text-tech-muted font-mono"><span className="text-tech-success">{r.asistencia_porc}% Asist</span></span>
+                                            <h3 className="font-bold text-tech-text text-base">{r.nombre}</h3>
+                                            <span className="text-xs text-tech-muted font-mono">{r.asistencia_porc}% Asit.</span>
                                         </div>
                                         <div className="text-right">
-                                            <div className={`text-2xl font-bold font-mono ${r.promedio !== '-' && Number(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
+                                            <div className={`text-xl font-bold font-mono ${parseFloat(r.promedio) < 7 ? 'text-tech-danger' : 'text-tech-success'}`}>
                                                 {r.promedio_general || r.promedio || '-'}
                                             </div>
-                                            <span className="block text-[8px] text-tech-muted font-sans uppercase tracking-wider">Prom. Gral</span>
+                                            <span className="block text-[8px] text-tech-muted font-sans uppercase tracking-wider">Final</span>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-4 gap-2 text-center text-sm font-mono mb-3">
-                                        <div className="bg-tech-primary/50 p-2 rounded">
-                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">P1</span>
-                                            <span className="text-tech-text font-bold">{r.parcial_1 ?? '-'}</span>
-                                        </div>
-                                        <div className="bg-tech-primary/50 p-2 rounded">
-                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">P2</span>
-                                            <span className="text-tech-text font-bold">{r.parcial_2 ?? '-'}</span>
-                                        </div>
-                                        <div className="bg-tech-primary/50 p-2 rounded">
-                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">P3</span>
-                                            <span className="text-tech-text font-bold">{r.parcial_3 ?? '-'}</span>
-                                        </div>
-                                        <div className="bg-tech-primary/50 p-2 rounded">
-                                            <span className="text-[9px] text-tech-muted block uppercase font-bold">P4</span>
-                                            <span className="text-tech-text font-bold">{r.parcial_4 ?? '-'}</span>
-                                        </div>
+                                    <div className="grid grid-cols-4 gap-2 text-center text-sm font-mono mb-4">
+                                        {[1, 2, 3, 4].map(p => (
+                                            <div key={p} className="bg-tech-primary/50 p-2 rounded-lg">
+                                                <span className="text-[8px] text-tech-muted block uppercase font-bold mb-1">P{p}</span>
+                                                <span className="text-tech-text font-bold text-xs">{r[`parcial_${p}`] ?? '-'}</span>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <div className="grid grid-cols-3 gap-3 border-t border-tech-surface pt-3 text-[10px]">
-                                        <div className="flex flex-col items-center justify-center bg-tech-accent/10 p-2 rounded">
-                                            <span className="text-[8px] text-tech-muted uppercase font-bold">Intif.</span>
-                                            <span className="font-mono font-bold text-tech-accent">{r.nota_intensificacion ?? '-'} ({r.logro_intensificacion || '-'})</span>
+                                    <div className="flex items-center justify-between border-t border-tech-surface pt-3">
+                                        <div className="flex flex-col">
+                                            <span className="text-[8px] text-tech-muted uppercase font-bold tracking-tighter">Trayecto</span>
+                                            <span className="font-mono font-bold text-tech-cyan text-[10px] uppercase truncate max-w-[150px]">{r.trayecto_acompanamiento || '-'}</span>
                                         </div>
-                                        <div className="flex flex-col items-center justify-center bg-tech-primary/30 p-2 rounded">
-                                            <span className="text-[8px] text-tech-muted uppercase font-bold">Logro Parc</span>
-                                            <span className="font-mono font-bold text-tech-text">{r.logro_promedio || '-'}</span>
-                                        </div>
-                                        <div className="flex flex-col items-center justify-center bg-tech-cyan/10 p-2 rounded">
-                                            <span className="text-[8px] text-tech-muted uppercase font-bold">Trayecto</span>
-                                            <span className="font-mono font-bold text-tech-cyan truncate w-full text-center">{r.trayecto_acompanamiento || '-'}</span>
-                                        </div>
+                                        {!isSecondSemester && (
+                                            <div className="text-right">
+                                                <span className="text-[8px] text-tech-muted uppercase font-bold block">Intif.</span>
+                                                <span className="font-mono font-bold text-tech-accent text-sm">{r.nota_intensificacion ?? '-'}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
