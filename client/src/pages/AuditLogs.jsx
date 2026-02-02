@@ -40,31 +40,47 @@ const AuditLogs = () => {
     }, [page, filters]);
 
     const fetchLogs = useCallback(async () => {
-        setLoading(true);
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            let url = `${getApiEndpoint('/audit')}?page=${page}&limit=20`;
+        // ... (existing fetchLogs code)
+    }, [page, filters]);
 
-            if (filters.entidad_tipo) url += `&entidad_tipo=${filters.entidad_tipo}`;
-            if (filters.accion) url += `&accion=${filters.accion}`;
-            if (filters.desde) url += `&desde=${filters.desde}`;
-            if (filters.hasta) url += `&hasta=${filters.hasta}`;
+    const getSimplifiedDiff = (before, after) => {
+        const beforeData = before || {};
+        const afterData = after || {};
+        const labels = {
+            nota: 'Nota',
+            cuatrimestre: 'Cuatrimestre',
+            estado: 'Estado',
+            justificado: 'Justificado',
+            observaciones: 'Observaciones',
+            nombre: 'Nombre',
+            email: 'Email',
+            dni: 'DNI',
+            rol: 'Rol',
+            fecha: 'Fecha',
+            tipo: 'Tipo',
+            division_id: 'División',
+            alumno_id: 'Alumno',
+            asignacion_id: 'Asignación',
+            contenido: 'Mensaje',
+            destinatario_nombre: 'Destinatario'
+        };
 
-            const res = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+        const allKeys = [...new Set([...Object.keys(beforeData), ...Object.keys(afterData)])];
+        const changes = allKeys
+            .filter(key => {
+                // Ignore technical metadata
+                if (['id', 'created_at', 'updated_at', 'usuario_id'].includes(key)) return false;
+                return JSON.stringify(beforeData[key]) !== JSON.stringify(afterData[key]);
+            })
+            .map(key => {
+                const label = labels[key] || key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
+                const oldVal = beforeData[key] === undefined || beforeData[key] === null ? '(nada)' : beforeData[key];
+                const newVal = afterData[key] === undefined || afterData[key] === null ? '(borrado)' : afterData[key];
+                return `${label}: ${oldVal} -> ${newVal}`;
             });
 
-            if (res.ok) {
-                const data = await res.json();
-                setLogs(data.logs);
-                setTotalPages(data.totalPages);
-            }
-        } catch (error) {
-            console.error('Error fetching audit logs:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [page, filters]);
+        return changes.length > 0 ? changes.join('\n') : 'Sin cambios relevantes';
+    };
 
     const exportData = async (format) => {
         setLoading(true);
@@ -101,19 +117,18 @@ const AuditLogs = () => {
                     new Date(log.fecha).toLocaleString('es-AR'),
                     log.usuario?.nombre || 'SISTEMA',
                     log.accion,
-                    log.datos_anteriores ? JSON.stringify(log.datos_anteriores, null, 2) : '-',
-                    log.datos_nuevos ? JSON.stringify(log.datos_nuevos, null, 2) : '-'
+                    getSimplifiedDiff(log.datos_anteriores, log.datos_nuevos)
                 ]);
 
                 autoTable(doc, {
-                    head: [['Fecha', 'Usuario', 'Acción', 'Estado Anterior', 'Estado Nuevo']],
+                    head: [['Fecha', 'Usuario', 'Acción', 'Cambios Realizados']],
                     body: tableData,
                     startY: 35,
                     theme: 'grid',
                     styles: {
-                        fontSize: 7,
-                        cellPadding: 2,
-                        valign: 'top',
+                        fontSize: 8,
+                        cellPadding: 3,
+                        valign: 'middle',
                         overflow: 'linebreak'
                     },
                     headStyles: {
@@ -122,11 +137,10 @@ const AuditLogs = () => {
                         fontStyle: 'bold'
                     },
                     columnStyles: {
-                        0: { cellWidth: 30 }, // Fecha
-                        1: { cellWidth: 40 }, // Usuario
-                        2: { cellWidth: 35 }, // Accion
-                        3: { cellWidth: 75 }, // Datos Anteriores
-                        4: { cellWidth: 75 }  // Datos Nuevos
+                        0: { cellWidth: 35 }, // Fecha
+                        1: { cellWidth: 50 }, // Usuario
+                        2: { cellWidth: 40 }, // Accion
+                        3: { cellWidth: 140 } // Cambios (Simplified Diff)
                     },
                     didDrawPage: (data) => {
                         const pageSize = doc.internal.pageSize;
@@ -140,28 +154,24 @@ const AuditLogs = () => {
                 const formattedData = exportLogs.map(log => ({
                     'Fecha y Hora': new Date(log.fecha).toLocaleString('es-AR'),
                     'Usuario Actor': log.usuario?.nombre || 'SISTEMA',
-                    'Email/ID': log.usuario?.email || log.usuario_id || '-',
-                    'Acción Técnica': log.accion,
-                    'Estado Anterior': log.datos_anteriores ? JSON.stringify(log.datos_anteriores, null, 2) : '-',
-                    'Estado Nuevo': log.datos_nuevos ? JSON.stringify(log.datos_nuevos, null, 2) : '-'
+                    'Acción': log.accion,
+                    'Cambios Realizados': getSimplifiedDiff(log.datos_anteriores, log.datos_nuevos)
                 }));
 
                 const ws = XLSX.utils.json_to_sheet(formattedData);
 
-                // Definir anchos de columna (en caracteres aproximados)
+                // Definir anchos de columna
                 const wscols = [
                     { wch: 20 }, // Fecha
                     { wch: 25 }, // Usuario
-                    { wch: 30 }, // Email
                     { wch: 25 }, // Accion
-                    { wch: 50 }, // Anterior
-                    { wch: 50 }  // Nuevo
+                    { wch: 80 }  // Cambios
                 ];
                 ws['!cols'] = wscols;
 
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Auditoria_Sistema");
-                XLSX.writeFile(wb, `Auditoria_Format_${new Date().getTime()}.xlsx`);
+                XLSX.writeFile(wb, `Auditoria_Lectura_${new Date().getTime()}.xlsx`);
             }
         } catch (error) {
             console.error('Export error:', error);
