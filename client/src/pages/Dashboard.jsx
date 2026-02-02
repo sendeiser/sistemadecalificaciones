@@ -253,6 +253,17 @@ const Dashboard = () => {
                                     </div>
                                     <p className="text-tech-muted text-sm font-mono">Generar invitaciones para docentes.</p>
                                 </div>
+
+                                <div onClick={() => navigate('/admin/audit')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                            <ShieldAlert size={24} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Auditoría</h3>
+                                    </div>
+                                    <p className="text-tech-muted text-sm font-mono">Historial completo de acciones.</p>
+                                </div>
                             </div>
                         </section>
 

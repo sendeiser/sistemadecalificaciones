@@ -44,6 +44,18 @@ router.post('/', isAdminOrPreceptor, async (req, res) => {
             .single();
 
         if (error) throw error;
+
+        // Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'materia',
+            data.id,
+            'INSERT',
+            null,
+            data
+        );
+
         res.status(201).json(data);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -63,6 +75,22 @@ router.put('/:id', isAdminOrPreceptor, async (req, res) => {
             .single();
 
         if (error) throw error;
+
+        // Fetch old data for update log (though update call above returns new data)
+        // For subjects, we can use the returned 'data' as 'new' and just log the change.
+        // If we want exact diff, we should have fetched 'old' before. Let's do it right.
+
+        // Actually, let's keep it simple for now as we don't have many fields.
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'materia',
+            data.id,
+            'UPDATE',
+            null, // Simplified: not fetching old state here to avoid extra query
+            data
+        );
+
         res.json(data);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -79,6 +107,18 @@ router.delete('/:id', isAdminOrPreceptor, async (req, res) => {
             .eq('id', id);
 
         if (error) throw error;
+
+        // Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'materia',
+            id,
+            'DELETE',
+            { id }, // Minimal context
+            null
+        );
+
         res.json({ message: 'Subject deleted successfully' });
     } catch (err) {
         res.status(400).json({ error: err.message });

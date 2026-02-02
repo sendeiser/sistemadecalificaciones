@@ -234,6 +234,17 @@ router.post('/', async (req, res) => {
 
         if (error) throw error;
 
+        // Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'anuncio',
+            data.id,
+            'INSERT',
+            null,
+            data
+        );
+
         res.status(201).json(data);
     } catch (error) {
         console.error('Error creating announcement:', error);
@@ -310,6 +321,17 @@ router.put('/:id', async (req, res) => {
 
         if (error) throw error;
 
+        // Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'anuncio',
+            data.id,
+            'UPDATE',
+            announcement, // contains old data: autor_id, fecha_publicacion + others if we fetched them
+            data
+        );
+
         res.json(data);
     } catch (error) {
         console.error('Error updating announcement:', error);
@@ -355,6 +377,17 @@ router.delete('/:id', async (req, res) => {
             .eq('id', id);
 
         if (error) throw error;
+
+        // Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'anuncio',
+            id,
+            'DELETE',
+            announcement,
+            null
+        );
 
         res.json({ message: 'Anuncio eliminado correctamente' });
     } catch (error) {

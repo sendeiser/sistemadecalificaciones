@@ -34,6 +34,7 @@ const Calendar = lazy(() => import('./pages/Calendar'));
 const Announcements = lazy(() => import('./pages/Announcements'));
 const AdminUserManagement = lazy(() => import('./pages/AdminUserManagement'));
 const Messages = lazy(() => import('./pages/Messages'));
+const AuditLogs = lazy(() => import('./pages/AuditLogs'));
 const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
 
 const ProtectedRoute = ({ children }) => {
@@ -198,6 +199,11 @@ function AnimatedRoutes() {
           <Route path="/admin/users" element={
             <ProtectedRoute>
               <PageTransition><AdminUserManagement /></PageTransition>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/audit" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <PageTransition><AuditLogs /></PageTransition>
             </ProtectedRoute>
           } />
           <Route path="/verify/:hash" element={<PageTransition><VerifyDocument /></PageTransition>} />

@@ -59,10 +59,26 @@ const Assignments = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('¿Eliminar esta asignación?')) return;
-        const { error } = await supabase.from('asignaciones').delete().eq('id', id);
-        if (error) alert(error.message);
-        else fetchData();
+        if (!confirm('¿Eliminar esta asignación? Se borrarán también todas las calificaciones y asistencias asociadas.')) return;
+
+        try {
+            const token = (await supabase.auth.getSession()).data.session?.access_token;
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/assignments/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Error al eliminar la asignación');
+            }
+
+            fetchData();
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
     };
 
     return (

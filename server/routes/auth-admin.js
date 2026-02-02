@@ -52,6 +52,17 @@ router.post('/admin/invite', authMiddleware, requireAdmin, async (req, res) => {
         const clientUrl = req.headers.origin || 'http://localhost:5173';
         const inviteLink = `${clientUrl}/register?token=${data.token}`;
 
+        // 3. Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'invitacion',
+            data.id,
+            'CREATE',
+            null,
+            data
+        );
+
         res.json({ success: true, invitation: data, link: inviteLink });
 
     } catch (err) {
@@ -115,6 +126,17 @@ router.delete('/admin/invite/:token', authMiddleware, requireAdmin, async (req, 
             .eq('token', token);
 
         if (error) throw error;
+
+        // Log Audit (Using token as entityId since we deleted the record)
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'invitacion',
+            token,
+            'DELETE',
+            { token },
+            null
+        );
 
         res.json({ success: true, message: 'Invitación eliminada' });
     } catch (err) {
@@ -213,6 +235,17 @@ router.post('/register-invite', async (req, res) => {
         });
 
         if (authError) throw authError;
+
+        // 3. Log Audit (Registration)
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            authData.user.id,
+            'perfil',
+            authData.user.id,
+            'REGISTER',
+            null,
+            { email, nombre, dni, rol: invite.rol }
+        );
 
         res.json({ success: true, message: 'Usuario creado exitosamente' });
 

@@ -149,6 +149,17 @@ router.post('/events', async (req, res) => {
 
         if (error) throw error;
 
+        // Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'evento_calendario',
+            data.id,
+            'INSERT',
+            null,
+            data
+        );
+
         res.status(201).json(data);
     } catch (error) {
         console.error('Error creating calendar event:', error);
@@ -189,6 +200,13 @@ router.put('/events/:id', async (req, res) => {
             return res.status(403).json({ error: 'No autorizado' });
         }
 
+        // Fetch old data for update log
+        const { data: oldEvent } = await supabaseAdmin
+            .from('eventos_calendario')
+            .select('*')
+            .eq('id', id)
+            .single();
+
         const updateData = {};
         if (titulo !== undefined) updateData.titulo = titulo;
         if (descripcion !== undefined) updateData.descripcion = descripcion;
@@ -209,6 +227,17 @@ router.put('/events/:id', async (req, res) => {
             .single();
 
         if (error) throw error;
+
+        // Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'evento_calendario',
+            data.id,
+            'UPDATE',
+            oldEvent,
+            data
+        );
 
         res.json(data);
     } catch (error) {
@@ -243,6 +272,17 @@ router.delete('/events/:id', async (req, res) => {
             .eq('id', id);
 
         if (error) throw error;
+
+        // Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'evento_calendario',
+            id,
+            'DELETE',
+            { id }, // Minimal context
+            null
+        );
 
         res.json({ message: 'Evento eliminado correctamente' });
     } catch (error) {

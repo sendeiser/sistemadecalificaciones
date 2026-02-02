@@ -40,8 +40,19 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'alumno_id and asignacion_id are required' });
         }
 
-        // Upsert involves using the UNIQUE constraint (alumno_id, asignacion_id)
-        const { data, error } = await req.supabase
+        const activeSemester = cuatrimestre || 1;
+
+        // 1. Fetch OLD data for audit
+        const { data: oldGrade } = await req.supabase
+            .from('calificaciones')
+            .select('*')
+            .eq('alumno_id', alumno_id)
+            .eq('asignacion_id', asignacion_id)
+            .eq('cuatrimestre', activeSemester)
+            .maybeSingle();
+
+        // 2. Upsert involves using the UNIQUE constraint (alumno_id, asignacion_id, cuatrimestre)
+        const { data: newGrade, error } = await req.supabase
             .from('calificaciones')
             .upsert({
                 alumno_id,
@@ -52,13 +63,25 @@ router.post('/', async (req, res) => {
                 parcial_4,
                 asistencia,
                 observaciones,
-                cuatrimestre: cuatrimestre || 1
+                cuatrimestre: activeSemester
             }, { onConflict: 'alumno_id, asignacion_id, cuatrimestre' })
             .select()
             .single();
 
         if (error) throw error;
-        res.json(data);
+
+        // 3. Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'calificacion',
+            newGrade.id,
+            oldGrade ? 'UPDATE' : 'INSERT',
+            oldGrade,
+            newGrade
+        );
+
+        res.json(newGrade);
     } catch (err) {
         console.error('Error saving grade:', err);
         res.status(500).json({ error: err.message });

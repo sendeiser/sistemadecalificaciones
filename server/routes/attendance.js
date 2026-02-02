@@ -63,7 +63,17 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        const { data, error } = await req.supabase
+        // 1. Fetch OLD data
+        const { data: oldAtt } = await req.supabase
+            .from('asistencias')
+            .select('*')
+            .eq('estudiante_id', estudiante_id)
+            .eq('asignacion_id', asignacion_id)
+            .eq('fecha', fecha)
+            .maybeSingle();
+
+        // 2. Upsert
+        const { data: newAtt, error } = await req.supabase
             .from('asistencias')
             .upsert({
                 estudiante_id,
@@ -76,7 +86,19 @@ router.post('/', async (req, res) => {
             .single();
 
         if (error) throw error;
-        res.json(data);
+
+        // 3. Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'asistencia',
+            newAtt.id,
+            oldAtt ? 'UPDATE' : 'INSERT',
+            oldAtt,
+            newAtt
+        );
+
+        res.json(newAtt);
     } catch (err) {
         console.error('Error saving attendance:', err);
         res.status(500).json({ error: err.message });
@@ -99,6 +121,20 @@ router.post('/general', async (req, res) => {
             .select();
 
         if (error) throw error;
+
+        // 3. Log Audit for each record
+        const { logAudit } = require('../utils/auditLogger');
+        for (const record of (data || [])) {
+            await logAudit(
+                req.user.id,
+                'asistencia_preceptor',
+                record.id,
+                'UPSERT',
+                null,
+                record
+            );
+        }
+
         res.json(data);
     } catch (err) {
         console.error('Error saving general attendance:', err);

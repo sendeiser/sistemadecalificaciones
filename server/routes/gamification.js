@@ -55,11 +55,24 @@ router.post('/check-achievements', async (req, res) => {
 
         // 3. Guardar nuevos logros (si no existen)
         for (const ach of achievements) {
-            await supabaseAdmin.from('perfiles_logros').upsert({
+            const { data: newAch, error: achError } = await supabaseAdmin.from('perfiles_logros').upsert({
                 perfil_id: userId,
                 medal_key: ach.key,
                 metadata: ach.meta
-            }, { onConflict: 'perfil_id,medal_key' });
+            }, { onConflict: 'perfil_id,medal_key' }).select().single();
+
+            if (!achError && newAch) {
+                // Log Audit (only if successful)
+                const { logAudit } = require('../utils/auditLogger');
+                await logAudit(
+                    userId, // System-triggered for this user
+                    'logro',
+                    newAch.id,
+                    'INSERT',
+                    null,
+                    newAch
+                );
+            }
         }
 
         res.json({ success: true, new_achievements: achievements });

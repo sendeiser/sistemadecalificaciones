@@ -79,6 +79,34 @@ router.post('/', async (req, res) => {
             .single();
 
         if (error) throw error;
+
+        // Fetch recipient name for audit log
+        let recipientName = 'N/A';
+        if (data.destinatario_id) {
+            const { data: destProfile } = await supabaseAdmin
+                .from('perfiles')
+                .select('nombre')
+                .eq('id', data.destinatario_id)
+                .single();
+            if (destProfile) recipientName = destProfile.nombre;
+        } else if (data.rol_destinatario) {
+            recipientName = `Rol: ${data.rol_destinatario}`;
+        }
+
+        // Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            userId,
+            'mensaje',
+            data.id,
+            'SEND',
+            null,
+            {
+                ...data,
+                destinatario_nombre: recipientName
+            }
+        );
+
         res.status(201).json(data);
     } catch (error) {
         console.error('Error sending message:', error);
