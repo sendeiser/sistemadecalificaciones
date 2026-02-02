@@ -1078,8 +1078,6 @@ async function generateDivisionAttendancePDF(req, res) {
 
         // Standard Signatures for Attendance - Positioned at bottom
         const sigY = 175; // Coordinate for landscape A4 bottom
-        doc.line(40, sigY, 100, sigY);
-        doc.text('Firma Docente', 70, sigY + 5, { align: 'center' });
         doc.line(180, sigY, 240, sigY);
         doc.text('Firma Preceptor / Dirección', 210, sigY + 5, { align: 'center' });
 
