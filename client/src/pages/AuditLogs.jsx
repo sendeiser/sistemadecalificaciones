@@ -40,7 +40,30 @@ const AuditLogs = () => {
     }, [page, filters]);
 
     const fetchLogs = useCallback(async () => {
-        // ... (existing fetchLogs code)
+        setLoading(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            let url = `${getApiEndpoint('/audit')}?page=${page}&limit=20`;
+
+            if (filters.entidad_tipo) url += `&entidad_tipo=${filters.entidad_tipo}`;
+            if (filters.accion) url += `&accion=${filters.accion}`;
+            if (filters.desde) url += `&desde=${filters.desde}`;
+            if (filters.hasta) url += `&hasta=${filters.hasta}`;
+
+            const res = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setLogs(data.logs);
+                setTotalPages(data.totalPages);
+            }
+        } catch (error) {
+            console.error('Error fetching audit logs:', error);
+        } finally {
+            setLoading(false);
+        }
     }, [page, filters]);
 
     const getSimplifiedDiff = (before, after) => {
