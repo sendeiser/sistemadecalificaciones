@@ -59,9 +59,9 @@ const Welcome = () => {
                 <img
                     src="/eta_background.png"
                     alt="ETA Background"
-                    className="w-full h-full object-cover opacity-30 select-none pointer-events-none"
+                    className="w-full h-full object-cover opacity-80 select-none pointer-events-none"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-tech-primary via-tech-primary/80 to-tech-primary"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-tech-primary/40 via-transparent to-tech-primary"></div>
             </div>
 
             {/* Matrix-like Background Pattern */}
