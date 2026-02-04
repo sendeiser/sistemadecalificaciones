@@ -57,7 +57,7 @@ const Welcome = () => {
             {/* Premium Background with School Image */}
             <div className="fixed inset-0 z-0">
                 <img
-                    src="file:///C:/Users/TinChoX/.gemini/antigravity/brain/648547ac-cfe0-47fb-88f4-2de7a1360cf3/eta_school_background_1770216561576.png"
+                    src="/eta_background.png"
                     alt="ETA Background"
                     className="w-full h-full object-cover opacity-30 select-none pointer-events-none"
                 />
