@@ -201,6 +201,14 @@ const Dashboard = () => {
                     <div className="flex items-center gap-3 w-full md:w-auto order-1 md:order-2">
                         <ThemeToggle />
                         <button
+                            onClick={() => navigate('/help')}
+                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black text-white bg-tech-cyan hover:bg-tech-cyan/80 rounded-xl border border-tech-cyan transition-all uppercase tracking-widest shadow-lg shadow-tech-cyan/20"
+                            title="Centro de Ayuda"
+                        >
+                            <HelpCircle size={16} />
+                            <span className="md:hidden lg:inline">Ayuda</span>
+                        </button>
+                        <button
                             onClick={() => navigate('/settings')}
                             className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black text-tech-muted hover:text-tech-cyan bg-tech-secondary hover:bg-tech-surface rounded-xl border border-tech-surface hover:border-tech-cyan/50 transition-all uppercase tracking-widest shadow-lg"
                             title="Configuración de Perfil"

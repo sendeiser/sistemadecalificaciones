@@ -37,6 +37,7 @@ const Messages = lazy(() => import('./pages/Messages'));
 const AuditLogs = lazy(() => import('./pages/AuditLogs'));
 const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
 const UserSettings = lazy(() => import('./pages/UserSettings'));
+const HelpCenter = lazy(() => import('./pages/HelpCenter'));
 
 const ProtectedRoute = ({ children }) => {
   const { session, loading } = useAuth();
@@ -210,6 +211,11 @@ function AnimatedRoutes() {
           <Route path="/settings" element={
             <ProtectedRoute>
               <PageTransition><UserSettings /></PageTransition>
+            </ProtectedRoute>
+          } />
+          <Route path="/help" element={
+            <ProtectedRoute>
+              <PageTransition><HelpCenter /></PageTransition>
             </ProtectedRoute>
           } />
           <Route path="/verify/:hash" element={<PageTransition><VerifyDocument /></PageTransition>} />
