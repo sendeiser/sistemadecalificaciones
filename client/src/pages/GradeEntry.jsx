@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Save, Plus, BookOpen, Users, Star, ClipboardList, AlertCircle, CheckCircle2, ArrowLeft, Zap, MessageSquare } from 'lucide-react';
+import { Save, Plus, BookOpen, Users, Star, ClipboardList, AlertCircle, CheckCircle2, ArrowLeft, Zap, MessageSquare, FileText } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { OBSERVATION_TEMPLATES, TRAYECTO_TEMPLATES, GET_GRADE_COLOR, GET_GRADE_BG } from '../utils/constants';
 
