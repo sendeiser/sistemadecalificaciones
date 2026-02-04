@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import { motion } from 'framer-motion';
+import { Lock, Mail, ArrowRight, ShieldCheck, Terminal } from 'lucide-react';
 
 const Login = () => {
     const { signIn } = useAuth();
@@ -27,71 +29,117 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-tech-primary text-tech-text font-sans relative overflow-hidden">
+        <div className="min-h-screen bg-tech-primary text-tech-text flex flex-col font-sans relative selection:bg-tech-cyan/30 overflow-x-hidden">
             <div className="fixed top-6 right-6 z-50">
                 <ThemeToggle />
             </div>
-            {/* Background elements */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-tech-cyan/5 rounded-full blur-[120px]"></div>
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[120px]"></div>
+
+            {/* Premium Institutional Background */}
+            <div className="fixed inset-0 z-0">
+                <img
+                    src="/eta_background.png"
+                    alt="ETA Institutional Background"
+                    className="w-full h-full object-cover opacity-60 dark:opacity-40 select-none pointer-events-none"
+                    loading="eager"
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-tech-primary/40 via-tech-primary/70 to-tech-primary dark:from-tech-primary/60 dark:via-tech-primary/80 dark:to-tech-primary"></div>
             </div>
 
-            <div className="w-full max-w-md p-8 space-y-6 bg-tech-secondary rounded border border-tech-surface shadow-[0_0_50px_rgba(0,0,0,0.5)] relative z-10 animate-in fade-in zoom-in duration-500">
-                <div className="text-center space-y-2">
-                    <h2 className="text-3xl font-bold text-center text-tech-text tracking-tight uppercase">
-                        Sistema de <span className="text-tech-cyan">Calificaciones</span>
-                    </h2>
-                    <p className="text-tech-muted text-sm font-mono tracking-wide">INGRESO AL PORTAL ACADÉMICO</p>
-                </div>
+            <div className="relative z-10 flex-grow flex items-center justify-center p-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-full max-w-[420px] bg-tech-secondary/90 dark:bg-tech-secondary/80 backdrop-blur-xl rounded-2xl border border-tech-surface p-8 md:p-10 shadow-2xl relative overflow-hidden"
+                >
+                    {/* Decorative Top Bar */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tech-cyan via-tech-success to-tech-cyan"></div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                        <label className="block text-xs font-bold text-tech-muted uppercase mb-2 tracking-wider">Email Institucional</label>
-                        <input
-                            type="email"
-                            required
-                            className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                            placeholder="usuario@escuela.edu"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-tech-muted uppercase mb-2 tracking-wider">Contraseña</label>
-                        <input
-                            type="password"
-                            required
-                            className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </div>
-                    {error && (
-                        <div className="p-3 bg-tech-danger/10 border border-tech-danger/20 rounded">
-                            <p className="text-tech-danger text-sm text-center font-mono">{error}</p>
+                    <div className="text-center mb-10">
+                        <motion.div
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="inline-flex p-4 bg-tech-cyan/10 rounded-2xl mb-6 border border-tech-cyan/20"
+                        >
+                            <ShieldCheck className="text-tech-cyan" size={40} />
+                        </motion.div>
+                        <h2 className="text-3xl font-black text-tech-text tracking-tighter uppercase mb-2">
+                            ETA <span className="text-tech-cyan">Terminal</span>
+                        </h2>
+                        <div className="flex items-center justify-center gap-2 text-tech-muted font-mono text-[10px] uppercase tracking-widest">
+                            <Terminal size={12} />
+                            Ingreso Seguro // Protocolo v4.1
                         </div>
-                    )}
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3 font-bold text-white bg-tech-cyan hover:bg-sky-600 rounded transition-all shadow-[0_0_20px_rgba(14,165,233,0.2)] hover:shadow-[0_0_25px_rgba(14,165,233,0.4)] disabled:opacity-50 disabled:shadow-none uppercase tracking-wider relative overflow-hidden group"
-                    >
-                        <span className="relative z-10">{loading ? 'Verificando...' : 'Iniciar Sesión'}</span>
-                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
-                    </button>
-
-                    <div className="text-center mt-6 pt-6 border-t border-tech-surface">
-                        <p className="text-tech-muted text-sm">
-                            ¿No tienes cuenta? {' '}
-                            <Link to="/register" className="text-tech-cyan font-bold hover:text-tech-text transition-colors uppercase text-xs tracking-wider">
-                                Regístrate como Docente
-                            </Link>
-                        </p>
                     </div>
-                </form>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-tech-muted uppercase tracking-widest ml-1">Email Institucional</label>
+                            <div className="relative group">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted group-focus-within:text-tech-cyan transition-colors" size={18} />
+                                <input
+                                    type="email"
+                                    required
+                                    className="w-full pl-12 pr-4 py-4 bg-tech-primary/50 border border-tech-surface rounded-xl focus:ring-2 focus:ring-tech-cyan/20 focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/40 font-medium"
+                                    placeholder="usuario@eta.edu"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-tech-muted uppercase tracking-widest ml-1">Contraseña</label>
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted group-focus-within:text-tech-cyan transition-colors" size={18} />
+                                <input
+                                    type="password"
+                                    required
+                                    className="w-full pl-12 pr-4 py-4 bg-tech-primary/50 border border-tech-surface rounded-xl focus:ring-2 focus:ring-tech-cyan/20 focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/40 font-medium"
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {error && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="p-4 bg-tech-danger/10 border border-tech-danger/20 rounded-xl"
+                            >
+                                <p className="text-tech-danger text-xs text-center font-bold uppercase tracking-tight leading-tight">{error}</p>
+                            </motion.div>
+                        )}
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-4 bg-tech-cyan text-white rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-lg shadow-tech-cyan/30 hover:shadow-tech-cyan/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-3 group relative overflow-hidden"
+                        >
+                            <span className="relative z-10">{loading ? 'Verificando Nodo...' : 'Iniciar Protocolo'}</span>
+                            <ArrowRight className="relative z-10 group-hover:translate-x-1 transition-transform" size={20} />
+                            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
+                        </button>
+
+                        <div className="text-center pt-8 border-t border-tech-surface/50">
+                            <p className="text-tech-muted text-xs font-medium">
+                                ¿No posees credenciales? {' '}
+                                <Link to="/register" className="text-tech-cyan font-black hover:underline transition-all uppercase tracking-tighter">
+                                    Solicitar Acceso
+                                </Link>
+                            </p>
+                        </div>
+                    </form>
+                </motion.div>
             </div>
+
+            {/* Technical Footer */}
+            <footer className="relative z-10 py-6 text-center text-tech-muted text-[8px] font-mono uppercase tracking-[0.5em] opacity-40">
+                ETA INFRASTRUCTURE // SECURE ACCESS PORTAL // 2026
+            </footer>
         </div>
     );
 };
