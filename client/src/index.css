@@ -9,7 +9,7 @@
   --tech-success: #047857;
   --tech-danger: #be123c;
   --tech-text-main: #0f172a;
-  --tech-text-muted: #475569;
+  --tech-text-muted: #334155;
 }
 
 .dark {
@@ -53,18 +53,27 @@
   .text-shadow-sm {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   }
+
   .scrollbar-none {
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
+
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+
   .animate-marquee {
     animation: marquee 30s linear infinite;
   }
+
   @keyframes marquee {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
+    0% {
+      transform: translateX(100%);
+    }
+
+    100% {
+      transform: translateX(-100%);
+    }
   }
 }
