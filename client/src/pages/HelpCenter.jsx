@@ -40,18 +40,34 @@ const HelpCenter = () => {
             )
         },
         {
-            id: 'admin_base',
-            title: 'Administración de Alumnos y Materias',
+            id: 'preceptor_ops',
+            title: 'Gestión de Preceptoría',
             icon: <Shield size={20} />,
-            roles: ['admin', 'preceptor'],
+            roles: ['preceptor', 'admin'],
             content: (
                 <div className="space-y-4 text-sm leading-relaxed">
-                    <p>Como administrador o preceptor, tienes acceso a la gestión de datos maestros:</p>
+                    <p>Módulos críticos para el seguimiento diario del estudiante:</p>
                     <ul className="list-disc pl-5 space-y-2">
-                        <li><strong>Alumnos:</strong> Registro y edición de datos personales, incluyendo el DNI.</li>
-                        <li><strong>Materias:</strong> Definición de las asignaturas que dicta la institución.</li>
-                        <li><strong>Divisiones:</strong> Creación de cursos (ej: 1ro A) por ciclo lectivo.</li>
-                        <li><strong>Asignaciones:</strong> Módulo crítico donde vinculas a un Docente con una Materia y División.</li>
+                        <li><strong>Asistencia y Justidicación:</strong> Registro de inasistencias y carga masiva de certificados (justificaciones).</li>
+                        <li><strong>Control de Discrepancias:</strong> Herramienta para validar que la asistencia tomada coincida con la del docente.</li>
+                        <li><strong>Alertas y Citaciones:</strong> Sistema automático para detectar alumnos en riesgo de perder la regularidad.</li>
+                        <li><strong>Reportes:</strong> Generación de boletines, sábanas de notas y listados de asistencia en PDF.</li>
+                    </ul>
+                </div>
+            )
+        },
+        {
+            id: 'admin_base',
+            title: 'Configuración Institucional',
+            icon: <Users size={20} />,
+            roles: ['admin'],
+            content: (
+                <div className="space-y-4 text-sm leading-relaxed">
+                    <p>Gestión de la infraestructura básica del sistema:</p>
+                    <ul className="list-disc pl-5 space-y-2">
+                        <li><strong>Gestión Accesos:</strong> Creación de usuarios y control de invitaciones para personal nuevo.</li>
+                        <li><strong>Materias y Ciclos:</strong> Definición del plan de estudios y apertura/cierre de periodos de nota.</li>
+                        <li><strong>Auditoría:</strong> Revisión forense de cada cambio realizado en el sistema por cualquier usuario.</li>
                     </ul>
                 </div>
             )
@@ -166,8 +182,8 @@ const HelpCenter = () => {
                             <div
                                 key={section.id}
                                 className={`bg-tech-secondary border rounded-2xl transition-all duration-300 ${activeSection === section.id
-                                        ? 'border-tech-cyan shadow-[0_0_20px_rgba(14,165,233,0.1)]'
-                                        : 'border-tech-surface hover:border-tech-surface/80'
+                                    ? 'border-tech-cyan shadow-[0_0_20px_rgba(14,165,233,0.1)]'
+                                    : 'border-tech-surface hover:border-tech-surface/80'
                                     }`}
                             >
                                 <button
