@@ -603,7 +603,7 @@ const Dashboard = () => {
                         <div className="p-4 bg-tech-cyan/10 rounded-xl text-tech-cyan group-hover:scale-110 transition-transform"><Info size={40} /></div>
                         <div className="flex-grow">
                             <h3 className="text-2xl font-bold text-tech-text uppercase tracking-tight">Guía del Sistema</h3>
-                            <p className="text-tech-muted font-mono">Información técnica y operativa sobre la plataforma Edumate.</p>
+                            <p className="text-tech-muted font-mono">Información técnica y operativa sobre la plataforma ETA.</p>
                         </div>
                         <ArrowRight size={32} className="text-tech-muted group-hover:translate-x-1 transition-transform" />
                     </div>

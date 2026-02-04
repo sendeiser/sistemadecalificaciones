@@ -115,8 +115,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         </div>
                         {isOpen && (
                             <div className="flex flex-col">
-                                <span className="font-black text-lg tracking-tighter text-tech-text">EDUMATE</span>
-                                <span className="text-[10px] font-mono text-tech-cyan uppercase tracking-widest leading-none">Command Center</span>
+                                <span className="font-black text-2xl tracking-tighter text-tech-text">ETA</span>
+                                <span className="text-[10px] font-mono text-tech-cyan uppercase tracking-widest leading-none">Gestión Agropecuaria</span>
                             </div>
                         )}
                     </div>
