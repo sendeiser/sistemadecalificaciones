@@ -144,24 +144,24 @@ const HelpCenter = () => {
         <PageTransition>
             <div className="max-w-3xl mx-auto pb-10">
                 <div className="mb-10">
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                         CENTRO DE <span className="text-tech-cyan">AYUDA</span>
                     </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
-                        Guía de usuario para el rol <span className="text-tech-accent font-bold">{role}</span>
+                    <p className="text-tech-text/70 dark:text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2 font-bold">
+                        Guía de usuario para el rol <span className="text-tech-accent dark:text-tech-accent font-black border-b-2 border-tech-accent/20 pb-0.5">{role}</span>
                     </p>
                 </div>
 
                 {/* Intro Card */}
-                <div className="bg-tech-secondary border border-tech-surface rounded-2xl p-6 mb-8 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-5">
+                <div className="bg-tech-secondary shadow-lg border border-tech-surface rounded-2xl p-6 mb-8 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-[0.03]">
                         <HelpCircle size={120} />
                     </div>
-                    <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-                        <Info size={20} className="text-tech-cyan" />
+                    <h2 className="text-xl font-bold mb-3 flex items-center gap-2 text-tech-text">
+                        <Info size={22} className="text-tech-cyan" />
                         ¿Cómo funciona el sistema?
                     </h2>
-                    <p className="text-tech-muted text-sm leading-relaxed">
+                    <p className="text-tech-text/80 dark:text-tech-muted text-[15px] leading-relaxed font-medium">
                         Bienvenido al manual interactivo. Aquí encontrarás instrucciones detalladas sobre las herramientas que tienes permitidas según tu nivel de acceso. Haz clic en cada sección para expandirla.
                     </p>
                 </div>

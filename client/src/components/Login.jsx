@@ -37,7 +37,7 @@ const Login = () => {
             {/* Premium Institutional Background */}
             <div className="fixed inset-0 z-0">
                 <img
-                    src="/eta_background.png"
+                    src="/eta_background_v2.png"
                     alt="ETA Institutional Background"
                     className="w-full h-full object-cover opacity-60 dark:opacity-40 select-none pointer-events-none"
                     loading="eager"

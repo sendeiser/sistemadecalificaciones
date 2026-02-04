@@ -5,11 +5,11 @@
   --tech-secondary: #ffffff;
   --tech-surface: #e2e8f0;
   --tech-cyan: #0284c7;
-  --tech-accent: #d97706;
-  --tech-success: #059669;
-  --tech-danger: #dc2626;
+  --tech-accent: #b45309;
+  --tech-success: #047857;
+  --tech-danger: #be123c;
   --tech-text-main: #0f172a;
-  --tech-text-muted: #64748b;
+  --tech-text-muted: #475569;
 }
 
 .dark {
