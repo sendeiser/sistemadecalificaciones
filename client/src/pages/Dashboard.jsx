@@ -118,27 +118,50 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 border-b border-tech-surface pb-6 gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-tech-text tracking-tight">
-                        <span className="text-tech-cyan">Hola,</span> {profile.nombre}
-                    </h1>
-                    <p className="text-tech-muted capitalize mt-1 font-medium text-lg font-mono">
-                        ID: <span className="text-tech-cyan">{profile.id.slice(0, 8)}</span> | ROL: <span className="text-tech-accent">{profile.rol}</span>
-                    </p>
+            <header className="flex flex-col md:flex-row justify-between items-center mb-10 border-b border-tech-surface pb-8 gap-6">
+                <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto text-center md:text-left">
+                    {/* User Avatar Section */}
+                    <div
+                        onClick={() => navigate('/settings')}
+                        className="relative cursor-pointer group"
+                    >
+                        <div className="w-20 h-20 md:w-14 md:h-14 rounded-full border-2 border-tech-surface group-hover:border-tech-cyan transition-all duration-300 overflow-hidden shadow-2xl">
+                            {profile.avatar_url ? (
+                                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full bg-tech-secondary flex items-center justify-center text-tech-muted">
+                                    <Users size={profile.rol === 'admin' ? 32 : 24} />
+                                </div>
+                            )}
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 bg-tech-cyan text-white p-1.5 rounded-full border-2 border-tech-primary md:hidden group-hover:scale-110 transition-transform">
+                            <Settings size={12} />
+                        </div>
+                    </div>
+
+                    <div>
+                        <h1 className="text-2xl md:text-3xl font-black text-tech-text tracking-tight uppercase">
+                            <span className="text-tech-cyan">Hola,</span> {profile.nombre.split(' ')[0]}
+                        </h1>
+                        <p className="text-tech-muted capitalize mt-0.5 font-bold text-xs md:text-sm font-mono tracking-widest flex items-center justify-center md:justify-start gap-2">
+                            <span className="px-2 py-0.5 bg-tech-surface rounded text-tech-accent border border-tech-accent/20">{profile.rol}</span>
+                            <span className="opacity-40 hidden md:inline">|</span>
+                            <span className="hidden md:inline">ID: {profile.id.slice(0, 8)}</span>
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
                     {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
-                        <div className="relative w-full md:w-80">
+                        <div className="relative w-full md:w-80 order-2 md:order-1">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={handleSearch}
-                                    placeholder="Buscar alumno, materia o división..."
-                                    className="w-full pl-10 pr-10 py-2 bg-tech-secondary border border-tech-surface rounded text-sm focus:outline-none focus:border-tech-cyan transition-colors"
+                                    placeholder="Buscar en el sistema..."
+                                    className="w-full pl-12 pr-10 py-3 bg-tech-secondary border border-tech-surface rounded-xl text-sm focus:outline-none focus:border-tech-cyan transition-all shadow-inner"
                                 />
                                 {searchQuery && (
                                     <button
@@ -151,46 +174,46 @@ const Dashboard = () => {
                             </div>
 
                             {showResults && (
-                                <div className="absolute top-full mt-2 w-full bg-tech-secondary border border-tech-surface rounded shadow-2xl z-50 max-h-80 overflow-y-auto overflow-x-hidden">
+                                <div className="absolute top-full mt-2 w-full bg-tech-secondary border border-tech-surface rounded-xl shadow-2xl z-50 max-h-80 overflow-y-auto border-t-4 border-t-tech-cyan animate-in fade-in slide-in-from-top-2">
                                     {isSearching ? (
-                                        <div className="p-4 text-center text-tech-muted text-sm font-mono animate-pulse">Buscando...</div>
+                                        <div className="p-6 text-center text-tech-muted text-xs font-black uppercase tracking-widest animate-pulse">Analizando...</div>
                                     ) : searchResults.length > 0 ? (
                                         <div className="p-2 space-y-1">
                                             {searchResults.map((res, i) => (
                                                 <button
                                                     key={i}
                                                     onClick={() => handleResultClick(res)}
-                                                    className="w-full flex flex-col items-start p-3 hover:bg-tech-surface rounded transition-colors border border-transparent hover:border-tech-cyan/30 text-left"
+                                                    className="w-full flex flex-col items-start p-4 hover:bg-tech-surface rounded-lg transition-colors border border-transparent hover:border-tech-cyan/30 text-left group"
                                                 >
-                                                    <span className="font-bold text-tech-text text-sm">{res.title}</span>
-                                                    <span className="text-xs text-tech-muted capitalize">{res.type} {res.subtitle && `• ${res.subtitle}`}</span>
+                                                    <span className="font-bold text-tech-text text-sm group-hover:text-tech-cyan transition-colors">{res.title}</span>
+                                                    <span className="text-[10px] text-tech-muted uppercase font-black tracking-tighter">{res.type} {res.subtitle && `• ${res.subtitle}`}</span>
                                                 </button>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="p-4 text-center text-tech-muted text-sm">No se encontraron resultados</div>
+                                        <div className="p-6 text-center text-tech-muted text-xs font-black uppercase tracking-widest">Sin resultados</div>
                                     )}
                                 </div>
                             )}
                         </div>
                     )}
 
-                    <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="flex items-center gap-3 w-full md:w-auto order-1 md:order-2">
                         <ThemeToggle />
                         <button
                             onClick={() => navigate('/settings')}
-                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-tech-muted hover:text-tech-cyan bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface hover:border-tech-cyan/50 transition-all uppercase tracking-wider"
+                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black text-tech-muted hover:text-tech-cyan bg-tech-secondary hover:bg-tech-surface rounded-xl border border-tech-surface hover:border-tech-cyan/50 transition-all uppercase tracking-widest shadow-lg"
                             title="Configuración de Perfil"
                         >
                             <Settings size={16} />
-                            Configuración
+                            <span className="md:hidden lg:inline">Ajustes</span>
                         </button>
                         <button
                             onClick={handleLogout}
-                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-tech-muted hover:text-tech-text bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface hover:border-tech-danger/50 transition-all uppercase tracking-wider"
+                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black text-tech-muted hover:text-tech-danger bg-tech-secondary hover:bg-tech-surface rounded-xl border border-tech-surface hover:border-tech-danger/50 transition-all uppercase tracking-widest shadow-lg"
                         >
                             <LogOut size={16} />
-                            Cerrar Sesión
+                            <span className="md:hidden lg:inline">Salir</span>
                         </button>
                     </div>
                 </div>

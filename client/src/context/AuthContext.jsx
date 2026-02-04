@@ -86,7 +86,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         signIn,
         signUp,
-        signOut
+        signOut,
+        refreshProfile: () => fetchProfile(user?.id)
     };
 
     return (
