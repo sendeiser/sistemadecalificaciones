@@ -178,6 +178,14 @@ const Dashboard = () => {
                     <div className="flex items-center gap-3 w-full md:w-auto">
                         <ThemeToggle />
                         <button
+                            onClick={() => navigate('/settings')}
+                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-tech-muted hover:text-tech-cyan bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface hover:border-tech-cyan/50 transition-all uppercase tracking-wider"
+                            title="Configuración de Perfil"
+                        >
+                            <Settings size={16} />
+                            Configuración
+                        </button>
+                        <button
                             onClick={handleLogout}
                             className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-tech-muted hover:text-tech-text bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface hover:border-tech-danger/50 transition-all uppercase tracking-wider"
                         >
