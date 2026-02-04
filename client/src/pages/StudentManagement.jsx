@@ -433,7 +433,7 @@ const StudentManagement = () => {
                                 // PEGAR LISTA DE ALUMNOS (NOMBRES, DNI, EMAILS) PARA EXTRACCIÓN AUTOMÁTICA
                             </p>
                             <textarea
-                                className="w-full h-40 bg-tech-primary border border-tech-surface rounded p-4 text-tech-text focus:border-tech-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-tech-muted/30 font-mono text-sm"
+                                className="w-full h-40 bg-tech-primary border border-tech-surface rounded p-4 text-tech-text focus:border-tech-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-tech-muted/60 font-mono text-sm"
                                 placeholder={"Ejemplo:\nJuan Perez 45678912 juan@mail.com\nMaria Gomez DNI 12345678 correomaria@test.com"}
                                 value={bulkText}
                                 onChange={(e) => setBulkText(e.target.value)}

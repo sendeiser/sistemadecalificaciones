@@ -503,7 +503,7 @@ const GradeEntry = () => {
                                                                 onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
                                                                 disabled={periods['nota_intensificacion'] === false}
                                                                 title={periods['nota_intensificacion'] === false ? "Periodo Cerrado" : ""}
-                                                                className={`w-10 h-8 bg-tech-primary border rounded-sm text-center text-xs font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text placeholder-tech-muted/50 focus:bg-tech-secondary transition-all ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : ''}`}
+                                                                className={`w-10 h-8 bg-tech-primary border rounded-sm text-center text-xs font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text placeholder-tech-muted/70 focus:bg-tech-secondary transition-all ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : ''}`}
                                                             />
                                                         </td>
                                                         <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
@@ -523,7 +523,7 @@ const GradeEntry = () => {
                                                             onChange={e => handleGradeChange(g.alumno_id, field, e.target.value)}
                                                             disabled={periods[field] === false}
                                                             title={periods[field] === false ? "Periodo Cerrado" : ""}
-                                                            className={`w-10 h-8 bg-tech-primary border rounded-sm text-center text-xs font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text placeholder-tech-muted/50 focus:bg-tech-secondary transition-all ${GET_GRADE_BG(g[field])} ${periods[field] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface border-tech-surface' : ''}`}
+                                                            className={`w-10 h-8 bg-tech-primary border rounded-sm text-center text-xs font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text placeholder-tech-muted/70 focus:bg-tech-secondary transition-all ${GET_GRADE_BG(g[field])} ${periods[field] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface border-tech-surface' : ''}`}
                                                         />
                                                     </td>
                                                 ))}
@@ -552,12 +552,12 @@ const GradeEntry = () => {
                                                 {/* Trayecto Text */}
                                                 <td className="p-1 border-r border-tech-surface bg-purple-500/5 relative">
                                                     <div className="flex items-center gap-1 group/trayecto">
-                                                        <div className="text-[10px] text-purple-300 font-medium px-1 font-mono leading-tight flex-grow">
+                                                        <div className="text-[10px] text-purple-700 dark:text-purple-300 font-medium px-1 font-mono leading-tight flex-grow">
                                                             {g.trayecto_acompanamiento || '-'}
                                                         </div>
                                                         <button
                                                             onClick={() => setActiveTemplate({ id: g.alumno_id, field: 'trayecto' })}
-                                                            className="p-1 text-purple-400 hover:text-white transition-colors opacity-0 group-hover/trayecto:opacity-100"
+                                                            className="p-1 text-purple-600 dark:text-purple-400 hover:text-tech-text transition-colors opacity-0 group-hover/trayecto:opacity-100"
                                                         >
                                                             <Zap size={12} />
                                                         </button>
@@ -588,7 +588,7 @@ const GradeEntry = () => {
                                                             type="text" placeholder="Nota..."
                                                             value={g.observaciones || ''}
                                                             onChange={e => handleGradeChange(g.alumno_id, 'observaciones', e.target.value)}
-                                                            className="flex-grow h-8 bg-tech-primary border border-tech-surface rounded-sm px-2 text-[10px] font-mono focus:border-tech-cyan outline-none text-tech-text placeholder-tech-muted/50 focus:bg-tech-secondary transition-all"
+                                                            className="flex-grow h-8 bg-tech-primary border border-tech-surface rounded-sm px-2 text-[10px] font-mono focus:border-tech-cyan outline-none text-tech-text placeholder-tech-muted/70 focus:bg-tech-secondary transition-all"
                                                         />
                                                         <button
                                                             onClick={() => setActiveTemplate({ id: g.alumno_id, field: 'obs' })}
@@ -686,13 +686,13 @@ const GradeEntry = () => {
                                             <div className={`${isSecondSemester ? 'col-span-2' : ''} space-y-2`}>
                                                 <div className="text-[10px] text-tech-muted uppercase font-bold tracking-widest border-l-2 border-purple-500 pl-2">Trayecto</div>
                                                 <div className="relative">
-                                                    <div className="flex items-center justify-between bg-purple-400/10 p-2 rounded border border-purple-400/20">
-                                                        <div className="text-[10px] text-purple-400 font-mono leading-tight">
+                                                    <div className="flex items-center justify-between bg-purple-600/10 dark:bg-purple-400/10 p-2 rounded border border-purple-500/20">
+                                                        <div className="text-[10px] text-purple-700 dark:text-purple-300 font-mono leading-tight">
                                                             {g.trayecto_acompanamiento || 'No definido'}
                                                         </div>
                                                         <button
                                                             onClick={() => setActiveTemplate({ id: g.alumno_id, field: 'trayecto_mob' })}
-                                                            className="p-1 text-purple-400 hover:text-white"
+                                                            className="p-1 text-purple-600 dark:text-purple-400 hover:text-tech-text"
                                                         >
                                                             <Zap size={14} />
                                                         </button>

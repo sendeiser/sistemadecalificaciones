@@ -489,7 +489,7 @@ const Attendance = () => {
                                                                     placeholder="..."
                                                                     value={observationsMap[student.id] || ''}
                                                                     onChange={(e) => handleObservationChange(student.id, e.target.value)}
-                                                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text placeholder-tech-muted/50 focus:border-tech-cyan outline-none transition-colors"
+                                                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text placeholder-tech-muted/70 focus:border-tech-cyan outline-none transition-colors"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -546,7 +546,7 @@ const Attendance = () => {
                                                         placeholder="Observaciones..."
                                                         value={observationsMap[student.id] || ''}
                                                         onChange={(e) => handleObservationChange(student.id, e.target.value)}
-                                                        className="w-full bg-tech-primary border border-tech-surface rounded-lg px-4 py-3 text-sm text-tech-text focus:border-tech-cyan outline-none transition-colors placeholder-tech-muted/50"
+                                                        className="w-full bg-tech-primary border border-tech-surface rounded-lg px-4 py-3 text-sm text-tech-text focus:border-tech-cyan outline-none transition-colors placeholder-tech-muted/70"
                                                     />
                                                 </div>
                                             );
