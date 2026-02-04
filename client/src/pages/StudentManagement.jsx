@@ -235,64 +235,81 @@ const StudentManagement = () => {
     );
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            {/* Navigation Header */}
-            <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row items-center justify-between border-b border-tech-surface pb-6 gap-6">
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-surface rounded transition-colors text-slate-400 hover:text-white"
-                    >
-                        <ArrowLeft size={24} />
-                    </button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
-                            Alumnos
-                        </h1>
-                        <p className="text-tech-muted text-sm font-mono">BASE DE DATOS DE ESTUDIANTES</p>
+        <div className="space-y-8 pb-10">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                        GESTIÓN DE <span className="text-tech-cyan">ALUMNOS</span>
+                    </h1>
+                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        Administración central de perfiles académicos
+                    </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="relative flex-grow md:flex-grow-0 md:w-80">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Buscar por DNI o Nombre..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 bg-tech-secondary/50 border border-tech-surface rounded-2xl text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 transition-all shadow-xl"
+                        />
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto items-center justify-end">
+            </div>
+
+            {/* Action Bar */}
+            <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto items-center">
+                <button
+                    onClick={() => {
+                        setIsImportingCSV(!isImportingCSV);
+                        setIsBulkAdding(false);
+                        setIsAdding(false);
+                        setEditingId(null);
+                    }}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-xs font-black uppercase tracking-widest transition-all shadow-lg ${isImportingCSV
+                        ? 'bg-tech-success text-white border-tech-success shadow-tech-success/20'
+                        : 'bg-tech-secondary text-tech-muted border-tech-surface hover:border-tech-success/50'
+                        }`}
+                >
+                    <Upload size={16} /> Importar CSV
+                </button>
+                <button
+                    onClick={() => {
+                        setIsBulkAdding(!isBulkAdding);
+                        setIsAdding(false);
+                        setIsImportingCSV(false);
+                        setEditingId(null);
+                    }}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-xs font-black uppercase tracking-widest transition-all shadow-lg ${isBulkAdding
+                        ? 'bg-tech-accent text-white border-tech-accent shadow-tech-accent/20'
+                        : 'bg-tech-secondary text-tech-muted border-tech-surface hover:border-tech-accent/50'
+                        }`}
+                >
+                    <Users size={16} /> Carga IA
+                </button>
+                <button
+                    onClick={() => {
+                        setIsAdding(true);
+                        setIsBulkAdding(false);
+                        setIsImportingCSV(false);
+                        setEditingId(null);
+                        setFormData({ nombre: '', dni: '', email: '', password: '' });
+                    }}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-xs font-black uppercase tracking-widest transition-all shadow-lg ${isAdding
+                        ? 'bg-tech-cyan text-white border-tech-cyan shadow-tech-cyan/20'
+                        : 'bg-tech-secondary text-tech-muted border-tech-surface hover:border-tech-cyan/50'
+                        }`}
+                >
+                    <Plus size={16} /> Nuevo Alumno
+                </button>
+                <div className="ml-auto">
                     <ThemeToggle />
-                    <button
-                        onClick={() => {
-                            setIsImportingCSV(!isImportingCSV);
-                            setIsBulkAdding(false);
-                            setIsAdding(false);
-                            setEditingId(null);
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 bg-tech-surface hover:bg-slate-700 rounded transition-colors text-xs font-bold border border-tech-surface uppercase tracking-wider text-slate-300"
-                    >
-                        <Upload size={16} />
-                        Importar CSV
-                    </button>
-                    <button
-                        onClick={() => {
-                            setIsBulkAdding(!isBulkAdding);
-                            setIsAdding(false);
-                            setIsImportingCSV(false);
-                            setEditingId(null);
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 bg-tech-accent hover:bg-violet-600 rounded transition-colors text-xs font-bold shadow-[0_0_15px_rgba(139,92,246,0.3)] uppercase tracking-wider text-white"
-                    >
-                        <Users size={16} />
-                        Carga IA
-                    </button>
-                    <button
-                        onClick={() => {
-                            setIsAdding(true);
-                            setIsBulkAdding(false);
-                            setIsImportingCSV(false);
-                            setEditingId(null);
-                            setFormData({ nombre: '', dni: '', email: '', password: '' });
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 bg-tech-cyan hover:bg-sky-600 rounded transition-colors text-xs font-bold shadow-[0_0_15px_rgba(14,165,233,0.3)] uppercase tracking-wider text-white"
-                    >
-                        <Plus size={16} />
-                        Nuevo
-                    </button>
                 </div>
-            </header>
+            </div>
 
             <div className="max-w-7xl mx-auto">
                 {/* Filters */}

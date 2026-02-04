@@ -138,28 +138,21 @@ const AdminUserManagement = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-4 md:p-10 font-sans">
-            <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row items-center justify-between border-b border-tech-surface pb-6 gap-6">
+        <div className="space-y-8 pb-10">
+            {/* Action Bar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
-                        <div className="p-2 bg-tech-accent/10 rounded text-tech-accent">
-                            <Shield size={32} />
-                        </div>
-                        Gestión de Usuarios
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                        GESTIÓN DE <span className="text-tech-cyan">USUARIOS</span>
                     </h1>
-                    <p className="text-tech-muted font-mono mt-2 text-sm">Generar invitaciones para nuevos docentes, tutores y preceptores.</p>
+                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        Administración de invitaciones y privilegios
+                    </p>
                 </div>
-                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                <div className="flex items-center gap-3">
                     <ThemeToggle />
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="flex items-center gap-2 px-4 py-2 text-tech-muted hover:text-tech-text hover:bg-tech-surface rounded transition-colors"
-                    >
-                        <ArrowLeft size={20} />
-                        Volver
-                    </button>
                 </div>
-            </header>
+            </div>
 
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* CREATE INVITE PANEL */}

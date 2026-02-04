@@ -341,88 +341,66 @@ const GradeEntry = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            {/* Navigation Header */}
-            <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => selectedAssignment ? setSelectedAssignment(null) : navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-secondary rounded border border-transparent hover:border-tech-surface transition-colors text-tech-muted hover:text-tech-text"
-                        title={selectedAssignment ? "Volver a la selección" : "Volver al Dashboard"}
-                    >
-                        <ArrowLeft size={24} />
-                    </button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
-                            {selectedAssignment ? <span className="text-tech-cyan">Carga de Notas</span> : 'Mis Materias'}
-                        </h1>
-                        <p className="text-tech-muted text-sm font-mono mt-1">
-                            {selectedAssignment
-                                ? `${fullAssignmentData?.materia?.nombre} - ${fullAssignmentData?.division?.anio} ${fullAssignmentData?.division?.seccion}`
-                                : 'Selecciona una materia asignada para cargar calificaciones.'}
-                        </p>
-                    </div>
+        <div className="space-y-8 pb-10">
+            {/* Action Bar */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                        {selectedAssignment ? <><span className="text-tech-cyan">CARGA</span> DE NOTAS</> : <>MIS <span className="text-tech-cyan">MATERIAS</span></>}
+                    </h1>
+                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        {selectedAssignment
+                            ? `${fullAssignmentData?.materia?.nombre} • ${fullAssignmentData?.division?.anio} ${fullAssignmentData?.division?.seccion}`
+                            : 'Selecciona una materia asignada para gestionar calificaciones'}
+                    </p>
                 </div>
-                <div className="flex items-center gap-3">
+
+                <div className="flex flex-wrap items-center gap-3">
                     {selectedAssignment && (
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-3">
                             <button
                                 onClick={handleDownloadPDF}
-                                className="flex items-center gap-2 px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-all text-sm font-medium hover:border-tech-accent group"
+                                className="p-2.5 bg-tech-secondary hover:bg-tech-surface text-tech-muted hover:text-tech-danger rounded-xl border border-tech-surface hover:border-tech-danger/50 transition-all shadow-lg"
+                                title="Planilla PDF"
                             >
-                                <Star size={18} className="text-tech-muted group-hover:text-tech-accent transition-colors" />
-                                <span className="hidden sm:inline">PDF Planilla</span>
-                                <span className="sm:hidden text-xs">PDF</span>
-                            </button>
-                            <button
-                                onClick={handleExportCSV}
-                                className="flex items-center gap-2 px-4 py-2 bg-tech-secondary hover:bg-tech-surface rounded border border-tech-surface transition-all text-sm font-medium hover:border-tech-success group"
-                            >
-                                <ClipboardList size={18} className="text-tech-muted group-hover:text-tech-success transition-colors" />
-                                <span className="hidden sm:inline">CSV</span>
-                                <span className="sm:hidden text-xs">CSV</span>
+                                <FileText size={20} />
                             </button>
                             <button
                                 onClick={saveGrades}
                                 disabled={saving}
-                                className="flex items-center gap-2 px-4 sm:px-6 py-2 bg-tech-cyan hover:bg-sky-600 disabled:bg-tech-surface rounded transition-all font-bold shadow-[0_0_15px_rgba(14,165,233,0.3)] active:scale-95 text-white uppercase tracking-wider text-xs sm:text-sm"
+                                className="flex items-center gap-2 px-6 py-2.5 bg-tech-cyan hover:bg-tech-cyan/80 disabled:bg-tech-surface rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-cyan/20 active:scale-95"
                             >
-                                {saving ? (
-                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                ) : (
-                                    <>
-                                        <Save size={18} />
-                                        <span className="hidden sm:inline">Guardar Cambios</span>
-                                        <span className="sm:hidden">Guardar</span>
-                                    </>
-                                )}
+                                {saving ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div> : <Save size={18} />}
+                                <span>{saving ? 'Guardando...' : 'Guardar Datos'}</span>
                             </button>
                         </div>
                     )}
-                    <div className="flex bg-tech-secondary p-1 rounded-lg border border-tech-surface">
+
+                    <div className="flex bg-tech-secondary p-1 rounded-xl border border-tech-surface shadow-inner">
                         <button
                             onClick={() => setIsSecondSemester(false)}
-                            className={`px-3 py-1 rounded text-[10px] font-bold uppercase transition-all ${!isSecondSemester ? 'bg-tech-cyan text-white shadow-lg' : 'text-tech-muted hover:text-tech-text'}`}
+                            className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${!isSecondSemester ? 'bg-tech-cyan text-white shadow-lg' : 'text-tech-muted hover:text-tech-text'}`}
                         >
-                            1er Cuatri
+                            1er C
                         </button>
                         <button
                             onClick={() => setIsSecondSemester(true)}
-                            className={`px-3 py-1 rounded text-[10px] font-bold uppercase transition-all ${isSecondSemester ? 'bg-tech-cyan text-white shadow-lg' : 'text-tech-muted hover:text-tech-text'}`}
+                            className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${isSecondSemester ? 'bg-tech-cyan text-white shadow-lg' : 'text-tech-muted hover:text-tech-text'}`}
                         >
-                            2do Cuatri
+                            2do C
                         </button>
                     </div>
+
                     <button
                         onClick={() => setFocusMode(!focusMode)}
-                        className={`p-2 rounded border border-tech-surface transition-all ${focusMode ? 'bg-tech-cyan text-white border-tech-cyan shadow-[0_0_15px_rgba(14,165,233,0.4)]' : 'bg-tech-secondary text-tech-muted hover:text-tech-text'}`}
+                        className={`p-2.5 rounded-xl border transition-all shadow-lg ${focusMode ? 'bg-tech-cyan text-white border-tech-cyan shadow-tech-cyan/20' : 'bg-tech-secondary text-tech-muted hover:text-tech-cyan border-tech-surface hover:border-tech-cyan/50'}`}
                         title="Modo Focus (Alt+F)"
                     >
                         <Zap size={20} className={focusMode ? 'animate-pulse' : ''} />
                     </button>
                     <ThemeToggle />
                 </div>
-            </header>
+            </div>
 
             <div className="max-w-7xl mx-auto">
                 {!selectedAssignment ? (

@@ -117,115 +117,67 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            <header className="flex flex-col md:flex-row justify-between items-center mb-10 border-b border-tech-surface pb-8 gap-6">
-                <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto text-center md:text-left">
-                    {/* User Avatar Section */}
-                    <div
-                        onClick={() => navigate('/settings')}
-                        className="relative cursor-pointer group"
-                    >
-                        <div className="w-20 h-20 md:w-14 md:h-14 rounded-full border-2 border-tech-surface group-hover:border-tech-cyan transition-all duration-300 overflow-hidden shadow-2xl">
-                            {profile.avatar_url ? (
-                                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full bg-tech-secondary flex items-center justify-center text-tech-muted">
-                                    <Users size={profile.rol === 'admin' ? 32 : 24} />
-                                </div>
-                            )}
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 bg-tech-cyan text-white p-1.5 rounded-full border-2 border-tech-primary md:hidden group-hover:scale-110 transition-transform">
-                            <Settings size={12} />
-                        </div>
-                    </div>
-
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-black text-tech-text tracking-tight uppercase">
-                            <span className="text-tech-cyan">Hola,</span> {profile.nombre.split(' ')[0]}
-                        </h1>
-                        <p className="text-tech-muted capitalize mt-0.5 font-bold text-xs md:text-sm font-mono tracking-widest flex items-center justify-center md:justify-start gap-2">
-                            <span className="px-2 py-0.5 bg-tech-surface rounded text-tech-accent border border-tech-accent/20">{profile.rol}</span>
-                            <span className="opacity-40 hidden md:inline">|</span>
-                            <span className="hidden md:inline">ID: {profile.id.slice(0, 8)}</span>
-                        </p>
-                    </div>
+        <div className="space-y-8 pb-10">
+            {/* Top Bar for Dashboard - Search and Welcome */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black text-tech-text tracking-tighter uppercase leading-none">
+                        PANEL DE <span className="text-tech-cyan">CONTROL</span>
+                    </h1>
+                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">Visión general y métricas en tiempo real</p>
                 </div>
 
-                <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-                    {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
-                        <div className="relative w-full md:w-80 order-2 md:order-1">
-                            <div className="relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={handleSearch}
-                                    placeholder="Buscar en el sistema..."
-                                    className="w-full pl-12 pr-10 py-3 bg-tech-secondary border border-tech-surface rounded-xl text-sm focus:outline-none focus:border-tech-cyan transition-all shadow-inner"
-                                />
-                                {searchQuery && (
-                                    <button
-                                        onClick={() => { setSearchQuery(''); setShowResults(false); }}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-tech-muted hover:text-tech-text"
-                                    >
-                                        <X size={16} />
-                                    </button>
-                                )}
-                            </div>
+                {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
+                    <div className="relative w-full lg:w-96">
+                        <div className="relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted group-focus-within:text-tech-cyan transition-colors" size={18} />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={handleSearch}
+                                placeholder="Búsqueda rápida..."
+                                className="w-full pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md border border-tech-surface rounded-2xl text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 transition-all shadow-xl"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => { setSearchQuery(''); setShowResults(false); }}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-tech-muted hover:text-tech-text"
+                                >
+                                    <X size={16} />
+                                </button>
+                            )}
+                        </div>
 
-                            {showResults && (
-                                <div className="absolute top-full mt-2 w-full bg-tech-secondary border border-tech-surface rounded-xl shadow-2xl z-50 max-h-80 overflow-y-auto border-t-4 border-t-tech-cyan animate-in fade-in slide-in-from-top-2">
-                                    {isSearching ? (
-                                        <div className="p-6 text-center text-tech-muted text-xs font-black uppercase tracking-widest animate-pulse">Analizando...</div>
-                                    ) : searchResults.length > 0 ? (
-                                        <div className="p-2 space-y-1">
-                                            {searchResults.map((res, i) => (
-                                                <button
-                                                    key={i}
-                                                    onClick={() => handleResultClick(res)}
-                                                    className="w-full flex flex-col items-start p-4 hover:bg-tech-surface rounded-lg transition-colors border border-transparent hover:border-tech-cyan/30 text-left group"
-                                                >
+                        {showResults && (
+                            <div className="absolute top-full mt-3 w-full bg-tech-secondary border border-tech-surface rounded-2xl shadow-2xl z-50 max-h-80 overflow-y-auto border-t-4 border-t-tech-cyan animate-in fade-in slide-in-from-top-2 backdrop-blur-xl">
+                                {isSearching ? (
+                                    <div className="p-8 text-center text-tech-muted text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Consultando base de datos...</div>
+                                ) : searchResults.length > 0 ? (
+                                    <div className="p-2 space-y-1">
+                                        {searchResults.map((res, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => handleResultClick(res)}
+                                                className="w-full flex items-center gap-4 p-4 hover:bg-tech-surface/50 rounded-xl transition-all border border-transparent hover:border-tech-cyan/20 text-left group"
+                                            >
+                                                <div className="w-10 h-10 rounded-lg bg-tech-primary flex items-center justify-center text-tech-cyan group-hover:scale-110 transition-transform">
+                                                    {res.type === 'student' ? <Users size={18} /> : <BookOpen size={18} />}
+                                                </div>
+                                                <div className="flex flex-col">
                                                     <span className="font-bold text-tech-text text-sm group-hover:text-tech-cyan transition-colors">{res.title}</span>
                                                     <span className="text-[10px] text-tech-muted uppercase font-black tracking-tighter">{res.type} {res.subtitle && `• ${res.subtitle}`}</span>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-6 text-center text-tech-muted text-xs font-black uppercase tracking-widest">Sin resultados</div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    <div className="flex items-center gap-3 w-full md:w-auto order-1 md:order-2">
-                        <ThemeToggle />
-                        <button
-                            onClick={() => navigate('/help')}
-                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black text-white bg-tech-cyan hover:bg-tech-cyan/80 rounded-xl border border-tech-cyan transition-all uppercase tracking-widest shadow-lg shadow-tech-cyan/20"
-                            title="Centro de Ayuda"
-                        >
-                            <HelpCircle size={16} />
-                            <span className="md:hidden lg:inline">Ayuda</span>
-                        </button>
-                        <button
-                            onClick={() => navigate('/settings')}
-                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black text-tech-muted hover:text-tech-cyan bg-tech-secondary hover:bg-tech-surface rounded-xl border border-tech-surface hover:border-tech-cyan/50 transition-all uppercase tracking-widest shadow-lg"
-                            title="Configuración de Perfil"
-                        >
-                            <Settings size={16} />
-                            <span className="md:hidden lg:inline">Ajustes</span>
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="flex-grow md:flex-grow-0 flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-black text-tech-muted hover:text-tech-danger bg-tech-secondary hover:bg-tech-surface rounded-xl border border-tech-surface hover:border-tech-danger/50 transition-all uppercase tracking-widest shadow-lg"
-                        >
-                            <LogOut size={16} />
-                            <span className="md:hidden lg:inline">Salir</span>
-                        </button>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-8 text-center text-tech-muted text-[10px] font-black uppercase tracking-[0.2em]">No se encontraron coincidencias</div>
+                                )}
+                            </div>
+                        )}
                     </div>
-                </div>
-            </header>
+                )}
+            </div>
 
             <main>
                 {(profile.rol === 'admin' || profile.rol === 'docente' || profile.rol === 'alumno' || profile.rol === 'preceptor') && (
@@ -282,27 +234,31 @@ const Dashboard = () => {
                                     <p className="text-tech-muted text-sm font-mono">Gestionar cursos y secciones.</p>
                                 </div>
 
-                                <div onClick={() => navigate('/admin/users')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                            <Users size={24} />
+                                {profile.rol === 'admin' && (
+                                    <div onClick={() => navigate('/admin/users')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                            <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                                <Users size={24} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Gestión Accesos</h3>
                                         </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Gestión Accesos</h3>
+                                        <p className="text-tech-muted text-sm font-mono">Generar invitaciones para docentes.</p>
                                     </div>
-                                    <p className="text-tech-muted text-sm font-mono">Generar invitaciones para docentes.</p>
-                                </div>
+                                )}
 
-                                <div onClick={() => navigate('/admin/audit')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                            <ShieldAlert size={24} />
+                                {profile.rol === 'admin' && (
+                                    <div onClick={() => navigate('/admin/audit')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                            <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                                <ShieldAlert size={24} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Auditoría</h3>
                                         </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Auditoría</h3>
+                                        <p className="text-tech-muted text-sm font-mono">Historial completo de acciones.</p>
                                     </div>
-                                    <p className="text-tech-muted text-sm font-mono">Historial completo de acciones.</p>
-                                </div>
+                                )}
                             </div>
                         </section>
 
@@ -508,14 +464,18 @@ const Dashboard = () => {
                                 Tareas Rápidas
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div onClick={() => navigate('/attendance')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group rounded-xl flex items-center gap-4">
-                                    <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform"><Clock size={32} /></div>
-                                    <div><h3 className="text-lg font-bold uppercase">Asistencia</h3><p className="text-xs text-tech-muted font-mono">Registrar hoy</p></div>
-                                </div>
-                                <div onClick={() => navigate('/grades')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-accent transition-all cursor-pointer group rounded-xl flex items-center gap-4">
-                                    <div className="p-4 bg-tech-accent/10 rounded-lg text-tech-accent group-hover:scale-110 transition-transform"><GraduationCap size={32} /></div>
-                                    <div><h3 className="text-lg font-bold uppercase">Cargar Notas</h3><p className="text-xs text-tech-muted font-mono">Actualizar materias</p></div>
-                                </div>
+                                {profile.rol === 'docente' && (
+                                    <>
+                                        <div onClick={() => navigate('/attendance')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group rounded-xl flex items-center gap-4">
+                                            <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform"><Clock size={32} /></div>
+                                            <div><h3 className="text-lg font-bold uppercase">Asistencia</h3><p className="text-xs text-tech-muted font-mono">Registrar hoy</p></div>
+                                        </div>
+                                        <div onClick={() => navigate('/grades')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-accent transition-all cursor-pointer group rounded-xl flex items-center gap-4">
+                                            <div className="p-4 bg-tech-accent/10 rounded-lg text-tech-accent group-hover:scale-110 transition-transform"><GraduationCap size={32} /></div>
+                                            <div><h3 className="text-lg font-bold uppercase">Cargar Notas</h3><p className="text-xs text-tech-muted font-mono">Actualizar materias</p></div>
+                                        </div>
+                                    </>
+                                )}
                                 <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group rounded-xl flex items-center gap-4">
                                     <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform relative">
                                         <MessageSquare size={32} />

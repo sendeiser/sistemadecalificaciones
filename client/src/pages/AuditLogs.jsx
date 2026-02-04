@@ -255,68 +255,64 @@ const AuditLogs = () => {
 
     return (
         <PageTransition>
-            <div className="min-h-screen bg-tech-primary text-tech-text p-4 md:p-10 font-sans">
-                {/* Header */}
-                <header className="mb-6 md:mb-10">
-                    <div className="flex items-center gap-3 mb-4">
-                        <button
-                            onClick={() => navigate('/dashboard')}
-                            className="p-2 hover:bg-tech-secondary rounded-full transition-colors text-tech-muted hover:text-tech-cyan"
-                        >
-                            <ArrowLeft size={20} />
-                        </button>
-                        <div className="flex-grow">
-                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-                                <Shield className="text-tech-cyan" size={24} />
-                                <span>Auditoría</span>
-                                <span className="text-tech-muted hidden sm:inline">de Sistema</span>
-                            </h1>
-                            <p className="text-tech-muted font-mono text-xs mt-1 hidden md:block">
-                                REGISTRO CENTRALIZADO DE ACCIONES CRÍTICAS
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => fetchLogs()}
-                                disabled={loading}
-                                className={`p-2 rounded-lg border transition-all ${loading
-                                    ? 'bg-tech-surface opacity-50'
-                                    : 'bg-tech-secondary border-tech-surface text-tech-muted hover:text-tech-cyan'
-                                    }`}
-                                title="Actualizar"
-                            >
-                                <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
-                            </button>
-                            <button
-                                onClick={() => setShowFilters(!showFilters)}
-                                className={`md:hidden p-2 rounded-lg border transition-all ${showFilters || hasActiveFilters
-                                    ? 'bg-tech-cyan/20 border-tech-cyan text-tech-cyan'
-                                    : 'bg-tech-secondary border-tech-surface text-tech-muted'
-                                    }`}
-                            >
-                                <Filter size={20} />
-                            </button>
-                            <div className="hidden md:flex items-center gap-2 border-l border-tech-surface pl-2 ml-2">
-                                <button
-                                    onClick={() => exportData('pdf')}
-                                    disabled={loading || logs.length === 0}
-                                    className="p-2 bg-tech-danger/10 text-tech-danger rounded-lg border border-tech-danger/20 hover:bg-tech-danger/20 transition-all disabled:opacity-50"
-                                    title="Exportar PDF"
-                                >
-                                    <FileDown size={20} />
-                                </button>
-                                <button
-                                    onClick={() => exportData('excel')}
-                                    disabled={loading || logs.length === 0}
-                                    className="p-2 bg-tech-success/10 text-tech-success rounded-lg border border-tech-success/20 hover:bg-tech-success/20 transition-all disabled:opacity-50"
-                                    title="Exportar Excel"
-                                >
-                                    <Table size={20} />
-                                </button>
-                            </div>
-                        </div>
+            <div className="space-y-8 pb-10">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                            REGISTRO DE <span className="text-tech-cyan">AUDITORÍA</span>
+                        </h1>
+                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                            Seguimiento de acciones críticas del sistema
+                        </p>
                     </div>
-                </header>
+
+                    <div className="flex items-center gap-3">
+                        {/* Refresh Button */}
+                        <button
+                            onClick={() => fetchLogs()}
+                            disabled={loading}
+                            className={`p-2.5 rounded-xl border transition-all shadow-lg ${loading
+                                ? 'bg-tech-surface opacity-50'
+                                : 'bg-tech-secondary border-tech-surface text-tech-muted hover:text-tech-cyan hover:border-tech-cyan/50'
+                                }`}
+                            title="Actualizar"
+                        >
+                            <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
+                        </button>
+
+                        {/* Export Buttons */}
+                        <div className="flex items-center gap-2 bg-tech-secondary/50 p-1.5 rounded-xl border border-tech-surface shadow-inner">
+                            <button
+                                onClick={() => exportData('pdf')}
+                                disabled={loading || logs.length === 0}
+                                className="p-2 bg-tech-danger/10 text-tech-danger rounded-lg border border-tech-danger/20 hover:bg-tech-danger/20 transition-all disabled:opacity-50"
+                                title="Exportar PDF"
+                            >
+                                <FileDown size={18} />
+                            </button>
+                            <button
+                                onClick={() => exportData('excel')}
+                                disabled={loading || logs.length === 0}
+                                className="p-2 bg-tech-success/10 text-tech-success rounded-lg border border-tech-success/20 hover:bg-tech-success/20 transition-all disabled:opacity-50"
+                                title="Exportar Excel"
+                            >
+                                <Table size={18} />
+                            </button>
+                        </div>
+
+                        {/* Filter Toggle (Mobile Only) */}
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className={`md:hidden p-2.5 rounded-xl border transition-all ${showFilters || hasActiveFilters
+                                ? 'bg-tech-cyan text-white border-tech-cyan shadow-lg shadow-tech-cyan/20'
+                                : 'bg-tech-secondary border-tech-surface text-tech-muted'
+                                }`}
+                        >
+                            <Filter size={18} />
+                        </button>
+                    </div>
+                </div>
 
                 {/* Filters */}
                 <div className={`mb-6 transition-all duration-300 ${showFilters ? 'block' : 'hidden md:block'}`}>

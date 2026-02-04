@@ -83,38 +83,33 @@ const SubjectManagement = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            {/* Navigation Header */}
-            <header className="max-w-6xl mx-auto mb-10 flex flex-col md:flex-row items-start md:items-center justify-between border-b border-tech-surface pb-6 gap-4">
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-surface rounded transition-colors text-tech-muted hover:text-tech-text"
-                    >
-                        <ArrowLeft size={24} />
-                    </button>
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-tech-text tracking-tight uppercase">
-                            Materias
-                        </h1>
-                        <p className="text-tech-muted text-xs md:text-sm font-mono">GESTIÓN DE UNIDADES CURRICULARES</p>
-                    </div>
+        <div className="space-y-8 pb-10">
+            {/* Action Bar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                        GESTIÓN DE <span className="text-tech-cyan">MATERIAS</span>
+                    </h1>
+                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        Administración de unidades curriculares
+                    </p>
                 </div>
-                <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                    <ThemeToggle />
+
+                <div className="flex items-center gap-3">
                     <button
                         onClick={() => {
                             setIsAdding(true);
                             setEditingId(null);
                             setFormData({ nombre: '', descripcion: '' });
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-tech-cyan hover:bg-sky-600 rounded transition-all text-sm font-bold shadow-[0_0_15px_rgba(14,165,233,0.3)] uppercase tracking-wider text-white"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-tech-cyan hover:bg-tech-cyan/80 rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-cyan/20 active:scale-95"
                     >
                         <Plus size={18} />
                         Nueva Materia
                     </button>
+                    <ThemeToggle />
                 </div>
-            </header>
+            </div>
 
             <div className="max-w-6xl mx-auto">
 

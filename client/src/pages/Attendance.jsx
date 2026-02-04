@@ -294,34 +294,30 @@ const Attendance = () => {
     }
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            {/* Header */}
-            <header className="max-w-7xl mx-auto mb-6 md:mb-10 flex flex-col md:flex-row items-start md:items-center justify-between border-b border-tech-surface pb-6 gap-4">
-                <div className="w-full md:w-auto">
-                    <h1 className="text-2xl md:text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
-                        <div className="p-1.5 md:p-2 bg-tech-cyan/20 rounded text-tech-cyan">
-                            <Clock className="w-6 h-6 md:w-8 md:h-8" />
-                        </div>
-                        Control de Asistencia
+        <div className="space-y-8 pb-10">
+            {/* Header / Action Bar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                        CONTROL DE <span className="text-tech-cyan">ASISTENCIA</span>
                     </h1>
-                    <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">
+                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
                         {selectedAssignment
-                            ? `${selectedAssignment.materia.nombre} - ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
-                            : 'Selecciona una materia para registrar la asistencia del día.'}
+                            ? `${selectedAssignment.materia.nombre} • ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
+                            : 'Registro centralizado de presentismo'}
                     </p>
                 </div>
-                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+
+                <div className="flex flex-wrap items-center gap-3">
                     {/* Status Indicators */}
-                    <div className="flex items-center gap-2 mr-2">
+                    <div className="flex items-center gap-2 bg-tech-secondary/50 p-1.5 rounded-xl border border-tech-surface shadow-inner">
                         {!isOnline ? (
-                            <div className="flex items-center gap-1.5 px-3 py-1 bg-tech-danger/20 text-tech-danger border border-tech-danger/30 rounded-full text-[10px] font-bold uppercase tracking-wider animate-pulse">
-                                <WifiOff size={12} />
-                                Offline
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-tech-danger/20 text-tech-danger rounded-lg text-[10px] font-black uppercase tracking-widest animate-pulse">
+                                <WifiOff size={14} /> Offline
                             </div>
                         ) : (
-                            <div className="flex items-center gap-1.5 px-3 py-1 bg-tech-success/20 text-tech-success border border-tech-success/30 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                                <Wifi size={12} />
-                                Online
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-tech-success/20 text-tech-success rounded-lg text-[10px] font-black uppercase tracking-widest">
+                                <Wifi size={14} /> Online
                             </div>
                         )}
 
@@ -329,24 +325,16 @@ const Attendance = () => {
                             <button
                                 onClick={syncData}
                                 disabled={saving || !isOnline}
-                                className={`flex items-center gap-1.5 px-3 py-1 ${isOnline ? 'bg-tech-accent/20 text-tech-accent border-tech-accent/30 hover:bg-tech-accent/30' : 'bg-tech-muted/20 text-tech-muted border-tech-surface'} border rounded-full text-[10px] font-bold uppercase tracking-wider transition-all`}
+                                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isOnline ? 'bg-tech-accent/20 text-tech-accent hover:bg-tech-accent/30' : 'bg-tech-muted/20 text-tech-muted'}`}
                             >
-                                <RefreshCw size={12} className={saving ? 'animate-spin' : ''} />
+                                <RefreshCw size={14} className={saving ? 'animate-spin' : ''} />
                                 {pendingSyncs} Pendientes
                             </button>
                         )}
                     </div>
-
                     <ThemeToggle />
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="flex items-center gap-2 px-4 py-2 text-tech-muted hover:text-tech-text hover:bg-tech-surface rounded transition-colors"
-                    >
-                        <ArrowLeft size={20} />
-                        Volver
-                    </button>
                 </div>
-            </header>
+            </div>
 
             <div className="max-w-7xl mx-auto">
                 {message && (

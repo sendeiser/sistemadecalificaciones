@@ -19,6 +19,18 @@ const Messages = () => {
     const [availableUsers, setAvailableUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('received'); // 'received', 'sent'
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+    const [showCompose, setShowCompose] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 1024;
+            setIsMobile(mobile);
+            if (!mobile) setShowCompose(true);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         fetchMessages();
@@ -208,9 +220,9 @@ const Messages = () => {
                     )}
                 </AnimatePresence>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative">
                     {/* Lista de Mensajes */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className={`lg:col-span-2 space-y-6 ${isMobile && showCompose ? 'hidden' : 'block'}`}>
                         {loading ? (
                             <div className="space-y-4">
                                 {[1, 2, 3].map(i => (
@@ -320,12 +332,22 @@ const Messages = () => {
                     </div>
 
                     {/* Nueva Conversación */}
-                    <div className="space-y-8">
+                    <div className={`space-y-8 ${isMobile && !showCompose ? 'hidden' : 'block'}`}>
                         <section className="bg-tech-secondary rounded-[2rem] p-8 border border-tech-surface shadow-xl sticky top-28">
-                            <h3 className="text-2xl font-black text-tech-text uppercase tracking-tighter mb-6 flex items-center gap-2">
-                                <Send className="text-tech-cyan" size={20} />
-                                Nuevo Mensaje
-                            </h3>
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-2xl font-black text-tech-text uppercase tracking-tighter flex items-center gap-2">
+                                    <Send className="text-tech-cyan" size={20} />
+                                    Nuevo Mensaje
+                                </h3>
+                                {isMobile && (
+                                    <button
+                                        onClick={() => setShowCompose(false)}
+                                        className="p-2 hover:bg-tech-surface rounded-xl text-tech-muted"
+                                    >
+                                        <ArrowLeft size={20} />
+                                    </button>
+                                )}
+                            </div>
 
                             <div className="space-y-6">
                                 {/* Selector de Destinatario */}
@@ -423,6 +445,20 @@ const Messages = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* FAB for Mobile */}
+                {isMobile && (
+                    <motion.button
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowCompose(!showCompose)}
+                        className="fixed bottom-8 right-8 z-[60] w-16 h-16 bg-tech-cyan text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-tech-cyan/80 transition-all border-4 border-tech-primary"
+                    >
+                        {showCompose ? <CloseIcon size={32} /> : <MessageSquare size={32} />}
+                    </motion.button>
+                )}
             </div>
         </div>
     );

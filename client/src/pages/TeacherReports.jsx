@@ -89,18 +89,19 @@ const TeacherReports = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            <header className="max-w-7xl mx-auto mb-6 md:mb-10 flex flex-col md:flex-row items-center md:items-start justify-between border-b border-tech-surface pb-6 gap-6">
-                <div className="w-full md:w-auto">
-                    <h1 className="text-2xl md:text-3xl font-bold text-tech-text uppercase tracking-tight flex items-center gap-3">
-                        <div className="p-1.5 md:p-2 bg-tech-cyan/20 rounded text-tech-cyan">
-                            <FileText className="w-6 h-6 md:w-8 md:h-8" />
-                        </div>
-                        Mis Reportes
+        <div className="space-y-8 pb-10">
+            {/* Header / Action Bar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                        MIS <span className="text-tech-cyan">REPORTES</span>
                     </h1>
-                    <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">Exportación de planillas de calificaciones y asistencia.</p>
+                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        Generación de planillas y reportes estadísticos
+                    </p>
                 </div>
-                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+
+                <div className="flex flex-wrap items-center gap-3">
                     <button
                         onClick={async () => {
                             if (!confirm('¿Deseas descargar todas las planillas? Esto puede tomar unos momentos.')) return;
@@ -144,27 +145,20 @@ const TeacherReports = () => {
                             setTimeout(() => setMessage(null), 5000);
                         }}
                         disabled={isExportingAll || assignments.length === 0}
-                        className="flex items-center gap-2 px-4 py-2 bg-tech-cyan text-white hover:bg-sky-600 rounded transition-colors text-sm font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/20 disabled:opacity-50"
+                        className="flex items-center gap-2 px-6 py-2.5 bg-tech-cyan hover:bg-tech-cyan/80 disabled:bg-tech-surface rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-cyan/20 active:scale-95"
                     >
-                        <Download size={20} />
-                        <span className="hidden sm:inline">{isExportingAll ? 'Procesando...' : 'Exportar Todo'}</span>
+                        <Download size={18} />
+                        <span>{isExportingAll ? 'Procesando...' : 'Exportar Todo'}</span>
                     </button>
                     <ThemeToggle />
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="flex items-center gap-2 px-4 py-2 text-tech-muted hover:text-tech-text hover:bg-tech-surface rounded transition-colors"
-                    >
-                        <ArrowLeft size={20} />
-                        Volver
-                    </button>
                 </div>
-            </header>
+            </div>
 
             <div className="max-w-7xl mx-auto space-y-8">
                 {message && (
                     <div className={`p-4 rounded-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-300 border ${message.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' :
-                            message.type === 'info' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
-                                'bg-red-500/10 border-red-500/20 text-red-500'
+                        message.type === 'info' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+                            'bg-red-500/10 border-red-500/20 text-red-500'
                         }`}>
                         <div className="flex items-center gap-3">
                             {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}

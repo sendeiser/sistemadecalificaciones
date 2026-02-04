@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageTransition from './components/PageTransition';
+import MainLayout from './components/MainLayout';
 
 // Lazy load all page components for better performance
 const Login = lazy(() => import('./components/Login'));
@@ -39,8 +40,8 @@ const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
 const UserSettings = lazy(() => import('./pages/UserSettings'));
 const HelpCenter = lazy(() => import('./pages/HelpCenter'));
 
-const ProtectedRoute = ({ children }) => {
-  const { session, loading } = useAuth();
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { session, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -58,6 +59,10 @@ const ProtectedRoute = ({ children }) => {
 
   if (!session) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && profile && !allowedRoles.includes(profile.rol)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -96,126 +101,126 @@ function AnimatedRoutes() {
           <Route path="/" element={<PageTransition><Welcome /></PageTransition>} />
           <Route path="/dashboard" element={
             <ProtectedRoute>
-              <PageTransition><Dashboard /></PageTransition>
+              <MainLayout><PageTransition><Dashboard /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/grades" element={
-            <ProtectedRoute>
-              <PageTransition><GradeEntry /></PageTransition>
+            <ProtectedRoute allowedRoles={['docente']}>
+              <MainLayout><PageTransition><GradeEntry /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/assignments" element={
-            <ProtectedRoute>
-              <PageTransition><Assignments /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><Assignments /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/subjects" element={
-            <ProtectedRoute>
-              <PageTransition><SubjectManagement /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><SubjectManagement /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/students" element={
-            <ProtectedRoute>
-              <PageTransition><StudentManagement /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><StudentManagement /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/reports" element={
-            <ProtectedRoute>
-              <PageTransition><ReportView /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><ReportView /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/divisions" element={
-            <ProtectedRoute>
-              <PageTransition><DivisionManagement /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><DivisionManagement /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/enrollment" element={
-            <ProtectedRoute>
-              <PageTransition><DivisionEnrollment /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><DivisionEnrollment /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/attendance" element={
-            <ProtectedRoute>
-              <PageTransition><Attendance /></PageTransition>
+            <ProtectedRoute allowedRoles={['docente']}>
+              <MainLayout><PageTransition><Attendance /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/periods" element={
-            <ProtectedRoute>
-              <PageTransition><PeriodManagement /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><PeriodManagement /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/admin/reports" element={
-            <ProtectedRoute>
-              <PageTransition><GradeReport /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><GradeReport /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/admin/attendance-stats" element={
-            <ProtectedRoute>
-              <PageTransition><AttendanceOverview /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><AttendanceOverview /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/admin/attendance-capture" element={
-            <ProtectedRoute>
-              <PageTransition><AttendanceCapture /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><AttendanceCapture /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
-          <Route path="/admin/reports/attendance" element={<ProtectedRoute allowedRoles={['admin', 'preceptor']}><PageTransition><AdminAttendanceReport /></PageTransition></ProtectedRoute>} />
-          <Route path="/tutor" element={<ProtectedRoute allowedRoles={['tutor']}><PageTransition><ParentDashboard /></PageTransition></ProtectedRoute>} />
-          <Route path="/tutor/justification" element={<ProtectedRoute allowedRoles={['tutor']}><PageTransition><MobileJustification /></PageTransition></ProtectedRoute>} />
+          <Route path="/admin/reports/attendance" element={<ProtectedRoute allowedRoles={['admin', 'preceptor']}><MainLayout><PageTransition><AdminAttendanceReport /></PageTransition></MainLayout></ProtectedRoute>} />
+          <Route path="/tutor" element={<ProtectedRoute allowedRoles={['tutor']}><MainLayout><PageTransition><ParentDashboard /></PageTransition></MainLayout></ProtectedRoute>} />
+          <Route path="/tutor/justification" element={<ProtectedRoute allowedRoles={['tutor']}><MainLayout><PageTransition><MobileJustification /></PageTransition></MainLayout></ProtectedRoute>} />
           <Route path="/teacher/reports" element={
-            <ProtectedRoute>
-              <PageTransition><TeacherReports /></PageTransition>
+            <ProtectedRoute allowedRoles={['docente']}>
+              <MainLayout><PageTransition><TeacherReports /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
-          <Route path="/student/report" element={<ProtectedRoute allowedRoles={['admin', 'docente', 'alumno', 'preceptor', 'tutor']}><PageTransition><StudentReport /></PageTransition></ProtectedRoute>} />
+          <Route path="/student/report" element={<ProtectedRoute allowedRoles={['admin', 'docente', 'alumno', 'preceptor', 'tutor']}><MainLayout><PageTransition><StudentReport /></PageTransition></MainLayout></ProtectedRoute>} />
           <Route path="/admin/mass-justification" element={
-            <ProtectedRoute>
-              <PageTransition><MassJustification /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><MassJustification /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/admin/attendance-alerts" element={
-            <ProtectedRoute>
-              <PageTransition><AttendanceAlerts /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><AttendanceAlerts /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/admin/attendance-discrepancies" element={
-            <ProtectedRoute>
-              <PageTransition><AttendanceDiscrepancies /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
+              <MainLayout><PageTransition><AttendanceDiscrepancies /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/calendar" element={
             <ProtectedRoute>
-              <PageTransition><Calendar /></PageTransition>
+              <MainLayout><PageTransition><Calendar /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/messages" element={
             <ProtectedRoute>
-              <PageTransition><Messages /></PageTransition>
+              <MainLayout><PageTransition><Messages /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/announcements" element={
             <ProtectedRoute>
-              <PageTransition><Announcements /></PageTransition>
+              <MainLayout><PageTransition><Announcements /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/admin/users" element={
-            <ProtectedRoute>
-              <PageTransition><AdminUserManagement /></PageTransition>
+            <ProtectedRoute allowedRoles={['admin']}>
+              <MainLayout><PageTransition><AdminUserManagement /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/admin/audit" element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <PageTransition><AuditLogs /></PageTransition>
+              <MainLayout><PageTransition><AuditLogs /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/settings" element={
             <ProtectedRoute>
-              <PageTransition><UserSettings /></PageTransition>
+              <MainLayout><PageTransition><UserSettings /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/help" element={
             <ProtectedRoute>
-              <PageTransition><HelpCenter /></PageTransition>
+              <MainLayout><PageTransition><HelpCenter /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/verify/:hash" element={<PageTransition><VerifyDocument /></PageTransition>} />

@@ -45,24 +45,21 @@ const AdminAttendanceReport = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-12 font-sans overflow-x-hidden">
-            <header className="max-w-4xl mx-auto mb-12 flex items-center justify-between border-b border-tech-surface pb-6 gap-6">
-                <div className="flex items-center gap-6">
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="p-3 bg-tech-secondary border border-tech-surface rounded-xl text-tech-muted hover:text-tech-text transition-all hover:scale-110 active:scale-95 shadow-lg"
-                    >
-                        <ArrowLeft size={24} />
-                    </button>
-                    <div>
-                        <h1 className="text-4xl font-black text-white tracking-widest uppercase">
-                            Reporte <span className="text-tech-accent uppercase">Asistencia</span>
-                        </h1>
-                        <p className="text-tech-muted text-xs font-mono tracking-[0.2em] mt-1">SISTEMA DE CONTROL DE PRESENTISMO</p>
-                    </div>
+        <div className="space-y-8 pb-10">
+            {/* Action Bar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                        REPORTE DE <span className="text-tech-cyan">ASISTENCIA</span>
+                    </h1>
+                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        Sistema central de control de presentismo
+                    </p>
                 </div>
-                <ThemeToggle />
-            </header>
+                <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                </div>
+            </div>
 
             <main className="max-w-4xl mx-auto">
                 <div className="bg-tech-secondary p-8 rounded-xl border border-tech-surface shadow-2xl relative overflow-hidden">

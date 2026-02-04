@@ -142,90 +142,79 @@ const HelpCenter = () => {
 
     return (
         <PageTransition>
-            <div className="min-h-screen bg-tech-primary text-tech-text p-4 md:p-10 font-sans">
-                <div className="max-w-3xl mx-auto">
-                    {/* Header */}
-                    <div className="flex items-center gap-4 mb-10">
-                        <button
-                            onClick={() => navigate('/dashboard')}
-                            className="p-2.5 bg-tech-secondary hover:bg-tech-surface rounded-xl border border-tech-surface text-tech-muted transition-all"
+            <div className="max-w-3xl mx-auto pb-10">
+                <div className="mb-10">
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                        CENTRO DE <span className="text-tech-cyan">AYUDA</span>
+                    </h1>
+                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        Guía de usuario para el rol <span className="text-tech-accent font-bold">{role}</span>
+                    </p>
+                </div>
+
+                {/* Intro Card */}
+                <div className="bg-tech-secondary border border-tech-surface rounded-2xl p-6 mb-8 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-5">
+                        <HelpCircle size={120} />
+                    </div>
+                    <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                        <Info size={20} className="text-tech-cyan" />
+                        ¿Cómo funciona el sistema?
+                    </h2>
+                    <p className="text-tech-muted text-sm leading-relaxed">
+                        Bienvenido al manual interactivo. Aquí encontrarás instrucciones detalladas sobre las herramientas que tienes permitidas según tu nivel de acceso. Haz clic en cada sección para expandirla.
+                    </p>
+                </div>
+
+                {/* Accordion List */}
+                <div className="space-y-4">
+                    {filteredSections.map((section) => (
+                        <div
+                            key={section.id}
+                            className={`bg-tech-secondary border rounded-2xl transition-all duration-300 ${activeSection === section.id
+                                ? 'border-tech-cyan shadow-[0_0_20px_rgba(14,165,233,0.1)]'
+                                : 'border-tech-surface hover:border-tech-surface/80'
+                                }`}
                         >
-                            <ArrowLeft size={20} />
-                        </button>
-                        <div>
-                            <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter">
-                                Centro de <span className="text-tech-cyan">Ayuda</span>
-                            </h1>
-                            <p className="text-tech-muted text-xs font-mono uppercase tracking-widest mt-1">
-                                Guía de Usuario • Rol: <span className="text-tech-accent">{role}</span>
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Intro Card */}
-                    <div className="bg-tech-secondary border border-tech-surface rounded-2xl p-6 mb-8 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-5">
-                            <HelpCircle size={120} />
-                        </div>
-                        <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-                            <Info size={20} className="text-tech-cyan" />
-                            ¿Cómo funciona el sistema?
-                        </h2>
-                        <p className="text-tech-muted text-sm leading-relaxed">
-                            Bienvenido al manual interactivo. Aquí encontrarás instrucciones detalladas sobre las herramientas que tienes permitidas según tu nivel de acceso. Haz clic en cada sección para expandirla.
-                        </p>
-                    </div>
-
-                    {/* Accordion List */}
-                    <div className="space-y-4">
-                        {filteredSections.map((section) => (
-                            <div
-                                key={section.id}
-                                className={`bg-tech-secondary border rounded-2xl transition-all duration-300 ${activeSection === section.id
-                                    ? 'border-tech-cyan shadow-[0_0_20px_rgba(14,165,233,0.1)]'
-                                    : 'border-tech-surface hover:border-tech-surface/80'
-                                    }`}
+                            <button
+                                onClick={() => toggleSection(section.id)}
+                                className="w-full flex items-center justify-between p-5 text-left focus:outline-none"
                             >
-                                <button
-                                    onClick={() => toggleSection(section.id)}
-                                    className="w-full flex items-center justify-between p-5 text-left focus:outline-none"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`p-2.5 rounded-xl transition-colors ${activeSection === section.id ? 'bg-tech-cyan text-white' : 'bg-tech-surface text-tech-muted'
-                                            }`}>
-                                            {section.icon}
-                                        </div>
-                                        <span className={`font-bold uppercase tracking-tight ${activeSection === section.id ? 'text-tech-cyan' : 'text-tech-text'
-                                            }`}>
-                                            {section.title}
-                                        </span>
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-2.5 rounded-xl transition-colors ${activeSection === section.id ? 'bg-tech-cyan text-white' : 'bg-tech-surface text-tech-muted'
+                                        }`}>
+                                        {section.icon}
                                     </div>
-                                    <div className="text-tech-muted">
-                                        {activeSection === section.id ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-                                    </div>
-                                </button>
+                                    <span className={`font-bold uppercase tracking-tight ${activeSection === section.id ? 'text-tech-cyan' : 'text-tech-text'
+                                        }`}>
+                                        {section.title}
+                                    </span>
+                                </div>
+                                <div className="text-tech-muted">
+                                    {activeSection === section.id ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                                </div>
+                            </button>
 
-                                {activeSection === section.id && (
-                                    <div className="px-5 pb-6 border-t border-tech-surface/30 pt-4 animate-in fade-in slide-in-from-top-2">
-                                        {section.content}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
+                            {activeSection === section.id && (
+                                <div className="px-5 pb-6 border-t border-tech-surface/30 pt-4 animate-in fade-in slide-in-from-top-2">
+                                    {section.content}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
 
-                    {/* Footer / Support */}
-                    <div className="mt-12 text-center p-8 border-2 border-dashed border-tech-surface rounded-3xl">
-                        <Users size={32} className="mx-auto text-tech-muted mb-4 opacity-20" />
-                        <h3 className="text-sm font-black uppercase tracking-widest text-tech-muted mb-2">¿Necesitas más soporte?</h3>
-                        <p className="text-xs text-tech-muted mb-6">Si no encuentras la solución aquí, contacta al administrador de la institución.</p>
-                        <button
-                            onClick={() => navigate('/messages')}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-tech-surface hover:bg-tech-surface/80 text-tech-text rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-tech-surface"
-                        >
-                            <MessageSquare size={14} /> Enviar Mensaje a Soporte
-                        </button>
-                    </div>
+                {/* Footer / Support */}
+                <div className="mt-12 text-center p-8 border-2 border-dashed border-tech-surface rounded-3xl">
+                    <Users size={32} className="mx-auto text-tech-muted mb-4 opacity-20" />
+                    <h3 className="text-sm font-black uppercase tracking-widest text-tech-muted mb-2">¿Necesitas más soporte?</h3>
+                    <p className="text-xs text-tech-muted mb-6">Si no encuentras la solución aquí, contacta al administrador de la institución.</p>
+                    <button
+                        onClick={() => navigate('/messages')}
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-tech-surface hover:bg-tech-surface/80 text-tech-text rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-tech-surface"
+                    >
+                        <MessageSquare size={14} /> Enviar Mensaje a Soporte
+                    </button>
                 </div>
             </div>
         </PageTransition>
