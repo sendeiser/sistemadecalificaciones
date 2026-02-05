@@ -255,4 +255,49 @@ router.post('/register-invite', async (req, res) => {
     }
 });
 
+
+// Admin Override Password (Security)
+router.post('/admin/users/reset-password', authMiddleware, requireAdmin, async (req, res) => {
+    const { userId, newPassword } = req.body;
+
+    if (!userId || !newPassword) {
+        return res.status(400).json({ error: 'Faltan datos requeridos (userId, newPassword)' });
+    }
+
+    if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+    }
+
+    try {
+        // 1. Get user email for audit log
+        const { data: user, error: fetchError } = await supabaseAdmin.auth.admin.getUserById(userId);
+        if (fetchError || !user) throw new Error('Usuario no encontrado');
+
+        // 2. Update Password
+        const { data: updateData, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+            userId,
+            { password: newPassword }
+        );
+
+        if (updateError) throw updateError;
+
+        // 3. Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'seguridad',
+            userId,
+            'RESET_PASSWORD',
+            null,
+            { target_email: user.user.email }
+        );
+
+        res.json({ success: true, message: 'Contraseña actualizada correctamente' });
+
+    } catch (err) {
+        console.error('Admin password reset error:', err);
+        res.status(500).json({ error: err.message || 'Error al restablecer contraseña' });
+    }
+});
+
 module.exports = router;

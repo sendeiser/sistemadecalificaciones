@@ -20,7 +20,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         const handleResize = () => {
             const mobile = window.innerWidth < 1024;
             setIsMobile(mobile);
-            if (!mobile) setIsOpen(true);
+            // If changing to mobile, force close
+            if (mobile) setIsOpen(false);
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -73,7 +74,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 { path: '/reports', label: 'Boletines', icon: <GraduationCap size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/periods', label: 'Periodos', icon: <Settings size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/admin/users', label: 'Usuarios/Invit.', icon: <ShieldCheck size={20} />, roles: ['admin'] },
-                { path: '/admin/audit', label: 'Auditoría', icon: <ShieldCheck size={20} />, roles: ['admin'] },
+                { path: '/admin/audit', label: 'Auditoría', icon: <FileText size={20} />, roles: ['admin'] },
+                { path: '/admin/system-settings', label: 'Config. Sistema', icon: <Settings size={20} />, roles: ['admin'] },
             ]
         }
     ];
@@ -105,7 +107,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 ${isMobile && !isOpen ? '-translate-x-full' : 'translate-x-0'}
             `}>
                 {/* Logo Section */}
-                <div className="p-6 flex items-center justify-between border-b border-tech-surface/50">
+                <div className={`h-20 flex items-center justify-between border-b border-tech-surface/50 ${isOpen ? 'px-6' : 'px-0 justify-center'}`}>
                     <div
                         className="flex items-center gap-3 cursor-pointer group"
                         onClick={() => navigate('/dashboard')}
@@ -114,13 +116,33 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                             <GraduationCap size={24} />
                         </div>
                         {isOpen && (
-                            <div className="flex flex-col">
+                            <div className="flex flex-col animate-in fade-in duration-300">
                                 <span className="font-black text-2xl tracking-tighter text-tech-text">ETA</span>
                                 <span className="text-[10px] font-mono text-tech-cyan uppercase tracking-widest leading-none">Gestión Agropecuaria</span>
                             </div>
                         )}
                     </div>
+
+                    {!isMobile && isOpen && (
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="p-1.5 hover:bg-tech-surface rounded-lg text-tech-muted transition-colors"
+                        >
+                            <ChevronLeft size={18} />
+                        </button>
+                    )}
                 </div>
+
+                {!isMobile && !isOpen && (
+                    <div className="py-2 flex justify-center border-b border-tech-surface/50">
+                        <button
+                            onClick={() => setIsOpen(true)}
+                            className="p-1.5 hover:bg-tech-surface rounded-lg text-tech-muted transition-colors opacity-60 hover:opacity-100"
+                        >
+                            <ChevronRight size={18} />
+                        </button>
+                    </div>
+                )}
 
                 {/* Navigation Items */}
                 <nav className="flex-grow overflow-y-auto overflow-x-hidden py-6 custom-scrollbar px-3">
@@ -143,19 +165,20 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                                                 navigate(item.path);
                                                 if (isMobile) setIsOpen(false);
                                             }}
-                                            className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all group relative
+                                            className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-all group relative
                                                 ${isActive(item.path)
                                                     ? 'bg-tech-cyan/10 text-tech-cyan'
                                                     : 'text-tech-muted hover:bg-tech-surface hover:text-tech-text'
                                                 }
+                                                ${!isOpen && !isMobile ? 'justify-center' : ''}
                                             `}
                                             title={!isOpen ? item.label : ''}
                                         >
-                                            <div className={`transition-transform group-hover:scale-110 ${isActive(item.path) ? 'text-tech-cyan' : ''}`}>
+                                            <div className={`transition-transform group-hover:scale-110 min-w-[24px] flex justify-center ${isActive(item.path) ? 'text-tech-cyan' : ''}`}>
                                                 {item.icon}
                                             </div>
                                             {isOpen && (
-                                                <span className="text-sm font-bold tracking-tight">{item.label}</span>
+                                                <span className="text-sm font-bold tracking-tight truncate animate-in fade-in duration-200">{item.label}</span>
                                             )}
                                             {isActive(item.path) && (
                                                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-tech-cyan rounded-r-full shadow-[0_0_10px_rgba(14,165,233,0.5)]"></div>
@@ -172,30 +195,37 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 <div className="p-4 border-t border-tech-surface/50 space-y-2">
                     <button
                         onClick={() => navigate('/help')}
-                        className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl text-tech-muted hover:bg-tech-surface hover:text-tech-cyan transition-all
+                        className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl text-tech-muted hover:bg-tech-surface hover:text-tech-cyan transition-all
                             ${isActive('/help') ? 'bg-tech-cyan/10 text-tech-cyan' : ''}
+                            ${!isOpen && !isMobile ? 'justify-center' : ''}
                         `}
+                        title={!isOpen ? "Ayuda" : ""}
                     >
                         <HelpCircle size={20} />
-                        {isOpen && <span className="text-sm font-bold italic opacity-60">Ayuda</span>}
+                        {isOpen && <span className="text-sm font-bold italic opacity-60 animate-in fade-in duration-200">Ayuda</span>}
                     </button>
                     <button
                         onClick={() => navigate('/settings')}
-                        className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl text-tech-muted hover:bg-tech-surface hover:text-tech-cyan transition-all
+                        className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl text-tech-muted hover:bg-tech-surface hover:text-tech-cyan transition-all
                             ${isActive('/settings') ? 'bg-tech-cyan/10 text-tech-cyan' : ''}
+                            ${!isOpen && !isMobile ? 'justify-center' : ''}
                         `}
+                        title={!isOpen ? "Ajustes" : ""}
                     >
                         <Settings size={20} />
-                        {isOpen && <span className="text-sm font-bold">Ajustes</span>}
+                        {isOpen && <span className="text-sm font-bold animate-in fade-in duration-200">Ajustes</span>}
                     </button>
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-tech-muted hover:bg-tech-danger/10 hover:text-tech-danger transition-all group"
+                        className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl text-tech-muted hover:bg-tech-danger/10 hover:text-tech-danger transition-all group
+                             ${!isOpen && !isMobile ? 'justify-center' : ''}
+                        `}
+                        title={!isOpen ? "Cerrar Sesión" : ""}
                     >
                         <div className="group-hover:rotate-12 transition-transform">
                             <LogOut size={20} />
                         </div>
-                        {isOpen && <span className="text-sm font-bold">Cerrar Sesión</span>}
+                        {isOpen && <span className="text-sm font-bold animate-in fade-in duration-200">Cerrar Sesión</span>}
                     </button>
                 </div>
             </aside>

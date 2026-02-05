@@ -114,6 +114,12 @@ const Login = () => {
                             </motion.div>
                         )}
 
+                        <div className="flex items-center justify-end mb-6">
+                            <Link to="/forgot-password" className="text-xs font-bold text-tech-muted hover:text-tech-accent transition-colors uppercase tracking-wider">
+                                ¿Olvidaste tu contraseña?
+                            </Link>
+                        </div>
+
                         <button
                             type="submit"
                             disabled={loading}

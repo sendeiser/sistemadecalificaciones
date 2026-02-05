@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import { Menu, ChevronRight, Home, Settings, HelpCircle, User, LogOut } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import FeedbackFAB from './FeedbackFAB';
 
 const MainLayout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
@@ -60,7 +61,7 @@ const MainLayout = ({ children }) => {
                     <div className="flex items-center gap-6 overflow-hidden">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2.5 bg-tech-surface/50 hover:bg-tech-surface text-tech-muted rounded-xl transition-all border border-tech-surface lg:hidden"
+                            className="p-2.5 bg-tech-surface/50 hover:bg-tech-surface text-tech-muted rounded-xl transition-all border border-tech-surface"
                         >
                             <Menu size={20} />
                         </button>
@@ -161,6 +162,9 @@ const MainLayout = ({ children }) => {
                         {children}
                     </div>
                 </main>
+
+                {/* Floating Feedback Button */}
+                <FeedbackFAB />
             </div>
         </div>
     );

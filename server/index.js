@@ -30,6 +30,8 @@ app.use('/api/tutor', require('./routes/tutor'));
 app.use('/api/gamification', require('./routes/gamification'));
 app.use('/api/verify', require('./routes/verify'));
 app.use('/api/audit', require('./routes/audit'));
+app.use('/api/settings', require('./routes/settings'));
+app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api', require('./routes/auth-admin'));
 
 // Redirect QR code scans to the frontend (Netlify)

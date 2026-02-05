@@ -39,6 +39,9 @@ const AuditLogs = lazy(() => import('./pages/AuditLogs'));
 const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
 const UserSettings = lazy(() => import('./pages/UserSettings'));
 const HelpCenter = lazy(() => import('./pages/HelpCenter'));
+const SystemSettings = lazy(() => import('./pages/SystemSettings'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { session, profile, loading } = useAuth();
@@ -223,6 +226,13 @@ function AnimatedRoutes() {
               <MainLayout><PageTransition><HelpCenter /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />
+          <Route path="/admin/system-settings" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <MainLayout><PageTransition><SystemSettings /></PageTransition></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
+          <Route path="/reset-password" element={<PageTransition><ResetPassword /></PageTransition>} />
           <Route path="/verify/:hash" element={<PageTransition><VerifyDocument /></PageTransition>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

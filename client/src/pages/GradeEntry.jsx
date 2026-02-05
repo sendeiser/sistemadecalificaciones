@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Save, Plus, BookOpen, Users, Star, ClipboardList, AlertCircle, CheckCircle2, ArrowLeft, Zap, MessageSquare, FileText } from 'lucide-react';
+import { Save, Plus, BookOpen, Users, Star, ClipboardList, AlertCircle, CheckCircle2, ArrowLeft, MessageSquare, FileText, Zap } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
-import { OBSERVATION_TEMPLATES, TRAYECTO_TEMPLATES, GET_GRADE_COLOR, GET_GRADE_BG } from '../utils/constants';
+import { OBSERVATION_TEMPLATES, GET_GRADE_COLOR, GET_GRADE_BG } from '../utils/constants';
 
 const GradeEntry = () => {
     const { profile } = useAuth();
@@ -391,6 +391,18 @@ const GradeEntry = () => {
                         </button>
                     </div>
 
+                    <div className="h-10 w-px bg-tech-surface mx-1 hidden lg:block"></div>
+
+                    {selectedAssignment && (
+                        <button
+                            onClick={() => setSelectedAssignment(null)}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-tech-secondary hover:bg-tech-surface text-tech-muted rounded-xl border border-tech-surface transition-all active:scale-95 group font-bold text-xs uppercase"
+                        >
+                            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                            <span>Volver</span>
+                        </button>
+                    )}
+
                     <button
                         onClick={() => setFocusMode(!focusMode)}
                         className={`p-2.5 rounded-xl border transition-all shadow-lg ${focusMode ? 'bg-tech-cyan text-white border-tech-cyan shadow-tech-cyan/20' : 'bg-tech-secondary text-tech-muted hover:text-tech-cyan border-tech-surface hover:border-tech-cyan/50'}`}
@@ -402,7 +414,7 @@ const GradeEntry = () => {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-[1600px] mx-auto">
                 {!selectedAssignment ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         {assignments.map(a => (
@@ -440,179 +452,173 @@ const GradeEntry = () => {
                                 </div>
                             )}
 
-                            <div className="hidden md:block overflow-x-auto min-h-[500px]">
-                                <table className="w-full text-left border-collapse min-w-[1200px]">
-                                    <thead>
-                                        <tr className="bg-tech-primary/50 text-tech-muted text-[10px] uppercase tracking-wider font-bold border-b border-tech-surface font-mono">
-                                            <th rowSpan="2" className="p-2 border-r border-tech-surface sticky left-0 bg-tech-secondary z-10 w-48 shadow-[4px_0_10px_rgba(0,0,0,0.2)]">Estudiantes</th>
-                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-24">DNI</th>
-                                            {!isSecondSemester && (
-                                                <th colSpan="2" className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan">Periodo Intensificación</th>
-                                            )}
-                                            <th colSpan="4" className="p-2 border-r border-tech-surface text-center">Calificaciones Parciales</th>
-                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan w-16">Prom.</th>
-                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-16">% Asist</th>
-                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-16 text-tech-cyan">Logro</th>
-                                            <th colSpan="2" className="p-2 border-r border-tech-surface text-center bg-purple-500/5 text-purple-400">Trayecto Acompañamiento</th>
-                                            <th rowSpan="2" className="p-2 border-r border-tech-surface text-center w-32 font-bold text-tech-text bg-tech-primary">Prom. Cuatrimestre</th>
-                                            <th rowSpan="2" className="p-2 text-center w-40">Observaciones</th>
-                                        </tr>
-                                        <tr className="bg-tech-primary/50 text-tech-muted text-[9px] uppercase tracking-wider font-bold border-b border-tech-surface font-mono">
+                            <div className="hidden md:flex flex-col min-h-[500px] text-left font-mono">
+                                {/* Flex Header */}
+                                <div className="sticky top-0 z-30 flex flex-col bg-tech-primary/95 backdrop-blur-sm border-b border-tech-surface shadow-sm">
+                                    <div className="flex h-12 uppercase tracking-wider font-bold text-[10px] text-tech-muted">
+                                        <div className="flex-[4] min-w-[200px] p-3 border-r border-tech-surface sticky left-0 bg-tech-secondary z-40 flex items-center shadow-[4px_0_10px_rgba(0,0,0,0.1)]">Estudiantes</div>
+                                        <div className="flex-1 min-w-[70px] p-3 border-r border-tech-surface text-center flex items-center justify-center">DNI</div>
+                                        {!isSecondSemester && (
+                                            <div className="flex-[3] min-w-[100px] border-r border-tech-surface bg-tech-cyan/5 text-tech-cyan flex flex-col">
+                                                <div className="flex-1 flex items-center justify-center border-b border-tech-cyan/20">Intensificación</div>
+                                                <div className="flex h-5 text-[8px] font-black">
+                                                    <div className="flex-1 flex items-center justify-center border-r border-tech-cyan/10">Cal</div>
+                                                    <div className="flex-1 flex items-center justify-center">Log</div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="flex-[5] min-w-[160px] border-r border-tech-surface bg-tech-primary/30 flex flex-col">
+                                            <div className="flex-1 flex items-center justify-center border-b border-tech-surface/30">Parciales</div>
+                                            <div className="flex h-5 text-[9px]">
+                                                <div className="flex-1 flex items-center justify-center border-r border-tech-surface/20">1</div>
+                                                <div className="flex-1 flex items-center justify-center border-r border-tech-surface/20">2</div>
+                                                <div className="flex-1 flex items-center justify-center border-r border-tech-surface/20">3</div>
+                                                <div className="flex-1 flex items-center justify-center">4</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex-1 min-w-[45px] p-3 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan flex items-center justify-center">P.P</div>
+                                        <div className="flex-1 min-w-[45px] p-3 border-r border-tech-surface text-center flex items-center justify-center">%A</div>
+                                        <div className="flex-1 min-w-[45px] p-3 border-r border-tech-surface text-center text-tech-cyan flex items-center justify-center">Log</div>
+                                        <div className="flex-[7] min-w-[180px] border-r border-tech-surface bg-purple-500/5 text-purple-400 flex flex-col">
+                                            <div className="flex-1 flex items-center justify-center border-b border-purple-500/20">Trayecto</div>
+                                            <div className="flex h-5 text-[8px]">
+                                                <div className="flex-[5] flex items-center justify-center border-r border-purple-500/10">Descripción</div>
+                                                <div className="flex-[2] flex items-center justify-center">Log</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex-[1.5] min-w-[60px] p-3 border-r border-tech-surface text-center font-black text-tech-text bg-tech-primary shadow-inner flex items-center justify-center">P.C</div>
+                                        <div className="flex-[10] min-w-[250px] p-3 text-center flex items-center justify-center text-[11px]">Observaciones</div>
+                                    </div>
+                                </div>
+
+                                {/* Flex Body */}
+                                <div className="flex flex-col">
+                                    {grades.length === 0 && !loading ? (
+                                        <div className="p-12 text-center text-tech-muted italic font-medium">
+                                            No hay alumnos asignados a esta división.
+                                        </div>
+                                    ) : grades.map((g, index) => (
+                                        <div key={g.alumno_id} className="flex border-b border-tech-surface hover:bg-tech-surface/30 transition-colors group">
+                                            {/* Name (Sticky) */}
+                                            <div className="flex-[4] min-w-[200px] p-2 border-r border-tech-surface sticky left-0 bg-tech-secondary z-20 group-hover:bg-tech-secondary/80 outline-none shadow-[4px_0_10px_rgba(0,0,0,0.1)] overflow-hidden flex items-center gap-2">
+                                                <span className="text-[10px] text-tech-muted w-3 font-mono flex-shrink-0">{index + 1}</span>
+                                                <div className="font-bold text-[11px] truncate text-tech-text uppercase tracking-tighter" title={g.student?.nombre}>
+                                                    {g.student?.nombre}
+                                                </div>
+                                            </div>
+
+                                            {/* DNI */}
+                                            <div className="flex-1 min-w-[70px] p-2 border-r border-tech-surface text-center text-[10px] font-mono text-tech-muted flex items-center justify-center">
+                                                {g.student?.dni}
+                                            </div>
+
+                                            {/* Intensificación */}
                                             {!isSecondSemester && (
                                                 <>
-                                                    <th className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 w-12 text-[8px]">Calif.</th>
-                                                    <th className="p-2 border-r border-tech-surface text-center bg-tech-cyan/5 w-12 text-[8px]">Logro</th>
-                                                </>
-                                            )}
-                                            <th className="p-2 border-r border-tech-surface text-center w-12 text-tech-cyan/70">1</th>
-                                            <th className="p-2 border-r border-tech-surface text-center w-12 text-tech-cyan/70">2</th>
-                                            <th className="p-2 border-r border-tech-surface text-center w-12 text-tech-cyan/70">3</th>
-                                            <th className="p-2 border-r border-tech-surface text-center w-12 text-tech-cyan/70">4</th>
-                                            <th className="p-2 border-r border-tech-surface text-center bg-purple-500/5">Descripción</th>
-                                            <th className="p-2 border-r border-tech-surface text-center bg-purple-500/5 w-12">Logro</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {grades.length === 0 && !loading ? (
-                                            <tr>
-                                                <td colSpan="15" className="p-12 text-center text-tech-muted italic font-medium font-mono">
-                                                    No hay alumnos asignados a esta división.
-                                                </td>
-                                            </tr>
-                                        ) : grades.map((g, index) => (
-                                            <tr key={g.alumno_id} className="border-b border-tech-surface hover:bg-tech-surface/30 transition-colors group">
-                                                <td className="p-2 border-r border-tech-surface sticky left-0 bg-tech-secondary z-10 group-hover:bg-tech-secondary/80 outline-none shadow-[4px_0_10px_rgba(0,0,0,0.2)]">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] text-tech-muted w-4 font-mono">{index + 1}</span>
-                                                        <div className="font-bold text-xs truncate max-w-[200px] text-tech-text" title={g.student?.nombre}>
-                                                            {g.student?.nombre}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-2 border-r border-tech-surface text-center text-[10px] font-mono text-tech-muted">
-                                                    {g.student?.dni}
-                                                </td>
-                                                {/* Periodo Intensificación */}
-                                                {!isSecondSemester && (
-                                                    <>
-                                                        <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
-                                                            <input
-                                                                type="number" min="0" max="10" step="0.5" placeholder="-"
-                                                                inputMode="decimal"
-                                                                value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
-                                                                onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
-                                                                disabled={periods['nota_intensificacion'] === false}
-                                                                title={periods['nota_intensificacion'] === false ? "Periodo Cerrado" : ""}
-                                                                className={`w-10 h-8 bg-tech-primary border rounded-sm text-center text-xs font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text placeholder-tech-muted/50 focus:bg-tech-secondary transition-all ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : ''}`}
-                                                            />
-                                                        </td>
-                                                        <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
-                                                            <div className={`text-[10px] font-mono font-bold ${GET_GRADE_COLOR(g.nota_intensificacion)}`}>
-                                                                {getLogro(g.nota_intensificacion) || '-'}
-                                                            </div>
-                                                        </td>
-                                                    </>
-                                                )}
-                                                {/* Parciales */}
-                                                {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4'].map(field => (
-                                                    <td key={field} className="p-1 border-r border-tech-surface text-center">
+                                                    <div className={`flex-[1.5] min-w-[50px] p-1 border-r border-tech-surface bg-tech-cyan/5 transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'nota_intensificacion' ? 'ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
                                                         <input
                                                             type="number" min="0" max="10" step="0.5" placeholder="-"
-                                                            inputMode="decimal"
-                                                            value={g[field] === null ? '' : g[field]}
-                                                            onChange={e => handleGradeChange(g.alumno_id, field, e.target.value)}
-                                                            disabled={periods[field] === false}
-                                                            title={periods[field] === false ? "Periodo Cerrado" : ""}
-                                                            className={`w-10 h-8 bg-tech-primary border rounded-sm text-center text-xs font-bold font-mono focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text placeholder-tech-muted/50 focus:bg-tech-secondary transition-all ${GET_GRADE_BG(g[field])} ${periods[field] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface border-tech-surface' : ''}`}
+                                                            value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
+                                                            onFocus={() => setActiveCell({ row: index, field: 'nota_intensificacion' })}
+                                                            onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
+                                                            disabled={periods['nota_intensificacion'] === false}
+                                                            className={`w-full h-8 bg-tech-primary border rounded-md text-center text-xs font-black focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text transition-all ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : 'border-tech-surface/50'}`}
                                                         />
-                                                    </td>
-                                                ))}
-                                                {/* Promedio Parcial */}
-                                                <td className="p-1 border-r border-tech-surface text-center bg-tech-cyan/5">
-                                                    <div className={`text-xs font-bold font-mono ${GET_GRADE_COLOR(g.promedio)}`}>
-                                                        {g.promedio || '-'}
                                                     </div>
-                                                </td>
-                                                {/* Asistencia */}
-                                                <td className="p-1 border-r border-tech-surface text-center">
-                                                    <input
-                                                        type="number" min="0" max="100"
-                                                        inputMode="numeric"
-                                                        value={g.asistencia === null ? '' : g.asistencia}
-                                                        onChange={e => handleGradeChange(g.alumno_id, 'asistencia', e.target.value)}
-                                                        className="w-10 h-8 bg-tech-primary border border-tech-surface rounded-sm text-center text-xs font-mono focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text focus:bg-tech-secondary transition-all"
-                                                    />
-                                                </td>
-                                                {/* Logro Parcial */}
-                                                <td className="p-1 border-r border-tech-surface text-center">
-                                                    <div className={`text-[10px] font-mono font-bold ${GET_GRADE_COLOR(g.promedio)}`}>
-                                                        {getLogro(g.promedio) || '-'}
-                                                    </div>
-                                                </td>
-                                                {/* Trayecto Text */}
-                                                <td className="p-1 border-r border-tech-surface bg-purple-500/5 relative">
-                                                    <div className="flex items-center gap-1 group/trayecto">
-                                                        <div className="text-[10px] text-purple-300 font-medium px-1 font-mono leading-tight flex-grow">
-                                                            {g.trayecto_acompanamiento || '-'}
+                                                    <div className="flex-[1.5] min-w-[50px] p-1 border-r border-tech-surface bg-tech-cyan/5 flex items-center justify-center font-black text-[10px]">
+                                                        <div className={GET_GRADE_COLOR(g.nota_intensificacion)}>
+                                                            {getLogro(g.nota_intensificacion) || '-'}
                                                         </div>
-                                                        <button
-                                                            onClick={() => setActiveTemplate({ id: g.alumno_id, field: 'trayecto' })}
-                                                            className="p-1 text-purple-400 hover:text-white transition-colors opacity-0 group-hover/trayecto:opacity-100"
-                                                        >
-                                                            <Zap size={12} />
-                                                        </button>
-                                                        {activeTemplate?.id === g.alumno_id && activeTemplate?.field === 'trayecto' && (
-                                                            <TemplateMenu
-                                                                templates={TRAYECTO_TEMPLATES}
-                                                                onSelect={(t) => handleGradeChange(g.alumno_id, 'trayecto_acompanamiento', t)}
-                                                                onClose={() => setActiveTemplate(null)}
-                                                            />
-                                                        )}
                                                     </div>
-                                                </td>
-                                                <td className="p-1 border-r border-tech-surface text-center bg-purple-500/5 w-12">
-                                                    <div className={`text-[10px] font-mono font-bold ${GET_GRADE_COLOR(g.promedio)}`}>
-                                                        {getLogro(g.promedio) || '-'}
-                                                    </div>
-                                                </td>
-                                                {/* Promedio Cuatrimestre */}
-                                                <td className="p-1 border-r border-tech-surface text-center bg-tech-primary">
-                                                    <div className={`text-sm font-black py-1 font-mono ${GET_GRADE_COLOR(g.promedio_cuatrimestre)}`}>
-                                                        {g.promedio_cuatrimestre || '-'}
-                                                    </div>
-                                                </td>
-                                                {/* Observaciones */}
-                                                <td className="p-1 relative">
-                                                    <div className="flex items-center gap-1 group/obs">
-                                                        <input
-                                                            type="text" placeholder="Nota..."
-                                                            value={g.observaciones || ''}
-                                                            onChange={e => handleGradeChange(g.alumno_id, 'observaciones', e.target.value)}
-                                                            className="flex-grow h-8 bg-tech-primary border border-tech-surface rounded-sm px-2 text-[10px] font-mono focus:border-tech-cyan outline-none text-tech-text placeholder-tech-muted/50 focus:bg-tech-secondary transition-all"
+                                                </>
+                                            )}
+
+                                            {/* Parciales */}
+                                            {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4'].map(field => (
+                                                <div key={field} className={`flex-1 min-w-[40px] p-1 border-r border-tech-surface transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === field ? 'bg-tech-cyan/5 ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
+                                                    <input
+                                                        type="number" min="0" max="10" step="0.5" placeholder="-"
+                                                        value={g[field] === null ? '' : g[field]}
+                                                        onFocus={() => setActiveCell({ row: index, field })}
+                                                        onChange={e => handleGradeChange(g.alumno_id, field, e.target.value)}
+                                                        disabled={periods[field] === false}
+                                                        className={`w-full h-8 bg-tech-primary border rounded-md text-center text-xs font-black focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text transition-all ${GET_GRADE_BG(g[field])} ${periods[field] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : 'border-tech-surface/50'}`}
+                                                    />
+                                                </div>
+                                            ))}
+
+                                            {/* P.P */}
+                                            <div className="flex-1 min-w-[45px] p-1 border-r border-tech-surface bg-tech-cyan/5 flex items-center justify-center font-black text-xs">
+                                                <div className={GET_GRADE_COLOR(g.promedio)}>{g.promedio || '-'}</div>
+                                            </div>
+
+                                            {/* %A */}
+                                            <div className={`flex-1 min-w-[45px] p-1 border-r border-tech-surface transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'asistencia' ? 'bg-tech-cyan/5 ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
+                                                <input
+                                                    type="number" min="0" max="100"
+                                                    value={g.asistencia === null ? '' : g.asistencia}
+                                                    onFocus={() => setActiveCell({ row: index, field: 'asistencia' })}
+                                                    onChange={e => handleGradeChange(g.alumno_id, 'asistencia', e.target.value)}
+                                                    className="w-full h-8 bg-tech-primary border border-tech-surface/50 rounded-md text-center text-xs font-black focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text transition-all shadow-sm"
+                                                />
+                                            </div>
+
+                                            {/* Log */}
+                                            <div className="flex-1 min-w-[45px] p-1 border-r border-tech-surface flex items-center justify-center font-black text-[10px]">
+                                                <div className={GET_GRADE_COLOR(g.promedio)}>{getLogro(g.promedio) || '-'}</div>
+                                            </div>
+
+                                            {/* Trayecto (Lectura) */}
+                                            <div className="flex-[5] min-w-[120px] p-1 border-r border-tech-surface bg-purple-500/5 flex items-center overflow-hidden">
+                                                <div className={`text-[9px] font-bold truncate px-1 ${g.trayecto_acompanamiento ? 'text-purple-400' : 'text-purple-300/30'}`} title={g.trayecto_acompanamiento}>
+                                                    {g.trayecto_acompanamiento || 'N/D'}
+                                                </div>
+                                            </div>
+                                            <div className="flex-[2] min-w-[60px] p-1 border-r border-tech-surface bg-purple-500/5 text-center flex items-center justify-center">
+                                                <div className={`text-[10px] font-black w-full rounded py-1 ${GET_GRADE_BG(g.promedio)} ${GET_GRADE_COLOR(g.promedio)}`}>
+                                                    {getLogro(g.promedio) || '-'}
+                                                </div>
+                                            </div>
+
+                                            {/* P.C */}
+                                            <div className={`flex-[1.5] min-w-[60px] p-1 border-r border-tech-surface text-center bg-tech-primary transition-all flex items-center justify-center ${GET_GRADE_BG(g.promedio_cuatrimestre)}`}>
+                                                <div className={`text-xs font-black font-mono drop-shadow-sm ${GET_GRADE_COLOR(g.promedio_cuatrimestre)}`}>
+                                                    {g.promedio_cuatrimestre || '-'}
+                                                </div>
+                                            </div>
+
+                                            {/* Obs */}
+                                            <div className={`flex-[10] min-w-[250px] p-1 relative transition-colors flex items-center ${activeCell.row === index && activeCell.field === 'observaciones' ? 'bg-tech-cyan/5 shadow-[inset_0_0_0_2px_rgba(14,165,233,0.5)]' : ''}`}>
+                                                <div className="flex items-center gap-1 group/obs w-full h-full">
+                                                    <input
+                                                        type="text" placeholder="..."
+                                                        value={g.observaciones || ''}
+                                                        onFocus={() => setActiveCell({ row: index, field: 'observaciones' })}
+                                                        onChange={e => handleGradeChange(g.alumno_id, 'observaciones', e.target.value)}
+                                                        className="flex-grow w-0 h-8 bg-tech-primary border border-tech-surface/50 rounded-md px-2 text-[9px] font-mono focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text placeholder-tech-muted/50 transition-all shadow-sm"
+                                                    />
+                                                    <button
+                                                        onClick={() => setActiveTemplate({ id: g.alumno_id, field: 'obs' })}
+                                                        className="p-1 px-1.5 text-tech-muted hover:text-tech-cyan transition-opacity opacity-0 group-hover/obs:opacity-100 bg-tech-secondary rounded border border-tech-surface"
+                                                    >
+                                                        <MessageSquare size={12} />
+                                                    </button>
+                                                    {activeTemplate?.id === g.alumno_id && activeTemplate?.field === 'obs' && (
+                                                        <TemplateMenu
+                                                            templates={OBSERVATION_TEMPLATES}
+                                                            onSelect={(t) => {
+                                                                const currentObs = g.observaciones || '';
+                                                                const newObs = currentObs ? `${currentObs} ${t}` : t;
+                                                                handleGradeChange(g.alumno_id, 'observaciones', newObs);
+                                                            }}
+                                                            onClose={() => setActiveTemplate(null)}
                                                         />
-                                                        <button
-                                                            onClick={() => setActiveTemplate({ id: g.alumno_id, field: 'obs' })}
-                                                            className="p-1 text-tech-muted hover:text-tech-cyan transition-colors opacity-0 group-hover/obs:opacity-100"
-                                                        >
-                                                            <MessageSquare size={14} />
-                                                        </button>
-                                                        {activeTemplate?.id === g.alumno_id && activeTemplate?.field === 'obs' && (
-                                                            <TemplateMenu
-                                                                templates={OBSERVATION_TEMPLATES}
-                                                                onSelect={(t) => {
-                                                                    const currentObs = g.observaciones || '';
-                                                                    const newObs = currentObs ? `${currentObs} ${t}` : t;
-                                                                    handleGradeChange(g.alumno_id, 'observaciones', newObs);
-                                                                }}
-                                                                onClose={() => setActiveTemplate(null)}
-                                                            />
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* Mobile Card View */}
@@ -683,29 +689,15 @@ const GradeEntry = () => {
                                                     </div>
                                                 </div>
                                             )}
-                                            <div className={`${isSecondSemester ? 'col-span-2' : ''} space-y-2`}>
+                                            <div className={`${isSecondSemester ? 'col-span-2' : ''} space-y-1`}>
                                                 <div className="text-[10px] text-tech-muted uppercase font-bold tracking-widest border-l-2 border-purple-500 pl-2">Trayecto</div>
-                                                <div className="relative">
-                                                    <div className="flex items-center justify-between bg-purple-400/10 p-2 rounded border border-purple-400/20">
-                                                        <div className="text-[10px] text-purple-400 font-mono leading-tight">
-                                                            {g.trayecto_acompanamiento || 'No definido'}
-                                                        </div>
-                                                        <button
-                                                            onClick={() => setActiveTemplate({ id: g.alumno_id, field: 'trayecto_mob' })}
-                                                            className="p-1 text-purple-400 hover:text-white"
-                                                        >
-                                                            <Zap size={14} />
-                                                        </button>
+                                                <div className="flex items-center justify-between bg-purple-400/10 p-2 rounded border border-purple-400/20">
+                                                    <div className="text-[10px] text-purple-400 font-mono leading-tight flex-grow truncate">
+                                                        {g.trayecto_acompanamiento || 'No definido'}
                                                     </div>
-                                                    {activeTemplate?.id === g.alumno_id && activeTemplate?.field === 'trayecto_mob' && (
-                                                        <div className="relative">
-                                                            <TemplateMenu
-                                                                templates={TRAYECTO_TEMPLATES}
-                                                                onSelect={(t) => handleGradeChange(g.alumno_id, 'trayecto_acompanamiento', t)}
-                                                                onClose={() => setActiveTemplate(null)}
-                                                            />
-                                                        </div>
-                                                    )}
+                                                    <div className={`ml-2 px-2 py-1 rounded text-[10px] font-black ${GET_GRADE_BG(g.promedio)} ${GET_GRADE_COLOR(g.promedio)}`}>
+                                                        {getLogro(g.promedio) || '-'}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
