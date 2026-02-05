@@ -616,6 +616,9 @@ const StudentManagement = () => {
                                                 <p className="text-tech-muted text-xs font-mono mt-0.5">{s.email || 'Sin correo'}</p>
                                             </div>
                                             <div className="flex gap-1">
+                                                <button onClick={() => openTutorModal(s)} className="p-2 bg-tech-primary border border-tech-surface text-tech-accent rounded-lg" title="Gestionar Tutores">
+                                                    <UserRound size={18} />
+                                                </button>
                                                 <button onClick={() => startEdit(s)} className="p-2 bg-tech-primary border border-tech-surface text-tech-cyan rounded-lg">
                                                     <Pencil size={18} />
                                                 </button>
@@ -641,87 +644,89 @@ const StudentManagement = () => {
                 </div>
             </div>
             {/* Modal de Gestión de Tutores */}
-            {tutorModal.isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-200">
-                    <div className="bg-tech-secondary w-full max-w-2xl rounded-3xl border border-tech-surface shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                        <header className="p-6 border-b border-tech-surface flex justify-between items-center bg-tech-primary/50">
-                            <div>
-                                <h3 className="text-xl font-bold uppercase tracking-tight">Gestionar Tutores</h3>
-                                <p className="text-tech-muted text-xs font-mono uppercase mt-1">Alumno: <span className="text-tech-cyan">{tutorModal.student.nombre}</span></p>
-                            </div>
-                            <button onClick={() => setTutorModal({ isOpen: false, student: null })} className="p-2 hover:bg-tech-surface rounded-full transition-colors">
-                                <X size={24} />
-                            </button>
-                        </header>
-
-                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                            {/* Vinculados */}
-                            <section>
-                                <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <Check className="text-tech-success" size={14} /> Tutores Vinculados
-                                </h4>
-                                <div className="space-y-3">
-                                    {linkedTutors.length === 0 ? (
-                                        <p className="text-xs text-tech-muted italic p-4 border border-dashed border-tech-surface rounded-xl">Sin tutores asociados.</p>
-                                    ) : linkedTutors.map(lt => (
-                                        <div key={lt.id} className="p-3 bg-tech-primary/50 rounded-xl border border-tech-surface flex justify-between items-center group">
-                                            <div>
-                                                <p className="text-sm font-bold">{lt.tutor?.nombre}</p>
-                                                <p className="text-[10px] text-tech-cyan uppercase font-mono">{lt.parentesco}</p>
-                                            </div>
-                                            <button onClick={() => handleUnlinkTutor(lt.id)} className="p-1.5 text-tech-danger opacity-0 group-hover:opacity-100 hover:bg-tech-danger/10 rounded-lg transition-all">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    ))}
+            {
+                tutorModal.isOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-200">
+                        <div className="bg-tech-secondary w-full max-w-2xl rounded-3xl border border-tech-surface shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                            <header className="p-6 border-b border-tech-surface flex justify-between items-center bg-tech-primary/50">
+                                <div>
+                                    <h3 className="text-xl font-bold uppercase tracking-tight">Gestionar Tutores</h3>
+                                    <p className="text-tech-muted text-xs font-mono uppercase mt-1">Alumno: <span className="text-tech-cyan">{tutorModal.student.nombre}</span></p>
                                 </div>
-                            </section>
+                                <button onClick={() => setTutorModal({ isOpen: false, student: null })} className="p-2 hover:bg-tech-surface rounded-full transition-colors">
+                                    <X size={24} />
+                                </button>
+                            </header>
 
-                            {/* Buscar y Vincular */}
-                            <section>
-                                <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <Search className="text-tech-cyan" size={14} /> Buscar Tutor
-                                </h4>
-                                <div className="relative mb-4">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={14} />
-                                    <input
-                                        type="text"
-                                        placeholder="Nombre o DNI..."
-                                        className="w-full pl-9 pr-3 py-2 bg-tech-primary border border-tech-surface rounded-xl text-xs focus:ring-1 focus:ring-tech-cyan outline-none transition-all"
-                                        value={tutorSearch}
-                                        onChange={(e) => setTutorSearch(e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                    {allTutors
-                                        .filter(t => t.nombre.toLowerCase().includes(tutorSearch.toLowerCase()))
-                                        .filter(t => !linkedTutors.some(lt => lt.tutor_id === t.id))
-                                        .map(t => (
-                                            <div key={t.id} className="p-2 hover:bg-tech-surface rounded-lg border border-transparent hover:border-tech-surface flex justify-between items-center cursor-pointer transition-colors"
-                                                onClick={() => handleLinkTutor(t.id)}>
+                            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                {/* Vinculados */}
+                                <section>
+                                    <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
+                                        <Check className="text-tech-success" size={14} /> Tutores Vinculados
+                                    </h4>
+                                    <div className="space-y-3">
+                                        {linkedTutors.length === 0 ? (
+                                            <p className="text-xs text-tech-muted italic p-4 border border-dashed border-tech-surface rounded-xl">Sin tutores asociados.</p>
+                                        ) : linkedTutors.map(lt => (
+                                            <div key={lt.id} className="p-3 bg-tech-primary/50 rounded-xl border border-tech-surface flex justify-between items-center group">
                                                 <div>
-                                                    <p className="text-xs font-bold">{t.nombre}</p>
-                                                    <p className="text-[9px] text-tech-muted font-mono">DNI: {t.dni}</p>
+                                                    <p className="text-sm font-bold">{lt.tutor?.nombre}</p>
+                                                    <p className="text-[10px] text-tech-cyan uppercase font-mono">{lt.parentesco}</p>
                                                 </div>
-                                                <Link2 size={14} className="text-tech-muted group-hover:text-tech-cyan" />
+                                                <button onClick={() => handleUnlinkTutor(lt.id)} className="p-1.5 text-tech-danger opacity-0 group-hover:opacity-100 hover:bg-tech-danger/10 rounded-lg transition-all">
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </div>
                                         ))}
-                                </div>
-                            </section>
-                        </div>
+                                    </div>
+                                </section>
 
-                        <footer className="p-6 bg-tech-primary/30 border-t border-tech-surface flex justify-end">
-                            <button
-                                onClick={() => setTutorModal({ isOpen: false, student: null })}
-                                className="px-6 py-2 bg-tech-surface hover:bg-tech-primary rounded-xl font-bold uppercase text-xs tracking-widest transition-colors"
-                            >
-                                Cerrar
-                            </button>
-                        </footer>
+                                {/* Buscar y Vincular */}
+                                <section>
+                                    <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
+                                        <Search className="text-tech-cyan" size={14} /> Buscar Tutor
+                                    </h4>
+                                    <div className="relative mb-4">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={14} />
+                                        <input
+                                            type="text"
+                                            placeholder="Nombre o DNI..."
+                                            className="w-full pl-9 pr-3 py-2 bg-tech-primary border border-tech-surface rounded-xl text-xs focus:ring-1 focus:ring-tech-cyan outline-none transition-all"
+                                            value={tutorSearch}
+                                            onChange={(e) => setTutorSearch(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                        {allTutors
+                                            .filter(t => t.nombre.toLowerCase().includes(tutorSearch.toLowerCase()))
+                                            .filter(t => !linkedTutors.some(lt => lt.tutor_id === t.id))
+                                            .map(t => (
+                                                <div key={t.id} className="p-2 hover:bg-tech-surface rounded-lg border border-transparent hover:border-tech-surface flex justify-between items-center cursor-pointer transition-colors"
+                                                    onClick={() => handleLinkTutor(t.id)}>
+                                                    <div>
+                                                        <p className="text-xs font-bold">{t.nombre}</p>
+                                                        <p className="text-[9px] text-tech-muted font-mono">DNI: {t.dni}</p>
+                                                    </div>
+                                                    <Link2 size={14} className="text-tech-muted group-hover:text-tech-cyan" />
+                                                </div>
+                                            ))}
+                                    </div>
+                                </section>
+                            </div>
+
+                            <footer className="p-6 bg-tech-primary/30 border-t border-tech-surface flex justify-end">
+                                <button
+                                    onClick={() => setTutorModal({ isOpen: false, student: null })}
+                                    className="px-6 py-2 bg-tech-surface hover:bg-tech-primary rounded-xl font-bold uppercase text-xs tracking-widest transition-colors"
+                                >
+                                    Cerrar
+                                </button>
+                            </footer>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 
