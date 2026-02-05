@@ -15,6 +15,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/grades', gradesRoutes);
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/assignments', require('./routes/assignments'));
@@ -31,7 +32,6 @@ app.use('/api/gamification', require('./routes/gamification'));
 app.use('/api/verify', require('./routes/verify'));
 app.use('/api/audit', require('./routes/audit'));
 app.use('/api/settings', require('./routes/settings'));
-app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api', require('./routes/auth-admin'));
 
 // Redirect QR code scans to the frontend (Netlify)

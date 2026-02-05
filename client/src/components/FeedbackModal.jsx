@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { MessageSquare, Send, X, AlertCircle } from 'lucide-react';
+import { getApiEndpoint } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 
 const FeedbackModal = ({ onClose, onSuccess }) => {
+    const { session } = useAuth();
     const [tipo, setTipo] = useState('sugerencia');
     const [contenido, setContenido] = useState('');
     const [prioridad, setPrioridad] = useState('normal');
@@ -14,8 +17,8 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
         setError(null);
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/feedback`, {
+            const token = session?.access_token;
+            const res = await fetch(getApiEndpoint('/feedback'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -76,8 +79,8 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
                                     type="button"
                                     onClick={() => setTipo(t)}
                                     className={`px-3 py-2 rounded-lg border text-[10px] font-bold uppercase transition-all ${tipo === t
-                                            ? 'bg-tech-cyan text-white border-tech-cyan shadow-lg shadow-tech-cyan/20'
-                                            : 'bg-tech-primary border-tech-surface text-tech-muted hover:border-tech-cyan/50'
+                                        ? 'bg-tech-cyan text-white border-tech-cyan shadow-lg shadow-tech-cyan/20'
+                                        : 'bg-tech-primary border-tech-surface text-tech-muted hover:border-tech-cyan/50'
                                         }`}
                                 >
                                     {t}
@@ -95,8 +98,8 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
                                     type="button"
                                     onClick={() => setPrioridad(p)}
                                     className={`flex-1 py-1.5 rounded-lg border text-[9px] font-bold uppercase transition-all ${prioridad === p
-                                            ? 'bg-tech-surface border-tech-cyan text-tech-cyan'
-                                            : 'bg-tech-primary border-tech-surface text-tech-muted'
+                                        ? 'bg-tech-surface border-tech-cyan text-tech-cyan'
+                                        : 'bg-tech-primary border-tech-surface text-tech-muted'
                                         }`}
                                 >
                                     {p}
