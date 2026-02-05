@@ -183,7 +183,7 @@ const SubjectManagement = () => {
                                                 <span className="font-bold text-tech-text">{s.nombre}</span>
                                             )}
                                         </td>
-                                        <td className="p-4 text-slate-400">
+                                        <td className="p-4 text-tech-muted">
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"
@@ -195,7 +195,7 @@ const SubjectManagement = () => {
                                                 s.descripcion || <span className="text-tech-muted/50 italic font-mono">-</span>
                                             )}
                                         </td>
-                                        <td className="p-4 text-slate-400">
+                                        <td className="p-4 text-tech-muted">
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"
@@ -207,7 +207,7 @@ const SubjectManagement = () => {
                                                 s.campo_formacion || <span className="text-tech-muted/50 italic font-mono">-</span>
                                             )}
                                         </td>
-                                        <td className="p-4 text-slate-400">
+                                        <td className="p-4 text-tech-muted">
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"

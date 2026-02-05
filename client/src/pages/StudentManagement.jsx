@@ -433,7 +433,7 @@ const StudentManagement = () => {
                                 // PEGAR LISTA DE ALUMNOS (NOMBRES, DNI, EMAILS) PARA EXTRACCIÓN AUTOMÁTICA
                             </p>
                             <textarea
-                                className="w-full h-40 bg-tech-primary border border-tech-surface rounded p-4 text-tech-text focus:border-tech-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-tech-muted/60 font-mono text-sm"
+                                className="w-full h-40 bg-tech-primary border border-tech-surface rounded p-4 text-tech-text focus:border-tech-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-tech-muted/30 font-mono text-sm"
                                 placeholder={"Ejemplo:\nJuan Perez 45678912 juan@mail.com\nMaria Gomez DNI 12345678 correomaria@test.com"}
                                 value={bulkText}
                                 onChange={(e) => setBulkText(e.target.value)}
@@ -444,13 +444,13 @@ const StudentManagement = () => {
                                     onClick={handleBulkAI}
                                     disabled={isProcessing}
                                     className={`flex items-center gap-2 px-6 py-2 rounded font-bold transition-all uppercase tracking-wider text-sm ${isProcessing
-                                        ? 'bg-tech-surface text-slate-500 cursor-not-allowed'
+                                        ? 'bg-tech-surface text-tech-muted cursor-not-allowed'
                                         : 'bg-tech-accent hover:bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)]'
                                         }`}
                                 >
                                     {isProcessing ? (
                                         <>
-                                            <div className="w-4 h-4 border-2 border-slate-500 border-t-white rounded-full animate-spin"></div>
+                                            <div className="w-4 h-4 border-2 border-tech-muted border-t-white rounded-full animate-spin"></div>
                                             PROCESANDO...
                                         </>
                                     ) : (
@@ -462,7 +462,7 @@ const StudentManagement = () => {
                                 </button>
                                 <button
                                     onClick={() => setIsBulkAdding(false)}
-                                    className="px-6 py-2 bg-tech-surface hover:bg-slate-700 rounded font-bold text-slate-300 uppercase tracking-wider text-sm"
+                                    className="px-6 py-2 bg-tech-surface hover:bg-slate-700 rounded font-bold text-tech-muted hover:text-white uppercase tracking-wider text-sm"
                                 >
                                     Cancelar
                                 </button>

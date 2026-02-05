@@ -29,7 +29,7 @@ const HelpCenter = () => {
             icon: <Settings size={20} />,
             roles: ['admin', 'docente', 'alumno', 'tutor', 'preceptor'],
             content: (
-                <div className="space-y-4 text-sm leading-relaxed">
+                <div className="space-y-4 text-sm leading-relaxed text-tech-text">
                     <p>Puedes personalizar tu cuenta desde la sección de <strong>Ajustes</strong> (icono de engranaje).</p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li><strong>Foto de Perfil:</strong> Sube una imagen para que tus colegas y alumnos te identifiquen.</li>
@@ -45,7 +45,7 @@ const HelpCenter = () => {
             icon: <Shield size={20} />,
             roles: ['preceptor', 'admin'],
             content: (
-                <div className="space-y-4 text-sm leading-relaxed">
+                <div className="space-y-4 text-sm leading-relaxed text-tech-text">
                     <p>Módulos críticos para el seguimiento diario del estudiante:</p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li><strong>Asistencia y Justidicación:</strong> Registro de inasistencias y carga masiva de certificados (justificaciones).</li>
@@ -62,7 +62,7 @@ const HelpCenter = () => {
             icon: <Users size={20} />,
             roles: ['admin'],
             content: (
-                <div className="space-y-4 text-sm leading-relaxed">
+                <div className="space-y-4 text-sm leading-relaxed text-tech-text">
                     <p>Gestión de la infraestructura básica del sistema:</p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li><strong>Gestión Accesos:</strong> Creación de usuarios y control de invitaciones para personal nuevo.</li>
@@ -78,7 +78,7 @@ const HelpCenter = () => {
             icon: <Star size={20} />,
             roles: ['admin', 'docente'],
             content: (
-                <div className="space-y-4 text-sm leading-relaxed">
+                <div className="space-y-4 text-sm leading-relaxed text-tech-text">
                     <p>El sistema calcula el promedio y el nivel de logro automáticamente.</p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li><strong>Carga:</strong> Ingresa valores numéricos del 1 al 10 en los parciales.</li>
@@ -94,7 +94,7 @@ const HelpCenter = () => {
             icon: <Calendar size={20} />,
             roles: ['admin', 'docente', 'preceptor'],
             content: (
-                <div className="space-y-4 text-sm leading-relaxed">
+                <div className="space-y-4 text-sm leading-relaxed text-tech-text">
                     <p>Registra la presencialidad de tus alumnos de forma diaria:</p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li><strong>Estados:</strong> Presente, Ausente, Tarde o Justificado.</li>
@@ -109,7 +109,7 @@ const HelpCenter = () => {
             icon: <Book size={20} />,
             roles: ['alumno', 'tutor'],
             content: (
-                <div className="space-y-4 text-sm leading-relaxed">
+                <div className="space-y-4 text-sm leading-relaxed text-tech-text">
                     <p>Haz un seguimiento de tu progreso en tiempo real:</p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li><strong>Boletín:</strong> Descarga tu reporte oficial en PDF con código de verificación único.</li>
@@ -125,7 +125,7 @@ const HelpCenter = () => {
             icon: <MessageSquare size={20} />,
             roles: ['admin', 'docente', 'alumno', 'tutor', 'preceptor'],
             content: (
-                <div className="space-y-4 text-sm leading-relaxed">
+                <div className="space-y-4 text-sm leading-relaxed text-tech-text">
                     <p>Mantente en contacto con la comunidad educativa:</p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li><strong>Mensajes:</strong> Chat directo entre docentes, alumnos y familias.</li>
@@ -147,7 +147,7 @@ const HelpCenter = () => {
                     <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                         CENTRO DE <span className="text-tech-cyan">AYUDA</span>
                     </h1>
-                    <p className="text-tech-text/70 dark:text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2 font-bold">
+                    <p className="text-tech-muted dark:text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2 font-bold">
                         Guía de usuario para el rol <span className="text-tech-accent dark:text-tech-accent font-black border-b-2 border-tech-accent/20 pb-0.5">{role}</span>
                     </p>
                 </div>
@@ -161,7 +161,7 @@ const HelpCenter = () => {
                         <Info size={22} className="text-tech-cyan" />
                         ¿Cómo funciona el sistema?
                     </h2>
-                    <p className="text-tech-text/80 dark:text-tech-muted text-[15px] leading-relaxed font-medium">
+                    <p className="text-tech-muted dark:text-tech-muted text-[15px] leading-relaxed font-medium">
                         Bienvenido al manual interactivo. Aquí encontrarás instrucciones detalladas sobre las herramientas que tienes permitidas según tu nivel de acceso. Haz clic en cada sección para expandirla.
                     </p>
                 </div>

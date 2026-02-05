@@ -4,12 +4,15 @@
   --tech-primary: #f8fafc;
   --tech-secondary: #ffffff;
   --tech-surface: #e2e8f0;
-  --tech-cyan: #0284c7;
+  --tech-cyan: #0369a1;
+  /* Darkened for accessibility */
   --tech-accent: #b45309;
   --tech-success: #047857;
   --tech-danger: #be123c;
-  --tech-text-main: #0f172a;
-  --tech-text-muted: #334155;
+  --tech-text-main: #020617;
+  /* Almost Black */
+  --tech-text-muted: #1e293b;
+  /* Darkened Slate 800 */
 }
 
 .dark {

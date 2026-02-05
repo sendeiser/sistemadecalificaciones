@@ -131,7 +131,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         return (
                             <div key={idx} className="mb-8 last:mb-0">
                                 {isOpen && (
-                                    <h4 className="px-4 text-[10px] font-black text-tech-muted uppercase tracking-[0.2em] mb-4 opacity-50">
+                                    <h4 className="px-4 text-[10px] font-black text-tech-muted uppercase tracking-[0.2em] mb-4">
                                         {section.title}
                                     </h4>
                                 )}

@@ -173,13 +173,13 @@ const Assignments = () => {
                                             <span className="px-2 py-0.5 bg-tech-primary rounded border border-tech-surface text-tech-cyan font-bold">
                                                 {as.division?.anio} {as.division?.seccion}
                                             </span>
-                                            <span className="text-slate-600">|</span>
+                                            <span className="text-tech-muted">|</span>
                                             <span className="text-tech-text">{as.docente?.nombre}</span>
                                         </div>
                                     </div>
                                     <button
                                         onClick={() => handleDelete(as.id)}
-                                        className="p-2 text-slate-500 hover:text-tech-danger hover:bg-tech-danger/10 rounded transition-all opacity-0 group-hover:opacity-100"
+                                        className="p-2 text-tech-muted hover:text-tech-danger hover:bg-tech-danger/10 rounded transition-all opacity-0 group-hover:opacity-100"
                                     >
                                         <Trash2 size={18} />
                                     </button>

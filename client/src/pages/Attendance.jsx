@@ -455,14 +455,14 @@ const Attendance = () => {
                                                                 <div className="flex items-center justify-center gap-2">
                                                                     <button
                                                                         onClick={() => handleStatusChange(student.id, 'presente')}
-                                                                        className={`p-2 rounded transition-all ${status === 'presente' ? 'bg-tech-success text-white shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
+                                                                        className={`p-2 rounded transition-all ${status === 'presente' ? 'bg-tech-success text-white shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-tech-primary text-tech-muted hover:bg-tech-surface'}`}
                                                                         title="Presente"
                                                                     >
                                                                         <Check size={20} />
                                                                     </button>
                                                                     <button
                                                                         onClick={() => handleStatusChange(student.id, 'ausente')}
-                                                                        className={`p-2 rounded transition-all ${status === 'ausente' ? 'bg-tech-danger text-white shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-tech-primary text-slate-500 hover:bg-tech-surface'}`}
+                                                                        className={`p-2 rounded transition-all ${status === 'ausente' ? 'bg-tech-danger text-white shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-tech-primary text-tech-muted hover:bg-tech-surface'}`}
                                                                         title="Ausente"
                                                                     >
                                                                         <X size={20} />
@@ -489,7 +489,7 @@ const Attendance = () => {
                                                                     placeholder="..."
                                                                     value={observationsMap[student.id] || ''}
                                                                     onChange={(e) => handleObservationChange(student.id, e.target.value)}
-                                                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text placeholder-tech-muted/70 focus:border-tech-cyan outline-none transition-colors"
+                                                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text placeholder-tech-muted/50 focus:border-tech-cyan outline-none transition-colors"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -546,7 +546,7 @@ const Attendance = () => {
                                                         placeholder="Observaciones..."
                                                         value={observationsMap[student.id] || ''}
                                                         onChange={(e) => handleObservationChange(student.id, e.target.value)}
-                                                        className="w-full bg-tech-primary border border-tech-surface rounded-lg px-4 py-3 text-sm text-tech-text focus:border-tech-cyan outline-none transition-colors placeholder-tech-muted/70"
+                                                        className="w-full bg-tech-primary border border-tech-surface rounded-lg px-4 py-3 text-sm text-tech-text focus:border-tech-cyan outline-none transition-colors placeholder-tech-muted/50"
                                                     />
                                                 </div>
                                             );

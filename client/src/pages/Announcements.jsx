@@ -28,7 +28,7 @@ const Announcements = () => {
     });
 
     const prioridades = [
-        { value: 'baja', label: 'Baja', color: 'text-gray-400' },
+        { value: 'baja', label: 'Baja', color: 'text-tech-muted' },
         { value: 'normal', label: 'Normal', color: 'text-tech-cyan' },
         { value: 'alta', label: 'Alta', color: 'text-tech-accent' },
         { value: 'urgente', label: 'Urgente', color: 'text-tech-danger' }
