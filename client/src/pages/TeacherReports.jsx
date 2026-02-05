@@ -93,7 +93,7 @@ const TeacherReports = () => {
             {/* Header / Action Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                         MIS <span className="text-tech-cyan">REPORTES</span>
                     </h1>
                     <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
