@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Users, Plus, Pencil, Trash2, X, Check, Search, Save, ArrowLeft, FileText, Upload, Link2, UserRound } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import CSVImporter from '../components/CSVImporter';
+import { getApiEndpoint } from '../utils/api';
 
 const StudentManagement = () => {
     const navigate = useNavigate();
@@ -73,7 +74,7 @@ const StudentManagement = () => {
                     return alert('La contraseña debe tener al menos 6 caracteres');
                 }
 
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/students/register`, {
+                const response = await fetch(getApiEndpoint('/students/register'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -100,7 +101,7 @@ const StudentManagement = () => {
         if (!confirm('¿Estás seguro de eliminar este alumno? Se borrará también su cuenta de acceso.')) return;
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/students/${id}`, {
+            const response = await fetch(getApiEndpoint(`/students/${id}`), {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
@@ -123,7 +124,7 @@ const StudentManagement = () => {
 
         setIsProcessing(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/students/bulk-ai`, {
+            const response = await fetch(getApiEndpoint('/students/bulk-ai'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -342,7 +343,7 @@ const StudentManagement = () => {
                         </div>
 
                         <CSVImporter
-                            endpoint={`${import.meta.env.VITE_API_URL}/students/import`}
+                            endpoint={getApiEndpoint('/students/import')}
                             onComplete={handleCSVImportComplete}
                             requiredColumns={['dni', 'nombre', 'email']}
                         />

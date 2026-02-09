@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus, Trash2, BookOpen, Layers, ArrowLeft } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
+import { getApiEndpoint } from '../utils/api';
 
 const Assignments = () => {
     const navigate = useNavigate();
@@ -62,11 +63,10 @@ const Assignments = () => {
         if (!confirm('¿Eliminar esta asignación? Se borrarán también todas las calificaciones y asistencias asociadas.')) return;
 
         try {
-            const token = (await supabase.auth.getSession()).data.session?.access_token;
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/assignments/${id}`, {
+            const response = await fetch(getApiEndpoint(`/assignments/${id}`), {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
                 }
             });
 

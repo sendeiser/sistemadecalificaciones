@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Save, Plus, BookOpen, Users, Star, ClipboardList, AlertCircle, CheckCircle2, ArrowLeft, MessageSquare, FileText, Zap } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { OBSERVATION_TEMPLATES, GET_GRADE_COLOR, GET_GRADE_BG } from '../utils/constants';
+import { getApiEndpoint } from '../utils/api';
 
 const GradeEntry = () => {
     const { profile } = useAuth();
@@ -237,16 +238,8 @@ const GradeEntry = () => {
         const token = session?.access_token;
         if (!token) return alert('No hay sesión activa');
 
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        let base = apiUrl || (window.location.origin.includes('localhost') ? 'http://localhost:5000' : '');
-
-        // Remove trailing slash if present
-        if (base.endsWith('/')) base = base.slice(0, -1);
-
-        // Construct path avoiding duplication of /api
-        const path = base.endsWith('/api') ? '/reports/division' : '/api/reports/division';
-
-        window.open(`${base}${path}/${selectedAssignment}?token=${token}`, '_blank');
+        const endpoint = getApiEndpoint(`/reports/division/${selectedAssignment}?token=${token}`);
+        window.open(endpoint, '_blank');
     };
 
     const handleExportCSV = () => {
