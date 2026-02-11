@@ -11,6 +11,8 @@ const DivisionManagement = () => {
     const [editingId, setEditingId] = useState(null);
     const [isAdding, setIsAdding] = useState(false);
 
+    const ANIOS = ['1ro', '2do', '3ro', '4to', '5to', '6to', '7mo'];
+
     const [formData, setFormData] = useState({
         anio: '',
         seccion: '',
@@ -133,13 +135,14 @@ const DivisionManagement = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
                             <div className="space-y-1">
                                 <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Año</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ej: 1ro, 2do..."
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-tech-muted/50 text-tech-text"
+                                <select
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all text-tech-text"
                                     value={formData.anio}
                                     onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
-                                />
+                                >
+                                    <option value="">SELECCIONAR...</option>
+                                    {ANIOS.map(a => <option key={a} value={a}>{a}</option>)}
+                                </select>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Sección</label>
@@ -195,12 +198,14 @@ const DivisionManagement = () => {
                                         <td className="p-4">
                                             {editingId === d.id ? (
                                                 <div className="flex gap-2">
-                                                    <input
-                                                        type="text"
-                                                        className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-white text-sm"
+                                                    <select
+                                                        className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-24 outline-none text-white text-xs"
                                                         value={formData.anio}
                                                         onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
-                                                    />
+                                                    >
+                                                        <option value="">AÑO</option>
+                                                        {ANIOS.map(a => <option key={a} value={a}>{a}</option>)}
+                                                    </select>
                                                     <input
                                                         type="text"
                                                         className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-white text-sm"
@@ -234,10 +239,11 @@ const DivisionManagement = () => {
                                             <div className="flex justify-center gap-2">
                                                 <button
                                                     onClick={() => navigate('/enrollment')}
-                                                    className="p-1.5 bg-tech-primary text-tech-muted hover:text-tech-text border border-tech-surface hover:border-tech-cyan rounded transition-all group"
-                                                    title="Gestionar Alumnos"
+                                                    className="p-1.5 bg-tech-primary text-tech-muted hover:text-tech-cyan border border-tech-surface hover:border-tech-cyan rounded-lg transition-all group flex items-center gap-2"
+                                                    title="Inscribir Alumnos en esta División"
                                                 >
                                                     <Users size={18} className="group-hover:scale-110 transition-transform" />
+                                                    <span className="text-[10px] font-bold uppercase hidden xl:inline">Inscribir</span>
                                                 </button>
                                                 <div className="w-px h-8 bg-tech-surface mx-1"></div>
                                                 {editingId === d.id ? (
@@ -328,6 +334,7 @@ const DivisionManagement = () => {
                                             <button
                                                 onClick={() => navigate('/enrollment')}
                                                 className="p-2.5 bg-tech-primary border border-tech-surface text-tech-muted rounded-lg hover:text-tech-text"
+                                                title="Inscribir Alumnos"
                                             >
                                                 <Users size={20} />
                                             </button>
@@ -345,7 +352,7 @@ const DivisionManagement = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

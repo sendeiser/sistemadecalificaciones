@@ -40,7 +40,7 @@ const MainLayout = ({ children }) => {
         'admin': 'Administración',
         'users': 'Gestión de Usuarios',
         'audit': 'Registro de Auditoría',
-        'enrollment': 'Agrupamiento',
+        'enrollment': 'Inscripción de Alumnos',
         'periods': 'Periodos lectivos',
     };
 

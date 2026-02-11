@@ -36,10 +36,10 @@ router.get('/', async (req, res) => {
 // POST /api/subjects (Admin)
 router.post('/', isAdminOrPreceptor, async (req, res) => {
     try {
-        const { nombre, descripcion } = req.body;
+        const { nombre, descripcion, anio, campo_formacion, ciclo } = req.body;
         const { data, error } = await req.supabase
             .from('materias')
-            .insert([{ nombre, descripcion }])
+            .insert([{ nombre, descripcion, anio, campo_formacion, ciclo }])
             .select()
             .single();
 
@@ -66,10 +66,10 @@ router.post('/', isAdminOrPreceptor, async (req, res) => {
 router.put('/:id', isAdminOrPreceptor, async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, descripcion } = req.body;
+        const { nombre, descripcion, anio, campo_formacion, ciclo } = req.body;
         const { data, error } = await req.supabase
             .from('materias')
-            .update({ nombre, descripcion })
+            .update({ nombre, descripcion, anio, campo_formacion, ciclo })
             .eq('id', id)
             .select()
             .single();

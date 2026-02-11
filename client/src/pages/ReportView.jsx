@@ -9,23 +9,47 @@ import { getApiEndpoint } from '../utils/api';
 const ReportView = () => {
     const navigate = useNavigate();
     const [students, setStudents] = useState([]);
+    const [divisions, setDivisions] = useState([]);
+    const [enrollments, setEnrollments] = useState([]);
+    const [selectedDivision, setSelectedDivision] = useState('');
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [downloading, setDownloading] = useState(null);
 
     useEffect(() => {
-        fetchStudents();
+        fetchInitialData();
     }, []);
 
-    const fetchStudents = async () => {
-        // Only admin should see this page typically, or teacher
-        const { data, error } = await supabase
-            .from('perfiles')
-            .select('*')
-            .eq('rol', 'alumno')
-            .order('nombre');
+    const fetchInitialData = async () => {
+        setLoading(true);
+        try {
+            // 1. Get all students
+            const { data: stds, error: sErr } = await supabase
+                .from('perfiles')
+                .select('*')
+                .eq('rol', 'alumno')
+                .order('nombre');
+            if (sErr) throw sErr;
+            setStudents(stds);
 
-        if (data) setStudents(data);
+            // 2. Get divisions
+            const { data: divs, error: dErr } = await supabase
+                .from('divisiones')
+                .select('*')
+                .order('anio', { ascending: true });
+            if (dErr) throw dErr;
+            setDivisions(divs);
+
+            // 3. Get student-division mappings
+            const { data: enrs, error: eErr } = await supabase
+                .from('estudiantes_divisiones')
+                .select('*');
+            if (eErr) throw eErr;
+            setEnrollments(enrs);
+
+        } catch (err) {
+            console.error('Error fetching data:', err);
+        }
         setLoading(false);
     };
 
@@ -66,10 +90,26 @@ const ReportView = () => {
         }
     };
 
-    const filteredStudents = students.filter(s =>
-        s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (s.dni && s.dni.includes(searchTerm))
-    );
+    const filteredStudents = students.filter(s => {
+        // Search term filter
+        const matchesSearch = s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (s.dni && s.dni.includes(searchTerm));
+
+        // Division filter
+        if (!selectedDivision) return matchesSearch;
+
+        const studentEnrollment = enrollments.find(e => e.alumno_id === s.id);
+        const matchesDivision = studentEnrollment && studentEnrollment.division_id === parseInt(selectedDivision);
+
+        return matchesSearch && matchesDivision;
+    });
+
+    const getStudentDivisionLabel = (studentId) => {
+        const enrollment = enrollments.find(e => e.alumno_id === studentId);
+        if (!enrollment) return 'Sin División';
+        const div = divisions.find(d => d.id === enrollment.division_id);
+        return div ? `${div.anio} ${div.seccion}` : 'N/A';
+    };
 
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10">
@@ -93,29 +133,48 @@ const ReportView = () => {
             </header>
 
             <div className="max-w-6xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                    <div className="relative w-full md:w-96">
+                <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8">
+                    <div className="relative flex-grow max-w-xl">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
                         <input
                             type="text"
                             placeholder="Buscar alumno por nombre o DNI..."
-                            className="w-full pl-10 pr-4 py-2 bg-tech-secondary border border-tech-surface rounded-lg focus:ring-2 focus:ring-tech-cyan outline-none transition-all text-tech-text placeholder-tech-muted/50"
+                            className="w-full pl-10 pr-4 py-2 bg-tech-secondary border border-tech-surface rounded-xl focus:ring-2 focus:ring-tech-cyan outline-none transition-all text-tech-text placeholder-tech-muted/50 font-mono text-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+
+                    <div className="w-full md:w-64">
+                        <select
+                            className="w-full p-2.5 bg-tech-secondary border border-tech-surface rounded-xl text-tech-text focus:border-tech-cyan outline-none transition-all font-bold text-xs uppercase cursor-pointer hover:border-tech-cyan/50"
+                            value={selectedDivision}
+                            onChange={(e) => setSelectedDivision(e.target.value)}
+                        >
+                            <option value="">TODOS LOS CURSOS</option>
+                            {divisions.map(d => (
+                                <option key={d.id} value={d.id}>{d.anio} {d.seccion}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
-                {loading ? <p className="text-tech-muted text-center py-20 animate-pulse">Cargando alumnos...</p> : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                {loading ? <p className="text-tech-muted font-mono text-center py-20 animate-pulse uppercase tracking-widest">Sincronizando Alumnos...</p> : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
                         {filteredStudents.length > 0 ? filteredStudents.map(student => (
-                            <div key={student.id} className="bg-tech-secondary p-6 rounded-xl border border-tech-surface flex justify-between items-center group hover:border-tech-cyan/50 transition-all shadow-sm">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-tech-primary rounded-lg text-tech-muted group-hover:text-tech-cyan transition-colors">
-                                        <FileText size={20} />
+                            <div key={student.id} className="bg-tech-secondary p-5 rounded-2xl border border-tech-surface flex justify-between items-center group hover:border-tech-cyan/50 hover:bg-tech-primary/30 transition-all shadow-xl hover:shadow-tech-cyan/5">
+                                <div className="flex items-center gap-4 min-w-0">
+                                    <div className="w-12 h-12 flex-shrink-0 bg-tech-primary border border-tech-surface rounded-xl flex items-center justify-center text-tech-muted group-hover:text-tech-cyan transition-all transform group-hover:rotate-6 shadow-inner">
+                                        <FileText size={22} />
                                     </div>
-                                    <div>
-                                        <h3 className="font-semibold text-tech-text group-hover:text-tech-cyan transition-colors">{student.nombre}</h3>
-                                        <p className="text-tech-muted text-sm font-mono">DNI: {student.dni || 'N/A'}</p>
+                                    <div className="min-w-0">
+                                        <h3 className="font-bold text-tech-text text-sm truncate group-hover:text-tech-cyan transition-colors uppercase tracking-tight">{student.nombre}</h3>
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] text-tech-muted font-mono uppercase">DNI: {student.dni || 'N/A'}</span>
+                                            <span className="text-[10px] text-tech-cyan font-black uppercase mt-0.5 tracking-tighter bg-tech-cyan/5 px-2 py-0.5 rounded-full inline-block w-fit">
+                                                {getStudentDivisionLabel(student.id)}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                                 <button

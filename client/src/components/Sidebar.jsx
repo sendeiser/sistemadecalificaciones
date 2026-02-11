@@ -69,7 +69,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 { path: '/subjects', label: 'Materias', icon: <BookOpen size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/divisions', label: 'Divisiones', icon: <Layers size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/assignments', label: 'Asignaciones', icon: <Users size={20} />, roles: ['admin', 'preceptor'] },
-                { path: '/enrollment', label: 'Agrupamiento', icon: <Users size={20} />, roles: ['admin', 'preceptor'] },
+                { path: '/enrollment', label: 'Inscribir Alumnos', icon: <Users size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/admin/reports', label: 'Planilla Notas', icon: <FileText size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/reports', label: 'Boletines', icon: <GraduationCap size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/periods', label: 'Periodos', icon: <Settings size={20} />, roles: ['admin', 'preceptor'] },

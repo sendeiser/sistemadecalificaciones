@@ -9,8 +9,10 @@ const SubjectManagement = () => {
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState({ nombre: '', descripcion: '', campo_formacion: '', ciclo: '' });
+    const [formData, setFormData] = useState({ nombre: '', descripcion: '', campo_formacion: '', ciclo: '', anio: '' });
     const [isAdding, setIsAdding] = useState(false);
+
+    const ANIOS = ['1ro', '2do', '3ro', '4to', '5to', '6to', '7mo'];
 
     useEffect(() => {
         fetchSubjects();
@@ -39,7 +41,8 @@ const SubjectManagement = () => {
                         nombre: formData.nombre,
                         descripcion: formData.descripcion,
                         campo_formacion: formData.campo_formacion,
-                        ciclo: formData.ciclo
+                        ciclo: formData.ciclo,
+                        anio: formData.anio
                     })
                     .eq('id', id);
                 if (error) throw error;
@@ -55,7 +58,7 @@ const SubjectManagement = () => {
                 setSubjects([...subjects, data].sort((a, b) => a.nombre.localeCompare(b.nombre)));
                 setIsAdding(false);
             }
-            setFormData({ nombre: '', descripcion: '', campo_formacion: '', ciclo: '' });
+            setFormData({ nombre: '', descripcion: '', campo_formacion: '', ciclo: '', anio: '' });
         } catch (err) {
             alert('Error al guardar: ' + err.message);
         }
@@ -78,7 +81,8 @@ const SubjectManagement = () => {
             nombre: subject.nombre,
             descripcion: subject.descripcion || '',
             campo_formacion: subject.campo_formacion || '',
-            ciclo: subject.ciclo || ''
+            ciclo: subject.ciclo || '',
+            anio: subject.anio || ''
         });
     };
 
@@ -145,6 +149,14 @@ const SubjectManagement = () => {
                                 value={formData.ciclo}
                                 onChange={(e) => setFormData({ ...formData, ciclo: e.target.value })}
                             />
+                            <select
+                                className="bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none transition-all"
+                                value={formData.anio}
+                                onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
+                            >
+                                <option value="">SELECCIONAR AÑO</option>
+                                {ANIOS.map(a => <option key={a} value={a}>{a} AÑO</option>)}
+                            </select>
                         </div>
                         <div className="mt-4 flex gap-3">
                             <button onClick={() => handleSave()} className="px-4 py-2 bg-tech-success hover:bg-emerald-600 rounded font-bold text-white uppercase tracking-wider text-sm transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)]">Guardar</button>
@@ -160,6 +172,7 @@ const SubjectManagement = () => {
                             <thead className="bg-tech-primary text-tech-muted border-b border-tech-surface font-heading">
                                 <tr>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Nombre</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Año</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Descripción</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Campo Formación</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Ciclo</th>
@@ -181,6 +194,20 @@ const SubjectManagement = () => {
                                                 />
                                             ) : (
                                                 <span className="font-bold text-tech-text">{s.nombre}</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4">
+                                            {editingId === s.id ? (
+                                                <select
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-white outline-none text-xs"
+                                                    value={formData.anio}
+                                                    onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
+                                                >
+                                                    <option value="">AÑO</option>
+                                                    {ANIOS.map(a => <option key={a} value={a}>{a}</option>)}
+                                                </select>
+                                            ) : (
+                                                <span className="px-2 py-1 bg-tech-cyan/10 text-tech-cyan rounded text-[10px] font-black uppercase">{s.anio || '-'}</span>
                                             )}
                                         </td>
                                         <td className="p-4 text-tech-muted">
@@ -284,8 +311,11 @@ const SubjectManagement = () => {
                                 ) : (
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1 mr-4">
-                                            <h3 className="font-bold text-tech-text text-base leading-tight uppercase tracking-tight">{s.nombre}</h3>
-                                            <p className="text-tech-muted text-xs mt-1 leading-relaxed">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h3 className="font-bold text-tech-text text-base leading-tight uppercase tracking-tight">{s.nombre}</h3>
+                                                <span className="px-1.5 py-0.5 bg-tech-cyan/20 text-tech-cyan rounded text-[9px] font-black">{s.anio || 'N/A'}</span>
+                                            </div>
+                                            <p className="text-tech-muted text-xs leading-relaxed">
                                                 {s.descripcion || <span className="italic opacity-50">Sin descripción</span>}
                                             </p>
                                         </div>

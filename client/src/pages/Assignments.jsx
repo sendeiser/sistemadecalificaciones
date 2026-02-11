@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus, Trash2, BookOpen, Layers, ArrowLeft } from 'lucide-react';
@@ -16,6 +16,14 @@ const Assignments = () => {
 
     // Form state
     const [form, setForm] = useState({ docente_id: '', materia_id: '', division_id: '' });
+
+    const filteredSubjects = useMemo(() => {
+        if (!form.division_id) return subjects;
+        const selectedDiv = divisions.find(d => d.id === form.division_id);
+        if (!selectedDiv) return subjects;
+        // Filter subjects that match the division year (anio)
+        return subjects.filter(s => s.anio === selectedDiv.anio);
+    }, [form.division_id, subjects, divisions]);
 
     useEffect(() => {
         fetchData();
@@ -123,27 +131,28 @@ const Assignments = () => {
                             </select>
                         </div>
                         <div>
+                            <label className="block text-xs font-bold text-tech-muted uppercase mb-1 tracking-wider">División</label>
+                            <select
+                                className="w-full bg-tech-primary border border-tech-surface rounded p-2.5 focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text transition-all text-sm"
+                                value={form.division_id}
+                                onChange={e => setForm({ ...form, division_id: e.target.value, materia_id: '' })}
+                                required
+                            >
+                                <option value="">SELECCIONAR DIVISIÓN...</option>
+                                {divisions.map(d => <option key={d.id} value={d.id}>{d.anio} {d.seccion}</option>)}
+                            </select>
+                        </div>
+                        <div>
                             <label className="block text-xs font-bold text-tech-muted uppercase mb-1 tracking-wider">Materia</label>
                             <select
                                 className="w-full bg-tech-primary border border-tech-surface rounded p-2.5 focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text transition-all text-sm"
                                 value={form.materia_id}
                                 onChange={e => setForm({ ...form, materia_id: e.target.value })}
                                 required
+                                disabled={!form.division_id}
                             >
-                                <option value="">SELECCIONAR MATERIA...</option>
-                                {subjects.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-tech-muted uppercase mb-1 tracking-wider">División</label>
-                            <select
-                                className="w-full bg-tech-primary border border-tech-surface rounded p-2.5 focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan outline-none text-tech-text transition-all text-sm"
-                                value={form.division_id}
-                                onChange={e => setForm({ ...form, division_id: e.target.value })}
-                                required
-                            >
-                                <option value="">SELECCIONAR DIVISIÓN...</option>
-                                {divisions.map(d => <option key={d.id} value={d.id}>{d.anio} {d.seccion}</option>)}
+                                <option value="">{form.division_id ? 'SELECCIONAR MATERIA...' : 'ELIJA UNA DIVISIÓN PRIMERO'}</option>
+                                {filteredSubjects.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
                             </select>
                         </div>
                         <button
