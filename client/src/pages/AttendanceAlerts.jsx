@@ -151,53 +151,93 @@ const AttendanceAlerts = () => {
                     ) : students.length === 0 ? (
                         <div className="p-20 text-center text-tech-muted italic font-mono">No se encontraron alumnos registrados.</div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-tech-primary/50 text-tech-muted text-[10px] uppercase font-bold tracking-widest border-b border-tech-surface">
-                                    <tr>
-                                        <th className="p-4 text-left">Alumno</th>
-                                        <th className="p-4 text-center">Inasistencias</th>
-                                        <th className="p-4 text-center">Estado de Riesgo</th>
-                                        <th className="p-4 text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-tech-surface">
-                                    {students.map(s => {
-                                        const status = getStatusInfo(s.faltas);
-                                        return (
-                                            <tr key={s.id} className="hover:bg-tech-surface/20 transition-colors">
-                                                <td className="p-4">
+                        <>
+                            {/* Desktop Table View */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-tech-primary/50 text-tech-muted text-[10px] uppercase font-bold tracking-widest border-b border-tech-surface">
+                                        <tr>
+                                            <th className="p-4 text-left">Alumno</th>
+                                            <th className="p-4 text-center">Inasistencias</th>
+                                            <th className="p-4 text-center">Estado de Riesgo</th>
+                                            <th className="p-4 text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-tech-surface">
+                                        {students.map(s => {
+                                            const status = getStatusInfo(s.faltas);
+                                            return (
+                                                <tr key={s.id} className="hover:bg-tech-surface/20 transition-colors">
+                                                    <td className="p-4">
+                                                        <div className="font-bold text-tech-text uppercase text-sm">{s.nombre}</div>
+                                                        <div className="text-[10px] text-tech-muted font-mono">{s.dni}</div>
+                                                    </td>
+                                                    <td className={`p-4 text-center font-bold text-xl ${status.color}`}>
+                                                        {s.faltas}
+                                                    </td>
+                                                    <td className="p-4 text-center">
+                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${status.bg} ${status.color} ${status.border} shadow-sm`}>
+                                                            {status.label}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-4 text-center">
+                                                        <button
+                                                            onClick={() => handleDownloadCitation(s)}
+                                                            disabled={generating === s.id}
+                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-secondary border border-tech-surface hover:border-tech-cyan/50 text-tech-muted hover:text-tech-cyan rounded transition-all text-[10px] font-bold uppercase tracking-wider disabled:opacity-50"
+                                                        >
+                                                            {generating === s.id ? (
+                                                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                                                            ) : (
+                                                                <FileText size={14} />
+                                                            )}
+                                                            Generar Citación
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Mobile Card View */}
+                            <div className="md:hidden divide-y divide-tech-surface">
+                                {students.map(s => {
+                                    const status = getStatusInfo(s.faltas);
+                                    return (
+                                        <div key={s.id} className="p-4 space-y-4">
+                                            <div className="flex justify-between items-start">
+                                                <div>
                                                     <div className="font-bold text-tech-text uppercase text-sm">{s.nombre}</div>
                                                     <div className="text-[10px] text-tech-muted font-mono">{s.dni}</div>
-                                                </td>
-                                                <td className={`p-4 text-center font-bold text-xl ${status.color}`}>
+                                                </div>
+                                                <div className={`text-2xl font-black ${status.color}`}>
                                                     {s.faltas}
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${status.bg} ${status.color} ${status.border} shadow-sm`}>
-                                                        {status.label}
-                                                    </span>
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <button
-                                                        onClick={() => handleDownloadCitation(s)}
-                                                        disabled={generating === s.id}
-                                                        className="inline-flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-secondary border border-tech-surface hover:border-tech-cyan/50 text-tech-muted hover:text-tech-cyan rounded transition-all text-[10px] font-bold uppercase tracking-wider disabled:opacity-50"
-                                                    >
-                                                        {generating === s.id ? (
-                                                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-                                                        ) : (
-                                                            <FileText size={14} />
-                                                        )}
-                                                        Generar Citación
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between items-center bg-tech-primary/30 p-3 rounded-xl border border-tech-surface">
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${status.bg} ${status.color} ${status.border}`}>
+                                                    {status.label}
+                                                </span>
+                                                <button
+                                                    onClick={() => handleDownloadCitation(s)}
+                                                    disabled={generating === s.id}
+                                                    className="flex items-center gap-2 px-3 py-1.5 bg-tech-cyan/10 hover:bg-tech-cyan/20 text-tech-cyan rounded-lg transition-all text-[10px] font-bold uppercase"
+                                                >
+                                                    {generating === s.id ? (
+                                                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                                                    ) : (
+                                                        <FileText size={12} />
+                                                    )}
+                                                    Citación
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
                     )}
                 </div>
             </main>

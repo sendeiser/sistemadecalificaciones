@@ -340,7 +340,7 @@ const GradeReport = () => {
                         )}
 
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-hidden rounded-xl border border-tech-surface shadow-inner bg-tech-secondary">
+                        <div className="hidden md:block overflow-x-auto custom-scrollbar border border-tech-surface rounded-xl bg-tech-secondary shadow-inner">
                             <table className="w-full table-auto border-collapse">
                                 <thead className="bg-tech-primary/50 text-tech-muted font-mono text-[10px] uppercase tracking-widest">
                                     <tr>

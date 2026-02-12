@@ -130,7 +130,8 @@ const AttendanceDiscrepancies = () => {
                 )}
 
                 <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-2xl">
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full">
                             <thead className="bg-tech-primary text-[10px] text-tech-muted uppercase font-bold border-b border-tech-surface">
                                 <tr>
@@ -170,6 +171,44 @@ const AttendanceDiscrepancies = () => {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden divide-y divide-tech-surface">
+                        {discrepancies.length === 0 ? (
+                            <div className="p-12 text-center text-tech-muted italic text-xs uppercase tracking-widest leading-relaxed">
+                                Sin discrepancias<br />detectadas.
+                            </div>
+                        ) : discrepancies.map(d => (
+                            <div key={d.estudiante_id} className="p-4 space-y-4">
+                                <div className="flex justify-between items-center bg-tech-primary/20 p-3 rounded-xl border border-tech-surface">
+                                    <div className="font-bold text-tech-text uppercase text-sm">{d.nombre}</div>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className="text-[8px] font-bold text-tech-muted uppercase">Preceptor</span>
+                                        {getStatusBadge(d.preceptor)}
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 px-1">
+                                        <UserCheck size={12} className="text-tech-muted" />
+                                        <span className="text-[10px] font-bold text-tech-muted uppercase">Registros Docentes</span>
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        {d.materias.length === 0 ? (
+                                            <div className="p-3 bg-tech-danger/5 rounded-lg border border-tech-danger/20 text-[10px] text-tech-danger italic flex items-center gap-2">
+                                                <UserX size={12} />
+                                                Sin registros de docentes
+                                            </div>
+                                        ) : d.materias.map((m, idx) => (
+                                            <div key={idx} className="flex items-center justify-between bg-tech-primary/40 p-3 rounded-lg border border-tech-surface">
+                                                <span className="text-[10px] font-bold text-tech-text uppercase truncate max-w-[150px]">{m.materia}</span>
+                                                {getStatusBadge(m.estado)}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </main>

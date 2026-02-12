@@ -93,14 +93,14 @@ const PeriodManagement = () => {
                     ) : (
                         <div className="divide-y divide-tech-surface">
                             {periods.map(period => (
-                                <div key={period.clave} className="p-6 flex items-center justify-between hover:bg-tech-primary/30 transition-colors">
+                                <div key={period.clave} className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-tech-primary/30 transition-colors">
                                     <div className="flex items-center gap-4">
-                                        <div className={`p-3 rounded-full ${period.abierto ? 'bg-tech-success/10 text-tech-success' : 'bg-tech-danger/10 text-tech-danger'}`}>
+                                        <div className={`p-3 rounded-full shrink-0 ${period.abierto ? 'bg-tech-success/10 text-tech-success' : 'bg-tech-danger/10 text-tech-danger'}`}>
                                             {period.abierto ? <Unlock size={24} /> : <Lock size={24} />}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-tech-text uppercase tracking-wide">{period.nombre}</h3>
-                                            <p className="text-sm font-mono text-tech-muted">
+                                            <h3 className="text-base sm:text-lg font-bold text-tech-text uppercase tracking-wide">{period.nombre}</h3>
+                                            <p className="text-[10px] sm:text-sm font-mono text-tech-muted">
                                                 Estado: <span className={period.abierto ? 'text-tech-success' : 'text-tech-danger'}>
                                                     {period.abierto ? 'HABILITADO' : 'BLOQUEADO'}
                                                 </span>
@@ -108,15 +108,17 @@ const PeriodManagement = () => {
                                         </div>
                                     </div>
 
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            checked={period.abierto}
-                                            onChange={() => togglePeriod(period.clave, period.abierto)}
-                                        />
-                                        <div className="w-14 h-7 bg-tech-primary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-tech-cyan rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-tech-muted after:border-tech-surface after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tech-success peer-checked:after:bg-white peer-checked:after:border-white"></div>
-                                    </label>
+                                    <div className="w-full sm:w-auto flex justify-end">
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                className="sr-only peer"
+                                                checked={period.abierto}
+                                                onChange={() => togglePeriod(period.clave, period.abierto)}
+                                            />
+                                            <div className="w-14 h-7 bg-tech-primary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-tech-cyan rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-tech-muted after:border-tech-surface after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tech-success peer-checked:after:bg-white peer-checked:after:border-white"></div>
+                                        </label>
+                                    </div>
                                 </div>
                             ))}
                         </div>
