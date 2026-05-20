@@ -143,7 +143,7 @@ const Dashboard = () => {
                                 onChange={handleSearch}
                                 placeholder="Búsqueda rápida…"
                                 aria-label="Búsqueda rápida de alumnos, divisiones o materias"
-                                className="w-full pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md border border-tech-surface rounded-2xl text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 focus-visible:ring-tech-cyan/30 transition-all shadow-xl"
+                                className="w-full pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md border border-tech-surface rounded-2xl text-tech-text placeholder-tech-muted/70 text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 focus-visible:ring-tech-cyan/30 transition-all shadow-xl"
                             />
                             {searchQuery && (
                                 <button
