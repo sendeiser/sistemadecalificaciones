@@ -203,12 +203,12 @@ const Dashboard = () => {
                 {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
                     <div className="space-y-8">
                         {/* Pestañas de navegación para organizar secciones */}
-                        <div role="tablist" className="flex border-b border-tech-surface mb-8 gap-4 overflow-x-auto pb-2">
+                        <div role="tablist" className="flex border-b border-tech-surface mb-8 gap-4 overflow-x-auto pb-2 scrollbar-thin">
                             <button
                                 role="tab"
                                 aria-selected={activeTab === 'diario'}
                                 onClick={() => setActiveTab('diario')}
-                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl ${
+                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl whitespace-nowrap ${
                                     activeTab === 'diario'
                                         ? 'border-tech-cyan text-tech-cyan font-black'
                                         : 'border-transparent text-tech-muted hover:text-tech-text'
@@ -220,7 +220,7 @@ const Dashboard = () => {
                                 role="tab"
                                 aria-selected={activeTab === 'academico'}
                                 onClick={() => setActiveTab('academico')}
-                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl ${
+                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl whitespace-nowrap ${
                                     activeTab === 'academico'
                                         ? 'border-tech-cyan text-tech-cyan font-black'
                                         : 'border-transparent text-tech-muted hover:text-tech-text'
@@ -232,7 +232,7 @@ const Dashboard = () => {
                                 role="tab"
                                 aria-selected={activeTab === 'reportes'}
                                 onClick={() => setActiveTab('reportes')}
-                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl ${
+                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl whitespace-nowrap ${
                                     activeTab === 'reportes'
                                         ? 'border-tech-cyan text-tech-cyan font-black'
                                         : 'border-transparent text-tech-muted hover:text-tech-text'

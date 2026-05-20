@@ -113,7 +113,7 @@ const DashboardStats = ({ role, profileId }) => {
         return (
             <div className="space-y-6 mb-8 animate-in fade-in duration-700">
                 {/* Upper Metric Row */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
                         { label: 'Estudiantes', val: stats.studentCount, icon: Users, color: 'tech-cyan' },
                         { label: 'Divisiones', val: stats.divisionCount, icon: Layers, color: 'tech-accent' },
@@ -153,7 +153,7 @@ const DashboardStats = ({ role, profileId }) => {
                             <BarChart2 size={14} className="text-tech-cyan" />
                             Distribución por División
                         </h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                             {stats.studentsPerDivision.map((div, index) => (
                                 <div key={index} className="space-y-2">
                                     <div className="flex justify-between items-end">
@@ -180,16 +180,16 @@ const DashboardStats = ({ role, profileId }) => {
                             <Calendar size={14} className="text-tech-cyan" />
                             Patrones de Asistencia Semanal
                         </h3>
-                        <div className="grid grid-cols-5 gap-4">
+                        <div className="grid grid-cols-5 gap-2 md:gap-4">
                             {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'].map((day, idx) => {
                                 const val = [94, 98, 92, 88, 79][idx]; // Lower on Fridays as an example
                                 const intensity = val > 90 ? 'bg-tech-success/40' : val > 85 ? 'bg-tech-cyan/40' : 'bg-tech-accent/40';
                                 return (
-                                    <div key={day} className="flex flex-col items-center gap-3 group">
+                                    <div key={day} className="flex flex-col items-center gap-2 group">
                                         <div className={`w-full aspect-square md:aspect-[2/1] rounded-lg border border-tech-surface ${intensity} flex items-center justify-center transition-all duration-300 group-hover:scale-[1.02] relative`}>
-                                            <span className="text-lg font-black text-tech-text font-mono">{val}%</span>
+                                            <span className="text-xs sm:text-sm md:text-lg font-black text-tech-text font-mono">{val}%</span>
                                         </div>
-                                        <span className="text-[10px] uppercase font-bold text-tech-muted tracking-tight">{day}</span>
+                                        <span className="text-[9px] sm:text-[10px] uppercase font-bold text-tech-muted tracking-tight truncate w-full text-center">{day}</span>
                                     </div>
                                 );
                             })}
