@@ -470,7 +470,7 @@ const DivisionEnrollment = () => {
                     <div className="bg-tech-secondary rounded border border-tech-cyan/30 overflow-hidden flex flex-col shadow-[0_0_20px_rgba(14,165,233,0.1)]">
                         <div className="p-4 bg-tech-cyan/10 flex flex-col gap-4 border-b border-tech-cyan/20">
                             <div className="flex justify-between items-center">
-                                <h3 className="font-bold text-white uppercase text-xs tracking-wider">
+                                <h3 className="font-bold text-tech-text uppercase text-xs tracking-wider">
                                     Alumnos Asignados <span className="text-tech-cyan ml-1">({assignedStudents.length})</span>
                                 </h3>
                                 <div className="flex gap-2">

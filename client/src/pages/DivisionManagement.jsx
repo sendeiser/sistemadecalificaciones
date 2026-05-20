@@ -199,7 +199,7 @@ const DivisionManagement = () => {
                                             {editingId === d.id ? (
                                                 <div className="flex gap-2">
                                                     <select
-                                                        className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-24 outline-none text-white text-xs"
+                                                        className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-24 outline-none text-tech-text text-xs"
                                                         value={formData.anio}
                                                         onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                                     >
@@ -208,7 +208,7 @@ const DivisionManagement = () => {
                                                     </select>
                                                     <input
                                                         type="text"
-                                                        className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-white text-sm"
+                                                        className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-tech-text text-sm"
                                                         value={formData.seccion}
                                                         onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
                                                     />
@@ -286,14 +286,14 @@ const DivisionManagement = () => {
                                         <div className="flex gap-2">
                                             <input
                                                 type="text"
-                                                className="flex-1 bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-white text-sm"
+                                                className="flex-1 bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-tech-text text-sm"
                                                 value={formData.anio}
                                                 onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                                 placeholder="Año"
                                             />
                                             <input
                                                 type="text"
-                                                className="flex-1 bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-white text-sm"
+                                                className="flex-1 bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-tech-text text-sm"
                                                 value={formData.seccion}
                                                 onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
                                                 placeholder="Sec"

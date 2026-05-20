@@ -272,7 +272,7 @@ const AdminUserManagement = () => {
                                                         <input
                                                             value={editEmail}
                                                             onChange={(e) => setEditEmail(e.target.value)}
-                                                            className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 text-xs w-32 outline-none"
+                                                            className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 text-tech-text text-xs w-32 outline-none"
                                                             placeholder="Email..."
                                                         />
                                                         <button onClick={() => handleUpdateInviteEmail(inv.token)} className="text-tech-success"><Save size={14} /></button>
@@ -347,7 +347,7 @@ const AdminUserManagement = () => {
                                                 <p className="text-[10px] text-tech-muted uppercase font-bold">Email Restringido</p>
                                                 {editingToken === inv.token ? (
                                                     <div className="mt-1 flex gap-1">
-                                                        <input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 text-xs outline-none" placeholder="Email..." />
+                                                        <input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 text-tech-text text-xs outline-none" placeholder="Email..." />
                                                         <button onClick={() => handleUpdateInviteEmail(inv.token)} className="text-tech-success"><Save size={14} /></button>
                                                     </div>
                                                 ) : (

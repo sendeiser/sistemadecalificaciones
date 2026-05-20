@@ -188,7 +188,7 @@ const SubjectManagement = () => {
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-white outline-none"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-tech-text outline-none"
                                                     value={formData.nombre}
                                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                                 />
@@ -199,7 +199,7 @@ const SubjectManagement = () => {
                                         <td className="p-4">
                                             {editingId === s.id ? (
                                                 <select
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-white outline-none text-xs"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-tech-text outline-none text-xs"
                                                     value={formData.anio}
                                                     onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                                 >
@@ -214,7 +214,7 @@ const SubjectManagement = () => {
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-white outline-none"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-tech-text outline-none"
                                                     value={formData.descripcion}
                                                     onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                                                 />
@@ -226,7 +226,7 @@ const SubjectManagement = () => {
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-white outline-none"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-tech-text outline-none"
                                                     value={formData.campo_formacion}
                                                     onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
                                                 />
@@ -238,7 +238,7 @@ const SubjectManagement = () => {
                                             {editingId === s.id ? (
                                                 <input
                                                     type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-white outline-none"
+                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full text-tech-text outline-none"
                                                     value={formData.ciclo}
                                                     onChange={(e) => setFormData({ ...formData, ciclo: e.target.value })}
                                                 />
