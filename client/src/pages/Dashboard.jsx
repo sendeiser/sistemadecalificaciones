@@ -135,13 +135,15 @@ const Dashboard = () => {
                                 type="text"
                                 value={searchQuery}
                                 onChange={handleSearch}
-                                placeholder="Búsqueda rápida..."
-                                className="w-full pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md border border-tech-surface rounded-2xl text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 transition-all shadow-xl"
+                                placeholder="Búsqueda rápida…"
+                                aria-label="Búsqueda rápida de alumnos, divisiones o materias"
+                                className="w-full pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md border border-tech-surface rounded-2xl text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 focus-visible:ring-tech-cyan/30 transition-all shadow-xl"
                             />
                             {searchQuery && (
                                 <button
                                     onClick={() => { setSearchQuery(''); setShowResults(false); }}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-tech-muted hover:text-tech-text"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-tech-muted hover:text-tech-text focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded"
+                                    aria-label="Limpiar búsqueda"
                                 >
                                     <X size={16} />
                                 </button>
@@ -151,7 +153,7 @@ const Dashboard = () => {
                         {showResults && (
                             <div className="absolute top-full mt-3 w-full bg-tech-secondary border border-tech-surface rounded-2xl shadow-2xl z-50 max-h-80 overflow-y-auto border-t-4 border-t-tech-cyan animate-in fade-in slide-in-from-top-2 backdrop-blur-xl">
                                 {isSearching ? (
-                                    <div className="p-8 text-center text-tech-muted text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Consultando base de datos...</div>
+                                    <div className="p-8 text-center text-tech-muted text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Consultando base de datos…</div>
                                 ) : searchResults.length > 0 ? (
                                     <div className="p-2 space-y-1">
                                         {searchResults.map((res, i) => (
@@ -193,265 +195,310 @@ const Dashboard = () => {
                 )}
 
                 {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
-                    <div className="space-y-12">
-                        {/* Section 1: Administración Base */}
-                        <section>
-                            <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest mb-6 flex items-center gap-3">
-                                <span className="w-2 h-8 bg-tech-cyan rounded-full"></span>
-                                Administración Base
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <div onClick={() => navigate('/students')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-success">
-                                        <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
-                                            <Users size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Alumnos</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Administrar perfiles de estudiantes.</p>
-                                </div>
+                    <div className="space-y-8">
+                        {/* Pestañas de navegación para organizar secciones */}
+                        <div role="tablist" className="flex border-b border-tech-surface mb-8 gap-4 overflow-x-auto pb-2">
+                            <button
+                                role="tab"
+                                aria-selected={activeTab === 'diario'}
+                                onClick={() => setActiveTab('diario')}
+                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl ${
+                                    activeTab === 'diario'
+                                        ? 'border-tech-cyan text-tech-cyan font-black'
+                                        : 'border-transparent text-tech-muted hover:text-tech-text'
+                                }`}
+                            >
+                                Operación Diaria
+                            </button>
+                            <button
+                                role="tab"
+                                aria-selected={activeTab === 'academico'}
+                                onClick={() => setActiveTab('academico')}
+                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl ${
+                                    activeTab === 'academico'
+                                        ? 'border-tech-cyan text-tech-cyan font-black'
+                                        : 'border-transparent text-tech-muted hover:text-tech-text'
+                                }`}
+                            >
+                                Configuración Académica
+                            </button>
+                            <button
+                                role="tab"
+                                aria-selected={activeTab === 'reportes'}
+                                onClick={() => setActiveTab('reportes')}
+                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl ${
+                                    activeTab === 'reportes'
+                                        ? 'border-tech-cyan text-tech-cyan font-black'
+                                        : 'border-transparent text-tech-muted hover:text-tech-text'
+                                }`}
+                            >
+                                Reportes y Estadísticas
+                            </button>
+                        </div>
 
-                                <div onClick={() => navigate('/subjects')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                            <BookOpen size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Materias</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Crear y editar materias del sistema.</p>
-                                </div>
-
-                                <div onClick={() => navigate('/divisions')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
-                                            <Layers size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Divisiones</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Gestionar cursos y secciones.</p>
-                                </div>
-
-                                {profile.rol === 'admin' && (
-                                    <div onClick={() => navigate('/admin/users')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        {/* Renderizado de contenidos de pestaña */}
+                        {activeTab === 'diario' && (
+                            <section className="space-y-6">
+                                <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest flex items-center gap-3">
+                                    <span className="w-2 h-8 bg-tech-cyan rounded-full"></span>
+                                    Control Diario y Comunicación
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <button onClick={() => navigate('/admin/attendance-capture')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
                                         <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                            <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                                <Users size={24} />
+                                            <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
+                                                <CheckSquare size={24} />
                                             </div>
-                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Gestión Accesos</h3>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Toma General</h3>
                                         </div>
-                                        <p className="text-tech-muted text-sm font-mono">Generar invitaciones para docentes.</p>
-                                    </div>
-                                )}
+                                        <p className="text-tech-muted text-sm font-mono">Registrar asistencia por curso y fecha.</p>
+                                    </button>
 
-                                {profile.rol === 'admin' && (
-                                    <div onClick={() => navigate('/admin/audit')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <button onClick={() => navigate('/admin/mass-justification')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
                                         <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                            <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
+                                            <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
+                                                <FileText size={24} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Justificación</h3>
+                                        </div>
+                                        <p className="text-tech-muted text-sm font-mono">Carga masiva por rango de fechas.</p>
+                                    </button>
+
+                                    <button onClick={() => navigate('/admin/attendance-discrepancies')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                            <div className="p-3 bg-tech-accent/10 rounded-xl group-hover:bg-tech-accent/20 group-focus-visible:bg-tech-accent/20 transition-colors">
+                                                <AlertCircle size={24} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Discrepancias</h3>
+                                        </div>
+                                        <p className="text-tech-muted text-sm font-mono">Control cruzado Preceptor/Docente.</p>
+                                    </button>
+
+                                    <button onClick={() => navigate('/admin/attendance-alerts')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-danger focus-visible:border-tech-danger focus-visible:ring-2 focus-visible:ring-tech-danger/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-danger opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-danger">
+                                            <div className="p-3 bg-tech-danger/10 rounded-xl group-hover:bg-tech-danger/20 group-focus-visible:bg-tech-danger/20 transition-colors">
                                                 <ShieldAlert size={24} />
                                             </div>
-                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Auditoría</h3>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Alertas Asist.</h3>
                                         </div>
-                                        <p className="text-tech-muted text-sm font-mono">Historial completo de acciones.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </section>
+                                        <p className="text-tech-muted text-sm font-mono">Control de abandono y citaciones.</p>
+                                    </button>
 
-                        {/* Section 2: Configuración de Ciclo */}
-                        <section>
-                            <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest mb-6 flex items-center gap-3">
-                                <span className="w-2 h-8 bg-tech-accent rounded-full"></span>
-                                Configuración de Ciclo
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <div onClick={() => navigate('/assignments')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                            <Users size={24} />
+                                    <button onClick={() => navigate('/reports')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                            <div className="p-3 bg-tech-accent/10 rounded-xl group-hover:bg-tech-accent/20 group-focus-visible:bg-tech-accent/20 transition-colors">
+                                                <FileText size={24} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Boletines</h3>
                                         </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Asignaciones</h3>
+                                        <p className="text-tech-muted text-sm font-mono">Generar boletines individuales.</p>
+                                    </button>
+
+                                    <button onClick={() => navigate('/calendar')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                            <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
+                                                <CalendarIcon size={24} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Calendario</h3>
+                                        </div>
+                                        <p className="text-tech-muted text-sm font-mono">Eventos académicos.</p>
+                                    </button>
+
+                                    <button onClick={() => navigate('/announcements')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                            <div className="p-3 bg-tech-accent/10 rounded-xl group-hover:bg-tech-accent/20 group-focus-visible:bg-tech-accent/20 transition-colors relative">
+                                                <Bell size={24} />
+                                                {unreadAnnouncements > 0 && (
+                                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-tech-danger text-white text-[10px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
+                                                        {unreadAnnouncements}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Anuncios</h3>
+                                        </div>
+                                        <p className="text-tech-muted text-sm font-mono">Comunicaciones institucionales.</p>
+                                    </button>
+
+                                    <button onClick={() => navigate('/messages')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                            <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors relative">
+                                                <MessageSquare size={24} />
+                                                {unreadMessages > 0 && (
+                                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-tech-danger text-white text-[10px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
+                                                        {unreadMessages}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Mensajes</h3>
+                                        </div>
+                                        <p className="text-tech-muted text-sm font-mono">Chat Institucional seguro.</p>
+                                    </button>
+                                </div>
+                            </section>
+                        )}
+
+                        {activeTab === 'academico' && (
+                            <section className="space-y-12">
+                                <div className="space-y-6">
+                                    <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest flex items-center gap-3">
+                                        <span className="w-2 h-8 bg-tech-success rounded-full"></span>
+                                        Administración Base
+                                    </h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <button onClick={() => navigate('/students')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-success focus-visible:border-tech-success focus-visible:ring-2 focus-visible:ring-tech-success/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-4 mb-3 text-tech-success">
+                                                <div className="p-3 bg-tech-success/10 rounded-xl group-hover:bg-tech-success/20 group-focus-visible:bg-tech-success/20 transition-colors">
+                                                    <Users size={24} />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Alumnos</h3>
+                                            </div>
+                                            <p className="text-tech-muted text-sm font-mono">Administrar perfiles de estudiantes.</p>
+                                        </button>
+
+                                        <button onClick={() => navigate('/subjects')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                                <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
+                                                    <BookOpen size={24} />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Materias</h3>
+                                            </div>
+                                            <p className="text-tech-muted text-sm font-mono">Crear y editar materias del sistema.</p>
+                                        </button>
+
+                                        <button onClick={() => navigate('/divisions')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                                <div className="p-3 bg-tech-accent/10 rounded-xl group-hover:bg-tech-accent/20 group-focus-visible:bg-tech-accent/20 transition-colors">
+                                                    <Layers size={24} />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Divisiones</h3>
+                                            </div>
+                                            <p className="text-tech-muted text-sm font-mono">Gestionar cursos y secciones.</p>
+                                        </button>
+
+                                        {profile.rol === 'admin' && (
+                                            <button onClick={() => navigate('/admin/users')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                                <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                                <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                                    <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
+                                                        <Users size={24} />
+                                                    </div>
+                                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Gestión Accesos</h3>
+                                                </div>
+                                                <p className="text-tech-muted text-sm font-mono">Generar invitaciones para docentes.</p>
+                                            </button>
+                                        )}
+
+                                        {profile.rol === 'admin' && (
+                                            <button onClick={() => navigate('/admin/audit')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                                <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                                <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                                    <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
+                                                        <ShieldAlert size={24} />
+                                                    </div>
+                                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Auditoría</h3>
+                                                </div>
+                                                <p className="text-tech-muted text-sm font-mono">Historial completo de acciones.</p>
+                                            </button>
+                                        )}
                                     </div>
-                                    <p className="text-tech-muted text-sm font-mono">Vincular docentes, materias y divisiones.</p>
                                 </div>
 
-                                <div onClick={() => navigate('/enrollment')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                            <GraduationCap size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Agrupamiento</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Asignar alumnos a sus divisiones.</p>
-                                </div>
+                                <div className="space-y-6">
+                                    <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest flex items-center gap-3">
+                                        <span className="w-2 h-8 bg-tech-accent rounded-full"></span>
+                                        Configuración de Ciclo
+                                    </h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <button onClick={() => navigate('/assignments')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                                <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
+                                                    <Users size={24} />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Asignaciones</h3>
+                                            </div>
+                                            <p className="text-tech-muted text-sm font-mono">Vincular docentes, materias y divisiones.</p>
+                                        </button>
 
-                                <div onClick={() => navigate('/periods')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                            <Settings size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Periodos</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Controlar apertura de cargas de notas.</p>
-                                </div>
-                            </div>
-                        </section>
+                                        <button onClick={() => navigate('/enrollment')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                                <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
+                                                    <GraduationCap size={24} />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Agrupamiento</h3>
+                                            </div>
+                                            <p className="text-tech-muted text-sm font-mono">Asignar alumnos a sus divisiones.</p>
+                                        </button>
 
-                        {/* Section 3: Gestión Diaria */}
-                        <section>
-                            <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest mb-6 flex items-center gap-3">
-                                <span className="w-2 h-8 bg-tech-cyan rounded-full"></span>
-                                Control Diario
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <div onClick={() => navigate('/admin/attendance-capture')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                            <CheckSquare size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Toma General</h3>
+                                        <button onClick={() => navigate('/periods')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-4 mb-3 text-tech-cyan">
+                                                <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
+                                                    <Settings size={24} />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Periodos</h3>
+                                            </div>
+                                            <p className="text-tech-muted text-sm font-mono">Controlar apertura de cargas de notas.</p>
+                                        </button>
                                     </div>
-                                    <p className="text-tech-muted text-sm font-mono">Registrar asistencia por curso y fecha.</p>
                                 </div>
+                            </section>
+                        )}
 
-                                <div onClick={() => navigate('/admin/mass-justification')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                            <FileText size={24} />
+                        {activeTab === 'reportes' && (
+                            <section className="space-y-6">
+                                <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest flex items-center gap-3">
+                                    <span className="w-2 h-8 bg-tech-success rounded-full"></span>
+                                    Reportes y Análisis
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <button onClick={() => navigate('/admin/reports')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-success focus-visible:border-tech-success focus-visible:ring-2 focus-visible:ring-tech-success/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-success">
+                                            <div className="p-3 bg-tech-success/10 rounded-xl group-hover:bg-tech-success/20 group-focus-visible:bg-tech-success/20 transition-colors">
+                                                <FileText size={24} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Reporte Notas</h3>
                                         </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Justificación</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Carga masiva por rango de fechas.</p>
-                                </div>
+                                        <p className="text-tech-muted text-sm font-mono">Consolidado por curso y materia.</p>
+                                    </button>
 
-                                <div onClick={() => navigate('/admin/attendance-discrepancies')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
-                                            <AlertCircle size={24} />
+                                    <button onClick={() => navigate('/admin/reports/attendance')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                            <div className="p-3 bg-tech-accent/10 rounded-xl group-hover:bg-tech-accent/20 group-focus-visible:bg-tech-accent/20 transition-colors">
+                                                <FileText size={24} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Reporte Asist.</h3>
                                         </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Discrepancias</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Control cruzado Preceptor/Docente.</p>
-                                </div>
-                            </div>
-                        </section>
+                                        <p className="text-tech-muted text-sm font-mono">Exportar PDF de asistencia general.</p>
+                                    </button>
 
-                        {/* Section 4: Reportes y Seguimiento */}
-                        <section>
-                            <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest mb-6 flex items-center gap-3">
-                                <span className="w-2 h-8 bg-tech-success rounded-full"></span>
-                                Reportes y Análisis
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <div onClick={() => navigate('/admin/reports')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-success">
-                                        <div className="p-3 bg-tech-success/10 rounded group-hover:bg-tech-success/20 transition-colors">
-                                            <FileText size={24} />
+                                    <button onClick={() => navigate('/admin/attendance-stats')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
+                                        <div className="flex items-center gap-4 mb-3 text-tech-accent">
+                                            <div className="p-3 bg-tech-accent/10 rounded-xl group-hover:bg-tech-accent/20 group-focus-visible:bg-tech-accent/20 transition-colors">
+                                                <BarChart3 size={24} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Estadísticas</h3>
                                         </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Reporte Notas</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Consolidado por curso y materia.</p>
+                                        <p className="text-tech-muted text-sm font-mono">Gráficos de asistencia y progreso.</p>
+                                    </button>
                                 </div>
-
-                                <div onClick={() => navigate('/admin/reports/attendance')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
-                                            <FileText size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Reporte Asist.</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Exportar PDF de asistencia general.</p>
-                                </div>
-
-                                <div onClick={() => navigate('/admin/attendance-stats')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
-                                            <BarChart3 size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Estadísticas</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Gráficos de asistencia y progreso.</p>
-                                </div>
-
-                                <div onClick={() => navigate('/admin/attendance-alerts')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-danger transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-danger opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-danger">
-                                        <div className="p-3 bg-tech-danger/10 rounded group-hover:bg-tech-danger/20 transition-colors">
-                                            <ShieldAlert size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Alertas Asist.</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Control de abandono y citaciones.</p>
-                                </div>
-
-                                <div onClick={() => navigate('/reports')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors">
-                                            <FileText size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Boletines</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Generar boletines individuales.</p>
-                                </div>
-
-                                <div onClick={() => navigate('/calendar')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors">
-                                            <CalendarIcon size={24} />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Calendario</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Eventos académicos.</p>
-                                </div>
-
-                                <div onClick={() => navigate('/announcements')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-accent">
-                                        <div className="p-3 bg-tech-accent/10 rounded group-hover:bg-tech-accent/20 transition-colors relative">
-                                            <Bell size={24} />
-                                            {unreadAnnouncements > 0 && (
-                                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-tech-danger text-white text-[10px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
-                                                    {unreadAnnouncements}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Anuncios</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Comunicaciones institucionales.</p>
-                                </div>
-
-                                <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-4 mb-3 text-tech-cyan">
-                                        <div className="p-3 bg-tech-cyan/10 rounded group-hover:bg-tech-cyan/20 transition-colors relative">
-                                            <MessageSquare size={24} />
-                                            {unreadMessages > 0 && (
-                                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-tech-danger text-white text-[10px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
-                                                    {unreadMessages}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Mensajes</h3>
-                                    </div>
-                                    <p className="text-tech-muted text-sm font-mono">Chat Institucional seguro.</p>
-                                </div>
-                            </div>
-                        </section>
+                            </section>
+                        )}
                     </div>
                 )}
 
@@ -599,14 +646,19 @@ const Dashboard = () => {
 
                 {/* Guía Común */}
                 <div className="mt-16 border-t border-tech-surface pt-10">
-                    <div onClick={() => navigate('/')} className="p-8 bg-tech-secondary/50 rounded-2xl border border-tech-surface hover:border-tech-cyan/40 transition-all cursor-pointer group flex items-center gap-8 shadow-2xl">
-                        <div className="p-4 bg-tech-cyan/10 rounded-xl text-tech-cyan group-hover:scale-110 transition-transform"><Info size={40} /></div>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="w-full text-left p-8 bg-tech-secondary/50 rounded-2xl border border-tech-surface hover:border-tech-cyan/40 focus-visible:border-tech-cyan/40 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group flex items-center gap-8 shadow-2xl"
+                    >
+                        <div className="p-4 bg-tech-cyan/10 rounded-xl text-tech-cyan group-hover:scale-110 group-focus-visible:scale-110 transition-transform">
+                            <Info size={40} />
+                        </div>
                         <div className="flex-grow">
                             <h3 className="text-2xl font-bold text-tech-text uppercase tracking-tight">Guía del Sistema</h3>
-                            <p className="text-tech-muted font-mono">Información técnica y operativa sobre la plataforma ETA.</p>
+                            <p className="text-tech-muted font-mono text-sm">Información técnica y operativa sobre la plataforma ETA.</p>
                         </div>
-                        <ArrowRight size={32} className="text-tech-muted group-hover:translate-x-1 transition-transform" />
-                    </div>
+                        <ArrowRight size={32} className="text-tech-muted group-hover:translate-x-1 group-focus-visible:translate-x-1 transition-transform" />
+                    </button>
                 </div>
             </main>
         </div>
