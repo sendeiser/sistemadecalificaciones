@@ -521,11 +521,11 @@ const Dashboard = () => {
                                     <>
                                         <div onClick={() => navigate('/attendance')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group rounded-xl flex items-center gap-4">
                                             <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform"><Clock size={32} /></div>
-                                            <div><h3 className="text-lg font-bold uppercase">Asistencia</h3><p className="text-xs text-tech-muted font-mono">Registrar hoy</p></div>
+                                            <div><h3 className="text-lg font-bold text-tech-text uppercase">Asistencia</h3><p className="text-xs text-tech-muted font-mono">Registrar hoy</p></div>
                                         </div>
                                         <div onClick={() => navigate('/grades')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-accent transition-all cursor-pointer group rounded-xl flex items-center gap-4">
                                             <div className="p-4 bg-tech-accent/10 rounded-lg text-tech-accent group-hover:scale-110 transition-transform"><GraduationCap size={32} /></div>
-                                            <div><h3 className="text-lg font-bold uppercase">Cargar Notas</h3><p className="text-xs text-tech-muted font-mono">Actualizar materias</p></div>
+                                            <div><h3 className="text-lg font-bold text-tech-text uppercase">Cargar Notas</h3><p className="text-xs text-tech-muted font-mono">Actualizar materias</p></div>
                                         </div>
                                     </>
                                 )}
@@ -538,32 +538,32 @@ const Dashboard = () => {
                                             </span>
                                         )}
                                     </div>
-                                    <div><h3 className="text-lg font-bold uppercase">Mensajes</h3><p className="text-xs text-tech-muted font-mono">Ver chat</p></div>
+                                    <div><h3 className="text-lg font-bold text-tech-text uppercase">Mensajes</h3><p className="text-xs text-tech-muted font-mono">Ver chat</p></div>
                                 </div>
                             </div>
                         </section>
                         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div onClick={() => navigate('/grades')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-cyan"><GraduationCap size={24} /><h3 className="text-xl font-bold uppercase">Mis Cursos</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-cyan"><GraduationCap size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Mis Cursos</h3></div>
                                 <p className="text-tech-muted mb-6 font-mono font-sm">Gestión de calificaciones por curso.</p>
                                 <button className="px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Abrir Planilla</button>
                             </div>
                             <div onClick={() => navigate('/attendance')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-accent"><Clock size={24} /><h3 className="text-xl font-bold uppercase">Asistencia</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-accent"><Clock size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Asistencia</h3></div>
                                 <p className="text-tech-muted mb-6 font-mono font-sm">Control diario de inasistencias.</p>
                                 <button className="px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Tomar Lista</button>
                             </div>
                             <div onClick={() => navigate('/teacher/reports')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-success"><FileText size={24} /><h3 className="text-xl font-bold uppercase">Reportes</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-success"><FileText size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Reportes</h3></div>
                                 <p className="text-tech-muted mb-6 font-mono font-sm">Exportar boletines y planillas.</p>
                                 <button className="px-4 py-2 bg-tech-success text-white rounded font-bold uppercase tracking-widest text-xs">Ver PDF</button>
                             </div>
                             <div onClick={() => navigate('/calendar')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-cyan"><CalendarIcon size={24} /><h3 className="text-xl font-bold uppercase">Calendario</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-cyan"><CalendarIcon size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Calendario</h3></div>
                                 <p className="text-tech-muted mb-6 font-mono font-sm">Cronograma del ciclo lectivo.</p>
                                 <button className="px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Ver Fechas</button>
                             </div>
@@ -578,7 +578,7 @@ const Dashboard = () => {
                                             </span>
                                         )}
                                     </div>
-                                    <h3 className="text-xl font-bold uppercase">Anuncios</h3>
+                                    <h3 className="text-xl font-bold text-tech-text uppercase">Anuncios</h3>
                                 </div>
                                 <p className="text-tech-muted mb-6 font-mono font-sm">Novedades institucionales.</p>
                                 <button className="px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Ver Noticias</button>
@@ -593,7 +593,7 @@ const Dashboard = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div onClick={() => navigate('/student/report')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-success"><FileText size={40} /><h3 className="text-xl font-bold uppercase">Mi Boletín</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-success"><FileText size={40} /><h3 className="text-xl font-bold text-tech-text uppercase">Mi Boletín</h3></div>
                                 <p className="text-tech-muted font-mono text-sm">Visualizar calificaciones y asistencia.</p>
                             </div>
                             <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
@@ -607,13 +607,13 @@ const Dashboard = () => {
                                             </span>
                                         )}
                                     </div>
-                                    <h3 className="text-xl font-bold uppercase">Mensajes</h3>
+                                    <h3 className="text-xl font-bold text-tech-text uppercase">Mensajes</h3>
                                 </div>
                                 <p className="text-tech-muted font-mono text-sm">Comunicación con docentes.</p>
                             </div>
                             <div onClick={() => navigate('/calendar')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-cyan"><CalendarIcon size={40} /><h3 className="text-xl font-bold uppercase">Calendario</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-cyan"><CalendarIcon size={40} /><h3 className="text-xl font-bold text-tech-text uppercase">Calendario</h3></div>
                                 <p className="text-tech-muted font-mono text-sm">Fechas de exámenes y eventos.</p>
                             </div>
                             <div onClick={() => navigate('/announcements')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group relative overflow-hidden">
@@ -627,7 +627,7 @@ const Dashboard = () => {
                                             </span>
                                         )}
                                     </div>
-                                    <h3 className="text-xl font-bold uppercase">Anuncios</h3>
+                                    <h3 className="text-xl font-bold text-tech-text uppercase">Anuncios</h3>
                                 </div>
                                 <p className="text-tech-muted font-mono text-sm">Noticias de la escuela.</p>
                             </div>
