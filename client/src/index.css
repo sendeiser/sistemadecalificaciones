@@ -1,30 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
 @import "tailwindcss";
 
 :root {
-  --tech-primary: #f8fafc;
+  --tech-primary: #f2faf6;
   --tech-secondary: #ffffff;
-  --tech-surface: #e2e8f0;
-  --tech-cyan: #0369a1;
-  /* Darkened for accessibility */
-  --tech-accent: #b45309;
-  --tech-success: #047857;
-  --tech-danger: #be123c;
-  --tech-text-main: #020617;
-  /* Almost Black */
-  --tech-text-muted: #1e293b;
-  /* Darkened Slate 800 */
+  --tech-surface: #d5ebd9;
+  --tech-cyan: #059669; /* Verde Cultivo Biotech */
+  --tech-accent: #b45309; /* Tierra Ámbar */
+  --tech-success: #15803d; /* Clorofila Viva */
+  --tech-danger: #e11d48; /* Fruto Rojo */
+  --tech-text-main: #051c0e; /* Suelo Profundo */
+  --tech-text-muted: #3c5443; /* Oliva Muted */
+  --tech-grid: rgba(5, 150, 105, 0.025);
+  --tech-glow: radial-gradient(circle, rgba(5, 150, 105, 0.04) 0%, transparent 70%);
 }
 
 .dark {
-  --tech-primary: #0f172a;
-  --tech-secondary: #1e293b;
-  --tech-surface: #334155;
-  --tech-cyan: #0ea5e9;
-  --tech-accent: #f59e0b;
-  --tech-success: #10b981;
-  --tech-danger: #ef4444;
-  --tech-text-main: #f8fafc;
-  --tech-text-muted: #94a3b8;
+  --tech-primary: #050b08; /* Obsidiana de Bosque */
+  --tech-secondary: #0a130f; /* Invernadero Oscuro */
+  --tech-surface: #14281e; /* Estructura Botánica */
+  --tech-cyan: #10b981; /* Verde Fluor Clorofila */
+  --tech-accent: #f59e0b; /* Sol Ámbar */
+  --tech-success: #34d399; /* Menta Viva */
+  --tech-danger: #f43f5e; /* Rosa Silvestre Alerta */
+  --tech-text-main: #eefdf5; /* Nieve de Menta */
+  --tech-text-muted: #748c7e; /* Verde Sabio Muted */
+  --tech-grid: rgba(16, 185, 129, 0.035);
+  --tech-glow: radial-gradient(circle, rgba(16, 185, 129, 0.07) 0%, transparent 70%);
 }
 
 @theme {
@@ -39,8 +41,8 @@
   --color-tech-text: var(--tech-text-main);
   --color-tech-muted: var(--tech-text-muted);
 
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: 'Roboto Mono', monospace;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 @layer base {
@@ -49,6 +51,26 @@
     color: var(--tech-text-main);
     font-family: var(--font-sans);
     transition: background-color 0.3s ease, color 0.3s ease;
+    background-image: 
+      linear-gradient(var(--tech-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--tech-grid) 1px, transparent 1px);
+    background-size: 50px 50px;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  /* Orbe difuso que simula la luz solar / lámpara de crecimiento */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -10%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    max-width: 800px;
+    background: var(--tech-glow);
+    z-index: -1;
+    pointer-events: none;
   }
 }
 

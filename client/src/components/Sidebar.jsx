@@ -102,7 +102,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             )}
 
             {/* Sidebar Container */}
-            <aside className={`fixed top-0 left-0 h-full bg-tech-secondary border-r border-tech-surface z-50 transition-all duration-300 ease-in-out flex flex-col
+            <aside className={`fixed top-0 left-0 h-full bg-tech-secondary/75 backdrop-blur-xl border-r border-tech-surface/50 z-50 transition-all duration-300 ease-in-out flex flex-col
                 ${isOpen ? 'w-64' : 'w-20'} 
                 ${isMobile && !isOpen ? '-translate-x-full' : 'translate-x-0'}
             `}>
@@ -165,10 +165,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                                                 navigate(item.path);
                                                 if (isMobile) setIsOpen(false);
                                             }}
-                                            className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-all group relative
+                                            className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-all group relative border
                                                 ${isActive(item.path)
-                                                    ? 'bg-tech-cyan/10 text-tech-cyan'
-                                                    : 'text-tech-muted hover:bg-tech-surface hover:text-tech-text'
+                                                    ? 'bg-tech-cyan/10 text-tech-cyan border-tech-cyan/20 shadow-[0_0_15px_rgba(16,185,129,0.06)] font-extrabold'
+                                                    : 'text-tech-muted hover:bg-tech-surface hover:text-tech-text border-transparent'
                                                 }
                                                 ${!isOpen && !isMobile ? 'justify-center' : ''}
                                             `}
@@ -181,7 +181,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                                                 <span className="text-sm font-bold tracking-tight truncate animate-in fade-in duration-200">{item.label}</span>
                                             )}
                                             {isActive(item.path) && (
-                                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-tech-cyan rounded-r-full shadow-[0_0_10px_rgba(14,165,233,0.5)]"></div>
+                                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-tech-cyan rounded-r-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                                             )}
                                         </button>
                                     ))}
