@@ -653,7 +653,7 @@ const Dashboard = () => {
                 {/* Guía Común */}
                 <div className="mt-16 border-t border-tech-surface pt-10">
                     <button
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/help')}
                         className="w-full text-left p-8 bg-tech-secondary/50 rounded-2xl border border-tech-surface hover:border-tech-cyan/40 focus-visible:border-tech-cyan/40 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group flex items-center gap-8 shadow-2xl"
                     >
                         <div className="p-4 bg-tech-cyan/10 rounded-xl text-tech-cyan group-hover:scale-110 group-focus-visible:scale-110 transition-transform">
