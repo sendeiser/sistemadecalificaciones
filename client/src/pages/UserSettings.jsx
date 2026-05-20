@@ -196,7 +196,7 @@ const UserSettings = () => {
                                 </label>
                             </div>
 
-                            <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight">{profile.nombre}</h2>
+                            <h2 className="text-xl md:text-2xl font-black text-tech-text uppercase tracking-tight">{profile.nombre}</h2>
                             <p className="inline-block px-3 py-1 bg-tech-accent/10 text-tech-accent border border-tech-accent/20 rounded-full text-[10px] font-black uppercase tracking-widest mt-2">{profile.rol}</p>
 
                             <div className="mt-8 pt-6 border-t border-tech-surface/50 space-y-4">
@@ -234,7 +234,7 @@ const UserSettings = () => {
                         <div className="bg-tech-secondary border border-tech-surface rounded-2xl p-6 md:p-8 shadow-2xl">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-tech-cyan/20 rounded-lg text-tech-cyan"><User size={20} /></div>
-                                <h3 className="text-lg font-bold uppercase tracking-tight">Información Personal</h3>
+                                <h3 className="text-lg font-bold text-tech-text uppercase tracking-tight">Información Personal</h3>
                             </div>
 
                             <form onSubmit={handleProfileUpdate} className="space-y-6">
@@ -246,7 +246,7 @@ const UserSettings = () => {
                                         type="text"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-tech-surface border border-tech-surface focus:border-tech-cyan rounded-xl p-4 transition-all focus:outline-none"
+                                        className="w-full bg-tech-surface border border-tech-surface focus:border-tech-cyan rounded-xl p-4 text-tech-text transition-all focus:outline-none"
                                         placeholder="Tu nombre completo"
                                         required
                                     />
@@ -258,7 +258,7 @@ const UserSettings = () => {
                                     </label>
                                     <div className="w-full bg-tech-primary border border-tech-surface rounded-xl p-4 cursor-not-allowed flex items-center gap-3">
                                         <Mail size={18} className="text-tech-muted" />
-                                        <span className="text-sm">{user?.email}</span>
+                                        <span className="text-sm text-tech-text">{user?.email}</span>
                                     </div>
                                 </div>
 
@@ -277,7 +277,7 @@ const UserSettings = () => {
                         <div className="bg-tech-secondary border border-tech-surface rounded-2xl p-6 md:p-8 shadow-2xl">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-tech-accent/20 rounded-lg text-tech-accent"><Shield size={20} /></div>
-                                <h3 className="text-lg font-bold uppercase tracking-tight">Seguridad</h3>
+                                <h3 className="text-lg font-bold text-tech-text uppercase tracking-tight">Seguridad</h3>
                             </div>
 
                             <form onSubmit={handlePasswordChange} className="space-y-6">
@@ -292,7 +292,7 @@ const UserSettings = () => {
                                                 type="password"
                                                 value={passwordData.newPassword}
                                                 onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                                className="w-full bg-tech-surface border border-tech-surface focus:border-tech-accent rounded-xl p-4 pl-12 transition-all focus:outline-none"
+                                                className="w-full bg-tech-surface border border-tech-surface focus:border-tech-accent rounded-xl p-4 pl-12 text-tech-text transition-all focus:outline-none"
                                                 placeholder="••••••••"
                                                 minLength={6}
                                             />
@@ -309,7 +309,7 @@ const UserSettings = () => {
                                                 type="password"
                                                 value={passwordData.confirmPassword}
                                                 onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                                className="w-full bg-tech-surface border border-tech-surface focus:border-tech-accent rounded-xl p-4 pl-12 transition-all focus:outline-none"
+                                                className="w-full bg-tech-surface border border-tech-surface focus:border-tech-accent rounded-xl p-4 pl-12 text-tech-text transition-all focus:outline-none"
                                                 placeholder="••••••••"
                                                 minLength={6}
                                             />
