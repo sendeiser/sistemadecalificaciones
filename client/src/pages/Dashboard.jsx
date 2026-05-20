@@ -21,6 +21,7 @@ const Dashboard = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [medals, setMedals] = useState([]);
+    const [activeTab, setActiveTab] = useState('diario');
     const { unreadMessages, unreadAnnouncements } = useNotifications();
 
     React.useEffect(() => {
@@ -31,6 +32,11 @@ const Dashboard = () => {
         if (profile?.rol === 'alumno') {
             checkAchievements();
             fetchMedals();
+        }
+        if (profile?.rol === 'admin') {
+            setActiveTab('academico');
+        } else if (profile?.rol === 'preceptor') {
+            setActiveTab('diario');
         }
     }, [profile]);
 
