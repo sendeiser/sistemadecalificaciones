@@ -36,12 +36,6 @@ const Login = () => {
 
             {/* Premium Institutional Background */}
             <div className="fixed inset-0 z-0">
-                <img
-                    src="/eta_background_v2.png"
-                    alt="ETA Institutional Background"
-                    className="w-full h-full object-cover opacity-60 dark:opacity-40 select-none pointer-events-none"
-                    loading="eager"
-                />
                 <div className="absolute inset-0 bg-gradient-to-br from-tech-primary/40 via-tech-primary/70 to-tech-primary dark:from-tech-primary/60 dark:via-tech-primary/80 dark:to-tech-primary"></div>
             </div>
 
@@ -53,7 +47,7 @@ const Login = () => {
                     className="w-full max-w-[420px] bg-tech-secondary/90 dark:bg-tech-secondary/80 backdrop-blur-xl rounded-2xl border border-tech-surface p-8 md:p-10 shadow-2xl relative overflow-hidden"
                 >
                     {/* Decorative Top Bar */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tech-cyan via-tech-success to-tech-cyan"></div>
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tech-cyan via-tech-accent to-tech-cyan"></div>
 
                     <div className="text-center mb-10">
                         <motion.div
@@ -62,10 +56,10 @@ const Login = () => {
                             transition={{ delay: 0.2 }}
                             className="inline-flex p-4 bg-tech-cyan/10 rounded-2xl mb-6 border border-tech-cyan/20"
                         >
-                            <ShieldCheck className="text-tech-cyan" size={40} />
+                            <img src="/cgb_logo.svg" alt="CGB" className="w-12 h-12" />
                         </motion.div>
                         <h2 className="text-3xl font-black text-tech-text tracking-tighter uppercase mb-2">
-                            ETA <span className="text-tech-cyan">Terminal</span>
+                            CGB <span className="text-tech-cyan">Portal</span>
                         </h2>
                         <div className="flex items-center justify-center gap-2 text-tech-muted font-mono text-[10px] uppercase tracking-widest">
                             <Terminal size={12} />
@@ -82,7 +76,7 @@ const Login = () => {
                                     type="email"
                                     required
                                     className="w-full pl-12 pr-4 py-4 bg-tech-primary/50 border border-tech-surface rounded-xl focus:ring-2 focus:ring-tech-cyan/20 focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/40 font-medium"
-                                    placeholder="usuario@eta.edu"
+                                    placeholder="usuario@cgb.edu.ar"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
@@ -144,7 +138,7 @@ const Login = () => {
 
             {/* Technical Footer */}
             <footer className="relative z-10 py-6 text-center text-tech-muted text-[8px] font-mono uppercase tracking-[0.5em] opacity-40">
-                ETA INFRASTRUCTURE // SECURE ACCESS PORTAL // 2026
+                COMERCIO GRAL. BELGRANA // PORTAL DE GESTIÓN // 2026
             </footer>
         </div>
     );

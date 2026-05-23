@@ -139,13 +139,22 @@ const UserSettings = () => {
     return (
         <PageTransition>
             <div className="max-w-4xl mx-auto pb-10">
-                <div className="mb-10">
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        AJUSTES DE <span className="text-tech-cyan">PERFIL</span>
-                    </h1>
-                    <p className="text-tech-text/70 dark:text-tech-muted font-mono text-xs uppercase tracking-[0.3em] mt-2 font-bold">
-                        Gestión de seguridad y datos personales
-                    </p>
+                <div className="mb-10 flex items-center gap-4 border-b border-tech-surface pb-6">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
+                        aria-label="Volver al panel"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            AJUSTES DE <span className="text-tech-cyan">PERFIL</span>
+                        </h1>
+                        <p className="text-tech-text/70 dark:text-tech-muted font-mono text-xs uppercase tracking-[0.3em] mt-2 font-bold">
+                            Gestión de seguridad y datos personales
+                        </p>
+                    </div>
                 </div>
 
                 {/* Notification Banner */}

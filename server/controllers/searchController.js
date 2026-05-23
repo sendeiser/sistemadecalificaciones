@@ -1,14 +1,26 @@
 const { supabaseAdmin } = require('../config/supabaseClient');
 
 async function globalSearch(req, res) {
-    const { query } = req.query;
+    const q = req.query.query || req.query.q;
+    const { type } = req.query;
 
-    if (!query || query.length < 2) {
+    if (!q || q.length < 2) {
         return res.json([]);
     }
 
     try {
-        const searchTerm = `%${query}%`;
+        const searchTerm = `%${q}%`;
+
+        if (type === 'users') {
+            const { data: users, error } = await supabaseAdmin
+                .from('perfiles')
+                .select('id, nombre, email, rol, dni')
+                .or(`nombre.ilike.${searchTerm},email.ilike.${searchTerm},dni.ilike.${searchTerm}`)
+                .limit(20);
+
+            if (error) throw error;
+            return res.json(users || []);
+        }
 
         // 1. Search Students
         const { data: students } = await supabaseAdmin

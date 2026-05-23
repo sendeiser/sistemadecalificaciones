@@ -70,7 +70,7 @@ const MainLayout = ({ children }) => {
                         <nav className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest overflow-hidden whitespace-nowrap">
                             <Link to="/dashboard" className="text-tech-muted hover:text-tech-cyan transition-colors flex items-center gap-1">
                                 <Home size={14} />
-                                <span className="hidden md:inline">ETAGEST</span>
+                                <span className="hidden md:inline">CGB</span>
                             </Link>
                             {breadcrumbs.length > 0 && <ChevronRight size={14} className="text-tech-surface" />}
                             {breadcrumbs.map((crumb, idx) => {

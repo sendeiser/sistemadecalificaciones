@@ -296,16 +296,31 @@ const Attendance = () => {
     return (
         <div className="space-y-8 pb-10">
             {/* Header / Action Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        CONTROL DE <span className="text-tech-cyan">ASISTENCIA</span>
-                    </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
-                        {selectedAssignment
-                            ? `${selectedAssignment.materia.nombre} • ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
-                            : 'Registro centralizado de presentismo'}
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => {
+                            if (selectedAssignment) {
+                                setSelectedAssignment(null);
+                            } else {
+                                navigate('/dashboard');
+                            }
+                        }}
+                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
+                        aria-label="Volver"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            CONTROL DE <span className="text-tech-cyan">ASISTENCIA</span>
+                        </h1>
+                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                            {selectedAssignment
+                                ? `${selectedAssignment.materia.nombre} • ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
+                                : 'Registro centralizado de presentismo'}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">

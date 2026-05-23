@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <defs>
+    <linearGradient id="redGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <linearGradient id="grayGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9ca3af"/>
+      <stop offset="100%" stop-color="#4b5563"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shield Outline -->
+  <path d="M200 30 L340 100 L340 200 Q340 290 200 360 Q60 290 60 200 L60 100 Z"
+        fill="url(#redGrad)" stroke="#4b5563" stroke-width="4"/>
+
+  <!-- Inner Shield -->
+  <path d="M200 55 L315 115 L315 200 Q315 275 200 335 Q85 275 85 200 L85 115 Z"
+        fill="white" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- Gray Diagonal Band -->
+  <path d="M120 180 L280 100 L280 180 L120 260 Z" fill="url(#grayGrad)" opacity="0.12"/>
+
+  <!-- CGB Monogram -->
+  <text x="200" y="180" font-family="'Plus Jakarta Sans', sans-serif" font-size="90" font-weight="900"
+        fill="url(#redGrad)" text-anchor="middle" dominant-baseline="middle" letter-spacing="4">CGB</text>
+
+  <!-- Torch (PE/Education symbol) -->
+  <g transform="translate(200, 255)">
+    <!-- Handle -->
+    <rect x="-4" y="15" width="8" height="35" rx="3" fill="#4b5563"/>
+    <!-- Flame outer -->
+    <path d="M0 -10 Q-14 5 -10 15 Q-6 22 0 22 Q6 22 10 15 Q14 5 0 -10Z"
+          fill="#ef4444" opacity="0.8"/>
+    <!-- Flame inner -->
+    <path d="M0 -5 Q-8 5 -6 12 Q-3 16 0 16 Q3 16 6 12 Q8 5 0 -5Z"
+          fill="#fca5a5"/>
+    <!-- Bowl -->
+    <path d="M-14 12 L-16 22 L16 22 L14 12Z" fill="#6b7280"/>
+    <rect x="-16" y="20" width="32" height="4" rx="2" fill="#4b5563"/>
+  </g>
+
+  <!-- Ribbon -->
+  <path d="M120 330 Q200 345 280 330" stroke="#ef4444" stroke-width="3" fill="none"/>
+  <path d="M140 335 Q200 348 260 335" stroke="#9ca3af" stroke-width="2" fill="none"/>
+
+  <!-- Bottom Text -->
+  <text x="200" y="315" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" font-weight="800"
+        fill="#4b5563" text-anchor="middle" letter-spacing="6">COMERCIO</text>
+  <text x="200" y="332" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="600"
+        fill="#9ca3af" text-anchor="middle" letter-spacing="4">GRAL. BELGRANA</text>
+
+  <!-- Decorative dots -->
+  <circle cx="85" cy="200" r="3" fill="#ef4444" opacity="0.5"/>
+  <circle cx="315" cy="200" r="3" fill="#ef4444" opacity="0.5"/>
+</svg>

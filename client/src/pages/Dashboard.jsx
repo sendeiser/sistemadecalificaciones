@@ -661,7 +661,7 @@ const Dashboard = () => {
                         </div>
                         <div className="flex-grow">
                             <h3 className="text-2xl font-bold text-tech-text uppercase tracking-tight">Guía del Sistema</h3>
-                            <p className="text-tech-muted font-mono text-sm">Información técnica y operativa sobre la plataforma ETA.</p>
+                            <p className="text-tech-muted font-mono text-sm">Información técnica y operativa sobre la plataforma CGB.</p>
                         </div>
                         <ArrowRight size={32} className="text-tech-muted group-hover:translate-x-1 group-focus-visible:translate-x-1 transition-transform" />
                     </button>

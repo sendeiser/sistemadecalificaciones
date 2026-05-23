@@ -143,13 +143,22 @@ const HelpCenter = () => {
     return (
         <PageTransition>
             <div className="max-w-3xl mx-auto pb-10">
-                <div className="mb-10">
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        CENTRO DE <span className="text-tech-cyan">AYUDA</span>
-                    </h1>
-                    <p className="text-tech-muted dark:text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2 font-bold">
-                        Guía de usuario para el rol <span className="text-tech-accent dark:text-tech-accent font-black border-b-2 border-tech-accent/20 pb-0.5">{role}</span>
-                    </p>
+                <div className="mb-10 flex items-center gap-4 border-b border-tech-surface pb-6">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
+                        aria-label="Volver al panel"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            CENTRO DE <span className="text-tech-cyan">AYUDA</span>
+                        </h1>
+                        <p className="text-tech-muted dark:text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2 font-bold">
+                            Guía de usuario para el rol <span className="text-tech-accent dark:text-tech-accent font-black border-b-2 border-tech-accent/20 pb-0.5">{role}</span>
+                        </p>
+                    </div>
                 </div>
 
                 {/* Intro Card */}

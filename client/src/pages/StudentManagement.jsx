@@ -238,14 +238,23 @@ const StudentManagement = () => {
     return (
         <div className="space-y-8 pb-10">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        GESTIÓN DE <span className="text-tech-cyan">ALUMNOS</span>
-                    </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
-                        Administración central de perfiles académicos
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
+                        aria-label="Volver al panel"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            GESTIÓN DE <span className="text-tech-cyan">ALUMNOS</span>
+                        </h1>
+                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                            Administración central de perfiles académicos
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">

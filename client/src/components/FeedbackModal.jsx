@@ -50,7 +50,7 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
                         </div>
                         <div>
                             <h3 className="font-bold text-tech-text uppercase tracking-wider text-sm">Enviar Sugerencia</h3>
-                            <p className="text-[10px] text-tech-muted font-mono uppercase tracking-widest">Mejora del Sistema ETA</p>
+                            <p className="text-[10px] text-tech-muted font-mono uppercase tracking-widest">Mejora del Sistema CGB</p>
                         </div>
                     </div>
                     <button

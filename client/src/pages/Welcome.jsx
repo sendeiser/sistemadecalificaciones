@@ -85,15 +85,7 @@ const Welcome = () => {
 
             {/* Optimized High-Contrast Background */}
             <div className="fixed inset-0 z-0">
-                <img
-                    src="/eta_background_v2.png"
-                    alt="ETA Institutional Background"
-                    className="w-full h-full object-cover opacity-70 dark:opacity-40 select-none pointer-events-none"
-                    loading="eager"
-                    fetchpriority="high"
-                />
-                {/* Dynamic gradient that adjusts contrast between light/dark modes */}
-                <div className="absolute inset-0 bg-gradient-to-b from-tech-primary/40 via-tech-primary/60 to-tech-primary dark:from-tech-primary/60 dark:via-tech-primary/80 dark:to-tech-primary"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-tech-primary via-tech-primary to-tech-primary/95"></div>
             </div>
 
             {/* Low-complexity pattern for performance */}
@@ -120,8 +112,8 @@ const Welcome = () => {
                         variants={itemVariants}
                         className="text-5xl md:text-7xl font-extrabold mb-4 text-tech-text tracking-tighter uppercase leading-tight"
                     >
-                        Escuela Técnico <br />
-                        <span className="text-tech-cyan dark:text-tech-cyan drop-shadow-sm">Agropecuaria</span>
+                        Comercio <br />
+                        <span className="text-tech-cyan dark:text-tech-cyan drop-shadow-sm">Gral. Belgrana</span>
                     </motion.h1>
 
                     <motion.div variants={itemVariants} className="flex items-center gap-2 text-tech-cyan font-mono mb-8 bg-tech-cyan/10 px-5 py-2 rounded-full border border-tech-cyan/20 text-xs uppercase tracking-widest font-bold">
@@ -130,8 +122,8 @@ const Welcome = () => {
                     </motion.div>
 
                     <motion.p variants={itemVariants} className="max-w-2xl text-lg md:text-xl text-tech-muted leading-relaxed mb-10 font-medium">
-                        Plataforma centralizada para la <span className="text-tech-text font-bold">excelencia agro-técnica</span>.
-                        Trazabilidad académica y monitoreo integral del desarrollo estudiantil.
+                        Plataforma centralizada para la <span className="text-tech-text font-bold">excelencia comercial y deportiva</span>.
+                        Trazabilidad académica, formación física y monitoreo integral del desarrollo estudiantil.
                     </motion.p>
 
                     <motion.button
@@ -177,7 +169,7 @@ const Welcome = () => {
                     delay={0.3}
                     items={[
                         { icon: Search, label: "Insights", text: "Visualización de trayectoria académica 360°." },
-                        { icon: Star, label: "Logros", text: "Seguimiento de competencias agro-técnicas." }
+                        { icon: Star, label: "Logros", text: "Seguimiento de competencias comerciales y deportivas." }
                     ]}
                 />
             </main>
@@ -191,18 +183,18 @@ const Welcome = () => {
                             Seguridad Institucional
                         </h3>
                         <p className="text-tech-muted font-sans leading-relaxed">
-                            Acceso cifrado y restringido según protocolo ETA. Todos los movimientos
+                            Acceso cifrado y restringido según protocolo CGB. Todos los movimientos
                             académicos son auditados para garantizar la integridad de los datos.
                         </p>
                     </div>
                     <div className="md:w-1/2">
                         <h3 className="font-bold flex items-center gap-2 mb-4 text-tech-text uppercase tracking-wider">
                             <LifeBuoy className="text-tech-accent" size={20} />
-                            Mesa de Ayuda ETA
+                            Mesa de Ayuda CGB
                         </h3>
                         <p className="text-tech-muted font-sans leading-relaxed">
                             En caso de incidencias técnicas, contactar con la Jefatura de Preceptores
-                            o el área de Soporte de Sistemas Regional.
+                            o el área de Soporte de Sistemas.
                         </p>
                     </div>
                 </div>
@@ -210,7 +202,7 @@ const Welcome = () => {
 
             {/* Footer */}
             <footer className="py-6 text-center text-tech-muted text-[10px] font-mono bg-tech-primary/80 border-t border-tech-surface uppercase tracking-[0.4em] z-10">
-                &copy; {new Date().getFullYear()} ETA PORTAL // CHAMICAL - LA RIOJA // INFRAESTRUCTURA DE GESTIÓN
+                &copy; {new Date().getFullYear()} CGB PORTAL // ESCUELA COMERCIO GRAL. BELGRANA // INFRAESTRUCTURA DE GESTIÓN
             </footer>
         </div>
     );

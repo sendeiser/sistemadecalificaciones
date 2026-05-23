@@ -30,11 +30,18 @@ const VerifyDocument = () => {
 
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-tech-cyan/5 via-tech-primary to-tech-primary">
-            <div className="w-full max-w-lg">
+            <div className="w-full max-w-lg relative">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="absolute -top-12 left-0 flex items-center gap-2 text-xs text-tech-muted hover:text-tech-text transition-colors font-mono uppercase tracking-wider"
+                    aria-label="Volver atrás"
+                >
+                    <ArrowLeft size={16} /> Volver
+                </button>
                 {/* Logo / Header */}
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-black text-tech-text tracking-tighter flex items-center justify-center gap-2">
-                        <span className="text-tech-cyan italic underline decoration-tech-accent decoration-4 underline-offset-4">ETA</span>TECNICA
+                        <span className="text-tech-cyan italic underline decoration-tech-accent decoration-4 underline-offset-4">CGB</span>DOC
                     </h1>
                     <p className="text-tech-muted uppercase tracking-[0.3em] text-xs mt-2 font-mono">Blockchain-Grade Verification</p>
                 </div>
@@ -118,7 +125,7 @@ const VerifyDocument = () => {
 
                 <div className="mt-10 text-center">
                     <p className="text-tech-muted text-[10px] uppercase font-mono tracking-[0.2em]">
-                        ETATECNICA v2.4 SafeDoc Infrastructure
+                        CGBDOC v2.4 SafeDoc Infrastructure
                     </p>
                 </div>
             </div>

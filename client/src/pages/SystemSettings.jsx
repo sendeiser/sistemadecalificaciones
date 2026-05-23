@@ -6,7 +6,8 @@ import { motion } from 'framer-motion';
 import {
     Settings, Shield, Database, Save,
     RefreshCcw, Building2, Lock, UserCog,
-    AlertTriangle, Download, Trash2, Search, CheckCircle2, MessageCircle
+    AlertTriangle, Download, Trash2, Search, CheckCircle2, MessageCircle,
+    ArrowLeft
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -94,7 +95,61 @@ const SystemSettings = () => {
     };
 
     const handleSave = async () => {
-        alert('Guardar configuración: Pendiente de implementación');
+        setLoading(true);
+        setError(null);
+        setMessage(null);
+        try {
+            const res = await fetch(getApiEndpoint('/settings'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
+                body: JSON.stringify({
+                    key: 'school_info',
+                    value: settings.school_info
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Error al guardar');
+
+            setMessage('Configuración institucional guardada correctamente.');
+        } catch (err) {
+            setError(err.message || 'Error al guardar la configuración.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBackupExport = async () => {
+        setLoading(true);
+        setError(null);
+        setMessage(null);
+        try {
+            const res = await fetch(getApiEndpoint('/settings/backup'), {
+                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Error al descargar el backup');
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_calificaciones_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setMessage('Copia de seguridad descargada correctamente.');
+        } catch (err) {
+            setError(err.message || 'Error al exportar el backup.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     // ----- Security Functions -----
@@ -176,14 +231,23 @@ const SystemSettings = () => {
     return (
         <div className="space-y-8 pb-10">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        CONFIGURACIÓN DEL <span className="text-tech-cyan">SISTEMA</span>
-                    </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
-                        Variables Globales y Mantenimiento
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
+                        aria-label="Volver al panel"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            CONFIGURACIÓN DEL <span className="text-tech-cyan">SISTEMA</span>
+                        </h1>
+                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                            Variables Globales y Mantenimiento
+                        </p>
+                    </div>
                 </div>
                 <ThemeToggle />
             </div>
@@ -191,30 +255,48 @@ const SystemSettings = () => {
             {/* Navigation Tabs */}
             <div className="flex flex-wrap gap-4 border-b border-tech-surface pb-4">
                 <button
-                    onClick={() => setActiveTab('general')}
+                    onClick={() => { setActiveTab('general'); setMessage(null); setError(null); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold uppercase text-xs transition-all ${activeTab === 'general' ? 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20' : 'text-tech-muted hover:bg-tech-surface'}`}
                 >
                     <Building2 size={16} /> Institucional
                 </button>
                 <button
-                    onClick={() => setActiveTab('security')}
+                    onClick={() => { setActiveTab('security'); setMessage(null); setError(null); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold uppercase text-xs transition-all ${activeTab === 'security' ? 'bg-tech-accent text-white shadow-lg shadow-tech-accent/20' : 'text-tech-muted hover:bg-tech-surface'}`}
                 >
                     <Shield size={16} /> Seguridad y Usuarios
                 </button>
                 <button
-                    onClick={() => setActiveTab('maintenance')}
+                    onClick={() => { setActiveTab('maintenance'); setMessage(null); setError(null); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold uppercase text-xs transition-all ${activeTab === 'maintenance' ? 'bg-tech-purple text-white shadow-lg shadow-purple-500/20' : 'text-tech-muted hover:bg-tech-surface'}`}
                 >
                     <Database size={16} /> Mantenimiento
                 </button>
                 <button
-                    onClick={() => setActiveTab('feedback')}
+                    onClick={() => { setActiveTab('feedback'); setMessage(null); setError(null); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold uppercase text-xs transition-all ${activeTab === 'feedback' ? 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20' : 'text-tech-muted hover:bg-tech-surface'}`}
                 >
                     <MessageCircle size={16} /> Feedback de Usuarios
                 </button>
             </div>
+
+            {/* Global Message/Error Banners */}
+            {(message || error) && (
+                <div className="max-w-7xl mb-4 animate-in fade-in duration-300">
+                    {message && (
+                        <div className="p-4 bg-tech-success/10 border border-tech-success/20 rounded-xl flex items-center gap-3">
+                            <CheckCircle2 className="text-tech-success flex-shrink-0" size={20} />
+                            <p className="text-tech-success text-xs font-bold uppercase">{message}</p>
+                        </div>
+                    )}
+                    {error && (
+                        <div className="p-4 bg-tech-danger/10 border border-tech-danger/20 rounded-xl flex items-center gap-3">
+                            <AlertTriangle className="text-tech-danger flex-shrink-0" size={20} />
+                            <p className="text-tech-danger text-xs font-bold uppercase">{error}</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Content Area */}
             <div className="min-h-[400px]">
@@ -271,20 +353,6 @@ const SystemSettings = () => {
                                     <UserCog className="text-tech-accent" size={20} />
                                     Gestión de Accesos
                                 </h3>
-
-                                {message && (
-                                    <div className="mb-6 p-4 bg-tech-success/10 border border-tech-success/20 rounded-xl flex items-center gap-3">
-                                        <CheckCircle2 className="text-tech-success" size={20} />
-                                        <p className="text-tech-success text-xs font-bold uppercase">{message}</p>
-                                    </div>
-                                )}
-
-                                {error && (
-                                    <div className="mb-6 p-4 bg-tech-danger/10 border border-tech-danger/20 rounded-xl flex items-center gap-3">
-                                        <AlertTriangle className="text-tech-danger" size={20} />
-                                        <p className="text-tech-danger text-xs font-bold uppercase">{error}</p>
-                                    </div>
-                                )}
 
                                 <p className="text-tech-muted text-sm mb-6">Busque un usuario por Email o DNI para gestionar su acceso.</p>
 
@@ -379,8 +447,12 @@ const SystemSettings = () => {
                                         Backup de Datos
                                     </h3>
                                     <p className="text-tech-muted text-xs mb-4">Descargar copia completa de la base de datos en formato JSON.</p>
-                                    <button className="w-full py-3 border border-tech-success text-tech-success rounded-xl font-bold uppercase text-xs hover:bg-tech-success/10 transition-colors">
-                                        Exportar Todo
+                                    <button 
+                                        onClick={handleBackupExport}
+                                        disabled={loading}
+                                        className="w-full py-3 border border-tech-success text-tech-success rounded-xl font-bold uppercase text-xs hover:bg-tech-success/10 transition-colors disabled:opacity-50"
+                                    >
+                                        {loading ? 'Exportando...' : 'Exportar Todo'}
                                     </button>
                                 </div>
                             </div>
