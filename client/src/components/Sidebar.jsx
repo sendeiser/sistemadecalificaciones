@@ -118,7 +118,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         {isOpen && (
                             <div className="flex flex-col animate-in fade-in duration-300">
                                 <span className="font-black text-2xl tracking-tighter text-tech-text">CGB</span>
-                                <span className="text-[10px] font-mono text-tech-cyan uppercase tracking-widest leading-none">Comercio Gral. Belgrana</span>
+                                <span className="text-[10px] font-mono text-tech-cyan uppercase tracking-widest leading-none">Comercio Gral. Belgrano</span>
                             </div>
                         )}
                     </div>

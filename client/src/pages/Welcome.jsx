@@ -113,7 +113,7 @@ const Welcome = () => {
                         className="text-5xl md:text-7xl font-extrabold mb-4 text-tech-text tracking-tighter uppercase leading-tight"
                     >
                         Comercio <br />
-                        <span className="text-tech-cyan dark:text-tech-cyan drop-shadow-sm">Gral. Belgrana</span>
+                        <span className="text-tech-cyan dark:text-tech-cyan drop-shadow-sm">Gral. Belgrano</span>
                     </motion.h1>
 
                     <motion.div variants={itemVariants} className="flex items-center gap-2 text-tech-cyan font-mono mb-8 bg-tech-cyan/10 px-5 py-2 rounded-full border border-tech-cyan/20 text-xs uppercase tracking-widest font-bold">
@@ -202,7 +202,7 @@ const Welcome = () => {
 
             {/* Footer */}
             <footer className="py-6 text-center text-tech-muted text-[10px] font-mono bg-tech-primary/80 border-t border-tech-surface uppercase tracking-[0.4em] z-10">
-                &copy; {new Date().getFullYear()} CGB PORTAL // ESCUELA COMERCIO GRAL. BELGRANA // INFRAESTRUCTURA DE GESTIÓN
+                &copy; {new Date().getFullYear()} CGB PORTAL // ESCUELA COMERCIO GRAL. BELGRANO // INFRAESTRUCTURA DE GESTIÓN
             </footer>
         </div>
     );

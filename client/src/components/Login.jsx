@@ -138,7 +138,7 @@ const Login = () => {
 
             {/* Technical Footer */}
             <footer className="relative z-10 py-6 text-center text-tech-muted text-[8px] font-mono uppercase tracking-[0.5em] opacity-40">
-                COMERCIO GRAL. BELGRANA // PORTAL DE GESTIÓN // 2026
+                COMERCIO GRAL. BELGRANO // PORTAL DE GESTIÓN // 2026
             </footer>
         </div>
     );

@@ -345,7 +345,7 @@ INSERT INTO disciplinas_deportivas (nombre, tipo) VALUES
     ('Danza y Expresión Corporal', 'mixto');
 
 INSERT INTO configuracion (clave, valor, descripcion) VALUES
-    ('institucion.nombre', '"Comercio General Belgrana"', 'Nombre oficial de la institución'),
+    ('institucion.nombre', '"Comercio General Belgrano"', 'Nombre oficial de la institución'),
     ('institucion.sigla', '"CGB"', 'Sigla institucional'),
     ('institucion.tipo', '"escuela_publica"', 'Tipo de institución'),
     ('institucion.orientacion', '"educacion_fisica"', 'Orientación principal'),

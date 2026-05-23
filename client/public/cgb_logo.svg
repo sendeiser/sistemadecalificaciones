@@ -48,7 +48,7 @@
   <text x="200" y="315" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" font-weight="800"
         fill="#4b5563" text-anchor="middle" letter-spacing="6">COMERCIO</text>
   <text x="200" y="332" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="600"
-        fill="#9ca3af" text-anchor="middle" letter-spacing="4">GRAL. BELGRANA</text>
+        fill="#9ca3af" text-anchor="middle" letter-spacing="4">GRAL. BELGRANO</text>
 
   <!-- Decorative dots -->
   <circle cx="85" cy="200" r="3" fill="#ef4444" opacity="0.5"/>
