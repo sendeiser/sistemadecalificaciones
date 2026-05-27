@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
             // Admin and Preceptor see all announcements (no recipient filter)
         } else {
             // Other roles (docente, alumno) only see what is sent to them
-            query = query.contains('destinatarios', [profile.rol]);
+            query = query.contains('dirigido_a', [profile.rol]);
         }
 
         // Visibility logic: only admin/preceptor can see unpublished (drafts)
@@ -158,7 +158,7 @@ router.get('/:id', async (req, res) => {
 
         // Basic visibility check
         if (!['admin', 'preceptor'].includes(profile?.rol)) {
-            if (!data.publicado || !data.destinatarios.includes(profile?.rol)) {
+            if (!data.publicado || !data.dirigido_a.includes(profile?.rol)) {
                 return res.status(403).json({ error: 'No autorizado' });
             }
         }
@@ -189,7 +189,7 @@ router.post('/', async (req, res) => {
             contenido,
             prioridad,
             tipo,
-            destinatarios,
+            dirigido_a,
             division_id,
             adjunto_url,
             publicado,
@@ -222,7 +222,7 @@ router.post('/', async (req, res) => {
                 prioridad: prioridad || 'normal',
                 tipo: tipo || 'general',
                 autor_id: userId,
-                destinatarios: destinatarios || ['admin', 'docente', 'alumno', 'preceptor', 'tutor'],
+                dirigido_a: dirigido_a || ['admin', 'docente', 'alumno', 'preceptor', 'tutor'],
                 division_id: division_id || null,
                 adjunto_url: adjunto_url || null,
                 publicado: publicado || false,
@@ -265,7 +265,7 @@ router.put('/:id', async (req, res) => {
             contenido,
             prioridad,
             tipo,
-            destinatarios,
+            dirigido_a,
             division_id,
             adjunto_url,
             publicado,
@@ -301,7 +301,7 @@ router.put('/:id', async (req, res) => {
         if (contenido !== undefined) updateData.contenido = contenido;
         if (prioridad !== undefined) updateData.prioridad = prioridad;
         if (tipo !== undefined) updateData.tipo = tipo;
-        if (destinatarios !== undefined) updateData.destinatarios = destinatarios;
+        if (dirigido_a !== undefined) updateData.dirigido_a = dirigido_a;
         if (division_id !== undefined) updateData.division_id = division_id || null;
         if (adjunto_url !== undefined) updateData.adjunto_url = adjunto_url || null;
         if (publicado !== undefined) {

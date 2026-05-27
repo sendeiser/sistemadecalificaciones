@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
                 destinatario:perfiles!destinatario_id(nombre, rol, email)
             `)
             .or(`remitente_id.eq.${userId},destinatario_id.eq.${userId},rol_destinatario.eq.${profile.rol}`)
-            .order('created_at', { ascending: false });
+            .order('fecha_envio', { ascending: false });
 
         if (error) throw error;
         res.json(data);
@@ -62,9 +62,9 @@ router.get('/users', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const userId = req.user.id;
-        const { destinatario_id, rol_destinatario, contenido, tipo } = req.body;
+        const { destinatario_id, rol_destinatario, cuerpo, tipo } = req.body;
 
-        if (!contenido) return res.status(400).json({ error: 'Contenido requerido' });
+        if (!cuerpo) return res.status(400).json({ error: 'Contenido requerido' });
 
         const { data, error } = await supabaseAdmin
             .from('mensajes')
@@ -72,7 +72,7 @@ router.post('/', async (req, res) => {
                 remitente_id: userId,
                 destinatario_id: destinatario_id || null,
                 rol_destinatario: rol_destinatario || null,
-                contenido,
+                cuerpo,
                 tipo: tipo || 'privado'
             })
             .select()
@@ -122,7 +122,7 @@ router.post('/:id/read', async (req, res) => {
 
         const { data, error } = await supabaseAdmin
             .from('mensajes')
-            .update({ leido: true, leido_at: new Date().toISOString() })
+            .update({ leido: true, fecha_lectura: new Date().toISOString() })
             .eq('id', id)
             .eq('destinatario_id', userId)
             .select();

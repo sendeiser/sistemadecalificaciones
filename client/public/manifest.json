@@ -1,7 +1,12 @@
 {
-  "short_name": "Gestión Académica",
-  "name": "Sistema de Gestión de Calificaciones",
+  "short_name": "CGB Portal",
+  "name": "CGB Portal - Comercio Gral. Belgrano",
   "icons": [
+    {
+      "src": "/cgb_logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
     {
       "src": "/icons/icon-192x192.png",
       "type": "image/png",
@@ -16,7 +21,7 @@
   "id": "/?source=pwa",
   "start_url": "/?source=pwa",
   "background_color": "#030711",
-  "theme_color": "#0e7490",
+  "theme_color": "#dc2626",
   "display": "standalone",
   "scope": "/",
   "orientation": "portrait-primary"

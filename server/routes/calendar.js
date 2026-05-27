@@ -26,7 +26,7 @@ router.get('/events', async (req, res) => {
         if (profileError) throw profileError;
 
         let query = supabaseAdmin
-            .from('eventos_calendario')
+            .from('eventos')
             .select('*')
             .contains('visible_para', [profile.rol])
             .order('fecha_inicio', { ascending: true });
@@ -75,7 +75,7 @@ router.get('/upcoming', async (req, res) => {
         if (profileError) throw profileError;
 
         const { data, error } = await supabaseAdmin
-            .from('eventos_calendario')
+            .from('eventos')
             .select('*')
             .contains('visible_para', [profile.rol])
             .gte('fecha_inicio', today)
@@ -130,7 +130,7 @@ router.post('/events', async (req, res) => {
         }
 
         const { data, error } = await supabaseAdmin
-            .from('eventos_calendario')
+            .from('eventos')
             .insert({
                 titulo,
                 descripcion,
@@ -142,7 +142,7 @@ router.post('/events', async (req, res) => {
                 hora_inicio: hora_inicio || null,
                 hora_fin: hora_fin || null,
                 visible_para: visible_para || ['admin', 'docente', 'alumno', 'preceptor', 'tutor'],
-                creado_por: userId
+                creador_id: userId
             })
             .select()
             .single();
@@ -202,7 +202,7 @@ router.put('/events/:id', async (req, res) => {
 
         // Fetch old data for update log
         const { data: oldEvent } = await supabaseAdmin
-            .from('eventos_calendario')
+            .from('eventos')
             .select('*')
             .eq('id', id)
             .single();
@@ -220,7 +220,7 @@ router.put('/events/:id', async (req, res) => {
         if (visible_para !== undefined) updateData.visible_para = visible_para;
 
         const { data, error } = await supabaseAdmin
-            .from('eventos_calendario')
+            .from('eventos')
             .update(updateData)
             .eq('id', id)
             .select()
@@ -267,7 +267,7 @@ router.delete('/events/:id', async (req, res) => {
         }
 
         const { error } = await supabaseAdmin
-            .from('eventos_calendario')
+            .from('eventos')
             .delete()
             .eq('id', id);
 
