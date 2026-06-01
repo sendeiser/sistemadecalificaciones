@@ -287,7 +287,7 @@ const Messages = () => {
                                             </div>
                                         </div>
 
-                                        <p className="text-tech-text leading-relaxed pl-16 mb-4">{m.contenido}</p>
+                                        <p className="text-tech-text leading-relaxed pl-16 mb-4">{m.cuerpo}</p>
 
                                         <AnimatePresence>
                                             {replyingTo === m.id && (
