@@ -130,7 +130,7 @@ const Messages = () => {
                 },
                 body: JSON.stringify({
                     destinatario_id: recipient,
-                    contenido: content,
+                    cuerpo: content,
                     tipo: 'privado'
                 })
             });
