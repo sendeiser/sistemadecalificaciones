@@ -17,7 +17,7 @@ router.get('/events', async (req, res) => {
         const userId = req.user.id;
 
         // Get user's role
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile, error: profileError } = await supabaseAdmin
             .from('perfiles')
             .select('rol')
             .eq('id', userId)
