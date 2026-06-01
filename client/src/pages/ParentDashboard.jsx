@@ -75,7 +75,7 @@ const ParentDashboard = () => {
                     </h2>
 
                     {children.length === 0 ? (
-                        <div className="p-12 bg-tech-secondary/30 rounded-3xl border border-tech-surface border-dashed text-center">
+                        <div className="p-12 bg-tech-secondary/30 rounded-2xl border border-tech-surface border-dashed text-center">
                             <Users className="mx-auto text-tech-muted mb-4 opacity-50" size={48} />
                             <p className="text-tech-muted font-mono">No hay estudiantes vinculados a tu cuenta actualmente.</p>
                             <p className="text-tech-muted text-xs mt-2">Contacta a secretaría para vincular a tu hijo/a.</p>
@@ -129,7 +129,7 @@ const ChildCard = ({ child, relationship, onClick }) => {
         <motion.div
             whileHover={{ scale: 1.02 }}
             onClick={onClick}
-            className="group relative bg-tech-secondary p-6 rounded-3xl border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer overflow-hidden shadow-xl"
+            className="group relative bg-tech-secondary p-6 rounded-2xl border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer overflow-hidden shadow-xl"
         >
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                 <GraduationCap size={80} />

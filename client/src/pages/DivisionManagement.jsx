@@ -108,7 +108,7 @@ const DivisionManagement = () => {
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                             GESTIÓN DE <span className="text-tech-cyan">DIVISIONES</span>
                         </h1>
-                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                             Administración de cursos y secciones
                         </p>
                     </div>
@@ -248,7 +248,7 @@ const DivisionManagement = () => {
                                             <div className="flex justify-center gap-2">
                                                 <button
                                                     onClick={() => navigate('/enrollment')}
-                                                    className="p-1.5 bg-tech-primary text-tech-muted hover:text-tech-cyan border border-tech-surface hover:border-tech-cyan rounded-lg transition-all group flex items-center gap-2"
+                                                    className="p-2 bg-tech-primary text-tech-muted hover:text-tech-cyan border border-tech-surface hover:border-tech-cyan rounded-lg transition-all group flex items-center gap-2"
                                                     title="Inscribir Alumnos en esta División"
                                                 >
                                                     <Users size={18} className="group-hover:scale-110 transition-transform" />
@@ -257,19 +257,19 @@ const DivisionManagement = () => {
                                                 <div className="w-px h-8 bg-tech-surface mx-1"></div>
                                                 {editingId === d.id ? (
                                                     <>
-                                                        <button onClick={() => handleSave(d.id)} className="p-1.5 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
+                                                        <button onClick={() => handleSave(d.id)} className="p-2 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
                                                             <Check size={18} />
                                                         </button>
-                                                        <button onClick={() => setEditingId(null)} className="p-1.5 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
+                                                        <button onClick={() => setEditingId(null)} className="p-2 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
                                                             <X size={18} />
                                                         </button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button onClick={() => startEdit(d)} className="p-1.5 text-tech-accent hover:bg-tech-accent/10 rounded transition-all">
+                                                        <button onClick={() => startEdit(d)} className="p-2 text-tech-accent hover:bg-tech-accent/10 rounded transition-all">
                                                             <Pencil size={18} />
                                                         </button>
-                                                        <button onClick={() => handleDelete(d.id)} className="p-1.5 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
+                                                        <button onClick={() => handleDelete(d.id)} className="p-2 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
                                                             <Trash2 size={18} />
                                                         </button>
                                                     </>

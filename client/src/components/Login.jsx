@@ -69,10 +69,11 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-tech-muted uppercase tracking-widest ml-1">Email Institucional</label>
+                            <label htmlFor="login-email" className="text-[10px] font-black text-tech-muted uppercase tracking-widest ml-1">Email Institucional</label>
                             <div className="relative group">
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted group-focus-within:text-tech-cyan transition-colors" size={18} />
                                 <input
+                                    id="login-email"
                                     type="email"
                                     required
                                     className="w-full pl-12 pr-4 py-4 bg-tech-primary/50 border border-tech-surface rounded-xl focus:ring-2 focus:ring-tech-cyan/20 focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/40 font-medium"
@@ -84,10 +85,11 @@ const Login = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-tech-muted uppercase tracking-widest ml-1">Contraseña</label>
+                            <label htmlFor="login-password" className="text-[10px] font-black text-tech-muted uppercase tracking-widest ml-1">Contraseña</label>
                             <div className="relative group">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted group-focus-within:text-tech-cyan transition-colors" size={18} />
                                 <input
+                                    id="login-password"
                                     type="password"
                                     required
                                     className="w-full pl-12 pr-4 py-4 bg-tech-primary/50 border border-tech-surface rounded-xl focus:ring-2 focus:ring-tech-cyan/20 focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/40 font-medium"

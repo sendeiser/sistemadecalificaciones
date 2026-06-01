@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Brain, Sparkles, AlertTriangle, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AiInsights = ({ data, loading, onGenerate }) => {
     if (loading) {
         return (
-            <div className="glass-panel p-8 rounded-3xl border border-tech-cyan/30 bg-tech-cyan/5 flex flex-col items-center text-center space-y-4">
+            <div className="glass-panel p-8 rounded-2xl border border-tech-cyan/30 bg-tech-cyan/5 flex flex-col items-center text-center space-y-4">
                 <Loader2 className="text-tech-cyan animate-spin" size={48} />
                 <div>
                     <h3 className="text-xl font-bold text-tech-text">Consultando a la IA...</h3>
@@ -17,7 +17,7 @@ const AiInsights = ({ data, loading, onGenerate }) => {
 
     if (!data) {
         return (
-            <div className="glass-panel p-8 rounded-3xl border border-tech-surface bg-tech-secondary/30 flex flex-col items-center text-center justify-center gap-6">
+            <div className="glass-panel p-8 rounded-2xl border border-tech-surface bg-tech-secondary/30 flex flex-col items-center text-center justify-center gap-6">
                 <div className="flex flex-col items-center gap-4">
                     <div className="p-4 bg-tech-cyan/10 rounded-2xl">
                         <Brain className="text-tech-cyan" size={32} />
@@ -55,7 +55,7 @@ const AiInsights = ({ data, loading, onGenerate }) => {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-panel p-8 rounded-3xl border border-tech-cyan/20 bg-tech-secondary/50 relative overflow-hidden"
+            className="glass-panel p-8 rounded-2xl border border-tech-cyan/20 bg-tech-secondary/50 relative overflow-hidden"
         >
             <div className="absolute top-0 right-0 p-4 opacity-10">
                 <Brain size={120} />

@@ -71,12 +71,14 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
                     )}
 
                     <div className="space-y-2">
-                        <label className="text-[10px] text-tech-muted uppercase font-bold tracking-widest pl-1">Tipo de Feedback</label>
-                        <div className="grid grid-cols-2 gap-2">
+                        <label id="feedback-tipo-label" className="text-[10px] text-tech-muted uppercase font-bold tracking-widest pl-1">Tipo de Feedback</label>
+                        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-labelledby="feedback-tipo-label">
                             {['sugerencia', 'error', 'pregunta'].map((t) => (
                                 <button
                                     key={t}
                                     type="button"
+                                    role="radio"
+                                    aria-checked={tipo === t}
                                     onClick={() => setTipo(t)}
                                     className={`px-3 py-2 rounded-lg border text-[10px] font-bold uppercase transition-all ${tipo === t
                                         ? 'bg-tech-cyan text-white border-tech-cyan shadow-lg shadow-tech-cyan/20'
@@ -90,12 +92,14 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] text-tech-muted uppercase font-bold tracking-widest pl-1">Gravedad / Prioridad</label>
-                        <div className="flex gap-2">
+                        <label id="feedback-prioridad-label" className="text-[10px] text-tech-muted uppercase font-bold tracking-widest pl-1">Gravedad / Prioridad</label>
+                        <div className="flex gap-2" role="radiogroup" aria-labelledby="feedback-prioridad-label">
                             {['baja', 'normal', 'alta'].map((p) => (
                                 <button
                                     key={p}
                                     type="button"
+                                    role="radio"
+                                    aria-checked={prioridad === p}
                                     onClick={() => setPrioridad(p)}
                                     className={`flex-1 py-1.5 rounded-lg border text-[9px] font-bold uppercase transition-all ${prioridad === p
                                         ? 'bg-tech-surface border-tech-cyan text-tech-cyan'
@@ -109,8 +113,9 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] text-tech-muted uppercase font-bold tracking-widest pl-1">Descripción de la Mejora</label>
+                        <label htmlFor="feedback-descripcion" className="text-[10px] text-tech-muted uppercase font-bold tracking-widest pl-1">Descripción de la Mejora</label>
                         <textarea
+                            id="feedback-descripcion"
                             required
                             value={contenido}
                             onChange={(e) => setContenido(e.target.value)}

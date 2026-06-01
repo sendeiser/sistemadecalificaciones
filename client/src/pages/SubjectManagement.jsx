@@ -102,7 +102,7 @@ const SubjectManagement = () => {
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                             GESTIÓN DE <span className="text-tech-cyan">MATERIAS</span>
                         </h1>
-                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                             Administración de unidades curriculares
                         </p>
                     </div>
@@ -259,19 +259,19 @@ const SubjectManagement = () => {
                                             <div className="flex justify-center gap-2">
                                                 {editingId === s.id ? (
                                                     <>
-                                                        <button onClick={() => handleSave(s.id)} className="p-1.5 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
+                                                        <button onClick={() => handleSave(s.id)} className="p-2 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
                                                             <Check size={18} />
                                                         </button>
-                                                        <button onClick={() => setEditingId(null)} className="p-1.5 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
+                                                        <button onClick={() => setEditingId(null)} className="p-2 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
                                                             <X size={18} />
                                                         </button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button onClick={() => startEdit(s)} className="p-1.5 text-tech-cyan hover:bg-tech-cyan/10 rounded transition-all">
+                                                        <button onClick={() => startEdit(s)} className="p-2 text-tech-cyan hover:bg-tech-cyan/10 rounded transition-all">
                                                             <Pencil size={18} />
                                                         </button>
-                                                        <button onClick={() => handleDelete(s.id)} className="p-1.5 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
+                                                        <button onClick={() => handleDelete(s.id)} className="p-2 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
                                                             <Trash2 size={18} />
                                                         </button>
                                                     </>

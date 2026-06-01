@@ -155,7 +155,7 @@ const HelpCenter = () => {
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                             CENTRO DE <span className="text-tech-cyan">AYUDA</span>
                         </h1>
-                        <p className="text-tech-muted dark:text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2 font-bold">
+                        <p className="text-tech-muted dark:text-tech-muted text-xs font-mono tracking-[0.3em] mt-2 font-bold">
                             Guía de usuario para el rol <span className="text-tech-accent dark:text-tech-accent font-black border-b-2 border-tech-accent/20 pb-0.5">{role}</span>
                         </p>
                     </div>
@@ -214,7 +214,7 @@ const HelpCenter = () => {
                 </div>
 
                 {/* Footer / Support */}
-                <div className="mt-12 text-center p-8 border-2 border-dashed border-tech-surface rounded-3xl">
+                <div className="mt-12 text-center p-8 border-2 border-dashed border-tech-surface rounded-2xl">
                     <Users size={32} className="mx-auto text-tech-muted mb-4 opacity-20" />
                     <h3 className="text-sm font-black uppercase tracking-widest text-tech-muted mb-2">¿Necesitas más soporte?</h3>
                     <p className="text-xs text-tech-muted mb-6">Si no encuentras la solución aquí, contacta al administrador de la institución.</p>

@@ -239,11 +239,6 @@ const AuditLogs = () => {
         };
     }, []);
 
-    const formatDiff = useCallback((data) => {
-        if (!data) return 'N/A';
-        return JSON.stringify(data, null, 2);
-    }, []);
-
     const hasActiveFilters = useMemo(() => {
         return filters.entidad_tipo || filters.accion || filters.desde || filters.hasta;
     }, [filters]);
@@ -270,7 +265,7 @@ const AuditLogs = () => {
                             <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                                 REGISTRO DE <span className="text-tech-cyan">AUDITORÍA</span>
                             </h1>
-                            <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                            <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                                 Seguimiento de acciones críticas del sistema
                             </p>
                         </div>
@@ -615,7 +610,7 @@ const AuditLogs = () => {
                     border-radius: 2px;
                 }
                 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-                    background: #06b6d4;
+                    background: #dc2626;
                 }
             `}</style>
         </PageTransition >

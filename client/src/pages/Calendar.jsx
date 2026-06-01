@@ -75,12 +75,12 @@ const Calendar = () => {
     });
 
     const eventTypes = [
-        { value: 'feriado', label: 'Feriado', color: '#ef4444' },
-        { value: 'cierre_notas', label: 'Cierre de Notas', color: '#f59e0b' },
-        { value: 'acto', label: 'Acto Escolar', color: '#0ea5e9' },
-        { value: 'examen', label: 'Examen', color: '#a855f7' },
-        { value: 'reunion', label: 'Reunión', color: '#10b981' },
-        { value: 'otro', label: 'Otro', color: '#6b7280' }
+        { value: 'feriado', label: 'Feriado', color: 'var(--tech-cyan)' },
+        { value: 'cierre_notas', label: 'Cierre de Notas', color: 'var(--tech-accent)' },
+        { value: 'acto', label: 'Acto Escolar', color: 'var(--tech-cyan)' },
+        { value: 'examen', label: 'Examen', color: 'var(--tech-accent)' },
+        { value: 'reunion', label: 'Reunión', color: 'var(--tech-success)' },
+        { value: 'otro', label: 'Otro', color: 'var(--tech-muted)' }
     ];
 
     useEffect(() => {

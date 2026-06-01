@@ -40,7 +40,7 @@ const MobileJustification = () => {
                         exit={{ opacity: 0, x: -20 }}
                         className="space-y-6"
                     >
-                        <div className="bg-tech-secondary p-6 rounded-3xl border border-tech-surface shadow-xl">
+                        <div className="bg-tech-secondary p-6 rounded-2xl border border-tech-surface shadow-xl">
                             <p className="text-tech-muted text-sm font-mono mb-6">Complete los detalles de la inasistencia para que el preceptor pueda validarla.</p>
 
                             <div className="space-y-4">
@@ -82,7 +82,7 @@ const MobileJustification = () => {
                         exit={{ opacity: 0, x: -20 }}
                         className="space-y-6"
                     >
-                        <div className="bg-tech-secondary p-8 rounded-3xl border border-tech-surface shadow-xl text-center">
+                        <div className="bg-tech-secondary p-8 rounded-2xl border border-tech-surface shadow-xl text-center">
                             <div className="w-20 h-20 bg-tech-cyan/10 rounded-full flex items-center justify-center mx-auto mb-6 text-tech-cyan">
                                 <Camera size={40} />
                             </div>

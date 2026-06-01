@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-01T17:11:00-03:00",
+  "title": "Design System: CGB Portal / El Expediente Digital",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Rojo Institucional",
+        "canonical": "oklch(0.52 0.21 25)",
+        "tonalRamp": ["#330000", "#660000", "#991111", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fca5a5"]
+      },
+      "primary-deep": {
+        "role": "primary",
+        "displayName": "Rojo Oscuro",
+        "canonical": "oklch(0.39 0.19 25)",
+        "tonalRamp": []
+      },
+      "primary-bright": {
+        "role": "primary",
+        "displayName": "Rojo Fuego",
+        "canonical": "oklch(0.63 0.22 30)",
+        "tonalRamp": []
+      },
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Fondo Pizarra",
+        "canonical": "oklch(0.96 0.008 25)",
+        "tonalRamp": ["#0f0b0b", "#1a1414", "#2c2222", "#5c4a4a", "#8c7474", "#b8a8a8", "#d9d0d0", "#faf5f5"]
+      },
+      "neutral-surface": {
+        "role": "neutral",
+        "displayName": "Superficie Blanca",
+        "canonical": "oklch(1 0 0)",
+        "tonalRamp": ["#1a1414", "#2c2222", "#4a3a3a", "#6b5c5c", "#9c8888", "#c4b8b8", "#e5e0e0", "#ffffff"]
+      },
+      "neutral-border": {
+        "role": "neutral",
+        "displayName": "Borde Arcilla",
+        "canonical": "oklch(0.89 0.012 25)",
+        "tonalRamp": []
+      },
+      "neutral-text": {
+        "role": "neutral",
+        "displayName": "Carbón Grafito",
+        "canonical": "oklch(0.18 0.015 25)",
+        "tonalRamp": []
+      },
+      "neutral-muted": {
+        "role": "neutral",
+        "displayName": "Gris Tiza",
+        "canonical": "oklch(0.48 0.02 25)",
+        "tonalRamp": []
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Gris Comercial",
+        "canonical": "oklch(0.38 0.01 260)",
+        "tonalRamp": []
+      },
+      "success": {
+        "role": "primary",
+        "displayName": "Verde Gestión",
+        "canonical": "oklch(0.55 0.18 150)",
+        "tonalRamp": []
+      },
+      "danger": {
+        "role": "primary",
+        "displayName": "Rosa Alerta",
+        "canonical": "oklch(0.63 0.22 25)",
+        "tonalRamp": []
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Títulos de página. Un solo uso por vista."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Títulos de sección dentro de una página."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de tarjetas, nombres en listas."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto corriente, descripciones. Max 75ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Etiquetas de formulario, badges. Máx 4 palabras."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Datos técnicos (DNI, legajos, breadcrumbs)."
+      }
+    },
+    "shadows": [
+      { "name": "modal-default", "value": "0 0 32px rgba(0,0,0,0.3)", "purpose": "Sombra de modal abierto." },
+      { "name": "dropdown-default", "value": "0 8px 24px rgba(0,0,0,0.15)", "purpose": "Sombra de dropdowns y menús." },
+      { "name": "card-hover", "value": "0 0 15px rgba(220,38,38,0.15)", "purpose": "Glow hover en tarjetas interactivas." }
+    ],
+    "motion": [
+      { "name": "ease-default", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Easing estándar para transiciones de estado." },
+      { "name": "duration-fast", "value": "200ms", "purpose": "Micro-interacciones, hover, focus." },
+      { "name": "duration-slow", "value": "500ms", "purpose": "Entradas de página, transiciones expansivas." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "CTA principal del sistema. Rojo institucional sobre fondo blanco.",
+      "html": "<button class=\"ds-btn-primary\">INICIAR PROTOCOLO</button>",
+      "css": ".ds-btn-primary { background: #dc2626; color: #fff; padding: 16px 32px; border-radius: 12px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 0.625rem; font-weight: 900; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; border: none; transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 8px 24px rgba(220,38,38,0.3); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 12px; position: relative; overflow: hidden; } .ds-btn-primary:hover { background: #b91c1c; transform: scale(1.02); box-shadow: 0 8px 32px rgba(220,38,38,0.5); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; } .ds-btn-primary::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transform: translateX(-100%); transition: transform 0.7s ease-in-out; } .ds-btn-primary:hover::after { transform: translateX(100%); }"
+    },
+    {
+      "name": "Ghost / Toggle Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Botón secundario / toggle. Sin fondo en reposo, activo con fondo rojo.",
+      "html": "<button class=\"ds-btn-ghost\">FILTRAR</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: #6b5c5c; padding: 10px 24px; border-radius: 12px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 0.625rem; font-weight: 900; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; border: 1px solid transparent; cursor: pointer; transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-ghost:hover { background: #e5e0e0; color: #1f1a1a; } .ds-btn-ghost.active { background: #dc2626; color: #ffffff; box-shadow: 0 4px 16px rgba(220,38,38,0.2); }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Campo de texto estándar del sistema.",
+      "html": "<div style=\"display:flex;flex-direction:column;gap:4px;width:320px\"><label class=\"ds-label\">CORREO INSTITUCIONAL</label><div class=\"ds-input-group\"><svg class=\"ds-input-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/><path d=\"M22 4L12 13 2 4\"/></svg><input class=\"ds-input\" type=\"email\" placeholder=\"usuario@cgb.edu.ar\" /></div></div>",
+      "css": ".ds-label { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 0.625rem; font-weight: 900; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: #6b5c5c; margin-left: 4px; } .ds-input-group { position: relative; display: flex; align-items: center; } .ds-input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #6b5c5c; pointer-events: none; } .ds-input { width: 100%; padding: 16px 16px 16px 48px; background: rgba(250,245,245,0.5); border: 1px solid #e5e0e0; border-radius: 12px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; color: #1f1a1a; transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1); outline: none; box-sizing: border-box; } .ds-input::placeholder { color: rgba(107,92,92,0.4); font-weight: 500; } .ds-input:focus { border-color: #dc2626; box-shadow: 0 0 0 2px rgba(220,38,38,0.2); } .ds-input-group:focus-within .ds-input-icon { color: #dc2626; }"
+    },
+    {
+      "name": "Dashboard Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Tarjeta de navegación del dashboard con hover reveal bar.",
+      "html": "<button class=\"ds-card\"><div class=\"ds-card-bar\"></div><div style=\"display:flex;align-items:flex-start;gap:16px\"><div class=\"ds-card-icon\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 10v6M2 10l10-5 10 5-10 5z\"/><path d=\"M6 12v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5\"/></svg></div><div style=\"text-align:left\"><div class=\"ds-card-title\">GESTIÓN DE ALUMNOS</div><div class=\"ds-card-desc\">Altas, bajas y modificaciones del padrón estudiantil</div></div></div></button>",
+      "css": ".ds-card { width: 100%; text-align: left; padding: 24px; background: #ffffff; border: 1px solid #e5e0e0; border-radius: 16px; cursor: pointer; transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; font-family: inherit; } .ds-card:hover { border-color: #dc2626; box-shadow: 0 0 15px rgba(220,38,38,0.15); } .ds-card:focus-visible { border-color: #dc2626; box-shadow: 0 0 0 2px rgba(220,38,38,0.3); outline: none; } .ds-card-bar { position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #dc2626; opacity: 0; transition: opacity 200ms; } .ds-card:hover .ds-card-bar, .ds-card:focus-visible .ds-card-bar { opacity: 1; } .ds-card-icon { padding: 12px; background: rgba(220,38,38,0.1); border-radius: 12px; transition: background 200ms; } .ds-card:hover .ds-card-icon { background: rgba(220,38,38,0.2); } .ds-card-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 1.25rem; font-weight: 700; color: #1f1a1a; text-transform: uppercase; letter-spacing: -0.02em; } .ds-card-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #6b5c5c; margin-top: 4px; }"
+    },
+    {
+      "name": "Sidebar Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Enlace de navegación en sidebar expandido. Estado activo e inactivo.",
+      "html": "<nav style=\"width:256px;padding:8px\"><a class=\"ds-nav-link\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><line x1=\"3\" y1=\"9\" x2=\"21\" y2=\"9\"/><line x1=\"9\" y1=\"21\" x2=\"9\" y2=\"9\"/></svg><span>PANEL DE CONTROL</span></a><a class=\"ds-nav-link ds-nav-link-active\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 10v6M2 10l10-5 10 5-10 5z\"/><path d=\"M6 12v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5\"/></svg><span>ALUMNOS</span></a></nav>",
+      "css": ".ds-nav-link { display: flex; align-items: center; gap: 16px; padding: 12px; border-radius: 12px; transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1); color: #6b5c5c; text-decoration: none; position: relative; border: 1px solid transparent; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 0.875rem; font-weight: 700; } .ds-nav-link:hover { background: #e5e0e0; color: #1f1a1a; } .ds-nav-link svg { transition: transform 200ms; min-width: 20px; } .ds-nav-link:hover svg { transform: scale(1.1); } .ds-nav-link-active { background: rgba(220,38,38,0.1); color: #dc2626; border-color: rgba(220,38,38,0.2); font-weight: 800; } .ds-nav-link-active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 24px; background: #dc2626; border-radius: 0 4px 4px 0; box-shadow: 0 0 10px rgba(220,38,38,0.5); }"
+    },
+    {
+      "name": "Tab / Filter Switcher",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "Pill switcher para filtros y tabs. Fondo blanco con shadow-inner.",
+      "html": "<div style=\"display:flex;gap:4px;padding:4px;background:#ffffff;border:1px solid #e5e0e0;border-radius:12px;box-shadow:inset 0 2px 4px rgba(0,0,0,0.06);width:fit-content\"><button class=\"ds-tab ds-tab-active\">TODOS</button><button class=\"ds-tab\">ALUMNOS</button><button class=\"ds-tab\">DOCENTES</button></div>",
+      "css": ".ds-tab { padding: 10px 24px; border-radius: 8px; border: none; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 0.625rem; font-weight: 900; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1); background: transparent; color: #6b5c5c; } .ds-tab:hover { color: #1f1a1a; } .ds-tab-active { background: #dc2626; color: #ffffff; box-shadow: 0 4px 16px rgba(220,38,38,0.2); } .ds-tab-active:hover { background: #b91c1c; color: #ffffff; }"
+    },
+    {
+      "name": "Badge / Notification Dot",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Badge de notificación no leída o estado.",
+      "html": "<div style=\"display:flex;align-items:center;gap:8px\"><span class=\"ds-badge\">3</span><span class=\"ds-badge ds-badge-urgent\">URGENTE</span><span class=\"ds-badge ds-badge-dot\"></span></div>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; background: #b91c1c; color: #ffffff; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 0.625rem; font-weight: 900; border-radius: 9999px; border: 2px solid #ffffff; } .ds-badge-urgent { height: auto; padding: 4px 8px; background: #dc2626; border: none; border-radius: 6px; letter-spacing: 0.1em; } .ds-badge-dot { width: 8px; height: 8px; min-width: unset; padding: 0; background: #dc2626; border: none; animation: ds-pulse 2s infinite; } @keyframes ds-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Expediente Digital",
+    "overview": "El sistema se concibe como un expediente digital institucional: cada pantalla es un folio bien organizado donde la información está en su lugar exacto, accesible al instante, con la autoridad de un documento oficial pero sin la pesadez burocrática. La metáfora no es decorativa — determina cada decisión visual. No hay sorpresas, no hay adornos que distraigan: todo elemento existe porque responde a una tarea real del usuario. La personalidad es institucional y moderna. La calidad se transmite por precisión tipográfica, espaciado generoso, transiciones rápidas y un uso sobrio del color institucional (rojo CGB) como acento selectivo. El sistema rechaza explícitamente las tarjetas genéricas de SaaS con bordes laterales de color, el glassmorphism decorativo, los gradientes de fondo, y los paneles de métricas que nadie mira.",
+    "keyCharacteristics": [
+      "Expediente digital: organizado, autoritativo, sin fricción",
+      "Rojo institucional como identidad, no como decoración",
+      "Tipografía como herramienta de jerarquía, no adorno",
+      "Plano por defecto, capas tonales para profundidad",
+      "Consistencia de patrón en todos los módulos"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "El Rojo Institucional se usa en ≤10% de cualquier pantalla. Su rareza es su potencia. Si más del 10% de un viewport está en rojo, es momento de usar neutrales o el acento gris.", "section": "colors" },
+      { "name": "The Uppercase Ceiling Rule", "body": "El uppercase es la voz del sistema — pero solo hasta title (1.25rem). Body text, descripciones largas, y párrafos multi-línea NO van en uppercase. Si un texto ocupa más de 2 líneas, no lo pongas en mayúscula sostenida.", "section": "typography" },
+      { "name": "The No-Shadow Rule", "body": "En reposo, ningún contenedor tiene sombra. Las sombras solo aparecen en elementos elevados dinámicamente: modales abiertos, dropdowns expandidos, tooltips visibles. Nunca en tarjetas estáticas.", "section": "elevation" }
+    ],
+    "dos": [
+      "Usar el Rojo Institucional como acento selectivo en ≤10% del viewport. Su rareza es su potencia.",
+      "Mantener la jerarquía tipográfica: Display para títulos de página, Headline para secciones, Title para tarjetas, Body para contenido, Label para etiquetas cortas.",
+      "Usar la capa tonal para profundidad: Fondo Pizarra → Superficie Blanca → Borde Arcilla. Sin sombras estáticas.",
+      "Mantener uppercase solo hasta 1.25rem (Title). Body text y párrafos multi-línea en sentence case.",
+      "Usar padding 24px (p-6) como estándar en tarjetas y contenedores. 16px (p-4) para variante compacta.",
+      "Usar transition-all 200ms en elementos interactivos. Sin animaciones lentas (>300ms para micro-interacciones)."
+    ],
+    "donts": [
+      "Usar border-left o border-right > 1px como acento decorativo en tarjetas. Usar revelación de barra con opacidad o bordes completos.",
+      "Usar glassmorphism decorativo. Backdrop-blur solo en modales y overlays donde cumple función de enfoque.",
+      "Usar gradient text (background-clip: text + gradient). Un color sólido es suficiente. Énfasis por peso.",
+      "Repetir el patrón icono + título + descripción + enlace idéntico en grillas de tarjetas. Cada tarjeta debe tener contenido específico.",
+      "Crear dashboards con métricas decorativas. Cada número en pantalla responde a una decisión real del usuario.",
+      "Usar el patrón de 'eyebrow' (texto tiny uppercase tracking-widest sobre cada sección) como scaffold default. Es el tropo AI más reconocible.",
+      "Usar sombras en tarjetas en reposo. Solo elementos flotantes (modales, dropdowns) pueden tener sombras (≤8px blur).",
+      "Usar background-image con gradientes decorativos, stripes (repeating-linear-gradient), o patrones de cuadrícula como default.",
+      "Exceder 24px en border-radius de tarjetas. El rango correcto es 12-16px (rounded-xl/rounded-2xl). 32px+ es el tell de diseño generativo."
+    ]
+  }
+}

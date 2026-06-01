@@ -341,7 +341,7 @@ const GradeEntry = () => {
                     <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
                         {selectedAssignment ? <><span className="text-tech-cyan">CARGA</span> DE NOTAS</> : <>MIS <span className="text-tech-cyan">MATERIAS</span></>}
                     </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                    <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                         {selectedAssignment
                             ? `${fullAssignmentData?.materia?.nombre} • ${fullAssignmentData?.division?.anio} ${fullAssignmentData?.division?.seccion}`
                             : 'Selecciona una materia asignada para gestionar calificaciones'}

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, PieChart, BarChart3, CheckSquare, Sun, Moon, Search, X, Bell, Calendar as CalendarIcon, AlertCircle, ShieldAlert, MessageSquare, Award } from 'lucide-react';
+import { Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, BarChart3, CheckSquare, Search, X, Bell, Calendar as CalendarIcon, AlertCircle, ShieldAlert, MessageSquare } from 'lucide-react';
 import MedalBadge from '../components/MedalBadge';
 import DashboardStats from '../components/DashboardStats';
 import AnnouncementTicker from '../components/AnnouncementTicker';
@@ -13,8 +12,7 @@ import CriticalStudentsWidget from '../components/CriticalStudentsWidget';
 import useNotifications from '../hooks/useNotifications';
 
 const Dashboard = () => {
-    const { profile, signOut } = useAuth();
-    const { theme, toggleTheme } = useTheme();
+    const { profile } = useAuth();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -66,11 +64,6 @@ const Dashboard = () => {
         } catch (error) {
             console.error('Error fetching medals:', error);
         }
-    };
-
-    const handleLogout = async () => {
-        await signOut();
-        navigate('/login');
     };
 
     const handleSearch = async (e) => {
@@ -130,7 +123,7 @@ const Dashboard = () => {
                     <h1 className="text-3xl font-black text-tech-text tracking-tighter uppercase leading-none">
                         PANEL DE <span className="text-tech-cyan">CONTROL</span>
                     </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">Visión general y métricas en tiempo real</p>
+                    <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">Visión general y métricas en tiempo real</p>
                 </div>
 
                 {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
@@ -143,7 +136,7 @@ const Dashboard = () => {
                                 onChange={handleSearch}
                                 placeholder="Búsqueda rápida…"
                                 aria-label="Búsqueda rápida de alumnos, divisiones o materias"
-                                className="w-full pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md border border-tech-surface rounded-2xl text-tech-text placeholder-tech-muted/70 text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 focus-visible:ring-tech-cyan/30 transition-all shadow-xl"
+                                className="w-full pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md border border-tech-surface rounded-2xl text-tech-text placeholder-tech-muted/70 text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 focus-visible:ring-tech-cyan/30 transition-all"
                             />
                             {searchQuery && (
                                 <button
@@ -519,17 +512,17 @@ const Dashboard = () => {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {profile.rol === 'docente' && (
                                     <>
-                                        <div onClick={() => navigate('/attendance')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group rounded-xl flex items-center gap-4">
+                                        <div onClick={() => navigate('/attendance')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/attendance'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all cursor-pointer group rounded-xl flex items-center gap-4">
                                             <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform"><Clock size={32} /></div>
                                             <div><h3 className="text-lg font-bold text-tech-text uppercase">Asistencia</h3><p className="text-xs text-tech-muted font-mono">Registrar hoy</p></div>
                                         </div>
-                                        <div onClick={() => navigate('/grades')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-accent transition-all cursor-pointer group rounded-xl flex items-center gap-4">
+                                        <div onClick={() => navigate('/grades')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/grades'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 transition-all cursor-pointer group rounded-xl flex items-center gap-4">
                                             <div className="p-4 bg-tech-accent/10 rounded-lg text-tech-accent group-hover:scale-110 transition-transform"><GraduationCap size={32} /></div>
                                             <div><h3 className="text-lg font-bold text-tech-text uppercase">Cargar Notas</h3><p className="text-xs text-tech-muted font-mono">Actualizar materias</p></div>
                                         </div>
                                     </>
                                 )}
-                                <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group rounded-xl flex items-center gap-4">
+                                <div onClick={() => navigate('/messages')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/messages'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all cursor-pointer group rounded-xl flex items-center gap-4">
                                     <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform relative">
                                         <MessageSquare size={32} />
                                         {unreadMessages > 0 && (
@@ -543,31 +536,31 @@ const Dashboard = () => {
                             </div>
                         </section>
                         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div onClick={() => navigate('/grades')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/grades')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/grades'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-cyan"><GraduationCap size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Mis Cursos</h3></div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Gestión de calificaciones por curso.</p>
-                                <button className="px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Abrir Planilla</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Gestión de calificaciones por curso.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Abrir Planilla</span>
                             </div>
-                            <div onClick={() => navigate('/attendance')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/attendance')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/attendance'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-accent"><Clock size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Asistencia</h3></div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Control diario de inasistencias.</p>
-                                <button className="px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Tomar Lista</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Control diario de inasistencias.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Tomar Lista</span>
                             </div>
-                            <div onClick={() => navigate('/teacher/reports')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/teacher/reports')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/teacher/reports'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-success focus-visible:border-tech-success focus-visible:ring-2 focus-visible:ring-tech-success/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-success"><FileText size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Reportes</h3></div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Exportar boletines y planillas.</p>
-                                <button className="px-4 py-2 bg-tech-success text-white rounded font-bold uppercase tracking-widest text-xs">Ver PDF</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Exportar boletines y planillas.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-success text-white rounded font-bold uppercase tracking-widest text-xs">Ver PDF</span>
                             </div>
-                            <div onClick={() => navigate('/calendar')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/calendar')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/calendar'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-cyan"><CalendarIcon size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Calendario</h3></div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Cronograma del ciclo lectivo.</p>
-                                <button className="px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Ver Fechas</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Cronograma del ciclo lectivo.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Ver Fechas</span>
                             </div>
-                            <div onClick={() => navigate('/announcements')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/announcements')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/announcements'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-accent">
                                     <div className="relative">
@@ -580,8 +573,8 @@ const Dashboard = () => {
                                     </div>
                                     <h3 className="text-xl font-bold text-tech-text uppercase">Anuncios</h3>
                                 </div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Novedades institucionales.</p>
-                                <button className="px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Ver Noticias</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Novedades institucionales.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Ver Noticias</span>
                             </div>
                         </section>
                     </div>
@@ -591,18 +584,18 @@ const Dashboard = () => {
                 {profile.rol === 'alumno' && (
                     <div className="space-y-12">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div onClick={() => navigate('/student/report')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group relative overflow-hidden">
+                            <div onClick={() => navigate('/student/report')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/student/report'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success focus-visible:border-tech-success focus-visible:ring-2 focus-visible:ring-tech-success/30 transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-success"><FileText size={40} /><h3 className="text-xl font-bold text-tech-text uppercase">Mi Boletín</h3></div>
                                 <p className="text-tech-muted font-mono text-sm">Visualizar calificaciones y asistencia.</p>
                             </div>
-                            <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
+                            <div onClick={() => navigate('/messages')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/messages'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-cyan">
                                     <div className="relative">
                                         <MessageSquare size={40} />
                                         {unreadMessages > 0 && (
-                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse shadow-xl">
+                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
                                                 {unreadMessages}
                                             </span>
                                         )}
@@ -611,18 +604,18 @@ const Dashboard = () => {
                                 </div>
                                 <p className="text-tech-muted font-mono text-sm">Comunicación con docentes.</p>
                             </div>
-                            <div onClick={() => navigate('/calendar')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
+                            <div onClick={() => navigate('/calendar')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/calendar'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-cyan"><CalendarIcon size={40} /><h3 className="text-xl font-bold text-tech-text uppercase">Calendario</h3></div>
                                 <p className="text-tech-muted font-mono text-sm">Fechas de exámenes y eventos.</p>
                             </div>
-                            <div onClick={() => navigate('/announcements')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group relative overflow-hidden">
+                            <div onClick={() => navigate('/announcements')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/announcements'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-accent">
                                     <div className="relative">
                                         <Bell size={40} />
                                         {unreadAnnouncements > 0 && (
-                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse shadow-xl">
+                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
                                                 {unreadAnnouncements}
                                             </span>
                                         )}
@@ -654,7 +647,7 @@ const Dashboard = () => {
                 <div className="mt-16 border-t border-tech-surface pt-10">
                     <button
                         onClick={() => navigate('/help')}
-                        className="w-full text-left p-8 bg-tech-secondary/50 rounded-2xl border border-tech-surface hover:border-tech-cyan/40 focus-visible:border-tech-cyan/40 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group flex items-center gap-8 shadow-2xl"
+                        className="w-full text-left p-8 bg-tech-secondary/50 rounded-2xl border border-tech-surface hover:border-tech-cyan/40 focus-visible:border-tech-cyan/40 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group flex items-center gap-8"
                     >
                         <div className="p-4 bg-tech-cyan/10 rounded-xl text-tech-cyan group-hover:scale-110 group-focus-visible:scale-110 transition-transform">
                             <Info size={40} />

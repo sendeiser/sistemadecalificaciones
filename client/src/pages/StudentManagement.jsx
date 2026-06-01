@@ -188,7 +188,7 @@ const StudentManagement = () => {
     };
 
     const fetchLinkedTutors = async (studentId) => {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('tutores_alumnos')
             .select('*, tutor:perfiles!tutor_id(*)')
             .eq('alumno_id', studentId);
@@ -196,7 +196,7 @@ const StudentManagement = () => {
     };
 
     const fetchAllTutors = async () => {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('perfiles')
             .select('*')
             .eq('rol', 'tutor')
@@ -251,7 +251,7 @@ const StudentManagement = () => {
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                             GESTIÓN DE <span className="text-tech-cyan">ALUMNOS</span>
                         </h1>
-                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                             Administración central de perfiles académicos
                         </p>
                     </div>
@@ -541,7 +541,7 @@ const StudentManagement = () => {
                                         <td className="p-4 text-center">
                                             <button
                                                 onClick={() => openTutorModal(s)}
-                                                className="p-1.5 text-tech-accent hover:bg-tech-accent/10 rounded-full transition-all"
+                                                className="p-2 text-tech-accent hover:bg-tech-accent/10 rounded-full transition-all"
                                                 title="Gestionar Tutores"
                                             >
                                                 <UserRound size={18} />
@@ -551,19 +551,19 @@ const StudentManagement = () => {
                                             <div className="flex justify-center gap-2">
                                                 {editingId === s.id ? (
                                                     <>
-                                                        <button onClick={() => handleSave(s.id)} className="p-1.5 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
+                                                        <button onClick={() => handleSave(s.id)} className="p-2 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
                                                             <Check size={18} />
                                                         </button>
-                                                        <button onClick={() => setEditingId(null)} className="p-1.5 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
+                                                        <button onClick={() => setEditingId(null)} className="p-2 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
                                                             <X size={18} />
                                                         </button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button onClick={() => startEdit(s)} className="p-1.5 text-tech-cyan hover:bg-tech-cyan/10 rounded transition-all">
+                                                        <button onClick={() => startEdit(s)} className="p-2 text-tech-cyan hover:bg-tech-cyan/10 rounded transition-all">
                                                             <Pencil size={18} />
                                                         </button>
-                                                        <button onClick={() => handleDelete(s.id)} className="p-1.5 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
+                                                        <button onClick={() => handleDelete(s.id)} className="p-2 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
                                                             <Trash2 size={18} />
                                                         </button>
                                                     </>
@@ -657,7 +657,7 @@ const StudentManagement = () => {
             {
                 tutorModal.isOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-200">
-                        <div className="bg-tech-secondary w-full max-w-2xl rounded-3xl border border-tech-surface shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="bg-tech-secondary w-full max-w-2xl rounded-2xl border border-tech-surface shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                             <header className="p-6 border-b border-tech-surface flex justify-between items-center bg-tech-primary/50">
                                 <div>
                                     <h3 className="text-xl font-bold uppercase tracking-tight">Gestionar Tutores</h3>
@@ -683,7 +683,7 @@ const StudentManagement = () => {
                                                     <p className="text-sm font-bold">{lt.tutor?.nombre}</p>
                                                     <p className="text-[10px] text-tech-cyan uppercase font-mono">{lt.parentesco}</p>
                                                 </div>
-                                                <button onClick={() => handleUnlinkTutor(lt.id)} className="p-1.5 text-tech-danger opacity-0 group-hover:opacity-100 hover:bg-tech-danger/10 rounded-lg transition-all">
+                                                <button onClick={() => handleUnlinkTutor(lt.id)} className="p-2 text-tech-danger opacity-0 group-hover:opacity-100 hover:bg-tech-danger/10 rounded-lg transition-all">
                                                     <Trash2 size={16} />
                                                 </button>
                                             </div>

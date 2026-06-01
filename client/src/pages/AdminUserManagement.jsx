@@ -153,7 +153,7 @@ const AdminUserManagement = () => {
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                             GESTIÓN DE <span className="text-tech-cyan">USUARIOS</span>
                         </h1>
-                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                             Administración de invitaciones y privilegios
                         </p>
                     </div>
@@ -314,14 +314,14 @@ const AdminUserManagement = () => {
                                                                 setEditingToken(inv.token);
                                                                 setEditEmail(inv.email || '');
                                                             }}
-                                                            className="p-1.5 hover:bg-tech-cyan/10 text-tech-muted hover:text-tech-cyan rounded-lg transition-all"
+                                                            className="p-2 hover:bg-tech-cyan/10 text-tech-muted hover:text-tech-cyan rounded-lg transition-all"
                                                         >
                                                             <Edit2 size={14} />
                                                         </button>
                                                     )}
                                                     <button
                                                         onClick={() => handleDeleteInvite(inv.token)}
-                                                        className="p-1.5 hover:bg-tech-danger/10 text-tech-muted hover:text-tech-danger rounded-lg transition-all"
+                                                        className="p-2 hover:bg-tech-danger/10 text-tech-muted hover:text-tech-danger rounded-lg transition-all"
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>

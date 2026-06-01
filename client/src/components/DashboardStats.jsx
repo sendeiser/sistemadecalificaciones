@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 import { Users, Layers, BookOpen, TrendingUp, AlertCircle, BarChart2, Calendar, Zap } from 'lucide-react';
 import { Radar } from 'react-chartjs-2';
@@ -33,6 +33,7 @@ const DashboardStats = ({ role, profileId }) => {
         atRiskStudents: []
     });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -57,8 +58,9 @@ const DashboardStats = ({ role, profileId }) => {
                 }
 
                 setLoading(false);
-            } catch (error) {
-                console.error('Error fetching stats:', error);
+            } catch (err) {
+                console.error('Error fetching stats:', err);
+                setError('No se pudieron cargar las estadísticas. Verificá la conexión e intentá de nuevo.');
                 setLoading(false);
             }
         };
@@ -66,9 +68,7 @@ const DashboardStats = ({ role, profileId }) => {
         fetchStats();
     }, [role, profileId]);
 
-    if (loading) return <DashboardSkeleton />;
-
-    const radarData = {
+    const radarData = useMemo(() => ({
         labels: ['Exactas', 'Sociales', 'Lenguas', 'Técnicas', 'Artísticas', 'Educ. Física'],
         datasets: [
             {
@@ -89,9 +89,9 @@ const DashboardStats = ({ role, profileId }) => {
                 pointRadius: 0,
             }
         ],
-    };
+    }), []);
 
-    const radarOptions = {
+    const radarOptions = useMemo(() => ({
         scales: {
             r: {
                 angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
@@ -105,7 +105,18 @@ const DashboardStats = ({ role, profileId }) => {
         plugins: {
             legend: { display: false }
         }
-    };
+    }), []);
+
+    if (loading) return <DashboardSkeleton />;
+
+    if (error) {
+        return (
+            <div className="p-6 bg-tech-danger/10 border border-tech-danger/30 rounded-xl text-tech-danger text-sm font-mono flex items-center gap-3 mb-8">
+                <AlertCircle size={18} />
+                <span>{error}</span>
+            </div>
+        );
+    }
 
     if (role === 'admin' || role === 'preceptor') {
         const maxStudents = Math.max(...stats.studentsPerDivision.map(d => d.count), 1);
@@ -120,7 +131,7 @@ const DashboardStats = ({ role, profileId }) => {
                         { label: 'Materias', val: stats.subjectCount, icon: BookOpen, color: 'tech-success' },
                         { label: 'Asistencia', val: `${stats.globalAttendancePct}%`, icon: TrendingUp, color: 'tech-cyan' }
                     ].map((m, i) => (
-                        <div key={i} className="bg-tech-secondary p-5 rounded border border-tech-surface shadow-xl relative overflow-hidden group">
+                        <div key={i} className="bg-tech-secondary p-5 rounded border border-tech-surface relative overflow-hidden group">
                             <div className={`absolute top-0 right-0 p-3 text-${m.color} opacity-5 group-hover:opacity-20 transition-all duration-500 transform group-hover:scale-110`}>
                                 <m.icon size={48} />
                             </div>
@@ -133,7 +144,7 @@ const DashboardStats = ({ role, profileId }) => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Performance Radar */}
-                    <div className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-2xl flex flex-col items-center">
+                    <div className="bg-tech-secondary p-6 rounded border border-tech-surface flex flex-col items-center">
                         <h3 className="text-xs font-bold text-tech-muted mb-6 flex items-center gap-2 uppercase tracking-widest w-full">
                             <Zap size={14} className="text-tech-accent" />
                             Performance Radar
@@ -148,7 +159,7 @@ const DashboardStats = ({ role, profileId }) => {
                     </div>
 
                     {/* Student Distribution */}
-                    <div className="lg:col-span-2 bg-tech-secondary p-6 rounded border border-tech-surface shadow-2xl">
+                    <div className="lg:col-span-2 bg-tech-secondary p-6 rounded border border-tech-surface">
                         <h3 className="text-xs font-bold text-tech-muted mb-6 flex items-center gap-2 uppercase tracking-widest">
                             <BarChart2 size={14} className="text-tech-cyan" />
                             Distribución por División
@@ -162,7 +173,7 @@ const DashboardStats = ({ role, profileId }) => {
                                     </div>
                                     <div className="h-1.5 bg-tech-primary rounded-full overflow-hidden">
                                         <div
-                                            className="h-full bg-gradient-to-r from-tech-cyan to-blue-500 transition-all duration-1000"
+                                            className="h-full bg-tech-cyan transition-all duration-1000"
                                             style={{ width: `${(div.count / maxStudents) * 100}%` }}
                                         ></div>
                                     </div>
@@ -172,7 +183,7 @@ const DashboardStats = ({ role, profileId }) => {
                     </div>
 
                     {/* Weekly Attendance Heatmap (Simulated Modern UI) */}
-                    <div className="lg:col-span-3 bg-tech-secondary p-6 rounded border border-tech-surface shadow-2xl overflow-hidden relative">
+                    <div className="lg:col-span-3 bg-tech-secondary p-6 rounded border border-tech-surface overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-8 text-tech-cyan opacity-[0.02] pointer-events-none">
                             <Calendar size={180} />
                         </div>
@@ -198,7 +209,7 @@ const DashboardStats = ({ role, profileId }) => {
 
                     {/* Alertas de Riesgo */}
                     {stats.atRiskStudents.length > 0 && (
-                        <div className="lg:col-span-3 bg-tech-danger/10 border border-tech-danger/20 rounded p-6 shadow-2xl">
+                        <div className="lg:col-span-3 bg-tech-danger/10 border border-tech-danger/20 rounded p-6">
                             <h3 className="text-xs font-bold text-tech-danger mb-6 flex items-center gap-2 uppercase tracking-widest">
                                 <AlertCircle size={14} />
                                 Protocolo de Prevención: Alumnos en Riesgo
@@ -231,7 +242,7 @@ const DashboardStats = ({ role, profileId }) => {
                     { label: 'Mis Materias', val: stats.subjectCount, icon: BookOpen, color: 'bg-tech-cyan/20 text-tech-cyan' },
                     { label: 'Alumnos a cargo', val: stats.studentCount, icon: Users, color: 'bg-tech-accent/20 text-tech-accent' }
                 ].map((m, i) => (
-                    <div key={i} className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-xl relative overflow-hidden group">
+                    <div key={i} className="bg-tech-secondary p-6 rounded border border-tech-surface relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                             <m.icon size={64} />
                         </div>
@@ -248,7 +259,7 @@ const DashboardStats = ({ role, profileId }) => {
                 ))}
 
                 {stats.atRiskStudents.length > 0 && (
-                    <div className="md:col-span-2 bg-tech-secondary border border-tech-danger/30 rounded p-6 shadow-xl">
+                    <div className="md:col-span-2 bg-tech-secondary border border-tech-danger/30 rounded p-6">
                         <h3 className="text-[10px] font-bold text-tech-danger mb-6 flex items-center gap-2 uppercase tracking-widest">
                             <AlertCircle size={14} />
                             Alertas de Seguimiento Académico
@@ -281,7 +292,7 @@ const DashboardStats = ({ role, profileId }) => {
     if (role === 'tutor') {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-xl relative overflow-hidden group">
+                <div className="bg-tech-secondary p-6 rounded border border-tech-surface relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <Users size={64} />
                     </div>
@@ -295,7 +306,7 @@ const DashboardStats = ({ role, profileId }) => {
                         </div>
                     </div>
                 </div>
-                <div className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-xl relative overflow-hidden group">
+                <div className="bg-tech-secondary p-6 rounded border border-tech-surface relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <TrendingUp size={64} />
                     </div>

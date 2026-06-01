@@ -165,10 +165,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                                                 navigate(item.path);
                                                 if (isMobile) setIsOpen(false);
                                             }}
-                                            className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-all group relative border
+                                            className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-all group relative
                                                 ${isActive(item.path)
-                                                    ? 'bg-tech-cyan/10 text-tech-cyan border-tech-cyan/20 shadow-[0_0_15px_rgba(16,185,129,0.06)] font-extrabold'
-                                                    : 'text-tech-muted hover:bg-tech-surface hover:text-tech-text border-transparent'
+                                                    ? 'bg-tech-cyan/10 text-tech-cyan font-extrabold'
+                                                    : 'text-tech-muted hover:bg-tech-surface hover:text-tech-text'
                                                 }
                                                 ${!isOpen && !isMobile ? 'justify-center' : ''}
                                             `}
@@ -181,7 +181,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                                                 <span className="text-sm font-bold tracking-tight truncate animate-in fade-in duration-200">{item.label}</span>
                                             )}
                                             {isActive(item.path) && (
-                                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-tech-cyan rounded-r-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-tech-cyan rounded-r-full opacity-80"></div>
                                             )}
                                         </button>
                                     ))}

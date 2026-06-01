@@ -53,15 +53,11 @@ const AttendanceOverview = () => {
         setLoading(false);
     };
 
-    const handleDownloadPDF = () => {
-        alert('Utilice el nuevo módulo de Reportes de Asistencia para exportar PDFs.');
-    };
-
     const pieData = stats ? {
         labels: ['Presente', 'Ausente', 'Tarde', 'Justificado'],
         datasets: [{
             data: [stats.present || 0, stats.absent || 0, stats.late || 0, stats.justified || 0],
-            backgroundColor: ['#34d399', '#ef4444', '#fbbf24', '#60a5fa'],
+            backgroundColor: ['#16a34a', '#b91c1c', '#dc2626', '#4b5563'],
         }],
     } : null;
 
@@ -70,16 +66,10 @@ const AttendanceOverview = () => {
         datasets: [{
             label: 'Promedio',
             data: [stats.avgAsistencia || 0],
-            backgroundColor: '#60a5fa',
+            backgroundColor: '#dc2626',
         }],
     } : null;
 
-    // Debug logging
-    if (stats) {
-        console.log('📊 [AttendanceOverview] Stats received:', stats);
-        console.log('📊 [AttendanceOverview] avgAsistencia value:', stats.avgAsistencia);
-        console.log('📊 [AttendanceOverview] Bar chart data:', barData);
-    }
 
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">

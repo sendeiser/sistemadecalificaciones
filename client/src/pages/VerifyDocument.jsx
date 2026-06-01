@@ -46,7 +46,7 @@ const VerifyDocument = () => {
                     <p className="text-tech-muted uppercase tracking-[0.3em] text-xs mt-2 font-mono">Blockchain-Grade Verification</p>
                 </div>
 
-                <div className="bg-tech-secondary/60 backdrop-blur-xl border border-tech-surface rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                <div className="bg-tech-secondary/60 backdrop-blur-xl border border-tech-surface rounded-2xl p-8 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-tech-cyan to-transparent"></div>
 
                     {status === 'loading' && (

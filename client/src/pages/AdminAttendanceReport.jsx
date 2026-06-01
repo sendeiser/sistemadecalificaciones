@@ -60,7 +60,7 @@ const AdminAttendanceReport = () => {
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
                             REPORTE DE <span className="text-tech-cyan">ASISTENCIA</span>
                         </h1>
-                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                             Sistema central de control de presentismo
                         </p>
                     </div>

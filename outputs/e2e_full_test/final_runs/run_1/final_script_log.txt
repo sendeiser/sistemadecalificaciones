@@ -1,6 +1,6 @@
 === CGB PORTAL FULL E2E TEST ===
 Base URL: http://localhost:5173
-Run at: 2026-06-01 16:29:04
+Run at: 2026-06-01 16:44:03
 
 
 --- API TESTS ---

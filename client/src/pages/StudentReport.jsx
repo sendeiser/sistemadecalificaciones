@@ -334,7 +334,7 @@ const StudentReport = () => {
                         <h2 className="text-xl font-black text-tech-text uppercase tracking-widest">Inteligencia Educativa</h2>
                     </div>
                     {(!aiData && profile.rol === 'alumno') ? (
-                        <div className="p-8 bg-tech-secondary/30 rounded-3xl border border-tech-surface border-dashed text-center">
+                        <div className="p-8 bg-tech-secondary/30 rounded-2xl border border-tech-surface border-dashed text-center">
                             <Brain className="mx-auto text-tech-muted mb-4 opacity-50" size={48} />
                             <p className="text-tech-muted font-mono text-sm uppercase">El equipo docente aún no ha generado un diagnóstico pedagógico para tu perfil.</p>
                         </div>

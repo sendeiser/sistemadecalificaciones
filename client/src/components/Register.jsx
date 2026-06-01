@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import { getApiEndpoint } from '../utils/api';
 import { UserPlus, Mail, Lock, User, CreditCard, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
 
 const Register = () => {
-    const { signUp } = useAuth();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
@@ -63,7 +61,7 @@ const Register = () => {
                     error: data.error || 'Invitación inválida'
                 });
             }
-        } catch (err) {
+        } catch {
             setInviteState({
                 loading: false,
                 valid: false,
@@ -171,7 +169,7 @@ const Register = () => {
             </div>
 
             <div className="w-full max-w-lg p-8 space-y-8 bg-tech-secondary rounded border border-tech-surface shadow-[0_0_50px_rgba(0,0,0,0.5)] relative z-10">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tech-cyan to-purple-600"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-tech-cyan"></div>
 
                 <div className="text-center">
                     <div className="inline-flex p-3 bg-tech-accent/10 rounded mb-4 border border-tech-accent/20">

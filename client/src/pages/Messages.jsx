@@ -230,7 +230,7 @@ const Messages = () => {
                                 ))}
                             </div>
                         ) : filteredMessages.length === 0 ? (
-                            <div className="bg-tech-secondary rounded-3xl p-12 text-center border border-dashed border-tech-surface">
+                            <div className="bg-tech-secondary rounded-2xl p-12 text-center border border-dashed border-tech-surface">
                                 <div className="mx-auto w-20 h-20 bg-tech-surface rounded-full flex items-center justify-center mb-6">
                                     <Inbox className="text-tech-muted" size={40} />
                                 </div>
@@ -245,12 +245,17 @@ const Messages = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: idx * 0.05 }}
                                         key={m.id}
-                                        className={`glass-panel p-6 rounded-3xl border border-tech-surface/30 hover:shadow-2xl transition-all ${!m.leido && m.destinatario_id === user.id ? 'border-l-4 border-l-tech-cyan' : ''}`}
+                                        className={`glass-panel p-6 rounded-2xl border transition-all ${!m.leido && m.destinatario_id === user.id ? 'border-tech-cyan/30' : 'border-tech-surface/30 hover:shadow-2xl'}`}
                                     >
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-tech-surface rounded-2xl flex items-center justify-center font-bold text-tech-cyan text-xl">
-                                                    {(activeTab === 'sent' ? m.destinatario?.nombre : m.remitente?.nombre)?.[0]}
+                                                <div className="relative">
+                                                    <div className="w-12 h-12 bg-tech-surface rounded-2xl flex items-center justify-center font-bold text-tech-cyan text-xl">
+                                                        {(activeTab === 'sent' ? m.destinatario?.nombre : m.remitente?.nombre)?.[0]}
+                                                    </div>
+                                                    {!m.leido && m.destinatario_id === user.id && (
+                                                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-tech-cyan rounded-full border-2 border-tech-secondary"></span>
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <h4 className="font-bold text-tech-text leading-tight">
@@ -419,7 +424,7 @@ const Messages = () => {
                                         placeholder="Escribe algo importante..."
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}
-                                        className="w-full p-6 bg-tech-primary rounded-3xl border border-tech-surface focus:border-tech-cyan focus:ring-4 focus:ring-tech-cyan/10 outline-none font-medium text-tech-text transition-all resize-none"
+                                        className="w-full p-6 bg-tech-primary rounded-2xl border border-tech-surface focus:border-tech-cyan focus:ring-4 focus:ring-tech-cyan/10 outline-none font-medium text-tech-text transition-all resize-none"
                                     />
                                 </div>
 
@@ -434,7 +439,7 @@ const Messages = () => {
                             </div>
                         </section>
 
-                        <div className="p-8 bg-tech-surface/20 rounded-3xl border border-dashed border-tech-surface">
+                        <div className="p-8 bg-tech-surface/20 rounded-2xl border border-dashed border-tech-surface">
                             <h4 className="flex items-center gap-2 text-tech-text font-bold mb-3">
                                 <ShieldCheck className="text-tech-success" size={18} />
                                 Comunicación Segura
