@@ -1,0 +1,50 @@
+=== CGB PORTAL FULL E2E TEST ===
+Base URL: http://localhost:5173
+Run at: 2026-06-01 16:29:04
+
+
+--- API TESTS ---
+[Step] PASS: API Health check returns 200
+[Step] PASS: /api/grades protected (status 401)
+
+--- PUBLIC PAGES ---
+[Step 3] Test welcome page (no auth) | screenshot: C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\03_welcome.png
+  PASS: Welcome page title: CGB Portal - Comercio Gral. Belgrano
+[Step 4] Test login page (no auth) | screenshot: C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\04_login_page.png
+  PASS: Login page has email input
+
+--- AUTHENTICATION ---
+[Step 1] Navigate to login page | screenshot: C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\01_login_page.png
+[Step 2] Login successful, redirected to dashboard | screenshot: C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\02_dashboard.png
+
+--- MODULES ---
+  PASS: Dashboard - H1='PANEL DE CONTROL' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_dashboard.png
+  PASS: Calendario - H1='Calendario Académico' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_calendario.png
+  PASS: Mensajes - H1='Mensajería Interna' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_mensajes.png
+  PASS: Anuncios - H1='Anuncios' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_anuncios.png
+  PASS: Alumnos - H1='GESTIÓN DE ALUMNOS' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_alumnos.png
+  PASS: Materias - H1='GESTIÓN DE MATERIAS' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_materias.png
+  PASS: Divisiones - H1='GESTIÓN DE DIVISIONES' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_divisiones.png
+  PASS: Asignaciones - H1='Asignaciones' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_asignaciones.png
+  PASS: Reportes - H1='Reportes' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_reportes.png
+  PASS: Usuarios/Invit - H1='GESTIÓN DE USUARIOS' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_usuarios/invit.png
+  PASS: Ajustes - H1='AJUSTES DE PERFIL' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_ajustes.png
+  PASS: Ayuda - H1='CENTRO DE AYUDA' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_ayuda.png
+  PASS: Auditoría - H1='REGISTRO DE AUDITORÍA' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_auditoría.png
+  PASS: Config Sistema - H1='CONFIGURACIÓN DEL SISTEMA' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_config_sistema.png
+  PASS: Inscribir Alumnos - H1='Inscripción de Alumnos' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_inscribir_alumnos.png
+  PASS: Periodos - H1='Gestión de Periodos de Calificación' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_periodos.png
+  PASS: Toma General - H1='Captura General de Asistencia' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_toma_general.png
+  PASS: Justificaciones - H1='Justificación Masiva' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_justificaciones.png
+  PASS: Estadísticas Asist - H1='Visión General de Asistencia' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_estadísticas_asist.png
+  PASS: Alertas Asist - H1='Alertas de Inasistencia' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_alertas_asist.png
+  PASS: Discrepancias Asist - H1='Panel de Discrepancias' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_discrepancias_asist.png
+  PASS: Reporte Asist - H1='PANEL DE CONTROL' | C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\e2e_full_test\final_runs\run_1\screenshots\module_reporte_asist.png
+
+==================================================
+RESULTADOS FINALES
+==================================================
+  Passed: 27/27
+  Failed: 0/27
+
+  ✅ ALL MODULES PASSED
