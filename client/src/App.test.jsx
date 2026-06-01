@@ -1,9 +1,7 @@
-
 import { render, screen, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import App from './App';
 
-// Mock Supabase client
 vi.mock('./supabaseClient', () => ({
     supabase: {
         auth: {
@@ -17,18 +15,27 @@ vi.mock('./supabaseClient', () => ({
     },
 }));
 
+vi.mock('framer-motion', () => {
+    const Div = ({ children, ...props }) => <div {...props}>{children}</div>;
+    return {
+        motion: new Proxy({}, { get: () => Div }),
+        AnimatePresence: ({ children }) => <>{children}</>,
+    };
+});
+
+vi.mock('./hooks/useNotifications', () => ({
+    default: () => ({ unreadMessages: 0, unreadAnnouncements: 0 }),
+}));
+
 describe('App Component', () => {
-    it('redirects to login when unauthenticated', async () => {
-        // We need to await act if state updates happen immediately
+    it('renders the welcome page when unauthenticated', async () => {
         await act(async () => {
             render(<App />);
         });
 
-        // Check for Login component content
-        const loginHeader = await screen.findByText(/Sistema de Calificaciones/i);
-        expect(loginHeader).toBeInTheDocument();
-
-        const loginButton = screen.getByRole('button', { name: /Iniciar Sesión/i });
-        expect(loginButton).toBeInTheDocument();
+        const cgbElements = await screen.findAllByText(/CGB/i);
+        expect(cgbElements.length).toBeGreaterThan(0);
+        const loginBtn = await screen.findByText(/Iniciar Sesión/i);
+        expect(loginBtn).toBeInTheDocument();
     });
 });

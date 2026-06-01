@@ -1,0 +1,33 @@
+Dashboard E2E Test Run
+====================
+
+[CP1] Login page loads correctly
+  Screenshot saved: 01_login_page.png
+  PASS: Login page OK. Title='Gestión Académica ETA'
+  step 1 action: CP1 verified - Login page loaded with email, password, and submit button
+
+[CP2-4] Admin dashboard
+  CP2: Admin login OK
+  Screenshot saved: 02_admin_dashboard.png
+  CP3: Admin sees PANEL DE CONTROL + stats (ESTUDIANTES, DIVISIONES)
+  CP4: Admin tabs visible
+
+[CP5-7] Docente dashboard
+  CP5: Docente login OK
+  Screenshot saved: 03_docente_dashboard.png
+  CP6: Docente quick action cards visible
+  CP7: Docente sees MIS CURSOS and MIS MATERIAS
+
+[CP8-10] Alumno dashboard
+  CP8: Alumno login OK
+  Screenshot saved: 04_alumno_dashboard.png
+  CP9: Alumno sees MI BOLETÍN
+  CP10: Alumno cards (MENSAJES, CALENDARIO, ANUNCIOS) visible
+
+==================================================
+DASHBOARD E2E TEST COMPLETE
+Roles tested: admin, docente, alumno
+All critical points verified
+Screenshots saved to: C:\Users\TinChoX\Desktop\COSAS DE PROGRAMACION\Proyectos React-Node\IAREACTJS\Calificaciones\Calificaciones\outputs\dashboard_test\final_runs\run_1\screenshots
+==================================================
+Final result: ALL TESTS PASSED
