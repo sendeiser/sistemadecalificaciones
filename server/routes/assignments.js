@@ -23,11 +23,19 @@ router.get('/', async (req, res) => {
                 id,
                 docente:perfiles!docente_id(id, nombre),
                 materia:materias(id, nombre),
-                division:divisiones(id, anio, seccion, ciclo_lectivo)
+                division:divisiones(id, anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
             `);
 
         if (error) throw error;
-        res.json(data);
+
+        const flattenedData = (data || []).map(item => {
+            if (item.division && item.division.ciclo_lectivo) {
+                item.division.ciclo_lectivo = item.division.ciclo_lectivo.anio;
+            }
+            return item;
+        });
+
+        res.json(flattenedData);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

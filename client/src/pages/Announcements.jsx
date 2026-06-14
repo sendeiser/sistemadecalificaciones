@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Plus, ArrowLeft, Edit, Trash2, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { Bell, Plus, ArrowLeft, Edit, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Modal from '../components/ui/Modal';
 import ThemeToggle from '../components/ThemeToggle';
 import { getApiEndpoint } from '../utils/api';
 
@@ -217,14 +220,15 @@ const Announcements = () => {
                 <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                     <ThemeToggle />
                     {canCreateAnnouncement && (
-                        <button
+                        <Button
                             onClick={() => { resetForm(); setShowModal(true); }}
-                            className="flex items-center gap-2 px-4 py-2 bg-tech-accent hover:bg-amber-600 text-white rounded font-bold transition-all uppercase tracking-wider text-xs md:text-sm shadow-lg shadow-tech-accent/20"
+                            className="bg-tech-accent hover:bg-amber-600 shadow-lg shadow-tech-accent/20"
+                            shine
                         >
                             <Plus size={18} />
                             <span className="hidden xs:inline">Nuevo Anuncio</span>
                             <span className="xs:hidden">Nuevo</span>
-                        </button>
+                        </Button>
                     )}
                 </div>
             </header>
@@ -242,26 +246,28 @@ const Announcements = () => {
 
                 {/* Filters */}
                 <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar">
-                    <button
+                    <Button
                         onClick={() => setFilterTipo('all')}
-                        className={`px-4 py-2 rounded text-xs md:text-sm uppercase font-bold whitespace-nowrap transition-colors border ${filterTipo === 'all'
+                        size="sm"
+                        className={`rounded text-xs md:text-sm whitespace-nowrap border ${filterTipo === 'all'
                             ? 'bg-tech-cyan text-white border-tech-cyan'
                             : 'bg-tech-secondary hover:bg-tech-surface text-tech-muted border-tech-surface'
                             }`}
                     >
                         Todos
-                    </button>
+                    </Button>
                     {tipos.map(tipo => (
-                        <button
+                        <Button
                             key={tipo.value}
                             onClick={() => setFilterTipo(tipo.value)}
-                            className={`px-4 py-2 rounded text-xs md:text-sm uppercase font-bold whitespace-nowrap transition-colors border ${filterTipo === tipo.value
+                            size="sm"
+                            className={`rounded text-xs md:text-sm whitespace-nowrap border ${filterTipo === tipo.value
                                 ? 'bg-tech-cyan text-white border-tech-cyan'
                                 : 'bg-tech-secondary hover:bg-tech-surface text-tech-muted border-tech-surface'
                                 }`}
                         >
                             {tipo.label}
-                        </button>
+                        </Button>
                     ))}
                 </div>
 
@@ -337,136 +343,115 @@ const Announcements = () => {
             </main>
 
             {/* Announcement Modal */}
-            {showModal && canCreateAnnouncement && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
-                    <div className="bg-tech-secondary border border-tech-surface rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-tech-text uppercase">
-                                {editingAnnouncement ? 'Editar Anuncio' : 'Nuevo Anuncio'}
-                            </h2>
-                            <button
-                                onClick={() => { setShowModal(false); resetForm(); }}
-                                className="text-tech-muted hover:text-white transition-colors"
-                            >
-                                <X size={24} />
-                            </button>
+            {canCreateAnnouncement && (
+                <Modal
+                    open={showModal}
+                    onClose={() => { setShowModal(false); resetForm(); }}
+                    title={editingAnnouncement ? 'Editar Anuncio' : 'Nuevo Anuncio'}
+                    size="md"
+                    footer={
+                        <>
+                            <Button variant="ghost" onClick={() => { setShowModal(false); resetForm(); }}>
+                                Cancelar
+                            </Button>
+                            <Button variant="primary" type="submit" form="announcement-form">
+                                {editingAnnouncement ? 'Actualizar' : 'Publicar'}
+                            </Button>
+                        </>
+                    }
+                >
+                    <form id="announcement-form" onSubmit={handleSubmit} className="space-y-4">
+                        <Input
+                            label="Título *"
+                            type="text"
+                            required
+                            value={formData.titulo}
+                            onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                        />
+
+                        <div>
+                            <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Contenido *</label>
+                            <textarea
+                                required
+                                value={formData.contenido}
+                                onChange={(e) => setFormData({ ...formData, contenido: e.target.value })}
+                                className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
+                                rows="6"
+                            />
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Título *</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={formData.titulo}
-                                    onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                                <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Prioridad</label>
+                                <select
+                                    value={formData.prioridad}
+                                    onChange={(e) => setFormData({ ...formData, prioridad: e.target.value })}
                                     className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Contenido *</label>
-                                <textarea
-                                    required
-                                    value={formData.contenido}
-                                    onChange={(e) => setFormData({ ...formData, contenido: e.target.value })}
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                    rows="6"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Prioridad</label>
-                                    <select
-                                        value={formData.prioridad}
-                                        onChange={(e) => setFormData({ ...formData, prioridad: e.target.value })}
-                                        className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                    >
-                                        {prioridades.map(p => (
-                                            <option key={p.value} value={p.value}>{p.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Tipo</label>
-                                    <select
-                                        value={formData.tipo}
-                                        onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
-                                        className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                    >
-                                        {tipos.map(t => (
-                                            <option key={t.value} value={t.value}>{t.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Destinatarios</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {['admin', 'docente', 'alumno', 'preceptor', 'tutor'].map(rol => (
-                                        <label key={rol} className="flex items-center gap-2 text-sm">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.destinatarios.includes(rol)}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setFormData({ ...formData, destinatarios: [...formData.destinatarios, rol] });
-                                                    } else {
-                                                        setFormData({ ...formData, destinatarios: formData.destinatarios.filter(r => r !== rol) });
-                                                    }
-                                                }}
-                                                className="w-4 h-4"
-                                            />
-                                            <span className="capitalize">{rol}</span>
-                                        </label>
+                                >
+                                    {prioridades.map(p => (
+                                        <option key={p.value} value={p.value}>{p.label}</option>
                                     ))}
-                                </div>
+                                </select>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Fecha de Expiración</label>
-                                <input
-                                    type="date"
-                                    value={formData.fecha_expiracion}
-                                    onChange={(e) => setFormData({ ...formData, fecha_expiracion: e.target.value })}
+                                <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Tipo</label>
+                                <select
+                                    value={formData.tipo}
+                                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
                                     className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                />
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="publicado"
-                                    checked={formData.publicado}
-                                    onChange={(e) => setFormData({ ...formData, publicado: e.target.checked })}
-                                    className="w-4 h-4"
-                                />
-                                <label htmlFor="publicado" className="text-sm text-tech-text">
-                                    Publicar inmediatamente
-                                </label>
-                            </div>
-
-                            <div className="flex justify-end gap-3 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => { setShowModal(false); resetForm(); }}
-                                    className="px-6 py-2 bg-tech-surface hover:bg-tech-primary text-tech-text rounded transition-colors uppercase font-bold"
                                 >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-6 py-2 bg-tech-accent hover:bg-amber-600 text-white rounded transition-colors uppercase font-bold"
-                                >
-                                    {editingAnnouncement ? 'Actualizar' : 'Crear'}
-                                </button>
+                                    {tipos.map(t => (
+                                        <option key={t.value} value={t.value}>{t.label}</option>
+                                    ))}
+                                </select>
                             </div>
-                        </form>
-                    </div>
-                </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Destinatarios</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {['admin', 'docente', 'alumno', 'preceptor', 'tutor'].map(rol => (
+                                    <label key={rol} className="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.destinatarios.includes(rol)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setFormData({ ...formData, destinatarios: [...formData.destinatarios, rol] });
+                                                } else {
+                                                    setFormData({ ...formData, destinatarios: formData.destinatarios.filter(r => r !== rol) });
+                                                }
+                                            }}
+                                            className="w-4 h-4"
+                                        />
+                                        <span className="capitalize">{rol}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        <Input
+                            label="Fecha de Expiración"
+                            type="date"
+                            value={formData.fecha_expiracion}
+                            onChange={(e) => setFormData({ ...formData, fecha_expiracion: e.target.value })}
+                        />
+
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="publicado"
+                                checked={formData.publicado}
+                                onChange={(e) => setFormData({ ...formData, publicado: e.target.checked })}
+                                className="w-4 h-4"
+                            />
+                            <label htmlFor="publicado" className="text-sm text-tech-text">
+                                Publicar inmediatamente
+                            </label>
+                        </div>
+                    </form>
+                </Modal>
             )}
         </div>
     );

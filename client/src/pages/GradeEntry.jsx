@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Save, Plus, BookOpen, Users, Star, ClipboardList, AlertCircle, CheckCircle2, ArrowLeft, MessageSquare, FileText, Zap } from 'lucide-react';
+import { Save, BookOpen, ArrowLeft, MessageSquare, FileText, Zap } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { OBSERVATION_TEMPLATES, GET_GRADE_COLOR, GET_GRADE_BG } from '../utils/constants';
 import { getApiEndpoint } from '../utils/api';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { useToast } from '../components/ui/Toast';
 
 const GradeEntry = () => {
     const { profile } = useAuth();
@@ -17,7 +20,7 @@ const GradeEntry = () => {
     const [periods, setPeriods] = useState({});
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [message, setMessage] = useState(null);
+    const addToast = useToast();
     const [focusMode, setFocusMode] = useState(false);
     const [activeCell, setActiveCell] = useState({ row: 0, field: 'parcial_1' });
     const [isSecondSemester, setIsSecondSemester] = useState(new Date().getMonth() + 1 > 7);
@@ -48,7 +51,7 @@ const GradeEntry = () => {
                 id,
                 division_id,
                 materia:materias(nombre, descripcion),
-                division:divisiones(id, anio, seccion, ciclo_lectivo)
+                division:divisiones(id, anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
             `)
             .eq('docente_id', profile.id);
 
@@ -59,7 +62,6 @@ const GradeEntry = () => {
         setLoading(true);
         setSelectedAssignment(assignmentObj.id);
         setFullAssignmentData(assignmentObj);
-        if (!keepMessage) setMessage(null);
 
         try {
             // 1. Fetch all students in that division
@@ -110,7 +112,7 @@ const GradeEntry = () => {
             setGrades(mergedGrades);
         } catch (err) {
             console.error('Error fetching data:', err);
-            setMessage({ type: 'error', text: 'Error al cargar alumnos y notas' });
+            addToast('Error al cargar alumnos y notas', 'error');
         }
         setLoading(false);
     };
@@ -296,7 +298,6 @@ const GradeEntry = () => {
 
     const saveGrades = async () => {
         setSaving(true);
-        setMessage(null);
         try {
             const updates = grades.map(({ student, student_info, promedio, logro, ...g }) => ({
                 ...g,
@@ -319,16 +320,11 @@ const GradeEntry = () => {
                 .upsert(updates, { onConflict: 'alumno_id, asignacion_id, cuatrimestre' });
 
             if (error) throw error;
-            setMessage({ type: 'success', text: 'Calificaciones guardadas correctamente' });
-
-            // Auto-dismiss toast after 4 seconds
-            setTimeout(() => {
-                setMessage(null);
-            }, 4000);
+            addToast('Calificaciones guardadas correctamente', 'success');
 
             fetchGrades(fullAssignmentData, true);
         } catch (err) {
-            setMessage({ type: 'error', text: 'Error al guardar: ' + err.message });
+            addToast('Error al guardar: ' + err.message, 'error');
         }
         setSaving(false);
     };
@@ -358,14 +354,10 @@ const GradeEntry = () => {
                             >
                                 <FileText size={20} />
                             </button>
-                            <button
-                                onClick={saveGrades}
-                                disabled={saving}
-                                className="flex items-center gap-2 px-6 py-2.5 bg-tech-cyan hover:bg-tech-cyan/80 disabled:bg-tech-surface rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-cyan/20 active:scale-95"
-                            >
+                            <Button onClick={saveGrades} disabled={saving}>
                                 {saving ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div> : <Save size={18} />}
                                 <span>{saving ? 'Guardando...' : 'Guardar Datos'}</span>
-                            </button>
+                            </Button>
                         </div>
                     )}
 
@@ -387,13 +379,10 @@ const GradeEntry = () => {
                     <div className="h-10 w-px bg-tech-surface mx-1 hidden lg:block"></div>
 
                     {selectedAssignment && (
-                        <button
-                            onClick={() => setSelectedAssignment(null)}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-tech-secondary hover:bg-tech-surface text-tech-muted rounded-xl border border-tech-surface transition-all active:scale-95 group font-bold text-xs uppercase"
-                        >
+                        <Button variant="ghost" onClick={() => setSelectedAssignment(null)} className="group">
                             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                             <span>Volver</span>
-                        </button>
+                        </Button>
                     )}
 
                     <button
@@ -422,7 +411,7 @@ const GradeEntry = () => {
                                         <BookOpen size={24} />
                                     </div>
                                     <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-tech-primary text-tech-cyan font-mono border border-tech-surface">
-                                        {a.division?.ciclo_lectivo}
+                                        {a.division?.ciclo_lectivo?.anio || a.division?.ciclo_lectivo}
                                     </span>
                                 </div>
                                 <div>
@@ -794,29 +783,7 @@ const GradeEntry = () => {
 
             </div>
 
-            {/* Custom Toast Notification */}
-            {message && (
-                <div className={`fixed bottom-6 right-6 p-4 rounded-lg shadow-2xl border flex items-center gap-3 animate-in slide-in-from-right-full duration-300 z-50 ${message.type === 'success'
-                    ? 'bg-tech-secondary border-tech-success text-tech-success'
-                    : 'bg-tech-secondary border-tech-danger text-tech-danger'
-                    }`}>
-                    <div className={`p-2 rounded-full ${message.type === 'success' ? 'bg-tech-success/10' : 'bg-tech-danger/10'}`}>
-                        {message.type === 'success' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-sm uppercase tracking-wide">
-                            {message.type === 'success' ? 'Éxito' : 'Error'}
-                        </h4>
-                        <p className="text-xs font-mono text-tech-muted">{message.text}</p>
-                    </div>
-                    <button
-                        onClick={() => setMessage(null)}
-                        className="ml-4 p-1 hover:bg-tech-surface rounded transition-colors text-tech-muted hover:text-tech-text"
-                    >
-                        <div className="h-4 w-4 flex items-center justify-center font-bold">×</div>
-                    </button>
-                </div>
-            )}
+            {/* Toast notifications handled by ToastProvider */}
         </div>
     );
 };

@@ -20,10 +20,10 @@ async function generateCitationPDF(req, res) {
         // --- Header ---
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text('Escuela Técnico Agropecuaria', 105, 15, { align: 'center' });
+        doc.text('Escuela Provincial de Comercio "Gral. Belgrano"', 105, 15, { align: 'center' });
         doc.setFont('helvetica', 'normal');
-        doc.text('CUE: 4600328 - 00', 105, 20, { align: 'center' });
-        doc.text('Chamical, La Rioja', 105, 25, { align: 'center' });
+        doc.text('CUE: 4600298 - 00', 105, 20, { align: 'center' });
+        doc.text('Castro Barros 96 - Chamical, La Rioja', 105, 25, { align: 'center' });
 
         doc.line(20, 30, 190, 30); // Horizontal line
 

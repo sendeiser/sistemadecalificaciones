@@ -2,9 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { lazy, Suspense } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import PageTransition from './components/PageTransition';
 import MainLayout from './components/MainLayout';
+import { ToastProvider } from './components/ui/Toast';
 
 // Lazy load all page components for better performance
 const Login = lazy(() => import('./components/Login'));
@@ -246,7 +247,9 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router>
-          <AnimatedRoutes />
+          <ToastProvider>
+            <AnimatedRoutes />
+          </ToastProvider>
         </Router>
       </AuthProvider>
     </ThemeProvider>

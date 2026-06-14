@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { Calendar, Download, FileText, ArrowLeft, BarChart3, Users, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
@@ -93,13 +95,15 @@ const TeacherReports = () => {
             {/* Header / Action Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
                 <div className="flex items-center gap-4">
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-auto"
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
                         aria-label="Volver al panel"
                     >
                         <ArrowLeft size={24} />
-                    </button>
+                    </Button>
                     <div>
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                             MIS <span className="text-tech-cyan">REPORTES</span>
@@ -111,7 +115,9 @@ const TeacherReports = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                    <button
+                    <Button
+                        variant="primary"
+                        size="sm"
                         onClick={async () => {
                             if (!confirm('¿Deseas descargar todas las planillas? Esto puede tomar unos momentos.')) return;
                             const { data: { session } } = await supabase.auth.getSession();
@@ -154,11 +160,11 @@ const TeacherReports = () => {
                             setTimeout(() => setMessage(null), 5000);
                         }}
                         disabled={isExportingAll || assignments.length === 0}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-tech-cyan hover:bg-tech-cyan/80 disabled:bg-tech-surface rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-cyan/20 active:scale-95"
+                        className="shadow-lg shadow-tech-cyan/20"
                     >
                         <Download size={18} />
                         <span>{isExportingAll ? 'Procesando...' : 'Exportar Todo'}</span>
-                    </button>
+                    </Button>
                     <ThemeToggle />
                 </div>
             </div>
@@ -206,20 +212,20 @@ const TeacherReports = () => {
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                             <label className="text-xs text-tech-muted font-mono uppercase">Desde:</label>
-                            <input
+                            <Input
                                 type="date"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full sm:w-auto bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text focus:border-tech-cyan outline-none font-mono"
+                                className="w-full sm:w-auto"
                             />
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                             <label className="text-xs text-tech-muted font-mono uppercase">Hasta:</label>
-                            <input
+                            <Input
                                 type="date"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full sm:w-auto bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text focus:border-tech-cyan outline-none font-mono"
+                                className="w-full sm:w-auto"
                             />
                         </div>
                     </div>
@@ -263,20 +269,24 @@ const TeacherReports = () => {
                                 )}
 
                                 <div className="space-y-3">
-                                    <button
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
                                         onClick={() => downloadPDF(assign, 'notas')}
-                                        className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-cyan"
+                                        className="w-full border border-tech-surface"
                                     >
-                                        <FileText size={16} className="text-tech-cyan" />
+                                        <FileText size={16} />
                                         Planilla de Notas
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
                                         onClick={() => downloadPDF(assign, 'asistencia')}
-                                        className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-accent"
+                                        className="w-full border border-tech-surface"
                                     >
-                                        <Clock size={16} className="text-tech-accent" />
+                                        <Clock size={16} />
                                         Registro Asistencia
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ))}

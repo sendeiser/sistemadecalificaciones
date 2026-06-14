@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
 import { motion } from 'framer-motion';
 import {
-    Settings, Shield, Database, Save,
-    RefreshCcw, Building2, Lock, UserCog,
-    AlertTriangle, Download, Trash2, Search, CheckCircle2, MessageCircle,
+    Shield, Database, Save,
+    Building2, Lock, UserCog,
+    AlertTriangle, Download, Search, CheckCircle2, MessageCircle,
     ArrowLeft
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const SystemSettings = () => {
     const { profile, session } = useAuth();
@@ -187,7 +189,7 @@ const SystemSettings = () => {
                 // Assuming global search exists from Phase 1.
                 setSearchResults([]);
             }
-        } catch (err) {
+        } catch {
             setError('Error al buscar usuarios.');
         } finally {
             setLoading(false);
@@ -322,26 +324,24 @@ const SystemSettings = () => {
                                     </h3>
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="text-xs font-bold text-tech-muted uppercase mb-1 block">Nombre Institución</label>
-                                            <input
+                                            <Input
+                                                label="Nombre Institución"
                                                 value={settings.school_info.name}
                                                 onChange={(e) => setSettings({ ...settings, school_info: { ...settings.school_info, name: e.target.value } })}
-                                                className="w-full bg-tech-primary border border-tech-surface rounded-xl px-4 py-3 text-tech-text focus:border-tech-cyan outline-none"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs font-bold text-tech-muted uppercase mb-1 block">Dirección</label>
-                                            <input
+                                            <Input
+                                                label="Dirección"
                                                 value={settings.school_info.address}
                                                 onChange={(e) => setSettings({ ...settings, school_info: { ...settings.school_info, address: e.target.value } })}
-                                                className="w-full bg-tech-primary border border-tech-surface rounded-xl px-4 py-3 text-tech-text focus:border-tech-cyan outline-none"
                                             />
                                         </div>
                                     </div>
                                     <div className="mt-6 flex justify-end">
-                                        <button onClick={handleSave} className="px-6 py-2 bg-tech-cyan text-white rounded-lg font-bold uppercase text-xs hover:bg-cyan-600 transition-colors">
+                                        <Button onClick={handleSave} variant="primary">
                                             Guardar Cambios
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -358,13 +358,12 @@ const SystemSettings = () => {
 
                                 <div className="flex gap-4 mb-8">
                                     <div className="relative flex-1">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                        <input
+                                        <Input
+                                            icon={Search}
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                             placeholder="Buscar por Email o DNI..."
-                                            className="w-full bg-tech-primary pl-10 pr-4 py-3 rounded-xl border border-tech-surface focus:border-tech-accent outline-none text-tech-text"
                                         />
                                     </div>
                                     <button
@@ -396,36 +395,36 @@ const SystemSettings = () => {
                                                 <div className="flex items-center gap-2">
                                                     {resettingUserId === user.id ? (
                                                         <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
-                                                            <input
+                                                            <Input
+                                                                label="Nueva Contraseña"
                                                                 type="password"
                                                                 placeholder="Nueva Contraseña"
                                                                 value={newPassword}
                                                                 onChange={(e) => setNewPassword(e.target.value)}
-                                                                className="w-40 bg-tech-surface border border-tech-surface rounded-lg px-3 py-2 text-sm outline-none focus:border-tech-accent text-tech-text"
+                                                                className="w-40"
                                                             />
-                                                            <button
+                                                            <Button
                                                                 onClick={() => handleResetPassword(user.id)}
                                                                 disabled={!newPassword}
-                                                                className="p-2 bg-tech-success text-white rounded-lg hover:bg-green-600 transition-colors"
+                                                                variant="ghost"
+                                                                size="sm"
                                                                 title="Confirmar"
                                                             >
                                                                 <CheckCircle2 size={18} />
-                                                            </button>
-                                                            <button
+                                                            </Button>
+                                                            <Button
                                                                 onClick={() => { setResettingUserId(null); setNewPassword(''); }}
-                                                                className="p-2 bg-tech-danger text-white rounded-lg hover:bg-red-600 transition-colors"
+                                                                variant="ghost"
+                                                                size="sm"
                                                                 title="Cancelar"
                                                             >
                                                                 <Lock size={18} />
-                                                            </button>
+                                                            </Button>
                                                         </div>
                                                     ) : (
-                                                        <button
-                                                            onClick={() => setResettingUserId(user.id)}
-                                                            className="px-4 py-2 border border-tech-surface hover:border-tech-accent text-tech-muted hover:text-tech-accent rounded-lg font-bold uppercase text-[10px] tracking-wider transition-all flex items-center gap-2"
-                                                        >
+                                                        <Button onClick={() => setResettingUserId(user.id)} variant="ghost" size="sm">
                                                             <Lock size={14} /> Resetear Clave
-                                                        </button>
+                                                        </Button>
                                                     )}
                                                 </div>
                                             </div>

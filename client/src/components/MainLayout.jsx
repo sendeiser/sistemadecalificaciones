@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
@@ -9,6 +10,7 @@ const MainLayout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
     const { profile, loading } = useAuth();
     const { unreadMessages, unreadAnnouncements } = useNotifications();
+    const location = useLocation();
 
     useEffect(() => {
         const handleResize = () => {
@@ -21,6 +23,8 @@ const MainLayout = ({ children }) => {
     if (loading) return null;
     if (!profile) return <>{children}</>;
 
+    const isMessagesPage = location.pathname === '/messages';
+
     return (
         <div className="min-h-screen bg-tech-primary flex flex-col">
             <TopBar
@@ -32,8 +36,14 @@ const MainLayout = ({ children }) => {
             <div className="flex flex-1 overflow-hidden">
                 <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-                <main className={`flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
-                    <div className="max-w-[1600px] mx-auto">
+                <main className={`flex-1 transition-all duration-300 ${
+                    isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
+                } ${
+                    isMessagesPage 
+                        ? 'p-0 overflow-hidden flex flex-col' 
+                        : 'p-6 md:p-10 overflow-y-auto custom-scrollbar'
+                }`}>
+                    <div className={isMessagesPage ? 'w-full h-full flex flex-col' : 'max-w-[1600px] mx-auto'}>
                         {children}
                     </div>
                 </main>

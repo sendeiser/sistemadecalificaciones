@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, BarChart3, CheckSquare, Search, X, Bell, Calendar as CalendarIcon, AlertCircle, ShieldAlert, MessageSquare } from 'lucide-react';
+import { motion } from 'framer-motion';
 import MedalBadge from '../components/MedalBadge';
 import DashboardStats from '../components/DashboardStats';
 import AnnouncementTicker from '../components/AnnouncementTicker';
@@ -10,6 +11,8 @@ import { supabase } from '../supabaseClient';
 import { getApiEndpoint } from '../utils/api';
 import CriticalStudentsWidget from '../components/CriticalStudentsWidget';
 import useNotifications from '../hooks/useNotifications';
+import Input from '../components/ui/Input';
+import Tabs from '../components/ui/Tabs';
 
 const Dashboard = () => {
     const { profile } = useAuth();
@@ -21,6 +24,23 @@ const Dashboard = () => {
     const [medals, setMedals] = useState([]);
     const [activeTab, setActiveTab] = useState('diario');
     const { unreadMessages, unreadAnnouncements } = useNotifications();
+
+    const sections = useMemo(() => {
+        const items = [
+            { key: 'ticker', render: () => (
+                <AnnouncementTicker />
+            )},
+            { key: 'stats', render: () => (
+                <DashboardStats role={profile.rol} profileId={profile.id} />
+            )},
+        ];
+        if (profile.rol === 'admin' || profile.rol === 'preceptor') {
+            items.push({ key: 'critical', render: () => (
+                <div className="mb-10"><CriticalStudentsWidget /></div>
+            )});
+        }
+        return items;
+    }, [profile]);
 
     React.useEffect(() => {
         if (profile?.rol === 'tutor') {
@@ -129,14 +149,14 @@ const Dashboard = () => {
                 {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
                     <div className="relative w-full lg:w-96">
                         <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted group-focus-within:text-tech-cyan transition-colors" size={18} />
-                            <input
+                            <Input
+                                icon={Search}
                                 type="text"
                                 value={searchQuery}
                                 onChange={handleSearch}
                                 placeholder="Búsqueda rápida…"
                                 aria-label="Búsqueda rápida de alumnos, divisiones o materias"
-                                className="w-full pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md border border-tech-surface rounded-2xl text-tech-text placeholder-tech-muted/70 text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 focus-visible:ring-tech-cyan/30 transition-all"
+                                className="pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md rounded-2xl text-sm placeholder-tech-muted/70 focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 focus-visible:ring-tech-cyan/30"
                             />
                             {searchQuery && (
                                 <button
@@ -181,58 +201,30 @@ const Dashboard = () => {
             </div>
 
             <main>
-                {(profile.rol === 'admin' || profile.rol === 'docente' || profile.rol === 'alumno' || profile.rol === 'preceptor') && (
-                    <AnnouncementTicker />
-                )}
-
-                <DashboardStats role={profile.rol} profileId={profile.id} />
-
-                {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
-                    <div className="mb-10">
-                        <CriticalStudentsWidget />
-                    </div>
-                )}
+                {sections.map((section, idx) => (
+                    <motion.div
+                        key={section.key}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05, duration: 0.2, ease: 'easeOut' }}
+                    >
+                        {section.render()}
+                    </motion.div>
+                ))}
 
                 {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
                     <div className="space-y-8">
-                        {/* Pestañas de navegación para organizar secciones */}
-                        <div role="tablist" className="flex border-b border-tech-surface mb-8 gap-4 overflow-x-auto pb-2 scrollbar-thin">
-                            <button
-                                role="tab"
-                                aria-selected={activeTab === 'diario'}
-                                onClick={() => setActiveTab('diario')}
-                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl whitespace-nowrap ${
-                                    activeTab === 'diario'
-                                        ? 'border-tech-cyan text-tech-cyan font-black'
-                                        : 'border-transparent text-tech-muted hover:text-tech-text'
-                                }`}
-                            >
-                                Operación Diaria
-                            </button>
-                            <button
-                                role="tab"
-                                aria-selected={activeTab === 'academico'}
-                                onClick={() => setActiveTab('academico')}
-                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl whitespace-nowrap ${
-                                    activeTab === 'academico'
-                                        ? 'border-tech-cyan text-tech-cyan font-black'
-                                        : 'border-transparent text-tech-muted hover:text-tech-text'
-                                }`}
-                            >
-                                Configuración Académica
-                            </button>
-                            <button
-                                role="tab"
-                                aria-selected={activeTab === 'reportes'}
-                                onClick={() => setActiveTab('reportes')}
-                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl whitespace-nowrap ${
-                                    activeTab === 'reportes'
-                                        ? 'border-tech-cyan text-tech-cyan font-black'
-                                        : 'border-transparent text-tech-muted hover:text-tech-text'
-                                }`}
-                            >
-                                Reportes y Estadísticas
-                            </button>
+                        <div className="mb-8 overflow-x-auto pb-2 scrollbar-thin">
+                            <Tabs
+                                variant="underline"
+                                tabs={[
+                                    { value: 'diario', label: 'Operación Diaria' },
+                                    { value: 'academico', label: 'Configuración Académica' },
+                                    { value: 'reportes', label: 'Reportes y Estadísticas' }
+                                ]}
+                                activeTab={activeTab}
+                                onChange={setActiveTab}
+                            />
                         </div>
 
                         {/* Renderizado de contenidos de pestaña */}

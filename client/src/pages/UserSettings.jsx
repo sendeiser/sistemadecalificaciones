@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import PageTransition from '../components/PageTransition';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const UserSettings = () => {
     const { profile, user, signOut, refreshProfile } = useAuth();
@@ -228,13 +230,10 @@ const UserSettings = () => {
                             </div>
                         </div>
 
-                        <button
-                            onClick={signOut}
-                            className="hidden md:flex w-full items-center justify-center gap-2 p-4 border-2 border-tech-danger/20 text-tech-danger hover:bg-tech-danger/10 hover:border-tech-danger/40 rounded-2xl transition-all font-black uppercase text-[11px] tracking-widest shadow-lg shadow-tech-danger/5"
-                        >
+                        <Button onClick={signOut} variant="danger" size="md" className="hidden md:flex w-full">
                             <LogOut size={16} />
                             Terminar Sesión Segura
-                        </button>
+                        </Button>
                     </div>
 
                     {/* Main Content: Forms */}
@@ -248,14 +247,11 @@ const UserSettings = () => {
 
                             <form onSubmit={handleProfileUpdate} className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] uppercase font-black text-tech-muted tracking-widest ml-1">
-                                        Nombre Completo
-                                    </label>
-                                    <input
+                                    <Input
+                                        label="Nombre Completo"
                                         type="text"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-tech-surface border border-tech-surface focus:border-tech-cyan rounded-xl p-4 text-tech-text transition-all focus:outline-none"
                                         placeholder="Tu nombre completo"
                                         required
                                     />
@@ -271,14 +267,14 @@ const UserSettings = () => {
                                     </div>
                                 </div>
 
-                                <button
+                                <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-tech-cyan text-white rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-tech-cyan/80 transition-all shadow-lg shadow-tech-cyan/20 disabled:opacity-50"
+                                    variant="primary"
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                                     Guardar Cambios
-                                </button>
+                                </Button>
                             </form>
                         </div>
 
@@ -292,37 +288,27 @@ const UserSettings = () => {
                             <form onSubmit={handlePasswordChange} className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] uppercase font-black text-tech-muted tracking-widest ml-1">
-                                            Nueva Contraseña
-                                        </label>
-                                        <div className="relative">
-                                            <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                            <input
-                                                type="password"
-                                                value={passwordData.newPassword}
-                                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                                className="w-full bg-tech-surface border border-tech-surface focus:border-tech-accent rounded-xl p-4 pl-12 text-tech-text transition-all focus:outline-none"
-                                                placeholder="••••••••"
-                                                minLength={6}
-                                            />
-                                        </div>
+                                        <Input
+                                            label="Nueva Contraseña"
+                                            type="password"
+                                            icon={Key}
+                                            value={passwordData.newPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                            placeholder="••••••••"
+                                            minLength={6}
+                                        />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] uppercase font-black text-tech-muted tracking-widest ml-1">
-                                            Confirmar Contraseña
-                                        </label>
-                                        <div className="relative">
-                                            <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                            <input
-                                                type="password"
-                                                value={passwordData.confirmPassword}
-                                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                                className="w-full bg-tech-surface border border-tech-surface focus:border-tech-accent rounded-xl p-4 pl-12 text-tech-text transition-all focus:outline-none"
-                                                placeholder="••••••••"
-                                                minLength={6}
-                                            />
-                                        </div>
+                                        <Input
+                                            label="Confirmar Contraseña"
+                                            type="password"
+                                            icon={Key}
+                                            value={passwordData.confirmPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                            placeholder="••••••••"
+                                            minLength={6}
+                                        />
                                     </div>
                                 </div>
 
@@ -333,14 +319,14 @@ const UserSettings = () => {
                                     </p>
                                 </div>
 
-                                <button
+                                <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-tech-accent text-white rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-tech-accent/80 transition-all shadow-lg shadow-tech-accent/20 disabled:opacity-50"
+                                    variant="primary"
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={16} /> : <Key size={16} />}
                                     Actualizar Contraseña
-                                </button>
+                                </Button>
                             </form>
                         </div>
                     </div>

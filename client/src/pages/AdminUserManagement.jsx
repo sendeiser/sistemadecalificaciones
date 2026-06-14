@@ -3,8 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { getApiEndpoint } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
-import { ArrowLeft, UserPlus, Mail, Copy, CheckCircle2, Shield, Users, Clock, Trash2, RefreshCcw, Edit2, X, Save } from 'lucide-react';
+import { ArrowLeft, UserPlus, Mail, Copy, CheckCircle2, Clock, Trash2, RefreshCcw, Edit2, X, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const AdminUserManagement = () => {
     const { profile, session } = useAuth();
@@ -188,27 +190,20 @@ const AdminUserManagement = () => {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-tech-muted uppercase mb-1 block">Email (Opcional)</label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={16} />
-                                    <input
-                                        type="email"
-                                        placeholder="Restringir a este correo..."
-                                        value={newInvite.email}
-                                        onChange={(e) => setNewInvite({ ...newInvite, email: e.target.value })}
-                                        className="w-full bg-tech-primary border border-tech-surface rounded-xl pl-10 pr-3 py-3 text-sm focus:border-tech-cyan outline-none text-tech-text transition-all"
-                                    />
-                                </div>
+                                <Input
+                                    icon={Mail}
+                                    label="Email (Opcional)"
+                                    type="email"
+                                    placeholder="Restringir a este correo..."
+                                    value={newInvite.email}
+                                    onChange={(e) => setNewInvite({ ...newInvite, email: e.target.value })}
+                                />
                                 <p className="text-[10px] text-tech-muted mt-2 font-mono">* Si se deja vacío, cualquiera con el link puede registrarse.</p>
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={generating}
-                                className="w-full py-4 bg-tech-cyan hover:bg-sky-600 text-white font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 flex justify-center gap-2"
-                            >
+                            <Button type="submit" disabled={generating} variant="primary" size="sm" className="w-full mt-2">
                                 {generating ? <RefreshCcw className="animate-spin" /> : 'Generar Link'}
-                            </button>
+                            </Button>
                         </form>
                     </div>
 
@@ -227,13 +222,10 @@ const AdminUserManagement = () => {
                                 <div className="bg-tech-primary p-3 rounded-xl border border-tech-surface break-all font-mono text-xs text-tech-muted mb-4 select-all">
                                     {generatedLink}
                                 </div>
-                                <button
-                                    onClick={copyToClipboard}
-                                    className="w-full py-3 bg-tech-surface hover:bg-tech-primary border border-tech-surface text-tech-text rounded-xl flex items-center justify-center gap-2 transition-all text-xs font-bold uppercase tracking-widest"
-                                >
+                                <Button onClick={copyToClipboard} variant="ghost" size="sm" className="w-full">
                                     {copySuccess ? <CheckCircle2 size={16} className="text-tech-success" /> : <Copy size={16} />}
                                     {copySuccess ? 'Copiado' : 'Copiar Link'}
-                                </button>
+                                </Button>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -247,9 +239,9 @@ const AdminUserManagement = () => {
                                 <Clock size={20} className="text-tech-accent" />
                                 Historial de Invitaciones
                             </h2>
-                            <button onClick={fetchInvites} className="p-2 hover:bg-tech-surface rounded-full transition-colors text-tech-muted">
+                            <Button onClick={fetchInvites} variant="ghost" size="sm">
                                 <RefreshCcw size={16} />
-                            </button>
+                            </Button>
                         </div>
 
                         <div className="overflow-x-auto">
@@ -278,14 +270,9 @@ const AdminUserManagement = () => {
                                             <td className="p-4">
                                                 {editingToken === inv.token ? (
                                                     <div className="flex items-center gap-1">
-                                                        <input
-                                                            value={editEmail}
-                                                            onChange={(e) => setEditEmail(e.target.value)}
-                                                            className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 text-tech-text text-xs w-32 outline-none"
-                                                            placeholder="Email..."
-                                                        />
-                                                        <button onClick={() => handleUpdateInviteEmail(inv.token)} className="text-tech-success"><Save size={14} /></button>
-                                                        <button onClick={() => setEditingToken(null)} className="text-tech-muted"><X size={14} /></button>
+                                                        <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="Email..." className="w-32" />
+                                                        <Button onClick={() => handleUpdateInviteEmail(inv.token)} variant="ghost" size="sm"><Save size={14} /></Button>
+                                                        <Button onClick={() => setEditingToken(null)} variant="ghost" size="sm"><X size={14} /></Button>
                                                     </div>
                                                 ) : (
                                                     <span className="text-tech-muted font-mono text-xs">
@@ -309,22 +296,22 @@ const AdminUserManagement = () => {
                                             <td className="p-4 text-right">
                                                 <div className="flex justify-end gap-2">
                                                     {!inv.usado && (
-                                                        <button
+                                                        <Button
                                                             onClick={() => {
                                                                 setEditingToken(inv.token);
                                                                 setEditEmail(inv.email || '');
                                                             }}
-                                                            className="p-2 hover:bg-tech-cyan/10 text-tech-muted hover:text-tech-cyan rounded-lg transition-all"
+                                                            variant="ghost" size="sm"
                                                         >
                                                             <Edit2 size={14} />
-                                                        </button>
+                                                        </Button>
                                                     )}
-                                                    <button
+                                                    <Button
                                                         onClick={() => handleDeleteInvite(inv.token)}
-                                                        className="p-2 hover:bg-tech-danger/10 text-tech-muted hover:text-tech-danger rounded-lg transition-all"
+                                                        variant="ghost" size="sm"
                                                     >
                                                         <Trash2 size={14} />
-                                                    </button>
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -346,9 +333,9 @@ const AdminUserManagement = () => {
                                             </span>
                                             <div className="flex gap-2">
                                                 {!inv.usado && (
-                                                    <button onClick={() => { setEditingToken(inv.token); setEditEmail(inv.email || ''); }} className="p-2 bg-tech-surface rounded-lg text-tech-cyan"><Edit2 size={14} /></button>
+                                                    <Button onClick={() => { setEditingToken(inv.token); setEditEmail(inv.email || ''); }} variant="ghost" size="sm"><Edit2 size={14} /></Button>
                                                 )}
-                                                <button onClick={() => handleDeleteInvite(inv.token)} className="p-2 bg-tech-surface rounded-lg text-tech-danger"><Trash2 size={14} /></button>
+                                                <Button onClick={() => handleDeleteInvite(inv.token)} variant="ghost" size="sm"><Trash2 size={14} /></Button>
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -356,8 +343,8 @@ const AdminUserManagement = () => {
                                                 <p className="text-[10px] text-tech-muted uppercase font-bold">Email Restringido</p>
                                                 {editingToken === inv.token ? (
                                                     <div className="mt-1 flex gap-1">
-                                                        <input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 text-tech-text text-xs outline-none" placeholder="Email..." />
-                                                        <button onClick={() => handleUpdateInviteEmail(inv.token)} className="text-tech-success"><Save size={14} /></button>
+                                                        <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="Email..." className="w-32" />
+                                                        <Button onClick={() => handleUpdateInviteEmail(inv.token)} variant="ghost" size="sm"><Save size={14} /></Button>
                                                     </div>
                                                 ) : (
                                                     <p className="font-mono mt-0.5">{inv.email || 'Libre'}</p>

@@ -3,6 +3,8 @@ import { supabase } from '../supabaseClient';
 import { Layers, Plus, Pencil, Trash2, X, Check, Save, Users, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const DivisionManagement = () => {
     const navigate = useNavigate();
@@ -16,18 +18,30 @@ const DivisionManagement = () => {
     const [formData, setFormData] = useState({
         anio: '',
         seccion: '',
-        ciclo_lectivo: new Date().getFullYear()
+        ciclo_lectivo_id: ''
     });
+    const [ciclos, setCiclos] = useState([]);
 
     useEffect(() => {
         fetchDivisions();
+        fetchCiclos();
     }, []);
+
+    const fetchCiclos = async () => {
+        const { data } = await supabase.from('ciclos_lectivos').select('*').order('anio', { ascending: false });
+        if (data) {
+            setCiclos(data);
+            if (data.length > 0 && !formData.ciclo_lectivo_id) {
+                setFormData(prev => ({ ...prev, ciclo_lectivo_id: data[0].id }));
+            }
+        }
+    };
 
     const fetchDivisions = async () => {
         setLoading(true);
         const { data, error } = await supabase
             .from('divisiones')
-            .select('*')
+            .select('*, ciclo_lectivo:ciclos_lectivos(anio, id)')
             .order('anio', { ascending: true })
             .order('seccion', { ascending: true });
 
@@ -37,32 +51,38 @@ const DivisionManagement = () => {
     };
 
     const handleSave = async (id = null) => {
-        if (!formData.anio.trim() || !formData.seccion.trim()) {
-            return alert('Año y Sección son obligatorios');
+        if (!formData.anio.trim() || !formData.seccion.trim() || !formData.ciclo_lectivo_id) {
+            return alert('Año, Sección y Ciclo Lectivo son obligatorios');
         }
+
+        const payload = {
+            anio: formData.anio,
+            seccion: formData.seccion,
+            ciclo_lectivo_id: formData.ciclo_lectivo_id
+        };
 
         try {
             if (id) {
                 const { error } = await supabase
                     .from('divisiones')
-                    .update(formData)
+                    .update(payload)
                     .eq('id', id);
 
                 if (error) throw error;
-                setDivisions(divisions.map(d => d.id === id ? { ...d, ...formData } : d));
+                await fetchDivisions();
                 setEditingId(null);
             } else {
                 const { data, error } = await supabase
                     .from('divisiones')
-                    .insert([formData])
+                    .insert([payload])
                     .select()
                     .single();
 
                 if (error) throw error;
-                setDivisions([...divisions, data].sort((a, b) => a.anio.localeCompare(b.anio)));
+                await fetchDivisions();
                 setIsAdding(false);
             }
-            setFormData({ anio: '', seccion: '', ciclo_lectivo: new Date().getFullYear() });
+            setFormData({ anio: '', seccion: '', ciclo_lectivo_id: ciclos[0]?.id || '' });
         } catch (err) {
             alert('Error al guardar: ' + err.message);
         }
@@ -88,7 +108,7 @@ const DivisionManagement = () => {
         setFormData({
             anio: division.anio,
             seccion: division.seccion,
-            ciclo_lectivo: division.ciclo_lectivo
+            ciclo_lectivo_id: division.ciclo_lectivo_id || division.ciclo_lectivo?.id || ''
         });
     };
 
@@ -119,7 +139,7 @@ const DivisionManagement = () => {
                         onClick={() => {
                             setIsAdding(true);
                             setEditingId(null);
-                            setFormData({ anio: '', seccion: '', ciclo_lectivo: 2024 });
+                            setFormData({ anio: '', seccion: '', ciclo_lectivo_id: ciclos[0]?.id || '' });
                         }}
                         className="flex items-center gap-2 px-5 py-2.5 bg-tech-accent hover:bg-violet-600 rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-accent/20 active:scale-95"
                     >
@@ -153,35 +173,33 @@ const DivisionManagement = () => {
                                     {ANIOS.map(a => <option key={a} value={a}>{a}</option>)}
                                 </select>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Sección</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ej: A, B, 1ra..."
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-tech-muted/50 text-tech-text"
-                                    value={formData.seccion}
-                                    onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
-                                />
-                            </div>
+                            <Input
+                                label="Sección"
+                                placeholder="Ej: A, B, 1ra..."
+                                value={formData.seccion}
+                                onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
+                            />
                             <div className="space-y-1">
                                 <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Ciclo Lectivo</label>
-                                <input
-                                    type="number"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all placeholder-tech-muted/50 text-tech-text font-mono"
-                                    value={formData.ciclo_lectivo}
-                                    onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
-                                />
+                                <select
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all text-tech-text font-mono"
+                                    value={formData.ciclo_lectivo_id}
+                                    onChange={(e) => setFormData({ ...formData, ciclo_lectivo_id: e.target.value })}
+                                >
+                                    <option value="">SELECCIONAR...</option>
+                                    {ciclos.map(c => <option key={c.id} value={c.id}>{c.anio}</option>)}
+                                </select>
                             </div>
 
                         </div>
                         <div className="mt-6 flex gap-3 relative z-10">
-                            <button onClick={() => handleSave()} className="flex items-center gap-2 px-6 py-2 bg-tech-success hover:bg-emerald-600 rounded font-bold transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)] text-white uppercase tracking-wider text-sm">
+                            <Button variant="primary" onClick={() => handleSave()}>
                                 <Save size={18} />
                                 Guardar División
-                            </button>
-                            <button onClick={() => setIsAdding(false)} className="px-6 py-2 bg-tech-surface hover:bg-tech-secondary rounded font-bold text-tech-muted hover:text-tech-text uppercase tracking-wider text-sm transition-colors">
+                            </Button>
+                            <Button variant="ghost" onClick={() => setIsAdding(false)}>
                                 Cancelar
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}
@@ -215,9 +233,8 @@ const DivisionManagement = () => {
                                                         <option value="">AÑO</option>
                                                         {ANIOS.map(a => <option key={a} value={a}>{a}</option>)}
                                                     </select>
-                                                    <input
-                                                        type="text"
-                                                        className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-20 outline-none text-tech-text text-sm"
+                                                    <Input
+                                                        className="border-tech-accent w-20"
                                                         value={formData.seccion}
                                                         onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
                                                     />
@@ -233,45 +250,48 @@ const DivisionManagement = () => {
                                         </td>
                                         <td className="p-4">
                                             {editingId === d.id ? (
-                                                <input
-                                                    type="number"
-                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-24 outline-none text-tech-text text-sm font-mono"
-                                                    value={formData.ciclo_lectivo}
-                                                    onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
-                                                />
+                                                <select
+                                                    className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-28 outline-none text-tech-text font-mono text-xs"
+                                                    value={formData.ciclo_lectivo_id}
+                                                    onChange={(e) => setFormData({ ...formData, ciclo_lectivo_id: e.target.value })}
+                                                >
+                                                    <option value="">SELECCIONAR...</option>
+                                                    {ciclos.map(c => <option key={c.id} value={c.id}>{c.anio}</option>)}
+                                                </select>
                                             ) : (
-                                                <span className="text-tech-text font-mono">{d.ciclo_lectivo}</span>
+                                                <span className="text-tech-text font-mono">{d.ciclo_lectivo?.anio || d.ciclo_lectivo}</span>
                                             )}
                                         </td>
 
                                         <td className="p-4 text-center">
                                             <div className="flex justify-center gap-2">
-                                                <button
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
                                                     onClick={() => navigate('/enrollment')}
-                                                    className="p-2 bg-tech-primary text-tech-muted hover:text-tech-cyan border border-tech-surface hover:border-tech-cyan rounded-lg transition-all group flex items-center gap-2"
                                                     title="Inscribir Alumnos en esta División"
                                                 >
-                                                    <Users size={18} className="group-hover:scale-110 transition-transform" />
-                                                    <span className="text-[10px] font-bold uppercase hidden xl:inline">Inscribir</span>
-                                                </button>
+                                                    <Users size={18} />
+                                                    <span className="hidden xl:inline">Inscribir</span>
+                                                </Button>
                                                 <div className="w-px h-8 bg-tech-surface mx-1"></div>
                                                 {editingId === d.id ? (
                                                     <>
-                                                        <button onClick={() => handleSave(d.id)} className="p-2 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
+                                                        <Button variant="ghost" size="sm" onClick={() => handleSave(d.id)}>
                                                             <Check size={18} />
-                                                        </button>
-                                                        <button onClick={() => setEditingId(null)} className="p-2 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
+                                                        </Button>
+                                                        <Button variant="ghost" size="sm" onClick={() => setEditingId(null)}>
                                                             <X size={18} />
-                                                        </button>
+                                                        </Button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button onClick={() => startEdit(d)} className="p-2 text-tech-accent hover:bg-tech-accent/10 rounded transition-all">
+                                                        <Button variant="ghost" size="sm" onClick={() => startEdit(d)}>
                                                             <Pencil size={18} />
-                                                        </button>
-                                                        <button onClick={() => handleDelete(d.id)} className="p-2 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
+                                                        </Button>
+                                                        <Button variant="ghost" size="sm" onClick={() => handleDelete(d.id)}>
                                                             <Trash2 size={18} />
-                                                        </button>
+                                                        </Button>
                                                     </>
                                                 )}
                                             </div>
@@ -293,37 +313,35 @@ const DivisionManagement = () => {
                                 {editingId === d.id ? (
                                     <div className="space-y-3">
                                         <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                className="flex-1 bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-tech-text text-sm"
+                                            <Input
+                                                className="border-tech-accent flex-1"
                                                 value={formData.anio}
                                                 onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                                 placeholder="Año"
                                             />
-                                            <input
-                                                type="text"
-                                                className="flex-1 bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-tech-text text-sm"
+                                            <Input
+                                                className="border-tech-accent flex-1"
                                                 value={formData.seccion}
                                                 onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
                                                 placeholder="Sec"
                                             />
                                         </div>
-                                        <input
-                                            type="number"
-                                            inputmode="numeric"
-                                            className="w-full bg-tech-primary border border-tech-accent rounded px-3 py-2 outline-none text-tech-text text-sm font-mono"
-                                            value={formData.ciclo_lectivo}
-                                            onChange={(e) => setFormData({ ...formData, ciclo_lectivo: parseInt(e.target.value) })}
-                                            placeholder="Ciclo Lectivo"
-                                        />
+                                        <select
+                                            className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all text-tech-text font-mono text-sm"
+                                            value={formData.ciclo_lectivo_id}
+                                            onChange={(e) => setFormData({ ...formData, ciclo_lectivo_id: e.target.value })}
+                                        >
+                                            <option value="">SELECCIONAR CICLO...</option>
+                                            {ciclos.map(c => <option key={c.id} value={c.id}>{c.anio}</option>)}
+                                        </select>
 
                                         <div className="flex gap-2">
-                                            <button onClick={() => handleSave(d.id)} className="flex-1 py-2 bg-tech-success text-white rounded font-bold text-xs uppercase tracking-widest">
+                                            <Button variant="primary" onClick={() => handleSave(d.id)} className="flex-1">
                                                 Guardar
-                                            </button>
-                                            <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-tech-surface text-tech-muted rounded font-bold text-xs uppercase tracking-widest">
+                                            </Button>
+                                            <Button variant="ghost" onClick={() => setEditingId(null)} className="flex-1">
                                                 Cancelar
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
                                 ) : (
@@ -336,23 +354,24 @@ const DivisionManagement = () => {
                                                 </span>
                                             </div>
                                             <div className="mt-1 flex items-center gap-3 text-xs font-mono text-tech-muted">
-                                                <span className="uppercase">Ciclo {d.ciclo_lectivo}</span>
+                                                <span className="uppercase">Ciclo {d.ciclo_lectivo?.anio || d.ciclo_lectivo}</span>
                                             </div>
                                         </div>
                                         <div className="flex gap-1">
-                                            <button
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
                                                 onClick={() => navigate('/enrollment')}
-                                                className="p-2.5 bg-tech-primary border border-tech-surface text-tech-muted rounded-lg hover:text-tech-text"
                                                 title="Inscribir Alumnos"
                                             >
                                                 <Users size={20} />
-                                            </button>
-                                            <button onClick={() => startEdit(d)} className="p-2.5 bg-tech-primary border border-tech-surface text-tech-accent rounded-lg">
+                                            </Button>
+                                            <Button variant="ghost" size="sm" onClick={() => startEdit(d)}>
                                                 <Pencil size={20} />
-                                            </button>
-                                            <button onClick={() => handleDelete(d.id)} className="p-2.5 bg-tech-primary border border-tech-surface text-tech-danger rounded-lg">
+                                            </Button>
+                                            <Button variant="ghost" size="sm" onClick={() => handleDelete(d.id)}>
                                                 <Trash2 size={20} />
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
                                 )}

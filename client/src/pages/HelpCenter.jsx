@@ -7,6 +7,7 @@ import {
     ChevronDown, Settings, Bell, Info
 } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
+import Button from '../components/ui/Button';
 
 const HelpCenter = () => {
     const { profile } = useAuth();
@@ -144,13 +145,14 @@ const HelpCenter = () => {
         <PageTransition>
             <div className="max-w-3xl mx-auto pb-10">
                 <div className="mb-10 flex items-center gap-4 border-b border-tech-surface pb-6">
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
                         aria-label="Volver al panel"
                     >
                         <ArrowLeft size={24} />
-                    </button>
+                    </Button>
                     <div>
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
                             CENTRO DE <span className="text-tech-cyan">AYUDA</span>
@@ -218,12 +220,12 @@ const HelpCenter = () => {
                     <Users size={32} className="mx-auto text-tech-muted mb-4 opacity-20" />
                     <h3 className="text-sm font-black uppercase tracking-widest text-tech-muted mb-2">¿Necesitas más soporte?</h3>
                     <p className="text-xs text-tech-muted mb-6">Si no encuentras la solución aquí, contacta al administrador de la institución.</p>
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={() => navigate('/messages')}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-tech-surface hover:bg-tech-surface/80 text-tech-text rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-tech-surface"
                     >
                         <MessageSquare size={14} /> Enviar Mensaje a Soporte
-                    </button>
+                    </Button>
                 </div>
             </div>
         </PageTransition>

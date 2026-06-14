@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Minus } from 'lucide-react';
+import Table from './ui/Table';
 
 /**
  * Smart Diff Viewer Component
@@ -131,64 +132,45 @@ const DiffViewer = ({ before, after, isMobile = false }) => {
 
     // Desktop: Side-by-side comparison table
     return (
-        <div className="overflow-hidden rounded-lg border border-tech-surface">
-            <table className="w-full text-sm">
-                <thead>
-                    <tr className="bg-tech-surface/30 border-b border-tech-surface">
-                        <th className="px-4 py-3 text-left text-[10px] uppercase font-black text-tech-muted tracking-widest">
-                            Campo
-                        </th>
-                        <th className="px-4 py-3 text-left text-[10px] uppercase font-black text-tech-danger tracking-widest">
-                            Valor Anterior
-                        </th>
-                        <th className="px-4 py-3 w-10"></th>
-                        <th className="px-4 py-3 text-left text-[10px] uppercase font-black text-tech-success tracking-widest">
-                            Valor Nuevo
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {changes.map(({ key, beforeValue, afterValue, isNew, isRemoved }) => (
-                        <tr key={key} className="border-b border-tech-surface/50 hover:bg-tech-surface/20 transition-colors">
-                            <td className="px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-mono font-bold text-tech-text">
-                                        {getFieldLabel(key)}
-                                    </span>
-                                    {isNew && (
-                                        <span className="text-[8px] px-1.5 py-0.5 bg-tech-success/20 text-tech-success rounded uppercase font-black">
-                                            Nuevo
-                                        </span>
-                                    )}
-                                    {isRemoved && (
-                                        <span className="text-[8px] px-1.5 py-0.5 bg-tech-danger/20 text-tech-danger rounded uppercase font-black">
-                                            Eliminado
-                                        </span>
-                                    )}
-                                </div>
-                            </td>
-                            <td className="px-4 py-3">
-                                {!isNew && (
-                                    <div className="font-mono text-tech-danger bg-tech-danger/5 px-3 py-1.5 rounded border border-tech-danger/20 whitespace-pre-wrap">
-                                        {formatValue(beforeValue)}
-                                    </div>
-                                )}
-                            </td>
-                            <td className="px-4 py-3 text-center">
-                                <ArrowRight size={16} className="text-tech-cyan mx-auto" />
-                            </td>
-                            <td className="px-4 py-3">
-                                {!isRemoved && (
-                                    <div className="font-mono text-tech-success bg-tech-success/5 px-3 py-1.5 rounded border border-tech-success/20 whitespace-pre-wrap">
-                                        {formatValue(afterValue)}
-                                    </div>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <Table
+            columns={[
+                { key: 'key', label: 'Campo', mono: true, render: (value, row) => (
+                    <div className="flex items-center gap-2">
+                        <span className="font-bold text-tech-text">
+                            {getFieldLabel(value)}
+                        </span>
+                        {row.isNew && (
+                            <span className="text-[8px] px-1.5 py-0.5 bg-tech-success/20 text-tech-success rounded uppercase font-black">
+                                Nuevo
+                            </span>
+                        )}
+                        {row.isRemoved && (
+                            <span className="text-[8px] px-1.5 py-0.5 bg-tech-danger/20 text-tech-danger rounded uppercase font-black">
+                                Eliminado
+                            </span>
+                        )}
+                    </div>
+                )},
+                { key: 'beforeValue', label: 'Valor Anterior', mono: true, render: (value, row) => (
+                    !row.isNew && (
+                        <div className="font-mono text-tech-danger bg-tech-danger/5 px-3 py-1.5 rounded border border-tech-danger/20 whitespace-pre-wrap">
+                            {formatValue(value)}
+                        </div>
+                    )
+                )},
+                { key: '_arrow', label: '', align: 'center', render: () => (
+                    <ArrowRight size={16} className="text-tech-cyan mx-auto" />
+                )},
+                { key: 'afterValue', label: 'Valor Nuevo', mono: true, render: (value, row) => (
+                    !row.isRemoved && (
+                        <div className="font-mono text-tech-success bg-tech-success/5 px-3 py-1.5 rounded border border-tech-success/20 whitespace-pre-wrap">
+                            {formatValue(value)}
+                        </div>
+                    )
+                )},
+            ]}
+            data={changes}
+        />
     );
 };
 

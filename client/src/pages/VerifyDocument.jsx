@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, XCircle, ShieldCheck, Calendar, User, FileText, ArrowLeft } from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
+import Button from '../components/ui/Button';
 
 const VerifyDocument = () => {
     const { hash } = useParams();
@@ -31,13 +32,15 @@ const VerifyDocument = () => {
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-tech-cyan/5 via-tech-primary to-tech-primary">
             <div className="w-full max-w-lg relative">
-                <button
+                <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => navigate(-1)}
-                    className="absolute -top-12 left-0 flex items-center gap-2 text-xs text-tech-muted hover:text-tech-text transition-colors font-mono uppercase tracking-wider"
+                    className="absolute -top-12 left-0"
                     aria-label="Volver atrás"
                 >
                     <ArrowLeft size={16} /> Volver
-                </button>
+                </Button>
                 {/* Logo / Header */}
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-black text-tech-text tracking-tighter flex items-center justify-center gap-2">
@@ -113,12 +116,13 @@ const VerifyDocument = () => {
                             <p className="text-tech-muted font-mono mt-4 text-sm max-w-[280px] mx-auto">
                                 El hash proporcionado no coincide con ningún registro oficial en nuestra base de datos segura.
                             </p>
-                            <button
+                            <Button
+                                variant="primary"
                                 onClick={() => navigate('/')}
-                                className="mt-8 px-6 py-2 bg-tech-danger hover:bg-red-700 text-white rounded-full font-bold uppercase tracking-widest text-xs transition-colors"
+                                className="mt-8"
                             >
                                 Volver al Inicio
-                            </button>
+                            </Button>
                         </div>
                     )}
                 </div>

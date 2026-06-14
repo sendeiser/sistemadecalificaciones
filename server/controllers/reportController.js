@@ -65,13 +65,17 @@ async function getGradeJSON(req, res) {
                 id,
                 docente:perfiles(nombre),
                 materia:materias(nombre, campo_formacion, ciclo),
-                division:divisiones(anio, seccion, ciclo_lectivo)
+                division:divisiones(anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
             `)
             .eq('division_id', division_id)
             .eq('materia_id', materia_id)
             .maybeSingle();
 
         if (!asignacion) return res.status(404).json({ error: 'Asignación no encontrada' });
+
+        if (asignacion && asignacion.division && asignacion.division.ciclo_lectivo) {
+            asignacion.division.ciclo_lectivo = asignacion.division.ciclo_lectivo.anio;
+        }
 
         // 1. Fetch Grades for specific semester
         const { data: gradesData } = await supabaseAdmin
@@ -165,7 +169,7 @@ async function generateGradeReport(req, res) {
                 id,
                 docente:perfiles(nombre),
                 materia:materias(nombre, campo_formacion, ciclo),
-                division:divisiones(id, anio, seccion, ciclo_lectivo)
+                division:divisiones(id, anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
             `);
 
         if (assignment_id) {
@@ -179,6 +183,10 @@ async function generateGradeReport(req, res) {
 
         if (asigErr) throw asigErr;
         if (!asignacion) return res.status(404).json({ error: 'Asignación no encontrada' });
+
+        if (asignacion && asignacion.division && asignacion.division.ciclo_lectivo) {
+            asignacion.division.ciclo_lectivo = asignacion.division.ciclo_lectivo.anio;
+        }
 
         // 3. Fetch Grades for specific semester
         const { data: gradesData, error: gradesErr } = await supabaseAdmin
@@ -264,12 +272,12 @@ async function generateGradeReport(req, res) {
         // --- Header Rendering ---
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text('Escuela Técnico Agropecuaria', 148.5, 10, { align: 'center' });
+        doc.text('Escuela Provincial de Comercio "Gral. Belgrano"', 148.5, 10, { align: 'center' });
         doc.setFont('helvetica', 'normal');
-        doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
-        doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
+        doc.text('CUE: 4600298 - 00', 148.5, 15, { align: 'center' });
+        doc.text('Castro Barros 96 - Chamical - La Rioja', 148.5, 20, { align: 'center' });
         doc.setFontSize(8);
-        doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
+        doc.text('Tel: 03826-422154 | Email: escuela.comercio@yahoo.com.ar', 148.5, 24, { align: 'center' });
 
         // Title box
         const cuatrimestreStr = activeSemester === 1 ? 'Primer Cuatrimestre' : 'Segundo Cuatrimestre';
@@ -278,7 +286,7 @@ async function generateGradeReport(req, res) {
         doc.rect(14, 25, 269, 7, 'F');
         doc.rect(14, 25, 269, 7, 'S'); // Border
         doc.setFont('helvetica', 'bold');
-        doc.text(`PLANILLAS DE CALIFICACIONES - Acreditación de Saberes (${cuatrimestreStr})`, 148.5, 30, { align: 'center' });
+        doc.text(`PLANILLAS DE CALIFICACIONES (${cuatrimestreStr})`, 148.5, 30, { align: 'center' });
 
         // Info Rows
         const startY = 32;
@@ -685,13 +693,17 @@ async function generateAssignmentAttendancePDF(req, res) {
             .select(`
                 id,
                 materia:materias(nombre, ciclo, campo_formacion),
-                division:divisiones(anio, seccion, ciclo_lectivo),
+                division:divisiones(anio, seccion, ciclo_lectivo:ciclos_lectivos(anio)),
                 docente:perfiles(nombre)
             `)
             .eq('id', assignmentId)
             .single();
 
         if (aErr || !assignment) throw new Error('Asignación no encontrada');
+
+        if (assignment && assignment.division && assignment.division.ciclo_lectivo) {
+            assignment.division.ciclo_lectivo = assignment.division.ciclo_lectivo.anio;
+        }
 
         // 2. Fetch Records
         let query = supabaseAdmin
@@ -747,12 +759,12 @@ async function generateAssignmentAttendancePDF(req, res) {
         // Header Rendering
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text('Escuela Técnico Agropecuaria', 148.5, 10, { align: 'center' });
+        doc.text('Escuela Provincial de Comercio "Gral. Belgrano"', 148.5, 10, { align: 'center' });
         doc.setFont('helvetica', 'normal');
-        doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
-        doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
+        doc.text('CUE: 4600298 - 00', 148.5, 15, { align: 'center' });
+        doc.text('Castro Barros 96 - Chamical - La Rioja', 148.5, 20, { align: 'center' });
         doc.setFontSize(8);
-        doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
+        doc.text('Tel: 03826-422154 | Facebook: facebook.com/comercio.belgrano', 148.5, 24, { align: 'center' });
 
         // Title box
         doc.setFillColor(230, 230, 230);
@@ -853,7 +865,7 @@ async function generateStudentBulletinPDF(req, res) {
             .select(`
                 id, nombre, dni,
                 divisiones:estudiantes_divisiones(
-                    division:divisiones(id, anio, seccion, ciclo_lectivo)
+                    division:divisiones(id, anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
                 )
             `)
             .eq('id', studentId)
@@ -863,6 +875,10 @@ async function generateStudentBulletinPDF(req, res) {
 
         const division = student.divisiones?.[0]?.division;
         if (!division) throw new Error('Alumno no está asignado a ninguna división.');
+
+        if (division && division.ciclo_lectivo) {
+            division.ciclo_lectivo = division.ciclo_lectivo.anio;
+        }
 
         // 2. Fetch all subjects/assignments for this division
         const { data: assignments, error: aErr } = await supabaseAdmin
@@ -917,16 +933,34 @@ async function generateStudentBulletinPDF(req, res) {
         res.setHeader('Content-Disposition', `attachment; filename=Boletin_${sanitize(student.nombre)}.pdf`);
         doc.pipe(res);
 
-        // Header
-        doc.fontSize(18).text('Boletín de Calificaciones', { align: 'center' });
-        doc.moveDown();
+        // School Header
+        doc.fontSize(12).font('Helvetica-Bold').text('Escuela Provincial de Comercio "Gral. Belgrano"', { align: 'center' });
+        doc.fontSize(8).font('Helvetica').text('CUE: 4600298 - 00 | Castro Barros 96 - Chamical - La Rioja', { align: 'center' });
+        doc.text('Tel: 03826-422154 | Facebook: facebook.com/comercio.belgrano', { align: 'center' });
+        doc.moveDown(0.5);
 
-        doc.fontSize(10);
+        doc.fontSize(14).font('Helvetica-Bold').text('Boletín de Calificaciones', { align: 'center' });
+        doc.moveDown(0.5);
+
+        // Fetch Attendance (asistencias_preceptor) for this student
+        const { data: attPreceptor, error: attPreceptorErr } = await supabaseAdmin
+            .from('asistencias_preceptor')
+            .select('estado')
+            .eq('alumno_id', studentId);
+
+        let assistPct = '-';
+        if (!attPreceptorErr && attPreceptor && attPreceptor.length > 0) {
+            const presentCount = attPreceptor.filter(a => a.estado === 'presente' || a.estado === 'tarde').length;
+            assistPct = `${Math.round((presentCount / attPreceptor.length) * 100)}%`;
+        }
+
+        doc.fontSize(10).font('Helvetica');
         doc.text(`Alumno: ${sanitize(student.nombre)}`, { continued: true });
         doc.text(`   DNI: ${sanitize(student.dni)}`, { align: 'right' });
         doc.text(`División: ${division.anio} ${division.seccion}`, { continued: true });
         doc.text(`   Ciclo Lectivo: ${division.ciclo_lectivo}`, { align: 'right' });
-        doc.moveDown();
+        doc.text(`Asistencia General: ${assistPct}`);
+        doc.moveDown(0.5);
         doc.moveTo(40, doc.y).lineTo(555, doc.y).stroke();
         doc.moveDown();
 
@@ -1127,12 +1161,12 @@ async function generateDivisionAttendancePDF(req, res) {
         // Header Rendering
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text('Escuela Técnico Agropecuaria', 148.5, 10, { align: 'center' });
+        doc.text('Escuela Provincial de Comercio "Gral. Belgrano"', 148.5, 10, { align: 'center' });
         doc.setFont('helvetica', 'normal');
-        doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
-        doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
+        doc.text('CUE: 4600298 - 00', 148.5, 15, { align: 'center' });
+        doc.text('Castro Barros 96 - Chamical - La Rioja', 148.5, 20, { align: 'center' });
         doc.setFontSize(8);
-        doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
+        doc.text('Tel: 03826-422154 | Facebook: facebook.com/comercio.belgrano', 148.5, 24, { align: 'center' });
 
         // Title box
         doc.setFillColor(230, 230, 230);

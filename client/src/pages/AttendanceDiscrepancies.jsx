@@ -3,6 +3,9 @@ import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
 import { AlertCircle, ArrowLeft, Calendar, Search, RefreshCw, UserCheck, UserX } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { useToast } from '../components/ui/Toast';
 import { getApiEndpoint } from '../utils/api';
 
 const AttendanceDiscrepancies = () => {
@@ -12,7 +15,7 @@ const AttendanceDiscrepancies = () => {
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [discrepancies, setDiscrepancies] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState(null);
+    const addToast = useToast();
 
     useEffect(() => {
         fetchDivisions();
@@ -26,7 +29,6 @@ const AttendanceDiscrepancies = () => {
     const fetchDiscrepancies = async () => {
         if (!selectedDivisionId || !date) return;
         setLoading(true);
-        setMessage(null);
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const endpoint = getApiEndpoint(`/attendance/discrepancies/${selectedDivisionId}?date=${date}`);
@@ -39,12 +41,12 @@ const AttendanceDiscrepancies = () => {
             const data = await res.json();
             if (res.ok) {
                 setDiscrepancies(data);
-                if (data.length === 0) setMessage({ type: 'success', text: 'No se encontraron discrepancias para esta fecha.' });
+                if (data.length === 0) addToast('No se encontraron discrepancias para esta fecha.', 'success');
             } else {
                 throw new Error(data.error || 'Error al cargar datos');
             }
         } catch (err) {
-            setMessage({ type: 'error', text: err.message });
+            addToast(err.message, 'error');
         } finally {
             setLoading(false);
         }
@@ -100,34 +102,23 @@ const AttendanceDiscrepancies = () => {
                         </select>
                     </div>
 
-                    <div className="w-full md:w-48 space-y-2">
-                        <label className="text-[10px] font-bold text-tech-muted uppercase">Fecha:</label>
-                        <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={16} />
-                            <input
-                                type="date"
-                                className="w-full pl-10 pr-4 py-2 bg-tech-primary border border-tech-surface rounded text-sm outline-none focus:border-tech-cyan"
-                                value={date}
-                                onChange={e => setDate(e.target.value)}
-                            />
-                        </div>
-                    </div>
+                    <Input
+                        type="date"
+                        icon={Calendar}
+                        value={date}
+                        onChange={e => setDate(e.target.value)}
+                    />
 
-                    <button
+                    <Button
+                        variant="primary"
+                        size="sm"
                         onClick={fetchDiscrepancies}
                         disabled={loading || !selectedDivisionId}
-                        className="w-full md:w-auto px-6 py-2 bg-tech-cyan hover:bg-sky-600 rounded text-white font-bold uppercase text-xs transition-all flex items-center justify-center gap-2"
                     >
                         {loading ? <RefreshCw className="animate-spin" size={16} /> : <Search size={16} />}
                         Analizar
-                    </button>
+                    </Button>
                 </section>
-
-                {message && (
-                    <div className={`p-4 rounded border text-sm font-medium ${message.type === 'error' ? 'bg-tech-danger/10 border-tech-danger text-tech-danger' : 'bg-tech-success/10 border-tech-success text-tech-success'}`}>
-                        {message.text}
-                    </div>
-                )}
 
                 <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-2xl">
                     {/* Desktop Table View */}

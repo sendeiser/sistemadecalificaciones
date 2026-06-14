@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Camera, FileText, Send, CheckCircle2, ChevronLeft, Upload } from 'lucide-react';
+import { Camera, Send, CheckCircle2, ChevronLeft, Upload } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,9 +28,9 @@ const MobileJustification = () => {
     return (
         <div className="min-h-screen bg-tech-primary text-tech-text p-4 md:p-8">
             <header className="flex items-center gap-4 mb-8">
-                <button onClick={() => navigate(-1)} className="p-2 bg-tech-secondary rounded-full">
+                <Button variant="ghost" size="sm" className="p-2 h-auto rounded-full" onClick={() => navigate(-1)}>
                     <ChevronLeft />
-                </button>
+                </Button>
                 <h1 className="text-xl font-bold uppercase tracking-tight">Justificar Inasistencia</h1>
             </header>
 
@@ -44,14 +46,11 @@ const MobileJustification = () => {
                             <p className="text-tech-muted text-sm font-mono mb-6">Complete los detalles de la inasistencia para que el preceptor pueda validarla.</p>
 
                             <div className="space-y-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-tech-muted uppercase mb-2">Fecha de Inasistencia</label>
-                                    <input
-                                        type="date"
-                                        className="w-full bg-tech-primary p-4 rounded-xl border border-tech-surface text-tech-text focus:border-tech-cyan outline-none"
-                                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                    />
-                                </div>
+                                <Input
+                                    type="date"
+                                    label="Fecha de Inasistencia"
+                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                />
                                 <div>
                                     <label className="block text-xs font-bold text-tech-muted uppercase mb-2">Motivo / Causa</label>
                                     <textarea
@@ -64,14 +63,16 @@ const MobileJustification = () => {
                             </div>
                         </div>
 
-                        <button
+                        <Button
+                            variant="primary"
+                            size="lg"
+                            className="w-full shadow-lg shadow-tech-cyan/20"
                             onClick={() => setStep(2)}
                             disabled={!formData.date || !formData.reason}
-                            className="w-full py-5 bg-tech-cyan text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-tech-cyan/20 flex items-center justify-center gap-2"
                         >
                             Siguiente Paso
                             <Send size={18} />
-                        </button>
+                        </Button>
                     </motion.div>
                 )}
 
@@ -101,18 +102,22 @@ const MobileJustification = () => {
                         </div>
 
                         <div className="flex gap-4">
-                            <button
+                            <Button
+                                variant="ghost"
+                                size="lg"
+                                className="flex-1 border border-tech-surface"
                                 onClick={() => setStep(1)}
-                                className="flex-1 py-5 bg-tech-secondary border border-tech-surface text-tech-text rounded-2xl font-bold uppercase tracking-widest"
                             >
                                 Atrás
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="lg"
+                                className="flex-[2] shadow-lg shadow-tech-cyan/20"
                                 onClick={handleSubmit}
-                                className="flex-[2] py-5 bg-tech-cyan text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-tech-cyan/20"
                             >
                                 Enviar Solicitud
-                            </button>
+                            </Button>
                         </div>
                     </motion.div>
                 )}
@@ -130,12 +135,14 @@ const MobileJustification = () => {
                             <h2 className="text-2xl font-black uppercase tracking-tight">¡Enviado con Éxito!</h2>
                             <p className="text-tech-muted font-mono max-w-xs mx-auto">La justificación fue registrada y está pendiente de revisión por el preceptor.</p>
                         </div>
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="lg"
+                            className="border border-tech-surface"
                             onClick={() => navigate('/tutor')}
-                            className="px-10 py-4 bg-tech-secondary border border-tech-surface text-tech-text rounded-xl font-bold uppercase tracking-widest"
                         >
                             Volver al Inicio
-                        </button>
+                        </Button>
                     </motion.div>
                 )}
             </AnimatePresence>

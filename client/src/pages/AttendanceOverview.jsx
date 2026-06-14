@@ -4,7 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
-import { PieChart, BarChart3, Users, Calendar, ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 import ThemeToggle from '../components/ThemeToggle';
 
 import { getApiEndpoint } from '../utils/api';
@@ -75,12 +77,14 @@ const AttendanceOverview = () => {
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             <header className="max-w-7xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6 gap-4">
                 <div className="flex items-center gap-4">
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-auto"
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 bg-tech-secondary border border-tech-surface rounded-lg text-tech-muted hover:text-tech-text transition-all hover:scale-105 active:scale-95"
                     >
                         <ArrowLeft size={20} />
-                    </button>
+                    </Button>
                     <h1 className="text-3xl font-bold text-tech-text">Visión General de Asistencia</h1>
                 </div>
                 <ThemeToggle />
@@ -99,34 +103,30 @@ const AttendanceOverview = () => {
                     ))}
                 </select>
 
-                <div className="flex items-center gap-2 bg-tech-secondary p-2 rounded border border-tech-surface">
-                    <label className="text-xs text-tech-muted font-mono">DESDE:</label>
-                    <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="bg-tech-primary border border-tech-surface rounded px-2 py-1 text-sm text-tech-text focus:border-tech-cyan outline-none font-mono"
-                    />
-                </div>
+                <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className=""
+                />
 
-                <div className="flex items-center gap-2 bg-tech-secondary p-2 rounded border border-tech-surface">
-                    <label className="text-xs text-tech-muted font-mono">HASTA:</label>
-                    <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        className="bg-tech-primary border border-tech-surface rounded px-2 py-1 text-sm text-tech-text focus:border-tech-cyan outline-none font-mono"
-                    />
-                </div>
+                <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className=""
+                />
 
                 <div className="flex gap-2">
-                    <button
+                    <Button
+                        variant="primary"
+                        size="md"
                         onClick={fetchStats}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-tech-cyan hover:bg-sky-600 rounded text-white font-bold uppercase text-xs tracking-wider transition-colors shadow-[0_0_15px_rgba(14,165,233,0.3)]"
                         disabled={loading}
+                        className="flex-1 shadow-[0_0_15px_rgba(14,165,233,0.3)]"
                     >
                         <Search size={16} /> Cargar Estadísticas
-                    </button>
+                    </Button>
                 </div>
             </div>
             {stats && (

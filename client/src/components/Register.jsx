@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import { getApiEndpoint } from '../utils/api';
-import { UserPlus, Mail, Lock, User, CreditCard, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, CreditCard, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import Button from './ui/Button';
+import Input from './ui/Input';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -127,9 +129,9 @@ const Register = () => {
                     <p className="text-tech-muted font-mono text-sm mb-6">
                         {inviteState.error || 'El registro público está deshabilitado. Debes utilizar el enlace de invitación proporcionado por la administración.'}
                     </p>
-                    <Link to="/login" className="px-6 py-3 bg-tech-surface hover:bg-tech-primary rounded text-sm font-bold uppercase tracking-wider transition-colors inline-block">
+                    <Button variant="ghost" onClick={() => navigate('/login')}>
                         Volver al Login
-                    </Link>
+                    </Button>
                 </div>
             </div>
         );
@@ -184,81 +186,62 @@ const Register = () => {
                 <form onSubmit={handleSubmit} className="space-y-5">
                     {/* Form Fields ... similar to before but email might be locked */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                                <User size={14} /> Nombre Completo
-                            </label>
-                            <input
-                                name="nombre"
-                                type="text"
-                                required
-                                placeholder="Ej: Juan Pérez"
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                                value={formData.nombre}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                                <CreditCard size={14} /> DNI
-                            </label>
-                            <input
-                                name="dni"
-                                type="text"
-                                required
-                                placeholder="Sin puntos ni espacios"
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                                value={formData.dni}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                            <Mail size={14} /> Correo Electrónico
-                        </label>
-                        <input
-                            name="email"
-                            type="email"
+                        <Input
+                            label="Nombre Completo"
+                            icon={User}
+                            name="nombre"
+                            type="text"
                             required
-                            readOnly={!!inviteState.email}
-                            placeholder="docente@escuela.edu.ar"
-                            className={`w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50 ${inviteState.email ? 'opacity-75 cursor-not-allowed' : ''}`}
-                            value={formData.email}
+                            placeholder="Ej: Juan Pérez"
+                            value={formData.nombre}
                             onChange={handleChange}
                         />
-                        {inviteState.email && <span className="text-[10px] text-tech-accent block pt-1">* El correo está vinculado a la invitación</span>}
+                        <Input
+                            label="DNI"
+                            icon={CreditCard}
+                            name="dni"
+                            type="text"
+                            required
+                            placeholder="Sin puntos ni espacios"
+                            value={formData.dni}
+                            onChange={handleChange}
+                        />
                     </div>
 
+                    <Input
+                        label="Correo Electrónico"
+                        icon={Mail}
+                        name="email"
+                        type="email"
+                        required
+                        readOnly={!!inviteState.email}
+                        placeholder="docente@escuela.edu.ar"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={inviteState.email ? 'opacity-75' : ''}
+                    />
+                    {inviteState.email && <span className="text-[10px] text-tech-accent block pt-1">* El correo está vinculado a la invitación</span>}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                                <Lock size={14} /> Contraseña
-                            </label>
-                            <input
-                                name="password"
-                                type="password"
-                                required
-                                minLength="6"
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                                <Lock size={14} /> Confirmar
-                            </label>
-                            <input
-                                name="confirmPassword"
-                                type="password"
-                                required
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                            />
-                        </div>
+                        <Input
+                            label="Contraseña"
+                            icon={Lock}
+                            name="password"
+                            type="password"
+                            required
+                            minLength="6"
+                            value={formData.password}
+                            onChange={handleChange}
+                        />
+                        <Input
+                            label="Confirmar"
+                            icon={Lock}
+                            name="confirmPassword"
+                            type="password"
+                            required
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                        />
                     </div>
 
                     {error && (
@@ -267,14 +250,15 @@ const Register = () => {
                         </div>
                     )}
 
-                    <button
+                    <Button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-4 font-bold text-white bg-tech-cyan rounded hover:bg-sky-600 transition duration-300 shadow-[0_0_20px_rgba(14,165,233,0.3)] disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2 uppercase tracking-wider group"
+                        className="w-full"
+                        shine
                     >
                         {loading ? 'Procesando...' : 'Crear Cuenta'}
-                        {!loading && <UserPlus size={20} className="group-hover:translate-x-1 transition-transform" />}
-                    </button>
+                        {!loading && <UserPlus size={20} />}
+                    </Button>
 
                     <div className="text-center pt-2 border-t border-tech-surface mt-6">
                         <p className="text-tech-muted text-sm">

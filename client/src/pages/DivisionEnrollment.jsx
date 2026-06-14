@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
-import { Users, ChevronRight, ChevronLeft, Search, Save, BookOpen, Layers, ArrowLeft, Clipboard, X, CheckCircle2, AlertTriangle, Sparkles } from 'lucide-react';
+import { Users, ChevronRight, ChevronLeft, Search, Save, Layers, ArrowLeft, Clipboard, CheckCircle2, AlertTriangle, Sparkles } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const DivisionEnrollment = () => {
     const navigate = useNavigate();
@@ -271,26 +273,24 @@ const DivisionEnrollment = () => {
 
                         {selectedDivisionId && (
                             <div className="flex flex-col gap-3">
-                                <div className="relative w-full md:w-64 self-end">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                    <input
-                                        type="text"
+                                <div className="w-full md:w-64 self-end">
+                                    <Input
+                                        icon={Search}
                                         placeholder="BUSCAR NOMBRE/DNI..."
-                                        className="w-full pl-10 pr-4 py-2 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan outline-none transition-all text-tech-text placeholder-tech-muted/50 font-mono text-sm"
+                                        className="font-mono text-sm"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <button
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={() => setIsBulkOpen(!isBulkOpen)}
-                                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded text-xs font-bold uppercase tracking-widest transition-all ${isBulkOpen
-                                            ? 'bg-tech-surface text-tech-text border border-tech-cyan/50'
-                                            : 'bg-tech-cyan/10 text-tech-cyan border border-tech-cyan/20 hover:bg-tech-cyan/20'
-                                        }`}
+                                    className={isBulkOpen ? 'bg-tech-surface border border-tech-cyan/50' : 'bg-tech-cyan/10 border border-tech-cyan/20'}
                                 >
                                     <Sparkles size={14} />
                                     Pegado Inteligente
-                                </button>
+                                </Button>
                             </div>
                         )}
                     </div>
@@ -313,19 +313,16 @@ const DivisionEnrollment = () => {
                                         onChange={(e) => setBulkText(e.target.value)}
                                     ></textarea>
                                     <div className="flex justify-end gap-3">
-                                        <button
-                                            onClick={() => setIsBulkOpen(false)}
-                                            className="px-6 py-2 text-tech-muted hover:text-tech-text text-xs font-bold uppercase"
-                                        >
+                                        <Button variant="ghost" onClick={() => setIsBulkOpen(false)}>
                                             Cancelar
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
+                                            variant="primary"
                                             onClick={handleBulkProcess}
                                             disabled={bulkProcessing || !bulkText.trim()}
-                                            className="px-6 py-2 bg-tech-cyan text-white rounded text-xs font-bold uppercase hover:bg-sky-600 transition-all disabled:opacity-50"
                                         >
                                             {bulkProcessing ? 'Procesando...' : 'Analizar e Inscribir'}
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
 
@@ -374,14 +371,15 @@ const DivisionEnrollment = () => {
                 </div>
 
                 <div className="flex justify-end">
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={handleSave}
                         disabled={saving || !selectedDivisionId}
-                        className="flex items-center gap-2 px-8 py-3 bg-tech-cyan hover:bg-sky-600 disabled:bg-tech-surface disabled:text-tech-muted rounded font-bold transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)] disabled:shadow-none uppercase tracking-wider text-sm text-white"
+                        size="lg"
                     >
                         <Save size={20} />
                         {saving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -401,19 +399,21 @@ const DivisionEnrollment = () => {
                                 </h3>
                                 <div className="flex gap-2">
                                     {selectedAvailable.size > 0 && (
-                                        <button
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={moveSelectedToAssigned}
-                                            className="px-3 py-1 bg-tech-cyan/20 text-tech-cyan border border-tech-cyan/30 rounded text-[10px] font-bold uppercase hover:bg-tech-cyan hover:text-white transition-all animate-in fade-in"
                                         >
                                             Asignar {selectedAvailable.size}
-                                        </button>
+                                        </Button>
                                     )}
-                                    <button
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
                                         onClick={moveAllFilteredToAssigned}
-                                        className="px-3 py-1 bg-tech-surface text-tech-muted border border-tech-surface rounded text-[10px] font-bold uppercase hover:text-tech-text hover:border-tech-cyan transition-all"
                                     >
                                         Asignar Todos
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                             <span className="text-[10px] text-tech-muted font-mono uppercase tracking-widest italic flex items-center gap-2">
@@ -475,19 +475,21 @@ const DivisionEnrollment = () => {
                                 </h3>
                                 <div className="flex gap-2">
                                     {selectedAssigned.size > 0 && (
-                                        <button
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={moveSelectedToAvailable}
-                                            className="px-3 py-1 bg-tech-danger/20 text-tech-danger border border-tech-danger/30 rounded text-[10px] font-bold uppercase hover:bg-tech-danger hover:text-white transition-all animate-in fade-in"
                                         >
                                             Quitar {selectedAssigned.size}
-                                        </button>
+                                        </Button>
                                     )}
-                                    <button
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
                                         onClick={moveAllAssignedToAvailable}
-                                        className="px-3 py-1 bg-tech-surface/50 text-tech-muted border border-tech-surface rounded text-[10px] font-bold uppercase hover:text-tech-danger hover:border-tech-danger transition-all"
                                     >
                                         Quitar Todos
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </div>

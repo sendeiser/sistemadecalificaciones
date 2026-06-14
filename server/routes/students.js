@@ -108,6 +108,29 @@ router.put('/:id', isAdminOrPreceptor, async (req, res) => {
     }
 });
 
+// PUT /api/students/:id/password (Admin)
+router.put('/:id/password', isAdminOrPreceptor, async (req, res) => {
+    const { id } = req.params;
+    const { password } = req.body;
+
+    if (!supabaseAdmin) {
+        return res.status(500).json({ error: 'Admin client not configured (missing Service Role Key).' });
+    }
+
+    if (!password || password.length < 6) {
+        return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres.' });
+    }
+
+    try {
+        const { error } = await supabaseAdmin.auth.admin.updateUserById(id, { password });
+        if (error) throw error;
+        res.json({ message: 'Contraseña actualizada correctamente.' });
+    } catch (err) {
+        console.error('Password update error:', err);
+        res.status(400).json({ error: err.message });
+    }
+});
+
 // DELETE /api/students/:id (Admin)
 router.delete('/:id', isAdminOrPreceptor, async (req, res) => {
     try {
@@ -240,8 +263,8 @@ router.post('/bulk-ai', isAdminOrPreceptor, async (req, res) => {
     }
 
     try {
-        console.log('Iniciando procesamiento con Gemini (gemini-3-flash-preview)...');
-        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+        console.log('Iniciando procesamiento con Gemini (gemini-1.5-flash)...');
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `Extrae una lista de estudiantes del siguiente texto desordenado. 
         Para cada estudiante necesito: NOMBRE completo, DNI (solo números) y EMAIL.
         Devuelve SOLO un array JSON con el formato: [{"nombre": "...", "dni": "...", "email": "..."}]

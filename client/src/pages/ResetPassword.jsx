@@ -3,6 +3,8 @@ import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
 import { Lock, CheckCircle2, AlertTriangle } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const ResetPassword = () => {
     const navigate = useNavigate();
@@ -53,7 +55,7 @@ const ResetPassword = () => {
             </div>
 
             <div className="w-full max-w-md bg-tech-secondary p-8 rounded-2xl border border-tech-surface shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tech-success via-tech-cyan to-tech-success"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-tech-cyan"></div>
 
                 <div className="mb-8 text-center">
                     <h2 className="text-2xl font-black text-tech-text uppercase tracking-tighter mb-2">Nueva Contraseña</h2>
@@ -68,20 +70,15 @@ const ResetPassword = () => {
                     </div>
                 ) : (
                     <form onSubmit={handleUpdate} className="space-y-6">
-                        <div>
-                            <label className="text-[10px] font-black text-tech-muted uppercase tracking-widest mb-2 block">Nueva Contraseña</label>
-                            <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                <input
-                                    type="password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full pl-12 pr-4 py-4 bg-tech-primary border border-tech-surface rounded-xl focus:border-tech-cyan outline-none text-tech-text transition-all"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                        </div>
+                        <Input
+                            label="Nueva Contraseña"
+                            icon={Lock}
+                            type="password"
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                        />
 
                         {error && (
                             <div className="p-4 bg-tech-danger/10 border border-tech-danger/20 rounded-xl flex items-center gap-3">
@@ -90,13 +87,9 @@ const ResetPassword = () => {
                             </div>
                         )}
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-4 bg-tech-cyan hover:bg-sky-600 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-tech-cyan/20 disabled:opacity-50"
-                        >
+                        <Button type="submit" disabled={loading} className="w-full" shine>
                             {loading ? 'Actualizando...' : 'Confirmar Cambio'}
-                        </button>
+                        </Button>
                     </form>
                 )}
             </div>

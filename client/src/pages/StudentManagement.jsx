@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Pencil, Trash2, X, Check, Search, Save, ArrowLeft, FileText, Upload, Link2, UserRound } from 'lucide-react';
+import { Users, Plus, Pencil, Trash2, X, Check, Search, Save, ArrowLeft, FileText, Upload, Link2, UserRound, KeyRound } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import CSVImporter from '../components/CSVImporter';
 import { getApiEndpoint } from '../utils/api';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Modal from '../components/ui/Modal';
 
 const StudentManagement = () => {
     const navigate = useNavigate();
@@ -30,6 +33,11 @@ const StudentManagement = () => {
     const [linkedTutors, setLinkedTutors] = useState([]);
     const [allTutors, setAllTutors] = useState([]);
     const [tutorSearch, setTutorSearch] = useState('');
+
+    // Password Change State
+    const [passwordModal, setPasswordModal] = useState({ isOpen: false, student: null });
+    const [newPassword, setNewPassword] = useState('');
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
 
     useEffect(() => {
         fetchStudents();
@@ -180,6 +188,38 @@ const StudentManagement = () => {
         });
     };
 
+    const openPasswordModal = (student) => {
+        setPasswordModal({ isOpen: true, student });
+        setNewPassword('');
+    };
+
+    const handleChangePassword = async () => {
+        if (!newPassword || newPassword.length < 6) {
+            return alert('La contraseña debe tener al menos 6 caracteres.');
+        }
+        setIsChangingPassword(true);
+        try {
+            const token = (await supabase.auth.getSession()).data.session?.access_token;
+            const response = await fetch(getApiEndpoint(`/students/${passwordModal.student.id}/password`), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ password: newPassword })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Error al cambiar la contraseña');
+            alert('✅ Contraseña actualizada correctamente.');
+            setPasswordModal({ isOpen: false, student: null });
+            setNewPassword('');
+        } catch (err) {
+            alert('Error: ' + err.message);
+        } finally {
+            setIsChangingPassword(false);
+        }
+    };
+
     // Tutor Linking Functions
     const openTutorModal = async (student) => {
         setTutorModal({ isOpen: true, student });
@@ -258,14 +298,13 @@ const StudentManagement = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
-                    <div className="relative flex-grow md:flex-grow-0 md:w-80">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                        <input
-                            type="text"
+                    <div className="flex-grow md:flex-grow-0 md:w-80">
+                        <Input
+                            icon={Search}
                             placeholder="Buscar por DNI o Nombre..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-tech-secondary/50 border border-tech-surface rounded-2xl text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 transition-all shadow-xl"
+                            className="bg-tech-secondary/50 rounded-2xl shadow-xl"
                         />
                     </div>
                 </div>
@@ -273,35 +312,37 @@ const StudentManagement = () => {
 
             {/* Action Bar */}
             <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto items-center">
-                <button
+                <Button
                     onClick={() => {
                         setIsImportingCSV(!isImportingCSV);
                         setIsBulkAdding(false);
                         setIsAdding(false);
                         setEditingId(null);
                     }}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-xs font-black uppercase tracking-widest transition-all shadow-lg ${isImportingCSV
+                    size="sm"
+                    className={`border ${isImportingCSV
                         ? 'bg-tech-success text-white border-tech-success shadow-tech-success/20'
                         : 'bg-tech-secondary text-tech-muted border-tech-surface hover:border-tech-success/50'
                         }`}
                 >
                     <Upload size={16} /> Importar CSV
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={() => {
                         setIsBulkAdding(!isBulkAdding);
                         setIsAdding(false);
                         setIsImportingCSV(false);
                         setEditingId(null);
                     }}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-xs font-black uppercase tracking-widest transition-all shadow-lg ${isBulkAdding
+                    size="sm"
+                    className={`border ${isBulkAdding
                         ? 'bg-tech-accent text-white border-tech-accent shadow-tech-accent/20'
                         : 'bg-tech-secondary text-tech-muted border-tech-surface hover:border-tech-accent/50'
                         }`}
                 >
                     <Users size={16} /> Carga IA
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={() => {
                         setIsAdding(true);
                         setIsBulkAdding(false);
@@ -309,13 +350,14 @@ const StudentManagement = () => {
                         setEditingId(null);
                         setFormData({ nombre: '', dni: '', email: '', password: '' });
                     }}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-xs font-black uppercase tracking-widest transition-all shadow-lg ${isAdding
+                    size="sm"
+                    className={`border ${isAdding
                         ? 'bg-tech-cyan text-white border-tech-cyan shadow-tech-cyan/20'
                         : 'bg-tech-secondary text-tech-muted border-tech-surface hover:border-tech-cyan/50'
                         }`}
                 >
                     <Plus size={16} /> Nuevo Alumno
-                </button>
+                </Button>
                 <div className="ml-auto">
                     <ThemeToggle />
                 </div>
@@ -325,14 +367,13 @@ const StudentManagement = () => {
                 {/* Filters */}
                 {!isImportingCSV && !isBulkAdding && !isAdding && (
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                        <div className="relative w-full md:w-96">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                            <input
-                                type="text"
+                        <div className="w-full md:w-96">
+                            <Input
+                                icon={Search}
                                 placeholder="BUSCAR POR NOMBRE O DNI..."
-                                className="w-full pl-10 pr-4 py-2 bg-tech-secondary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text placeholder-tech-muted/50 transition-all font-mono text-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
+                                className="bg-tech-secondary font-mono text-sm"
                             />
                         </div>
                     </div>
@@ -367,61 +408,51 @@ const StudentManagement = () => {
                             Registrar Nuevo Estudiante
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div className="space-y-1">
-                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Nombre Completo</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ej: Juan Pérez"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-tech-muted/50 text-tech-text"
-                                    value={formData.nombre}
-                                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">DNI</label>
-                                <input
-                                    type="text"
-                                    placeholder="Sin puntos"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-tech-muted/50 text-tech-text font-mono"
-                                    value={formData.dni}
-                                    onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Correo Electrónico</label>
-                                <input
-                                    type="email"
-                                    placeholder="usuario@escuela.com"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-tech-muted/50 text-tech-text font-mono"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Contraseña Inicial</label>
-                                <input
-                                    type="password"
-                                    placeholder="Min. 6 caracteres"
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-success focus:ring-1 focus:ring-tech-success outline-none transition-all placeholder-tech-muted/50 text-tech-text"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                />
-                            </div>
+                            <Input
+                                label="Nombre Completo"
+                                type="text"
+                                placeholder="Ej: Juan Pérez"
+                                value={formData.nombre}
+                                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                            />
+                            <Input
+                                label="DNI"
+                                type="text"
+                                placeholder="Sin puntos"
+                                value={formData.dni}
+                                onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
+                                className="font-mono"
+                            />
+                            <Input
+                                label="Correo Electrónico"
+                                type="email"
+                                placeholder="usuario@escuela.com"
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                className="font-mono"
+                            />
+                            <Input
+                                label="Contraseña Inicial"
+                                type="password"
+                                placeholder="Min. 6 caracteres"
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            />
                         </div>
                         <div className="mt-6 flex gap-3">
-                            <button
+                            <Button
                                 onClick={() => handleSave()}
-                                className="flex items-center gap-2 px-6 py-2 bg-tech-success hover:bg-emerald-600 rounded font-bold transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)] text-white uppercase tracking-wider text-sm"
+                                className="bg-tech-success hover:bg-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
                             >
                                 <Save size={18} />
                                 Crear Cuenta
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                                variant="ghost"
                                 onClick={() => setIsAdding(false)}
-                                className="px-6 py-2 bg-tech-surface hover:bg-tech-secondary rounded font-bold text-tech-muted hover:text-tech-text uppercase tracking-wider text-sm transition-colors"
                             >
                                 Cancelar
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}
@@ -436,7 +467,7 @@ const StudentManagement = () => {
                                     Carga Masiva con Inteligencia Artificial
                                 </h3>
                                 <div className="text-xs px-2 py-1 bg-tech-accent/10 text-tech-accent rounded border border-tech-accent/20 font-mono font-bold">
-                                    GEMINI v1.5 FLASH
+                                    GEMINI 1.5 FLASH
                                 </div>
                             </div>
                             <p className="text-sm text-tech-muted mb-4 font-mono">
@@ -450,13 +481,13 @@ const StudentManagement = () => {
                                 disabled={isProcessing}
                             ></textarea>
                             <div className="mt-6 flex gap-3">
-                                <button
+                                <Button
                                     onClick={handleBulkAI}
                                     disabled={isProcessing}
-                                    className={`flex items-center gap-2 px-6 py-2 rounded font-bold transition-all uppercase tracking-wider text-sm ${isProcessing
-                                        ? 'bg-tech-surface text-tech-muted cursor-not-allowed'
+                                    className={isProcessing
+                                        ? 'bg-tech-surface text-tech-muted'
                                         : 'bg-tech-accent hover:bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)]'
-                                        }`}
+                                    }
                                 >
                                     {isProcessing ? (
                                         <>
@@ -469,13 +500,13 @@ const StudentManagement = () => {
                                             PROCESAR Y CREAR
                                         </>
                                     )}
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                    variant="ghost"
                                     onClick={() => setIsBulkAdding(false)}
-                                    className="px-6 py-2 bg-tech-surface hover:bg-slate-700 rounded font-bold text-tech-muted hover:text-white uppercase tracking-wider text-sm"
                                 >
                                     Cancelar
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     )
@@ -503,11 +534,10 @@ const StudentManagement = () => {
                                     <tr key={s.id} className="hover:bg-tech-primary/50 transition-colors">
                                         <td className="p-4">
                                             {editingId === s.id ? (
-                                                <input
-                                                    type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-tech-text text-sm"
+                                                <Input
                                                     value={formData.nombre}
                                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                                                    className="bg-tech-primary border-tech-cyan rounded px-2 py-1 h-auto text-sm"
                                                     autoFocus
                                                 />
                                             ) : (
@@ -516,11 +546,10 @@ const StudentManagement = () => {
                                         </td>
                                         <td className="p-4">
                                             {editingId === s.id ? (
-                                                <input
-                                                    type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-tech-text text-sm font-mono"
+                                                <Input
                                                     value={formData.dni}
                                                     onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
+                                                    className="bg-tech-primary border-tech-cyan rounded px-2 py-1 h-auto text-sm font-mono"
                                                 />
                                             ) : (
                                                 <span className="text-tech-text font-mono">{s.dni || '-'}</span>
@@ -528,44 +557,48 @@ const StudentManagement = () => {
                                         </td>
                                         <td className="p-4">
                                             {editingId === s.id ? (
-                                                <input
-                                                    type="text"
-                                                    className="bg-tech-primary border border-tech-cyan rounded px-2 py-1 w-full outline-none text-tech-text text-sm font-mono"
+                                                <Input
                                                     value={formData.email}
                                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                    className="bg-tech-primary border-tech-cyan rounded px-2 py-1 h-auto text-sm font-mono"
                                                 />
                                             ) : (
                                                 <span className="text-tech-muted font-mono text-sm">{s.email || '-'}</span>
                                             )}
                                         </td>
                                         <td className="p-4 text-center">
-                                            <button
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
                                                 onClick={() => openTutorModal(s)}
-                                                className="p-2 text-tech-accent hover:bg-tech-accent/10 rounded-full transition-all"
+                                                className="p-1 h-auto w-auto rounded-full"
                                                 title="Gestionar Tutores"
                                             >
                                                 <UserRound size={18} />
-                                            </button>
+                                            </Button>
                                         </td>
                                         <td className="p-4 text-center">
                                             <div className="flex justify-center gap-2">
                                                 {editingId === s.id ? (
                                                     <>
-                                                        <button onClick={() => handleSave(s.id)} className="p-2 bg-tech-success/10 text-tech-success rounded hover:bg-tech-success/20 transition-all">
+                                                        <Button variant="ghost" size="sm" onClick={() => handleSave(s.id)} className="p-1 h-auto w-auto bg-tech-success/10 text-tech-success hover:bg-tech-success/20">
                                                             <Check size={18} />
-                                                        </button>
-                                                        <button onClick={() => setEditingId(null)} className="p-2 bg-tech-danger/10 text-tech-danger rounded hover:bg-tech-danger/20 transition-all">
+                                                        </Button>
+                                                        <Button variant="ghost" size="sm" onClick={() => setEditingId(null)} className="p-1 h-auto w-auto bg-tech-danger/10 text-tech-danger hover:bg-tech-danger/20">
                                                             <X size={18} />
-                                                        </button>
+                                                        </Button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button onClick={() => startEdit(s)} className="p-2 text-tech-cyan hover:bg-tech-cyan/10 rounded transition-all">
+                                                        <Button variant="ghost" size="sm" onClick={() => startEdit(s)} className="p-1 h-auto w-auto text-tech-cyan hover:bg-tech-cyan/10" title="Editar datos">
                                                             <Pencil size={18} />
-                                                        </button>
-                                                        <button onClick={() => handleDelete(s.id)} className="p-2 text-tech-danger hover:bg-tech-danger/10 rounded transition-all">
+                                                        </Button>
+                                                        <Button variant="ghost" size="sm" onClick={() => openPasswordModal(s)} className="p-1 h-auto w-auto text-tech-accent hover:bg-tech-accent/10" title="Cambiar contraseña">
+                                                            <KeyRound size={18} />
+                                                        </Button>
+                                                        <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="p-1 h-auto w-auto text-tech-danger hover:bg-tech-danger/10" title="Eliminar alumno">
                                                             <Trash2 size={18} />
-                                                        </button>
+                                                        </Button>
                                                     </>
                                                 )}
                                             </div>
@@ -586,35 +619,32 @@ const StudentManagement = () => {
                             <div key={s.id} className="p-4 space-y-4">
                                 {editingId === s.id ? (
                                     <div className="space-y-3">
-                                        <input
-                                            type="text"
-                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-tech-text text-sm"
+                                        <Input
+                                            placeholder="Nombre"
                                             value={formData.nombre}
                                             onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                                            placeholder="Nombre"
+                                            className="bg-tech-primary border-tech-cyan rounded px-3 py-2 h-auto text-sm"
                                         />
-                                        <input
-                                            type="text"
-                                            inputmode="numeric"
-                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-tech-text text-sm font-mono"
+                                        <Input
+                                            placeholder="DNI"
                                             value={formData.dni}
                                             onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
-                                            placeholder="DNI"
+                                            className="bg-tech-primary border-tech-cyan rounded px-3 py-2 h-auto text-sm font-mono"
                                         />
-                                        <input
+                                        <Input
                                             type="email"
-                                            className="w-full bg-tech-primary border border-tech-cyan rounded px-3 py-2 outline-none text-tech-text text-sm font-mono"
+                                            placeholder="Email"
                                             value={formData.email}
                                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                            placeholder="Email"
+                                            className="bg-tech-primary border-tech-cyan rounded px-3 py-2 h-auto text-sm font-mono"
                                         />
                                         <div className="flex gap-2">
-                                            <button onClick={() => handleSave(s.id)} className="flex-1 py-2 bg-tech-success text-white rounded font-bold text-xs uppercase tracking-widest">
+                                            <Button onClick={() => handleSave(s.id)} className="flex-1 bg-tech-success text-white">
                                                 Guardar
-                                            </button>
-                                            <button onClick={() => setEditingId(null)} className="flex-1 py-2 bg-tech-surface text-tech-muted rounded font-bold text-xs uppercase tracking-widest">
+                                            </Button>
+                                            <Button variant="ghost" onClick={() => setEditingId(null)} className="flex-1">
                                                 Cancelar
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
                                 ) : (
@@ -626,15 +656,18 @@ const StudentManagement = () => {
                                                 <p className="text-tech-muted text-xs font-mono mt-0.5">{s.email || 'Sin correo'}</p>
                                             </div>
                                             <div className="flex gap-1">
-                                                <button onClick={() => openTutorModal(s)} className="p-2 bg-tech-primary border border-tech-surface text-tech-accent rounded-lg" title="Gestionar Tutores">
+                                                <Button variant="ghost" size="sm" onClick={() => openTutorModal(s)} className="p-2 h-auto w-auto bg-tech-primary border border-tech-surface text-tech-accent rounded-lg" title="Gestionar Tutores">
                                                     <UserRound size={18} />
-                                                </button>
-                                                <button onClick={() => startEdit(s)} className="p-2 bg-tech-primary border border-tech-surface text-tech-cyan rounded-lg">
+                                                </Button>
+                                                <Button variant="ghost" size="sm" onClick={() => startEdit(s)} className="p-2 h-auto w-auto bg-tech-primary border border-tech-surface text-tech-cyan rounded-lg" title="Editar datos">
                                                     <Pencil size={18} />
-                                                </button>
-                                                <button onClick={() => handleDelete(s.id)} className="p-2 bg-tech-primary border border-tech-surface text-tech-danger rounded-lg">
+                                                </Button>
+                                                <Button variant="ghost" size="sm" onClick={() => openPasswordModal(s)} className="p-2 h-auto w-auto bg-tech-primary border border-tech-surface text-tech-accent rounded-lg" title="Cambiar contraseña">
+                                                    <KeyRound size={18} />
+                                                </Button>
+                                                <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="p-2 h-auto w-auto bg-tech-primary border border-tech-surface text-tech-danger rounded-lg" title="Eliminar alumno">
                                                     <Trash2 size={18} />
-                                                </button>
+                                                </Button>
                                             </div>
                                         </div>
                                     </>
@@ -654,88 +687,137 @@ const StudentManagement = () => {
                 </div>
             </div>
             {/* Modal de Gestión de Tutores */}
-            {
-                tutorModal.isOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-200">
-                        <div className="bg-tech-secondary w-full max-w-2xl rounded-2xl border border-tech-surface shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                            <header className="p-6 border-b border-tech-surface flex justify-between items-center bg-tech-primary/50">
-                                <div>
-                                    <h3 className="text-xl font-bold uppercase tracking-tight">Gestionar Tutores</h3>
-                                    <p className="text-tech-muted text-xs font-mono uppercase mt-1">Alumno: <span className="text-tech-cyan">{tutorModal.student.nombre}</span></p>
-                                </div>
-                                <button onClick={() => setTutorModal({ isOpen: false, student: null })} className="p-2 hover:bg-tech-surface rounded-full transition-colors">
-                                    <X size={24} />
-                                </button>
-                            </header>
-
-                            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                                {/* Vinculados */}
-                                <section>
-                                    <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <Check className="text-tech-success" size={14} /> Tutores Vinculados
-                                    </h4>
-                                    <div className="space-y-3">
-                                        {linkedTutors.length === 0 ? (
-                                            <p className="text-xs text-tech-muted italic p-4 border border-dashed border-tech-surface rounded-xl">Sin tutores asociados.</p>
-                                        ) : linkedTutors.map(lt => (
-                                            <div key={lt.id} className="p-3 bg-tech-primary/50 rounded-xl border border-tech-surface flex justify-between items-center group">
-                                                <div>
-                                                    <p className="text-sm font-bold">{lt.tutor?.nombre}</p>
-                                                    <p className="text-[10px] text-tech-cyan uppercase font-mono">{lt.parentesco}</p>
-                                                </div>
-                                                <button onClick={() => handleUnlinkTutor(lt.id)} className="p-2 text-tech-danger opacity-0 group-hover:opacity-100 hover:bg-tech-danger/10 rounded-lg transition-all">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </section>
-
-                                {/* Buscar y Vincular */}
-                                <section>
-                                    <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <Search className="text-tech-cyan" size={14} /> Buscar Tutor
-                                    </h4>
-                                    <div className="relative mb-4">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={14} />
-                                        <input
-                                            type="text"
-                                            placeholder="Nombre o DNI..."
-                                            className="w-full pl-9 pr-3 py-2 bg-tech-primary border border-tech-surface rounded-xl text-xs focus:ring-1 focus:ring-tech-cyan outline-none transition-all"
-                                            value={tutorSearch}
-                                            onChange={(e) => setTutorSearch(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                        {allTutors
-                                            .filter(t => t.nombre.toLowerCase().includes(tutorSearch.toLowerCase()))
-                                            .filter(t => !linkedTutors.some(lt => lt.tutor_id === t.id))
-                                            .map(t => (
-                                                <div key={t.id} className="p-2 hover:bg-tech-surface rounded-lg border border-transparent hover:border-tech-surface flex justify-between items-center cursor-pointer transition-colors"
-                                                    onClick={() => handleLinkTutor(t.id)}>
-                                                    <div>
-                                                        <p className="text-xs font-bold">{t.nombre}</p>
-                                                        <p className="text-[9px] text-tech-muted font-mono">DNI: {t.dni}</p>
-                                                    </div>
-                                                    <Link2 size={14} className="text-tech-muted group-hover:text-tech-cyan" />
-                                                </div>
-                                            ))}
-                                    </div>
-                                </section>
-                            </div>
-
-                            <footer className="p-6 bg-tech-primary/30 border-t border-tech-surface flex justify-end">
-                                <button
-                                    onClick={() => setTutorModal({ isOpen: false, student: null })}
-                                    className="px-6 py-2 bg-tech-surface hover:bg-tech-primary rounded-xl font-bold uppercase text-xs tracking-widest transition-colors"
-                                >
-                                    Cerrar
-                                </button>
-                            </footer>
-                        </div>
+            <Modal
+                open={tutorModal.isOpen}
+                onClose={() => setTutorModal({ isOpen: false, student: null })}
+                title={
+                    <div>
+                        <h3 className="text-xl font-bold uppercase tracking-tight">Gestionar Tutores</h3>
+                        <p className="text-tech-muted text-xs font-mono uppercase mt-1">Alumno: <span className="text-tech-cyan">{tutorModal.student?.nombre}</span></p>
                     </div>
-                )
-            }
+                }
+                size="md"
+                footer={
+                    <Button variant="ghost" onClick={() => setTutorModal({ isOpen: false, student: null })}>
+                        Cerrar
+                    </Button>
+                }
+            >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Vinculados */}
+                    <section>
+                        <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <Check className="text-tech-success" size={14} /> Tutores Vinculados
+                        </h4>
+                        <div className="space-y-3">
+                            {linkedTutors.length === 0 ? (
+                                <p className="text-xs text-tech-muted italic p-4 border border-dashed border-tech-surface rounded-xl">Sin tutores asociados.</p>
+                            ) : linkedTutors.map(lt => (
+                                <div key={lt.id} className="p-3 bg-tech-primary/50 rounded-xl border border-tech-surface flex justify-between items-center group">
+                                    <div>
+                                        <p className="text-sm font-bold">{lt.tutor?.nombre}</p>
+                                        <p className="text-[10px] text-tech-cyan uppercase font-mono">{lt.parentesco}</p>
+                                    </div>
+                                    <button onClick={() => handleUnlinkTutor(lt.id)} className="p-2 text-tech-danger opacity-0 group-hover:opacity-100 hover:bg-tech-danger/10 rounded-lg transition-all">
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Buscar y Vincular */}
+                    <section>
+                        <h4 className="text-xs font-black text-tech-muted uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <Search className="text-tech-cyan" size={14} /> Buscar Tutor
+                        </h4>
+                        <div className="relative mb-4">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={14} />
+                            <Input
+                                placeholder="Nombre o DNI..."
+                                value={tutorSearch}
+                                onChange={(e) => setTutorSearch(e.target.value)}
+                                className="pl-9 pr-3 py-2 h-auto text-xs"
+                            />
+                        </div>
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            {allTutors
+                                .filter(t => t.nombre.toLowerCase().includes(tutorSearch.toLowerCase()))
+                                .filter(t => !linkedTutors.some(lt => lt.tutor_id === t.id))
+                                .map(t => (
+                                    <div key={t.id} className="p-2 hover:bg-tech-surface rounded-lg border border-transparent hover:border-tech-surface flex justify-between items-center cursor-pointer transition-colors"
+                                        onClick={() => handleLinkTutor(t.id)}>
+                                        <div>
+                                            <p className="text-xs font-bold">{t.nombre}</p>
+                                            <p className="text-[9px] text-tech-muted font-mono">DNI: {t.dni}</p>
+                                        </div>
+                                        <Link2 size={14} className="text-tech-muted group-hover:text-tech-cyan" />
+                                    </div>
+                                ))}
+                        </div>
+                    </section>
+                </div>
+            </Modal>
+
+            {/* Modal de Cambio de Contraseña */}
+            <Modal
+                open={passwordModal.isOpen}
+                onClose={() => setPasswordModal({ isOpen: false, student: null })}
+                title={
+                    <div>
+                        <h3 className="text-xl font-bold uppercase tracking-tight flex items-center gap-2">
+                            <KeyRound className="text-tech-accent" size={20} /> Cambiar Contraseña
+                        </h3>
+                        <p className="text-tech-muted text-xs font-mono uppercase mt-1">
+                            Alumno: <span className="text-tech-cyan">{passwordModal.student?.nombre}</span>
+                        </p>
+                    </div>
+                }
+                size="sm"
+                footer={
+                    <div className="flex gap-3 w-full">
+                        <Button
+                            onClick={handleChangePassword}
+                            disabled={isChangingPassword}
+                            className={`flex-1 ${
+                                isChangingPassword
+                                    ? 'bg-tech-surface text-tech-muted'
+                                    : 'bg-tech-accent hover:bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)]'
+                            }`}
+                        >
+                            {isChangingPassword ? (
+                                <><div className="w-4 h-4 border-2 border-tech-muted border-t-white rounded-full animate-spin" /> Guardando...</>
+                            ) : (
+                                <><KeyRound size={16} /> Actualizar Contraseña</>
+                            )}
+                        </Button>
+                        <Button variant="ghost" onClick={() => setPasswordModal({ isOpen: false, student: null })}>
+                            Cancelar
+                        </Button>
+                    </div>
+                }
+            >
+                <div className="space-y-4 py-2">
+                    <p className="text-sm text-tech-muted font-mono">
+                        Ingresá la nueva contraseña para <span className="text-tech-text font-bold">{passwordModal.student?.nombre}</span>.
+                        El alumno podrá iniciar sesión con ella inmediatamente.
+                    </p>
+                    <Input
+                        label="Nueva Contraseña"
+                        type="password"
+                        placeholder="Mínimo 6 caracteres"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleChangePassword()}
+                        autoFocus
+                    />
+                    <div className="p-3 bg-tech-accent/5 border border-tech-accent/20 rounded-lg">
+                        <p className="text-xs text-tech-accent font-mono">
+                            ⚠ La contraseña se actualiza en tiempo real en el sistema de autenticación.
+                        </p>
+                    </div>
+                </div>
+            </Modal>
         </div >
     );
 };

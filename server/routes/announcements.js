@@ -98,7 +98,7 @@ router.get('/unread-count', async (req, res) => {
             .or('fecha_expiracion.is.null,fecha_expiracion.gt.' + new Date().toISOString());
 
         if (profile.rol !== 'admin' && profile.rol !== 'preceptor') {
-            query = query.contains('destinatarios', [profile.rol]);
+            query = query.contains('dirigido_a', [profile.rol]);
         }
 
         const { data: announcements, error: announcementsError } = await query;

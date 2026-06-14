@@ -6,9 +6,9 @@ import { getApiEndpoint } from '../utils/api';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import useNotifications from '../hooks/useNotifications';
+import Button from '../components/ui/Button';
 
 const ParentDashboard = () => {
-    const { profile } = useAuth();
     const navigate = useNavigate();
     const [children, setChildren] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -56,13 +56,14 @@ const ParentDashboard = () => {
                         </p>
                     </div>
                     <div className="flex items-center gap-4">
-                        <button
+                        <Button
+                            variant="danger"
+                            size="sm"
                             onClick={() => supabase.auth.signOut()}
-                            className="flex items-center gap-2 px-4 py-2 bg-tech-danger/10 hover:bg-tech-danger/20 text-tech-danger rounded-xl font-bold transition-all uppercase text-xs tracking-widest border border-tech-danger/30"
                         >
                             <LogOut size={16} />
                             Salir
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </header>

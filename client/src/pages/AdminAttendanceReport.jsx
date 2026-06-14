@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { FileText, Calendar, Layers, Download, ArrowLeft, Search, FileDown } from 'lucide-react';
+import { Calendar, Layers, ArrowLeft, FileDown } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
@@ -19,7 +21,7 @@ const AdminAttendanceReport = () => {
 
     const fetchDivisions = async () => {
         try {
-            const { data, error } = await supabase.from('divisiones').select('*');
+            const { data, error } = await supabase.from('divisiones').select('*, ciclo_lectivo:ciclos_lectivos(anio)');
             if (error) throw error;
             setDivisions(data || []);
         } catch (error) {
@@ -49,13 +51,15 @@ const AdminAttendanceReport = () => {
             {/* Action Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
                 <div className="flex items-center gap-4">
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-auto"
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
                         aria-label="Volver al panel"
                     >
                         <ArrowLeft size={24} />
-                    </button>
+                    </Button>
                     <div>
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
                             REPORTE DE <span className="text-tech-cyan">ASISTENCIA</span>
@@ -89,7 +93,7 @@ const AdminAttendanceReport = () => {
                                 <option value="">--- Seleccione una división ---</option>
                                 {divisions.map(d => (
                                     <option key={d.id} value={d.id}>
-                                        {d.anio} {d.seccion} - Ciclo {d.ciclo_lectivo}
+                                        {d.anio} {d.seccion} - Ciclo {d.ciclo_lectivo?.anio || d.ciclo_lectivo}
                                     </option>
                                 ))}
                             </select>
@@ -102,11 +106,10 @@ const AdminAttendanceReport = () => {
                                     <Calendar size={16} />
                                     Fecha Desde
                                 </label>
-                                <input
+                                <Input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-tech-text font-mono focus:border-tech-cyan outline-none transition-all"
                                 />
                             </div>
                             <div className="space-y-3">
@@ -114,25 +117,26 @@ const AdminAttendanceReport = () => {
                                     <Calendar size={16} />
                                     Fecha Hasta
                                 </label>
-                                <input
+                                <Input
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-tech-text font-mono focus:border-tech-cyan outline-none transition-all"
                                 />
                             </div>
                         </div>
 
                         {/* Action Button */}
                         <div className="pt-6 border-t border-tech-surface/50">
-                            <button
+                            <Button
+                                variant="primary"
+                                size="lg"
                                 onClick={handleDownloadPDF}
                                 disabled={!selectedDivision || loading}
-                                className="w-full flex items-center justify-center gap-3 px-8 py-5 bg-tech-accent hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-lg font-bold uppercase tracking-widest shadow-lg hover:shadow-amber-500/20 transition-all text-lg"
+                                className="w-full bg-tech-accent hover:bg-amber-600 shadow-lg hover:shadow-amber-500/20"
                             >
                                 <FileDown size={24} />
                                 Generar Reporte PDF
-                            </button>
+                            </Button>
                             <p className="text-center text-tech-muted text-xs mt-4 font-mono">
                                 El reporte incluirá todos los registros de asistencia del preceptor para el periodo seleccionado.
                             </p>

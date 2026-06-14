@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
 import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -42,7 +44,7 @@ const ForgotPassword = () => {
             </div>
 
             <div className="w-full max-w-md bg-tech-secondary p-8 rounded-2xl border border-tech-surface shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tech-accent via-tech-purple to-tech-accent"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-tech-accent"></div>
 
                 <div className="mb-8">
                     <Link to="/login" className="inline-flex items-center text-tech-muted hover:text-tech-text text-xs uppercase font-bold tracking-widest mb-6 transition-colors">
@@ -61,26 +63,21 @@ const ForgotPassword = () => {
                         <CheckCircle2 className="mx-auto text-tech-success mb-4" size={40} />
                         <h3 className="text-tech-success font-bold uppercase mb-2">¡Correo Enviado!</h3>
                         <p className="text-tech-text text-sm mb-4">{message}</p>
-                        <Link to="/login" className="block w-full py-3 bg-tech-surface hover:bg-tech-primary text-tech-text text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">
-                            Ir al Login
+                        <Link to="/login" className="block w-full">
+                            <Button variant="ghost" className="w-full">Ir al Login</Button>
                         </Link>
                     </motion.div>
                 ) : (
                     <form onSubmit={handleReset} className="space-y-6">
-                        <div>
-                            <label className="text-[10px] font-black text-tech-muted uppercase tracking-widest mb-2 block">Email Registrado</label>
-                            <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                <input
-                                    type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-12 pr-4 py-4 bg-tech-primary border border-tech-surface rounded-xl focus:border-tech-accent outline-none text-tech-text transition-all"
-                                    placeholder="usuario@escuela.edu.ar"
-                                />
-                            </div>
-                        </div>
+                        <Input
+                            label="Email Registrado"
+                            icon={Mail}
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="usuario@escuela.edu.ar"
+                        />
 
                         {error && (
                             <div className="p-4 bg-tech-danger/10 border border-tech-danger/20 rounded-xl">
@@ -88,13 +85,9 @@ const ForgotPassword = () => {
                             </div>
                         )}
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-4 bg-tech-accent hover:bg-orange-600 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-tech-accent/20 disabled:opacity-50"
-                        >
+                        <Button type="submit" disabled={loading} variant="primary" className="w-full">
                             {loading ? 'Enviando...' : 'Enviar Link de Recuperación'}
-                        </button>
+                        </Button>
                     </form>
                 )}
             </div>

@@ -17,13 +17,21 @@ router.get('/', async (req, res) => {
         alumno:perfiles!alumno_id (id, nombre, dni),
         asignacion:asignaciones!asignacion_id (
           materia:materias (id, nombre),
-          division:divisiones (id, anio, seccion, ciclo_lectivo)
+          division:divisiones (id, anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
         )
       `)
             .order('id', { ascending: true });
 
         if (error) throw error;
-        res.json(data);
+
+        const flattenedData = (data || []).map(item => {
+            if (item.asignacion && item.asignacion.division && item.asignacion.division.ciclo_lectivo) {
+                item.asignacion.division.ciclo_lectivo = item.asignacion.division.ciclo_lectivo.anio;
+            }
+            return item;
+        });
+
+        res.json(flattenedData);
     } catch (err) {
         console.error('Error fetching grades:', err);
         res.status(500).json({ error: err.message });

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FileText, Download, ArrowLeft, GraduationCap, Clock, AlertCircle, BookOpen, Brain } from 'lucide-react';
+import { Download, ArrowLeft, GraduationCap, AlertCircle, BookOpen, Brain } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 import { getApiEndpoint } from '../utils/api';
@@ -9,6 +9,8 @@ import { QRCodeSVG } from 'qrcode.react';
 import { QrCode, Sparkles, Award } from 'lucide-react';
 import AiInsights from '../components/AiInsights';
 import MedalBadge from '../components/MedalBadge';
+import Button from '../components/ui/Button';
+import Modal from '../components/ui/Modal';
 
 const StudentReport = () => {
     const { profile } = useAuth();
@@ -120,7 +122,7 @@ const StudentReport = () => {
             // 1. Fetch Student Division
             const { data: enrollment, error: eErr } = await supabase
                 .from('estudiantes_divisiones')
-                .select('division:divisiones(*)')
+                .select('division:divisiones(*, ciclo_lectivo:ciclos_lectivos(anio))')
                 .eq('alumno_id', studentId)
                 .single();
 
@@ -230,12 +232,13 @@ const StudentReport = () => {
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row items-start md:items-center justify-between border-b border-tech-surface pb-6 gap-6">
                 <div className="flex items-center gap-4">
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text border border-transparent hover:border-tech-surface"
                     >
                         <ArrowLeft size={24} />
-                    </button>
+                    </Button>
                     <div className="min-w-0 flex-1">
                         <h1 className="text-lg md:text-3xl font-bold text-tech-text uppercase tracking-tight">
                             <div className="flex items-center gap-2 md:gap-3">
@@ -246,24 +249,24 @@ const StudentReport = () => {
                             </div>
                         </h1>
                         <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">
-                            {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo} ` : 'Cargando división...'}
+                            {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo?.anio || division.ciclo_lectivo} ` : 'Cargando división...'}
                         </p>
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <ThemeToggle />
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={() => setShowQR(true)}
-                        className="flex items-center gap-2 px-4 py-3 bg-tech-secondary hover:bg-tech-surface text-tech-cyan rounded font-bold transition-all border border-tech-cyan/30 uppercase tracking-widest text-sm"
                         title="Mostrar mi QR de asistencia"
                     >
                         <QrCode size={20} />
                         <span className="hidden sm:inline">Mi Credencial</span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        variant="primary"
                         onClick={downloadPDF}
                         disabled={downloading}
-                        className="flex items-center gap-2 px-6 py-3 bg-tech-success hover:bg-emerald-600 text-white rounded font-bold transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest shadow-[0_0_15px_rgba(16,185,129,0.2)]"
                     >
                         {downloading ? (
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -271,42 +274,28 @@ const StudentReport = () => {
                             <Download size={20} />
                         )}
                         Descargar PDF
-                    </button>
+                    </Button>
                 </div>
             </header>
 
             <main className="max-w-7xl mx-auto">
-                {showQR && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={() => setShowQR(false)}>
-                        <div className="bg-tech-secondary border border-tech-cyan/30 rounded-2xl p-8 max-w-xs w-full text-center space-y-6 animate-in zoom-in-95 duration-200 shadow-[0_0_50px_rgba(14,165,233,0.2)]" onClick={e => e.stopPropagation()}>
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tighter">Credencial Digital</h3>
-                                <p className="text-[10px] text-tech-muted font-mono uppercase">Escolares • Asistencia</p>
-                            </div>
-
-                            <div className="bg-white p-4 rounded-xl inline-block shadow-inner mx-auto">
-                                <QRCodeSVG
-                                    value={studentInfo?.dni || studentInfo?.id || ''}
-                                    size={180}
-                                    level="H"
-                                    includeMargin={true}
-                                />
-                            </div>
-
-                            <div className="space-y-1 pb-2">
-                                <div className="font-black text-tech-text uppercase text-lg leading-tight">{studentInfo?.nombre}</div>
-                                <div className="text-sm text-tech-cyan font-mono font-bold tracking-widest">DNI: {studentInfo?.dni}</div>
-                            </div>
-
-                            <button
-                                onClick={() => setShowQR(false)}
-                                className="w-full py-3 bg-tech-surface hover:bg-tech-primary text-tech-muted hover:text-white rounded-xl transition-colors font-bold uppercase text-xs tracking-widest border border-tech-surface"
-                            >
-                                Cerrar
-                            </button>
+                <Modal open={showQR} onClose={() => setShowQR(false)} size="sm" title="Credencial Digital">
+                    <div className="text-center space-y-6">
+                        <p className="text-[10px] text-tech-muted font-mono uppercase">Escolares • Asistencia</p>
+                        <div className="bg-white p-4 rounded-xl inline-block shadow-inner mx-auto">
+                            <QRCodeSVG
+                                value={studentInfo?.dni || studentInfo?.id || ''}
+                                size={180}
+                                level="H"
+                                includeMargin={true}
+                            />
+                        </div>
+                        <div className="space-y-1 pb-2">
+                            <div className="font-black text-tech-text uppercase text-lg leading-tight">{studentInfo?.nombre}</div>
+                            <div className="text-sm text-tech-cyan font-mono font-bold tracking-widest">DNI: {studentInfo?.dni}</div>
                         </div>
                     </div>
-                )}
+                </Modal>
 
                 {/* Seccion de Logros */}
                 {medals.length > 0 && (
