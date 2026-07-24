@@ -14,34 +14,24 @@ const DivisionManagement = () => {
     const [isAdding, setIsAdding] = useState(false);
 
     const ANIOS = ['1ro', '2do', '3ro', '4to', '5to', '6to', '7mo'];
+    const currentYear = new Date().getFullYear();
+    const CICLOS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
     const [formData, setFormData] = useState({
         anio: '',
         seccion: '',
-        ciclo_lectivo_id: ''
+        ciclo_lectivo: ''
     });
-    const [ciclos, setCiclos] = useState([]);
 
     useEffect(() => {
         fetchDivisions();
-        fetchCiclos();
     }, []);
-
-    const fetchCiclos = async () => {
-        const { data } = await supabase.from('ciclos_lectivos').select('*').order('anio', { ascending: false });
-        if (data) {
-            setCiclos(data);
-            if (data.length > 0 && !formData.ciclo_lectivo_id) {
-                setFormData(prev => ({ ...prev, ciclo_lectivo_id: data[0].id }));
-            }
-        }
-    };
 
     const fetchDivisions = async () => {
         setLoading(true);
         const { data, error } = await supabase
             .from('divisiones')
-            .select('*, ciclo_lectivo:ciclos_lectivos(anio, id)')
+            .select('*')
             .order('anio', { ascending: true })
             .order('seccion', { ascending: true });
 
@@ -51,14 +41,14 @@ const DivisionManagement = () => {
     };
 
     const handleSave = async (id = null) => {
-        if (!formData.anio.trim() || !formData.seccion.trim() || !formData.ciclo_lectivo_id) {
+        if (!formData.anio.trim() || !formData.seccion.trim() || !formData.ciclo_lectivo) {
             return alert('Año, Sección y Ciclo Lectivo son obligatorios');
         }
 
         const payload = {
             anio: formData.anio,
             seccion: formData.seccion,
-            ciclo_lectivo_id: formData.ciclo_lectivo_id
+            ciclo_lectivo: parseInt(formData.ciclo_lectivo)
         };
 
         try {
@@ -82,7 +72,7 @@ const DivisionManagement = () => {
                 await fetchDivisions();
                 setIsAdding(false);
             }
-            setFormData({ anio: '', seccion: '', ciclo_lectivo_id: ciclos[0]?.id || '' });
+            setFormData({ anio: '', seccion: '', ciclo_lectivo: '' });
         } catch (err) {
             alert('Error al guardar: ' + err.message);
         }
@@ -108,7 +98,7 @@ const DivisionManagement = () => {
         setFormData({
             anio: division.anio,
             seccion: division.seccion,
-            ciclo_lectivo_id: division.ciclo_lectivo_id || division.ciclo_lectivo?.id || ''
+            ciclo_lectivo: String(division.ciclo_lectivo || '')
         });
     };
 
@@ -139,7 +129,7 @@ const DivisionManagement = () => {
                         onClick={() => {
                             setIsAdding(true);
                             setEditingId(null);
-                            setFormData({ anio: '', seccion: '', ciclo_lectivo_id: ciclos[0]?.id || '' });
+                            setFormData({ anio: '', seccion: '', ciclo_lectivo: '' });
                         }}
                         className="flex items-center gap-2 px-5 py-2.5 bg-tech-accent hover:bg-violet-600 rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-accent/20 active:scale-95"
                     >
@@ -183,11 +173,11 @@ const DivisionManagement = () => {
                                 <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Ciclo Lectivo</label>
                                 <select
                                     className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all text-tech-text font-mono"
-                                    value={formData.ciclo_lectivo_id}
-                                    onChange={(e) => setFormData({ ...formData, ciclo_lectivo_id: e.target.value })}
+                                    value={formData.ciclo_lectivo}
+                                    onChange={(e) => setFormData({ ...formData, ciclo_lectivo: e.target.value })}
                                 >
                                     <option value="">SELECCIONAR...</option>
-                                    {ciclos.map(c => <option key={c.id} value={c.id}>{c.anio}</option>)}
+                                    {CICLOS.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
 
@@ -252,14 +242,14 @@ const DivisionManagement = () => {
                                             {editingId === d.id ? (
                                                 <select
                                                     className="bg-tech-primary border border-tech-accent rounded px-2 py-1 w-28 outline-none text-tech-text font-mono text-xs"
-                                                    value={formData.ciclo_lectivo_id}
-                                                    onChange={(e) => setFormData({ ...formData, ciclo_lectivo_id: e.target.value })}
+                                                    value={formData.ciclo_lectivo}
+                                                    onChange={(e) => setFormData({ ...formData, ciclo_lectivo: e.target.value })}
                                                 >
                                                     <option value="">SELECCIONAR...</option>
-                                                    {ciclos.map(c => <option key={c.id} value={c.id}>{c.anio}</option>)}
+                                                    {CICLOS.map(c => <option key={c} value={c}>{c}</option>)}
                                                 </select>
                                             ) : (
-                                                <span className="text-tech-text font-mono">{d.ciclo_lectivo?.anio || d.ciclo_lectivo}</span>
+                                                <span className="text-tech-text font-mono">{d.ciclo_lectivo}</span>
                                             )}
                                         </td>
 
@@ -328,11 +318,11 @@ const DivisionManagement = () => {
                                         </div>
                                         <select
                                             className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all text-tech-text font-mono text-sm"
-                                            value={formData.ciclo_lectivo_id}
-                                            onChange={(e) => setFormData({ ...formData, ciclo_lectivo_id: e.target.value })}
+                                            value={formData.ciclo_lectivo}
+                                            onChange={(e) => setFormData({ ...formData, ciclo_lectivo: e.target.value })}
                                         >
                                             <option value="">SELECCIONAR CICLO...</option>
-                                            {ciclos.map(c => <option key={c.id} value={c.id}>{c.anio}</option>)}
+                                            {CICLOS.map(c => <option key={c} value={c}>{c}</option>)}
                                         </select>
 
                                         <div className="flex gap-2">
@@ -354,7 +344,7 @@ const DivisionManagement = () => {
                                                 </span>
                                             </div>
                                             <div className="mt-1 flex items-center gap-3 text-xs font-mono text-tech-muted">
-                                                <span className="uppercase">Ciclo {d.ciclo_lectivo?.anio || d.ciclo_lectivo}</span>
+                                                <span className="uppercase">Ciclo {d.ciclo_lectivo}</span>
                                             </div>
                                         </div>
                                         <div className="flex gap-1">

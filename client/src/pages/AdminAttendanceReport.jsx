@@ -21,7 +21,7 @@ const AdminAttendanceReport = () => {
 
     const fetchDivisions = async () => {
         try {
-            const { data, error } = await supabase.from('divisiones').select('*, ciclo_lectivo:ciclos_lectivos(anio)');
+            const { data, error } = await supabase.from('divisiones').select('*');
             if (error) throw error;
             setDivisions(data || []);
         } catch (error) {
@@ -93,7 +93,7 @@ const AdminAttendanceReport = () => {
                                 <option value="">--- Seleccione una división ---</option>
                                 {divisions.map(d => (
                                     <option key={d.id} value={d.id}>
-                                        {d.anio} {d.seccion} - Ciclo {d.ciclo_lectivo?.anio || d.ciclo_lectivo}
+                                        {d.anio} {d.seccion} - Ciclo {d.ciclo_lectivo}
                                     </option>
                                 ))}
                             </select>

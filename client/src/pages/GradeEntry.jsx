@@ -51,7 +51,7 @@ const GradeEntry = () => {
                 id,
                 division_id,
                 materia:materias(nombre, descripcion),
-                division:divisiones(id, anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
+                division:divisiones(id, anio, seccion, ciclo_lectivo)
             `)
             .eq('docente_id', profile.id);
 
@@ -411,7 +411,7 @@ const GradeEntry = () => {
                                         <BookOpen size={24} />
                                     </div>
                                     <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-tech-primary text-tech-cyan font-mono border border-tech-surface">
-                                        {a.division?.ciclo_lectivo?.anio || a.division?.ciclo_lectivo}
+                                        {a.division?.ciclo_lectivo}
                                     </span>
                                 </div>
                                 <div>

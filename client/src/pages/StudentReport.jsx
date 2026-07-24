@@ -122,7 +122,7 @@ const StudentReport = () => {
             // 1. Fetch Student Division
             const { data: enrollment, error: eErr } = await supabase
                 .from('estudiantes_divisiones')
-                .select('division:divisiones(*, ciclo_lectivo:ciclos_lectivos(anio))')
+                .select('division:divisiones(*)')
                 .eq('alumno_id', studentId)
                 .single();
 
@@ -249,7 +249,7 @@ const StudentReport = () => {
                             </div>
                         </h1>
                         <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">
-                            {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo?.anio || division.ciclo_lectivo} ` : 'Cargando división...'}
+                            {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo} ` : 'Cargando división...'}
                         </p>
                     </div>
                 </div>
