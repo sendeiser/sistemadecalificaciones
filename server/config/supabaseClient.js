@@ -21,4 +21,24 @@ const supabaseAdmin = supabaseServiceKey
     })
     : null;
 
-module.exports = { supabase, supabaseAdmin };
+// Broadcast a new message to all connected clients via Realtime
+const broadcastNewMessage = async (message) => {
+    const client = supabaseAdmin || supabase;
+    try {
+        const channel = client.channel('messages_broadcast');
+        channel.subscribe((status) => {
+            if (status === 'SUBSCRIBED' || status === 'CHANNEL_ERROR') {
+                channel.send({
+                    type: 'broadcast',
+                    event: 'new_message',
+                    payload: { message }
+                });
+                setTimeout(() => client.removeChannel(channel), 3000);
+            }
+        });
+    } catch (error) {
+        console.error('Error broadcasting message:', error.message);
+    }
+};
+
+module.exports = { supabase, supabaseAdmin, broadcastNewMessage };
