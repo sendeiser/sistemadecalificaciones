@@ -52,7 +52,7 @@ const ParentDashboard = () => {
                             Portal de <span className="text-tech-cyan">Tutores</span>
                         </h1>
                         <p className="text-tech-muted font-mono mt-1 uppercase text-xs tracking-widest">
-                            Seguimiento Acad├⌐mico Institucional
+                            Seguimiento Académico Institucional
                         </p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -79,7 +79,7 @@ const ParentDashboard = () => {
                         <div className="p-12 bg-tech-secondary/30 rounded-2xl border border-tech-surface border-dashed text-center">
                             <Users className="mx-auto text-tech-muted mb-4 opacity-50" size={48} />
                             <p className="text-tech-muted font-mono">No hay estudiantes vinculados a tu cuenta actualmente.</p>
-                            <p className="text-tech-muted text-xs mt-2">Contacta a secretar├¡a para vincular a tu hijo/a.</p>
+                            <p className="text-tech-muted text-xs mt-2">Contacta a secretaría para vincular a tu hijo/a.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -95,18 +95,18 @@ const ParentDashboard = () => {
                     )}
                 </div>
 
-                {/* Accesos R├ípidos Generales */}
+                {/* Accesos Rápidos Generales */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <QuickAccessCard
                         icon={<Calendar />}
                         title="Calendario Escolar"
-                        desc="Fechas de ex├ímenes y eventos"
+                        desc="Fechas de exámenes y eventos"
                         onClick={() => navigate('/calendar')}
                     />
                     <QuickAccessCard
                         icon={<MessageSquare />}
-                        title="Mensajer├¡a"
-                        desc="Comunicaci├│n con la escuela"
+                        title="Mensajería"
+                        desc="Comunicación con la escuela"
                         onClick={() => navigate('/messages')}
                         badgeCount={unreadMessages}
                     />

@@ -83,11 +83,11 @@ const StudentReport = () => {
                 setAiData(data);
             } else {
                 const err = await res.json();
-                alert(`${err.error || 'Error al generar diagn├│stico'}${err.details ? ': ' + err.details : ''}`);
+                alert(`${err.error || 'Error al generar diagnóstico'}${err.details ? ': ' + err.details : ''}`);
             }
         } catch (error) {
             console.error('Error generating AI diagnostic:', error);
-            alert('Error de conexi├│n con el servicio de IA');
+            alert('Error de conexión con el servicio de IA');
         } finally {
             setAiLoading(false);
         }
@@ -178,8 +178,8 @@ const StudentReport = () => {
                 };
             }).sort((a, b) => a.materia.localeCompare(b.materia));
 
-            console.log('Γ£à [StudentReport] Final report:', report);
-            console.log('Γ£à [StudentReport] Number of subjects:', report.length);
+            console.log('✔ [StudentReport] Final report:', report);
+            console.log('✔ [StudentReport] Number of subjects:', report.length);
 
             setGrades(report);
         } catch (error) {
@@ -202,7 +202,7 @@ const StudentReport = () => {
                 }
             });
 
-            if (!response.ok) throw new Error('Error al descargar el bolet├¡n');
+            if (!response.ok) throw new Error('Error al descargar el boletín');
 
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
@@ -245,11 +245,11 @@ const StudentReport = () => {
                                 <div className="p-1.5 md:p-2 bg-tech-success/20 rounded text-tech-success shrink-0">
                                     <GraduationCap className="w-6 h-6 md:w-8 md:h-8" />
                                 </div>
-                                <span className="break-words leading-tight">Mi Bolet├¡n de Calificaciones</span>
+                                <span className="break-words leading-tight">Mi Boletín de Calificaciones</span>
                             </div>
                         </h1>
                         <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">
-                            {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo?.anio || division.ciclo_lectivo} ` : 'Cargando divisi├│n...'}
+                            {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo?.anio || division.ciclo_lectivo} ` : 'Cargando división...'}
                         </p>
                     </div>
                 </div>
@@ -281,7 +281,7 @@ const StudentReport = () => {
             <main className="max-w-7xl mx-auto">
                 <Modal open={showQR} onClose={() => setShowQR(false)} size="sm" title="Credencial Digital">
                     <div className="text-center space-y-6">
-                        <p className="text-[10px] text-tech-muted font-mono uppercase">Escolares ΓÇó Asistencia</p>
+                        <p className="text-[10px] text-tech-muted font-mono uppercase">Escolares • Asistencia</p>
                         <div className="bg-white p-4 rounded-xl inline-block shadow-inner mx-auto">
                             <QRCodeSVG
                                 value={studentInfo?.dni || studentInfo?.id || ''}
@@ -325,7 +325,7 @@ const StudentReport = () => {
                     {(!aiData && profile.rol === 'alumno') ? (
                         <div className="p-8 bg-tech-secondary/30 rounded-2xl border border-tech-surface border-dashed text-center">
                             <Brain className="mx-auto text-tech-muted mb-4 opacity-50" size={48} />
-                            <p className="text-tech-muted font-mono text-sm uppercase">El equipo docente a├║n no ha generado un diagn├│stico pedag├│gico para tu perfil.</p>
+                            <p className="text-tech-muted font-mono text-sm uppercase">El equipo docente aún no ha generado un diagnóstico pedagógico para tu perfil.</p>
                         </div>
                     ) : (
                         <AiInsights
@@ -450,8 +450,8 @@ const StudentReport = () => {
                 <div className="mt-8 bg-tech-secondary/30 p-6 rounded border border-tech-surface border-dashed flex items-center gap-4 text-tech-muted">
                     <AlertCircle size={24} className="text-tech-cyan shrink-0" />
                     <p className="text-sm font-mono italic">
-                        Este bolet├¡n muestra las calificaciones cargadas hasta la fecha por los docentes.
-                        Para reclamos o consultas, dir├¡gete a preceptor├¡a.
+                        Este boletín muestra las calificaciones cargadas hasta la fecha por los docentes.
+                        Para reclamos o consultas, dirígete a preceptoría.
                     </p>
                 </div>
             </main>

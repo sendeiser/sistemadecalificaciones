@@ -90,9 +90,9 @@ const AttendanceAlerts = () => {
     };
 
     const getStatusInfo = (faltas) => {
-        if (faltas >= 25) return { label: 'CR├ìTICO', color: 'text-tech-danger', bg: 'bg-tech-danger/10', border: 'border-tech-danger' };
+        if (faltas >= 25) return { label: 'CRÍTICO', color: 'text-tech-danger', bg: 'bg-tech-danger/10', border: 'border-tech-danger' };
         if (faltas >= 15) return { label: 'ALERTA', color: 'text-tech-accent', bg: 'bg-tech-accent/10', border: 'border-tech-accent' };
-        if (faltas >= 10) return { label: 'PRECAUCI├ôN', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/50' };
+        if (faltas >= 10) return { label: 'PRECAUCIÓN', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/50' };
         return { label: 'NORMAL', color: 'text-tech-success', bg: 'bg-tech-success/10', border: 'border-tech-success' };
     };
 
@@ -135,9 +135,9 @@ const AttendanceAlerts = () => {
 
                         <div className="flex items-center gap-6 text-xs font-mono uppercase">
                             <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-tech-success"></span> Normal (0-9)</div>
-                            <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> Precauci├│n (10-14)</div>
+                            <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> Precaución (10-14)</div>
                             <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-tech-accent"></span> Alerta (15-24)</div>
-                            <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-tech-danger"></span> Cr├¡tico (25+)</div>
+                            <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-tech-danger"></span> Crítico (25+)</div>
                         </div>
                     </div>
                 </section>
@@ -148,7 +148,7 @@ const AttendanceAlerts = () => {
                     ) : !selectedDivisionId ? (
                         <div className="p-20 text-center text-tech-muted italic flex flex-col items-center gap-4">
                             <AlertTriangle size={48} className="opacity-20" />
-                            <p className="uppercase tracking-widest text-xs">Seleccione una divisi├│n para procesar alertas.</p>
+                            <p className="uppercase tracking-widest text-xs">Seleccione una división para procesar alertas.</p>
                         </div>
                     ) : students.length === 0 ? (
                         <div className="p-20 text-center text-tech-muted italic font-mono">No se encontraron alumnos registrados.</div>
@@ -205,7 +205,7 @@ const AttendanceAlerts = () => {
                                                     ) : (
                                                         <FileText size={14} />
                                                     )}
-                                                    Generar Citaci├│n
+                                                    Generar Citación
                                                 </Button>
                                             )
                                         }
@@ -244,7 +244,7 @@ const AttendanceAlerts = () => {
                                                     ) : (
                                                         <FileText size={12} />
                                                     )}
-                                                    Citaci├│n
+                                                    Citación
                                                 </Button>
                                             </div>
                                         </div>

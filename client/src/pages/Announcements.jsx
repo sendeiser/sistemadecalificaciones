@@ -39,7 +39,7 @@ const Announcements = () => {
 
     const tipos = [
         { value: 'general', label: 'General' },
-        { value: 'academico', label: 'Acad├⌐mico' },
+        { value: 'academico', label: 'Académico' },
         { value: 'administrativo', label: 'Administrativo' },
         { value: 'evento', label: 'Evento' }
     ];
@@ -103,7 +103,7 @@ const Announcements = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('┬┐Eliminar este anuncio?')) return;
+        if (!confirm('¿Eliminar este anuncio?')) return;
 
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -240,7 +240,7 @@ const Announcements = () => {
                         : 'bg-tech-success/10 border-tech-success text-tech-success'
                         }`}>
                         <span>{message.text}</span>
-                        <button onClick={() => setMessage(null)} className="text-current opacity-50 hover:opacity-100">├ù</button>
+                        <button onClick={() => setMessage(null)} className="text-current opacity-50 hover:opacity-100">×</button>
                     </div>
                 )}
 
@@ -304,7 +304,7 @@ const Announcements = () => {
                                             </span>
                                         </div>
                                         <div className="text-xs text-tech-muted font-mono">
-                                            Por {announcement.autor?.nombre} ΓÇó {new Date(announcement.fecha_publicacion).toLocaleDateString('es-AR')}
+                                            Por {announcement.autor?.nombre} • {new Date(announcement.fecha_publicacion).toLocaleDateString('es-AR')}
                                         </div>
                                     </div>
 
@@ -333,7 +333,7 @@ const Announcements = () => {
                                 {announcement.leido && (
                                     <div className="mt-4 flex items-center gap-2 text-[10px] md:text-xs text-tech-success font-bold uppercase tracking-wider">
                                         <CheckCircle size={14} />
-                                        Le├¡do
+                                        Leído
                                     </div>
                                 )}
                             </div>
@@ -362,7 +362,7 @@ const Announcements = () => {
                 >
                     <form id="announcement-form" onSubmit={handleSubmit} className="space-y-4">
                         <Input
-                            label="T├¡tulo *"
+                            label="Título *"
                             type="text"
                             required
                             value={formData.titulo}
@@ -432,7 +432,7 @@ const Announcements = () => {
                         </div>
 
                         <Input
-                            label="Fecha de Expiraci├│n"
+                            label="Fecha de Expiración"
                             type="date"
                             value={formData.fecha_expiracion}
                             onChange={(e) => setFormData({ ...formData, fecha_expiracion: e.target.value })}

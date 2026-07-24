@@ -117,7 +117,7 @@ const AttendanceCapture = () => {
     };
 
     const submitAttendance = async () => {
-        if (!selectedDivision || !date) return alert('Seleccione divisi├│n y fecha');
+        if (!selectedDivision || !date) return alert('Seleccione división y fecha');
         const records = Object.entries(attendance).map(([alumno_id, estado]) => ({
             estudiante_id: alumno_id,
             division_id: selectedDivision,
@@ -125,7 +125,7 @@ const AttendanceCapture = () => {
             estado,
             observaciones: '' // Added for consistency with queue
         }));
-        if (records.length === 0) return alert('No se marc├│ asistencia para ning├║n alumno');
+        if (records.length === 0) return alert('No se marcó asistencia para ningún alumno');
 
         setSaving(true);
         try {
@@ -201,7 +201,7 @@ const AttendanceCapture = () => {
                     value={selectedDivision}
                     onChange={e => setSelectedDivision(e.target.value)}
                 >
-                    <option value="">Seleccionar Divisi├│n</option>
+                    <option value="">Seleccionar División</option>
                     {divisions.map(d => (
                         <option key={d.id} value={d.id}>
                             {d.anio} {d.seccion}

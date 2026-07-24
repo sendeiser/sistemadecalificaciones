@@ -169,7 +169,7 @@ const CSVImporter = ({ endpoint, onComplete, requiredColumns = [] }) => {
                                 ) : (
                                     <>
                                         <Upload size={20} />
-                                        Confirmar Importaci├│n
+                                        Confirmar Importación
                                     </>
                                 )}
                             </Button>
@@ -189,7 +189,7 @@ const CSVImporter = ({ endpoint, onComplete, requiredColumns = [] }) => {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-tech-primary p-4 rounded border border-tech-success/30">
                             <span className="block text-3xl font-bold text-tech-success">{results.success.length}</span>
-                            <span className="text-tech-muted text-sm uppercase">Importados con ├⌐xito</span>
+                            <span className="text-tech-muted text-sm uppercase">Importados con éxito</span>
                         </div>
                         <div className="bg-tech-primary p-4 rounded border border-tech-danger/30">
                             <span className="block text-3xl font-bold text-tech-danger">{results.errors.length}</span>

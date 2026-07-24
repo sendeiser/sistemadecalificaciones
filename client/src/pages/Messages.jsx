@@ -152,7 +152,7 @@ const Messages = () => {
                 key = `role_${m.rol_destinatario}`;
                 chatUser = {
                     id: key,
-                    nombre: `Difusi├│n a ${
+                    nombre: `Difusión a ${
                         m.rol_destinatario === 'admin' ? 'Administradores' : 
                         m.rol_destinatario === 'preceptor' ? 'Preceptores' : 
                         m.rol_destinatario === 'docente' ? 'Docentes' : 'Alumnos'
@@ -364,7 +364,7 @@ const Messages = () => {
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            addToast('Fallo en la conexi├│n', 'error');
+            addToast('Fallo en la conexión', 'error');
         }
     };
 
@@ -403,7 +403,7 @@ const Messages = () => {
         activeChatKey?.startsWith('role_')
             ? {
                 id: activeChatKey,
-                nombre: `Difusi├│n a ${activeChatKey.replace('role_', '').toUpperCase()}S`,
+                nombre: `Difusión a ${activeChatKey.replace('role_', '').toUpperCase()}S`,
                 rol: activeChatKey.replace('role_', ''),
                 isRole: true
               }
@@ -544,7 +544,7 @@ const Messages = () => {
                                                 </div>
                                                 <div className="flex justify-between items-center gap-2">
                                                     <p className="text-xs text-tech-muted truncate flex-grow">
-                                                        {isSent && <span className="text-[10px] uppercase font-bold text-tech-cyan mr-1 font-mono">T├║:</span>}
+                                                        {isSent && <span className="text-[10px] uppercase font-bold text-tech-cyan mr-1 font-mono">Tú:</span>}
                                                         {conv.lastMessage?.contenido}
                                                     </p>
                                                     {conv.user.isRole && (
@@ -586,7 +586,7 @@ const Messages = () => {
                                         <div>
                                             <h3 className="font-bold text-sm text-tech-text uppercase tracking-tight leading-tight">{activeUser.nombre}</h3>
                                             <span className="text-[9px] uppercase font-black tracking-widest text-tech-muted bg-tech-primary px-1.5 py-0.5 rounded border border-tech-surface">
-                                                {activeUser.isRole ? 'Difusi├│n General' : activeUser.rol}
+                                                {activeUser.isRole ? 'Difusión General' : activeUser.rol}
                                             </span>
                                         </div>
                                     </div>
@@ -602,9 +602,9 @@ const Messages = () => {
                                             <div className="w-14 h-14 bg-tech-surface rounded-2xl flex items-center justify-center text-tech-cyan">
                                                 <MessageSquare size={24} />
                                             </div>
-                                            <h4 className="font-bold text-tech-text uppercase text-sm tracking-wide">Comienzo de la Conversaci├│n</h4>
+                                            <h4 className="font-bold text-tech-text uppercase text-sm tracking-wide">Comienzo de la Conversación</h4>
                                             <p className="text-xs text-tech-muted max-w-xs leading-relaxed">
-                                                Env├¡a un mensaje privado para iniciar el di├ílogo directo con {activeUser.nombre}.
+                                                Envía un mensaje privado para iniciar el diálogo directo con {activeUser.nombre}.
                                             </p>
                                         </div>
                                     ) : (
@@ -688,9 +688,9 @@ const Messages = () => {
                                 <div className="p-4 bg-tech-cyan/10 border border-tech-cyan/20 rounded-full animate-bounce">
                                     <MessageSquare className="text-tech-cyan" size={40} />
                                 </div>
-                                <h3 className="text-2xl font-black text-tech-text uppercase tracking-tighter">MENSAJER├ìA BELGRANO</h3>
+                                <h3 className="text-2xl font-black text-tech-text uppercase tracking-tighter">MENSAJERÍA BELGRANO</h3>
                                 <p className="text-sm text-tech-muted max-w-sm leading-relaxed">
-                                    Selecciona una conversaci├│n del panel de la izquierda o inicia una nueva con profesores, preceptores, alumnos o administradores.
+                                    Selecciona una conversación del panel de la izquierda o inicia una nueva con profesores, preceptores, alumnos o administradores.
                                 </p>
                             </div>
                         )}
@@ -711,7 +711,7 @@ const Messages = () => {
                                 <div className="p-4 border-b border-tech-surface flex justify-between items-center bg-tech-primary/30 shrink-0">
                                     <h3 className="font-bold text-sm text-tech-text uppercase tracking-wider flex items-center gap-2">
                                         <Users size={16} className="text-tech-cyan" />
-                                        Nueva conversaci├│n
+                                        Nueva conversación
                                     </h3>
                                     <button 
                                         onClick={() => {
@@ -761,7 +761,7 @@ const Messages = () => {
                                                 <div className="text-left min-w-0">
                                                     <p className="text-xs font-bold text-tech-text truncate">{opt.nombre}</p>
                                                     <p className="text-[9px] text-tech-muted uppercase font-bold tracking-wider font-mono">
-                                                        {opt.isRole ? 'Canal de Difusi├│n' : opt.rol}
+                                                        {opt.isRole ? 'Canal de Difusión' : opt.rol}
                                                     </p>
                                                 </div>
                                             </button>

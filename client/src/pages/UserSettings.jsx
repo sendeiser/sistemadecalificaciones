@@ -107,12 +107,12 @@ const UserSettings = () => {
     const handlePasswordChange = async (e) => {
         e.preventDefault();
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            setMessage({ type: 'error', text: 'Las contrase├▒as no coinciden' });
+            setMessage({ type: 'error', text: 'Las contraseñas no coinciden' });
             return;
         }
 
         if (passwordData.newPassword.length < 6) {
-            setMessage({ type: 'error', text: 'La contrase├▒a debe tener al menos 6 caracteres' });
+            setMessage({ type: 'error', text: 'La contraseña debe tener al menos 6 caracteres' });
             return;
         }
 
@@ -126,11 +126,11 @@ const UserSettings = () => {
 
             if (error) throw error;
 
-            setMessage({ type: 'success', text: 'Contrase├▒a actualizada con ├⌐xito.' });
+            setMessage({ type: 'success', text: 'Contraseña actualizada con éxito.' });
             setPasswordData({ newPassword: '', confirmPassword: '' });
         } catch (error) {
             console.error('Error changing password:', error);
-            setMessage({ type: 'error', text: 'Error al cambiar la contrase├▒a: ' + error.message });
+            setMessage({ type: 'error', text: 'Error al cambiar la contraseña: ' + error.message });
         } finally {
             setLoading(false);
         }
@@ -154,7 +154,7 @@ const UserSettings = () => {
                             AJUSTES DE <span className="text-tech-cyan">PERFIL</span>
                         </h1>
                         <p className="text-tech-text/70 dark:text-tech-muted font-mono text-xs uppercase tracking-[0.3em] mt-2 font-bold">
-                            Gesti├│n de seguridad y datos personales
+                            Gestión de seguridad y datos personales
                         </p>
                     </div>
                 </div>
@@ -232,7 +232,7 @@ const UserSettings = () => {
 
                         <Button onClick={signOut} variant="danger" size="md" className="hidden md:flex w-full">
                             <LogOut size={16} />
-                            Terminar Sesi├│n Segura
+                            Terminar Sesión Segura
                         </Button>
                     </div>
 
@@ -242,7 +242,7 @@ const UserSettings = () => {
                         <div className="bg-tech-secondary border border-tech-surface rounded-2xl p-6 md:p-8 shadow-2xl">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-tech-cyan/20 rounded-lg text-tech-cyan"><User size={20} /></div>
-                                <h3 className="text-lg font-bold text-tech-text uppercase tracking-tight">Informaci├│n Personal</h3>
+                                <h3 className="text-lg font-bold text-tech-text uppercase tracking-tight">Información Personal</h3>
                             </div>
 
                             <form onSubmit={handleProfileUpdate} className="space-y-6">
@@ -259,7 +259,7 @@ const UserSettings = () => {
 
                                 <div className="space-y-2 opacity-60">
                                     <label className="text-[10px] uppercase font-black text-tech-muted tracking-widest ml-1">
-                                        Correo Electr├│nico (Solo Lectura)
+                                        Correo Electrónico (Solo Lectura)
                                     </label>
                                     <div className="w-full bg-tech-primary border border-tech-surface rounded-xl p-4 cursor-not-allowed flex items-center gap-3">
                                         <Mail size={18} className="text-tech-muted" />
@@ -289,24 +289,24 @@ const UserSettings = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <Input
-                                            label="Nueva Contrase├▒a"
+                                            label="Nueva Contraseña"
                                             type="password"
                                             icon={Key}
                                             value={passwordData.newPassword}
                                             onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                            placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
+                                            placeholder="••••••••"
                                             minLength={6}
                                         />
                                     </div>
 
                                     <div className="space-y-2">
                                         <Input
-                                            label="Confirmar Contrase├▒a"
+                                            label="Confirmar Contraseña"
                                             type="password"
                                             icon={Key}
                                             value={passwordData.confirmPassword}
                                             onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                            placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
+                                            placeholder="••••••••"
                                             minLength={6}
                                         />
                                     </div>
@@ -315,7 +315,7 @@ const UserSettings = () => {
                                 <div className="p-4 bg-tech-primary/50 border border-tech-surface rounded-xl flex gap-3">
                                     <AlertCircle className="text-tech-accent shrink-0" size={18} />
                                     <p className="text-xs text-tech-muted leading-relaxed">
-                                        Al cambiar tu contrase├▒a deber├ís usar la nueva credencial en tu pr├│ximo inicio de sesi├│n. Aseg├║rate de que tenga al menos 6 caracteres.
+                                        Al cambiar tu contraseña deberás usar la nueva credencial en tu próximo inicio de sesión. Asegúrate de que tenga al menos 6 caracteres.
                                     </p>
                                 </div>
 
@@ -325,7 +325,7 @@ const UserSettings = () => {
                                     variant="primary"
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={16} /> : <Key size={16} />}
-                                    Actualizar Contrase├▒a
+                                    Actualizar Contraseña
                                 </Button>
                             </form>
                         </div>

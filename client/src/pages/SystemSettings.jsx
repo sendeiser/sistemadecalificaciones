@@ -116,9 +116,9 @@ const SystemSettings = () => {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error al guardar');
 
-            setMessage('Configuraci├│n institucional guardada correctamente.');
+            setMessage('Configuración institucional guardada correctamente.');
         } catch (err) {
-            setError(err.message || 'Error al guardar la configuraci├│n.');
+            setError(err.message || 'Error al guardar la configuración.');
         } finally {
             setLoading(false);
         }
@@ -198,7 +198,7 @@ const SystemSettings = () => {
 
     const handleResetPassword = async (userId) => {
         if (!newPassword || newPassword.length < 6) {
-            setError('La contrase├▒a debe tener al menos 6 caracteres.');
+            setError('La contraseña debe tener al menos 6 caracteres.');
             return;
         }
 
@@ -220,7 +220,7 @@ const SystemSettings = () => {
 
             if (!res.ok) throw new Error(data.error || 'Error al restablecer');
 
-            setMessage(`Contrase├▒a actualizada para el usuario.`);
+            setMessage(`Contraseña actualizada para el usuario.`);
             setResettingUserId(null);
             setNewPassword('');
         } catch (err) {
@@ -244,7 +244,7 @@ const SystemSettings = () => {
                     </button>
                     <div>
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                            CONFIGURACI├ôN DEL <span className="text-tech-cyan">SISTEMA</span>
+                            CONFIGURACIÓN DEL <span className="text-tech-cyan">SISTEMA</span>
                         </h1>
                         <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                             Variables Globales y Mantenimiento
@@ -325,14 +325,14 @@ const SystemSettings = () => {
                                     <div className="space-y-4">
                                         <div>
                                             <Input
-                                                label="Nombre Instituci├│n"
+                                                label="Nombre Institución"
                                                 value={settings.school_info.name}
                                                 onChange={(e) => setSettings({ ...settings, school_info: { ...settings.school_info, name: e.target.value } })}
                                             />
                                         </div>
                                         <div>
                                             <Input
-                                                label="Direcci├│n"
+                                                label="Dirección"
                                                 value={settings.school_info.address}
                                                 onChange={(e) => setSettings({ ...settings, school_info: { ...settings.school_info, address: e.target.value } })}
                                             />
@@ -351,7 +351,7 @@ const SystemSettings = () => {
                             <div className="bg-tech-secondary p-6 rounded-2xl border border-tech-surface">
                                 <h3 className="text-lg font-bold text-tech-text uppercase mb-6 flex items-center gap-2">
                                     <UserCog className="text-tech-accent" size={20} />
-                                    Gesti├│n de Accesos
+                                    Gestión de Accesos
                                 </h3>
 
                                 <p className="text-tech-muted text-sm mb-6">Busque un usuario por Email o DNI para gestionar su acceso.</p>
@@ -396,9 +396,9 @@ const SystemSettings = () => {
                                                     {resettingUserId === user.id ? (
                                                         <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
                                                             <Input
-                                                                label="Nueva Contrase├▒a"
+                                                                label="Nueva Contraseña"
                                                                 type="password"
-                                                                placeholder="Nueva Contrase├▒a"
+                                                                placeholder="Nueva Contraseña"
                                                                 value={newPassword}
                                                                 onChange={(e) => setNewPassword(e.target.value)}
                                                                 className="w-40"
@@ -432,7 +432,7 @@ const SystemSettings = () => {
                                     </div>
                                 ) : (
                                     <div className="p-8 text-center border-2 border-dashed border-tech-surface rounded-xl text-tech-muted text-sm font-mono">
-                                        {searched ? 'No se encontraron usuarios.' : 'Realice una b├║squeda para ver resultados'}
+                                        {searched ? 'No se encontraron usuarios.' : 'Realice una búsqueda para ver resultados'}
                                     </div>
                                 )}
                             </div>
@@ -464,7 +464,7 @@ const SystemSettings = () => {
                                         <MessageCircle className="text-tech-cyan" size={20} />
                                         Sugerencias de Mejora
                                     </h3>
-                                    <p className="text-tech-muted text-xs mb-8">Aqu├¡ se listan todas las sugerencias, errores y preguntas enviadas por los usuarios del sistema.</p>
+                                    <p className="text-tech-muted text-xs mb-8">Aquí se listan todas las sugerencias, errores y preguntas enviadas por los usuarios del sistema.</p>
 
                                     {feedbacks.length === 0 ? (
                                         <div className="p-12 text-center border-2 border-dashed border-tech-surface rounded-2xl text-tech-muted font-mono italic">
@@ -511,7 +511,7 @@ const SystemSettings = () => {
                                                             className={`text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${f.leido ? 'text-tech-muted hover:text-tech-text' : 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20'
                                                                 }`}
                                                         >
-                                                            {f.leido ? 'Marcar como pendiente' : 'Marcar como le├¡do'}
+                                                            {f.leido ? 'Marcar como pendiente' : 'Marcar como leído'}
                                                         </button>
                                                     </div>
                                                 </div>

@@ -89,7 +89,7 @@ const AttendanceDiscrepancies = () => {
             <main className="max-w-7xl mx-auto space-y-8">
                 <section className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-xl flex flex-col md:flex-row items-end gap-6">
                     <div className="w-full md:w-64 space-y-2">
-                        <label className="text-[10px] font-bold text-tech-muted uppercase">Divisi├│n:</label>
+                        <label className="text-[10px] font-bold text-tech-muted uppercase">División:</label>
                         <select
                             className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm outline-none focus:border-tech-cyan"
                             value={selectedDivisionId}

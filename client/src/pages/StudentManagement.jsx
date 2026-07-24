@@ -79,7 +79,7 @@ const StudentManagement = () => {
             } else {
                 // Register new student (Auth + Profile) via Backend
                 if (!formData.password || formData.password.length < 6) {
-                    return alert('La contrase├▒a debe tener al menos 6 caracteres');
+                    return alert('La contraseña debe tener al menos 6 caracteres');
                 }
 
                 const response = await fetch(getApiEndpoint('/students/register'), {
@@ -97,7 +97,7 @@ const StudentManagement = () => {
 
                 setStudents([...students, result].sort((a, b) => a.nombre.localeCompare(b.nombre)));
                 setIsAdding(false);
-                alert('Alumno registrado con ├⌐xito');
+                alert('Alumno registrado con éxito');
             }
             setFormData({ nombre: '', dni: '', email: '', password: '' });
         } catch (err) {
@@ -106,7 +106,7 @@ const StudentManagement = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('┬┐Est├ís seguro de eliminar este alumno? Se borrar├í tambi├⌐n su cuenta de acceso.')) return;
+        if (!confirm('¿Estás seguro de eliminar este alumno? Se borrará también su cuenta de acceso.')) return;
 
         try {
             const response = await fetch(getApiEndpoint(`/students/${id}`), {
@@ -128,7 +128,7 @@ const StudentManagement = () => {
     };
 
     const handleBulkAI = async () => {
-        if (!bulkText.trim()) return alert('Por favor, ingresa alg├║n texto para procesar');
+        if (!bulkText.trim()) return alert('Por favor, ingresa algún texto para procesar');
 
         setIsProcessing(true);
         try {
@@ -184,7 +184,7 @@ const StudentManagement = () => {
             nombre: student.nombre,
             dni: student.dni || '',
             email: student.email || '',
-            password: '' // No editamos password aqu├¡
+            password: '' // No editamos password aquí
         });
     };
 
@@ -195,7 +195,7 @@ const StudentManagement = () => {
 
     const handleChangePassword = async () => {
         if (!newPassword || newPassword.length < 6) {
-            return alert('La contrase├▒a debe tener al menos 6 caracteres.');
+            return alert('La contraseña debe tener al menos 6 caracteres.');
         }
         setIsChangingPassword(true);
         try {
@@ -209,8 +209,8 @@ const StudentManagement = () => {
                 body: JSON.stringify({ password: newPassword })
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.error || 'Error al cambiar la contrase├▒a');
-            alert('Γ£à Contrase├▒a actualizada correctamente.');
+            if (!response.ok) throw new Error(result.error || 'Error al cambiar la contraseña');
+            alert('✔ Contraseña actualizada correctamente.');
             setPasswordModal({ isOpen: false, student: null });
             setNewPassword('');
         } catch (err) {
@@ -245,7 +245,7 @@ const StudentManagement = () => {
     };
 
     const handleLinkTutor = async (tutorId) => {
-        const parentesco = prompt('Relaci├│n (Ej: Padre, Madre, T├¡o):', 'Padre/Madre');
+        const parentesco = prompt('Relación (Ej: Padre, Madre, Tío):', 'Padre/Madre');
         if (!parentesco) return;
 
         const { error } = await supabase
@@ -261,7 +261,7 @@ const StudentManagement = () => {
     };
 
     const handleUnlinkTutor = async (id) => {
-        if (!confirm('┬┐Desvincular tutor?')) return;
+        if (!confirm('¿Desvincular tutor?')) return;
         const { error } = await supabase
             .from('tutores_alumnos')
             .delete()
@@ -289,10 +289,10 @@ const StudentManagement = () => {
                     </button>
                     <div>
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                            GESTI├ôN DE <span className="text-tech-cyan">ALUMNOS</span>
+                            GESTIÓN DE <span className="text-tech-cyan">ALUMNOS</span>
                         </h1>
                         <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
-                            Administraci├│n central de perfiles acad├⌐micos
+                            Administración central de perfiles académicos
                         </p>
                     </div>
                 </div>
@@ -411,7 +411,7 @@ const StudentManagement = () => {
                             <Input
                                 label="Nombre Completo"
                                 type="text"
-                                placeholder="Ej: Juan P├⌐rez"
+                                placeholder="Ej: Juan Pérez"
                                 value={formData.nombre}
                                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                             />
@@ -424,7 +424,7 @@ const StudentManagement = () => {
                                 className="font-mono"
                             />
                             <Input
-                                label="Correo Electr├│nico"
+                                label="Correo Electrónico"
                                 type="email"
                                 placeholder="usuario@escuela.com"
                                 value={formData.email}
@@ -432,7 +432,7 @@ const StudentManagement = () => {
                                 className="font-mono"
                             />
                             <Input
-                                label="Contrase├▒a Inicial"
+                                label="Contraseña Inicial"
                                 type="password"
                                 placeholder="Min. 6 caracteres"
                                 value={formData.password}
@@ -471,7 +471,7 @@ const StudentManagement = () => {
                                 </div>
                             </div>
                             <p className="text-sm text-tech-muted mb-4 font-mono">
-                                // PEGAR LISTA DE ALUMNOS (NOMBRES, DNI, EMAILS) PARA EXTRACCI├ôN AUTOM├üTICA
+                                // PEGAR LISTA DE ALUMNOS (NOMBRES, DNI, EMAILS) PARA EXTRACCIÓN AUTOMÁTICA
                             </p>
                             <textarea
                                 className="w-full h-40 bg-tech-primary border border-tech-surface rounded p-4 text-tech-text focus:border-tech-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder:text-tech-muted/30 font-mono text-sm"
@@ -593,7 +593,7 @@ const StudentManagement = () => {
                                                         <Button variant="ghost" size="sm" onClick={() => startEdit(s)} className="p-1 h-auto w-auto text-tech-cyan hover:bg-tech-cyan/10" title="Editar datos">
                                                             <Pencil size={18} />
                                                         </Button>
-                                                        <Button variant="ghost" size="sm" onClick={() => openPasswordModal(s)} className="p-1 h-auto w-auto text-tech-accent hover:bg-tech-accent/10" title="Cambiar contrase├▒a">
+                                                        <Button variant="ghost" size="sm" onClick={() => openPasswordModal(s)} className="p-1 h-auto w-auto text-tech-accent hover:bg-tech-accent/10" title="Cambiar contraseña">
                                                             <KeyRound size={18} />
                                                         </Button>
                                                         <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="p-1 h-auto w-auto text-tech-danger hover:bg-tech-danger/10" title="Eliminar alumno">
@@ -662,7 +662,7 @@ const StudentManagement = () => {
                                                 <Button variant="ghost" size="sm" onClick={() => startEdit(s)} className="p-2 h-auto w-auto bg-tech-primary border border-tech-surface text-tech-cyan rounded-lg" title="Editar datos">
                                                     <Pencil size={18} />
                                                 </Button>
-                                                <Button variant="ghost" size="sm" onClick={() => openPasswordModal(s)} className="p-2 h-auto w-auto bg-tech-primary border border-tech-surface text-tech-accent rounded-lg" title="Cambiar contrase├▒a">
+                                                <Button variant="ghost" size="sm" onClick={() => openPasswordModal(s)} className="p-2 h-auto w-auto bg-tech-primary border border-tech-surface text-tech-accent rounded-lg" title="Cambiar contraseña">
                                                     <KeyRound size={18} />
                                                 </Button>
                                                 <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="p-2 h-auto w-auto bg-tech-primary border border-tech-surface text-tech-danger rounded-lg" title="Eliminar alumno">
@@ -682,11 +682,11 @@ const StudentManagement = () => {
                         <Save size={16} className="text-tech-cyan" />
                     </div>
                     <p>
-                        NOTA: LA CREACI├ôN DE CUENTAS DE ALUMNO GENERA CREDENCIALES DE ACCESO AUTOM├üTICAMENTE.
+                        NOTA: LA CREACIÓN DE CUENTAS DE ALUMNO GENERA CREDENCIALES DE ACCESO AUTOMÁTICAMENTE.
                     </p>
                 </div>
             </div>
-            {/* Modal de Gesti├│n de Tutores */}
+            {/* Modal de Gestión de Tutores */}
             <Modal
                 open={tutorModal.isOpen}
                 onClose={() => setTutorModal({ isOpen: false, student: null })}
@@ -759,14 +759,14 @@ const StudentManagement = () => {
                 </div>
             </Modal>
 
-            {/* Modal de Cambio de Contrase├▒a */}
+            {/* Modal de Cambio de Contraseña */}
             <Modal
                 open={passwordModal.isOpen}
                 onClose={() => setPasswordModal({ isOpen: false, student: null })}
                 title={
                     <div>
                         <h3 className="text-xl font-bold uppercase tracking-tight flex items-center gap-2">
-                            <KeyRound className="text-tech-accent" size={20} /> Cambiar Contrase├▒a
+                            <KeyRound className="text-tech-accent" size={20} /> Cambiar Contraseña
                         </h3>
                         <p className="text-tech-muted text-xs font-mono uppercase mt-1">
                             Alumno: <span className="text-tech-cyan">{passwordModal.student?.nombre}</span>
@@ -788,7 +788,7 @@ const StudentManagement = () => {
                             {isChangingPassword ? (
                                 <><div className="w-4 h-4 border-2 border-tech-muted border-t-white rounded-full animate-spin" /> Guardando...</>
                             ) : (
-                                <><KeyRound size={16} /> Actualizar Contrase├▒a</>
+                                <><KeyRound size={16} /> Actualizar Contraseña</>
                             )}
                         </Button>
                         <Button variant="ghost" onClick={() => setPasswordModal({ isOpen: false, student: null })}>
@@ -799,13 +799,13 @@ const StudentManagement = () => {
             >
                 <div className="space-y-4 py-2">
                     <p className="text-sm text-tech-muted font-mono">
-                        Ingres├í la nueva contrase├▒a para <span className="text-tech-text font-bold">{passwordModal.student?.nombre}</span>.
-                        El alumno podr├í iniciar sesi├│n con ella inmediatamente.
+                        Ingresá la nueva contraseña para <span className="text-tech-text font-bold">{passwordModal.student?.nombre}</span>.
+                        El alumno podrá iniciar sesión con ella inmediatamente.
                     </p>
                     <Input
-                        label="Nueva Contrase├▒a"
+                        label="Nueva Contraseña"
                         type="password"
-                        placeholder="M├¡nimo 6 caracteres"
+                        placeholder="Mínimo 6 caracteres"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleChangePassword()}
@@ -813,7 +813,7 @@ const StudentManagement = () => {
                     />
                     <div className="p-3 bg-tech-accent/5 border border-tech-accent/20 rounded-lg">
                         <p className="text-xs text-tech-accent font-mono">
-                            ΓÜá La contrase├▒a se actualiza en tiempo real en el sistema de autenticaci├│n.
+                            ΓÜá La contraseña se actualiza en tiempo real en el sistema de autenticación.
                         </p>
                     </div>
                 </div>

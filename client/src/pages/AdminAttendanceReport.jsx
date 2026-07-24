@@ -32,10 +32,10 @@ const AdminAttendanceReport = () => {
     };
 
     const handleDownloadPDF = async () => {
-        if (!selectedDivision) return alert('Seleccione una divisi├│n');
+        if (!selectedDivision) return alert('Seleccione una división');
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
-        if (!token) return alert('No hay sesi├│n activa');
+        if (!token) return alert('No hay sesión activa');
 
         const endpoint = getApiEndpoint(`/reports/attendance/division/${selectedDivision}`);
 
@@ -83,14 +83,14 @@ const AdminAttendanceReport = () => {
                         <div className="space-y-3">
                             <label className="text-sm font-bold uppercase tracking-widest text-tech-accent flex items-center gap-2">
                                 <Layers size={16} />
-                                Seleccionar Divisi├│n
+                                Seleccionar División
                             </label>
                             <select
                                 className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-tech-text font-mono focus:border-tech-accent outline-none transition-all"
                                 value={selectedDivision}
                                 onChange={e => setSelectedDivision(e.target.value)}
                             >
-                                <option value="">--- Seleccione una divisi├│n ---</option>
+                                <option value="">--- Seleccione una división ---</option>
                                 {divisions.map(d => (
                                     <option key={d.id} value={d.id}>
                                         {d.anio} {d.seccion} - Ciclo {d.ciclo_lectivo?.anio || d.ciclo_lectivo}
@@ -138,7 +138,7 @@ const AdminAttendanceReport = () => {
                                 Generar Reporte PDF
                             </Button>
                             <p className="text-center text-tech-muted text-xs mt-4 font-mono">
-                                El reporte incluir├í todos los registros de asistencia del preceptor para el periodo seleccionado.
+                                El reporte incluirá todos los registros de asistencia del preceptor para el periodo seleccionado.
                             </p>
                         </div>
                     </div>

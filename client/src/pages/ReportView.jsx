@@ -108,7 +108,7 @@ const ReportView = () => {
 
     const getStudentDivisionLabel = (studentId) => {
         const enrollment = enrollments.find(e => e.alumno_id === studentId);
-        if (!enrollment) return 'Sin Divisi├│n';
+        if (!enrollment) return 'Sin División';
         const div = divisions.find(d => d.id === enrollment.division_id);
         return div ? `${div.anio} ${div.seccion}` : 'N/A';
     };
@@ -128,7 +128,7 @@ const ReportView = () => {
                         <h1 className="text-3xl font-bold text-tech-text">
                             Reportes
                         </h1>
-                        <p className="text-tech-muted text-sm">Generar boletines de acreditaci├│n de saberes.</p>
+                        <p className="text-tech-muted text-sm">Generar boletines de acreditación de saberes.</p>
                     </div>
                 </div>
                 <ThemeToggle />
@@ -183,7 +183,7 @@ const ReportView = () => {
                                     className="p-3 h-auto w-auto"
                                     onClick={() => downloadReport(student.id)}
                                     disabled={downloading === student.id}
-                                    title="Descargar Bolet├¡n"
+                                    title="Descargar Boletín"
                                 >
                                     {downloading === student.id ? (
                                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>

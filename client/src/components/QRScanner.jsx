@@ -24,11 +24,11 @@ const QRScanner = ({ onScanSuccess, onScanError, onClose }) => {
     return (
         <Modal open={true} onClose={onClose} size="sm">
             <h2 className="text-xl font-bold text-tech-cyan mb-4 uppercase tracking-wider text-center flex items-center justify-center gap-2">
-                Esc├íner de Asistencia
+                Escáner de Asistencia
             </h2>
             <div id="reader" className="overflow-hidden rounded-lg border border-tech-surface bg-black"></div>
             <p className="text-xs text-tech-muted mt-4 text-center font-mono">
-                Apunta la c├ímara al c├│digo QR del estudiante para registrar su presente.
+                Apunta la cámara al código QR del estudiante para registrar su presente.
             </p>
         </Modal>
     );

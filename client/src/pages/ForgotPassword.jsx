@@ -29,9 +29,9 @@ const ForgotPassword = () => {
 
             if (error) throw error;
 
-            setMessage('Se ha enviado un enlace de recuperaci├│n a tu correo. Revisa tu bandeja de entrada (y spam).');
+            setMessage('Se ha enviado un enlace de recuperación a tu correo. Revisa tu bandeja de entrada (y spam).');
         } catch (err) {
-            setError(err.message || 'Error al enviar el correo de recuperaci├│n.');
+            setError(err.message || 'Error al enviar el correo de recuperación.');
         } finally {
             setLoading(false);
         }
@@ -51,7 +51,7 @@ const ForgotPassword = () => {
                         <ArrowLeft size={14} className="mr-2" /> Volver al Login
                     </Link>
                     <h2 className="text-2xl font-black text-tech-text uppercase tracking-tighter mb-2">Recuperar Acceso</h2>
-                    <p className="text-tech-muted text-sm border-l-2 border-tech-accent pl-4">Ingresa tu email institucional para restablecer tu contrase├▒a.</p>
+                    <p className="text-tech-muted text-sm border-l-2 border-tech-accent pl-4">Ingresa tu email institucional para restablecer tu contraseña.</p>
                 </div>
 
                 {message ? (
@@ -61,7 +61,7 @@ const ForgotPassword = () => {
                         className="bg-tech-success/10 border border-tech-success/20 p-6 rounded-xl text-center"
                     >
                         <CheckCircle2 className="mx-auto text-tech-success mb-4" size={40} />
-                        <h3 className="text-tech-success font-bold uppercase mb-2">┬íCorreo Enviado!</h3>
+                        <h3 className="text-tech-success font-bold uppercase mb-2">¡Correo Enviado!</h3>
                         <p className="text-tech-text text-sm mb-4">{message}</p>
                         <Link to="/login" className="block w-full">
                             <Button variant="ghost" className="w-full">Ir al Login</Button>
@@ -86,7 +86,7 @@ const ForgotPassword = () => {
                         )}
 
                         <Button type="submit" disabled={loading} variant="primary" className="w-full">
-                            {loading ? 'Enviando...' : 'Enviar Link de Recuperaci├│n'}
+                            {loading ? 'Enviando...' : 'Enviar Link de Recuperación'}
                         </Button>
                     </form>
                 )}

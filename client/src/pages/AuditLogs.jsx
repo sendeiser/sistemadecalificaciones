@@ -83,9 +83,9 @@ const AuditLogs = () => {
             rol: 'Rol',
             fecha: 'Fecha',
             tipo: 'Tipo',
-            division_id: 'Divisi├│n',
+            division_id: 'División',
             alumno_id: 'Alumno',
-            asignacion_id: 'Asignaci├│n',
+            asignacion_id: 'Asignación',
             contenido: 'Mensaje',
             destinatario_nombre: 'Destinatario'
         };
@@ -127,7 +127,7 @@ const AuditLogs = () => {
 
             if (format === 'pdf') {
                 const doc = new jsPDF('l', 'mm', 'a4');
-                const title = 'Reporte de Auditor├¡a de Sistema';
+                const title = 'Reporte de Auditoría de Sistema';
                 const timestamp = `Generado: ${new Date().toLocaleString('es-AR')}`;
 
                 doc.setFontSize(18);
@@ -146,7 +146,7 @@ const AuditLogs = () => {
                 ]);
 
                 autoTable(doc, {
-                    head: [['Fecha', 'Usuario', 'Acci├│n', 'Cambios Realizados']],
+                    head: [['Fecha', 'Usuario', 'Acción', 'Cambios Realizados']],
                     body: tableData,
                     startY: 35,
                     theme: 'grid',
@@ -171,7 +171,7 @@ const AuditLogs = () => {
                         const pageSize = doc.internal.pageSize;
                         const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
                         doc.setFontSize(8);
-                        doc.text(`P├ígina ${data.pageNumber}`, data.settings.margin.left, pageHeight - 10);
+                        doc.text(`Página ${data.pageNumber}`, data.settings.margin.left, pageHeight - 10);
                     }
                 });
                 doc.save(`Auditoria_Reporte_${new Date().getTime()}.pdf`);
@@ -179,7 +179,7 @@ const AuditLogs = () => {
                 const formattedData = exportLogs.map(log => ({
                     'Fecha y Hora': new Date(log.fecha).toLocaleString('es-AR'),
                     'Usuario Actor': log.usuario?.nombre || 'SISTEMA',
-                    'Acci├│n': log.accion,
+                    'Acción': log.accion,
                     'Cambios Realizados': getSimplifiedDiff(log.datos_anteriores, log.datos_nuevos)
                 }));
 
@@ -261,10 +261,10 @@ const AuditLogs = () => {
                         </Button>
                         <div>
                             <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                                REGISTRO DE <span className="text-tech-cyan">AUDITOR├ìA</span>
+                                REGISTRO DE <span className="text-tech-cyan">AUDITORÍA</span>
                             </h1>
                             <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
-                                Seguimiento de acciones cr├¡ticas del sistema
+                                Seguimiento de acciones críticas del sistema
                             </p>
                         </div>
                     </div>
@@ -315,12 +315,12 @@ const AuditLogs = () => {
                                     <option value="anuncio">Anuncios</option>
                                     <option value="evento_calendario">Calendario</option>
                                     <option value="logro">Logros/Medallas</option>
-                                    <option value="mensaje">Mensajer├¡a</option>
+                                    <option value="mensaje">Mensajería</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-[10px] uppercase font-black text-tech-muted mb-1.5 tracking-widest">
-                                    Acci├│n
+                                    Acción
                                 </label>
                                 <select
                                     value={filters.accion}
@@ -331,7 +331,7 @@ const AuditLogs = () => {
                                     <option value="INSERT">Creaciones</option>
                                     <option value="UPDATE">Modificaciones</option>
                                     <option value="DELETE">Eliminaciones</option>
-                                    <option value="SEND">Env├¡os (Mensajes)</option>
+                                    <option value="SEND">Envíos (Mensajes)</option>
                                 </select>
                             </div>
                             <div>
@@ -448,7 +448,7 @@ const AuditLogs = () => {
                                                     Usuario
                                                 </th>
                                                 <th className="px-6 py-4 text-xs uppercase font-black text-tech-muted tracking-widest font-mono">
-                                                    Acci├│n
+                                                    Acción
                                                 </th>
                                                 <th className="px-6 py-4 text-xs uppercase font-black text-tech-muted tracking-widest font-mono">
                                                     Entidad
@@ -536,7 +536,7 @@ const AuditLogs = () => {
                     totalPages > 1 && (
                         <div className="flex justify-between items-center bg-tech-secondary p-3 md:p-4 rounded-xl border border-tech-surface font-mono text-xs">
                             <div className="text-tech-muted uppercase tracking-widest text-[10px] md:text-xs">
-                                P├íg. <span className="text-tech-cyan">{page}</span>/<span className="text-tech-cyan">{totalPages}</span>
+                                Pág. <span className="text-tech-cyan">{page}</span>/<span className="text-tech-cyan">{totalPages}</span>
                             </div>
                             <div className="flex gap-2">
                                 <Button disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))} variant="ghost" size="sm">

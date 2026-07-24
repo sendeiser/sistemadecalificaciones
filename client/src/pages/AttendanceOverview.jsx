@@ -31,7 +31,7 @@ const AttendanceOverview = () => {
     }, []);
 
     const fetchStats = async () => {
-        if (!selectedDivision) return alert('Seleccione una divisi├│n');
+        if (!selectedDivision) return alert('Seleccione una división');
         setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -50,7 +50,7 @@ const AttendanceOverview = () => {
             setStats(json);
         } catch (e) {
             console.error(e);
-            alert('Error al cargar estad├¡sticas');
+            alert('Error al cargar estadísticas');
         }
         setLoading(false);
     };
@@ -85,7 +85,7 @@ const AttendanceOverview = () => {
                     >
                         <ArrowLeft size={20} />
                     </Button>
-                    <h1 className="text-3xl font-bold text-tech-text">Visi├│n General de Asistencia</h1>
+                    <h1 className="text-3xl font-bold text-tech-text">Visión General de Asistencia</h1>
                 </div>
                 <ThemeToggle />
             </header>
@@ -95,7 +95,7 @@ const AttendanceOverview = () => {
                     value={selectedDivision}
                     onChange={e => setSelectedDivision(e.target.value)}
                 >
-                    <option value="">Seleccionar Divisi├│n</option>
+                    <option value="">Seleccionar División</option>
                     {divisions.map(d => (
                         <option key={d.id} value={d.id}>
                             {d.anio} {d.seccion}
@@ -125,14 +125,14 @@ const AttendanceOverview = () => {
                         disabled={loading}
                         className="flex-1 shadow-[0_0_15px_rgba(14,165,233,0.3)]"
                     >
-                        <Search size={16} /> Cargar Estad├¡sticas
+                        <Search size={16} /> Cargar Estadísticas
                     </Button>
                 </div>
             </div>
             {stats && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-tech-secondary p-4 rounded shadow">
-                        <h2 className="text-xl font-semibold mb-2 text-center text-tech-text">Distribuci├│n</h2>
+                        <h2 className="text-xl font-semibold mb-2 text-center text-tech-text">Distribución</h2>
                         <Pie data={pieData} />
                     </div>
                     <div className="bg-tech-secondary p-4 rounded shadow">

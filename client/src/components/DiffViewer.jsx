@@ -34,7 +34,7 @@ const DiffViewer = ({ before, after, isMobile = false }) => {
 
     const formatValue = (value) => {
         if (value === null || value === undefined) return 'N/A';
-        if (typeof value === 'boolean') return value ? 'S├¡' : 'No';
+        if (typeof value === 'boolean') return value ? 'Sí' : 'No';
         if (typeof value === 'object') return JSON.stringify(value, null, 2);
         return String(value);
     };
@@ -52,9 +52,9 @@ const DiffViewer = ({ before, after, isMobile = false }) => {
             rol: 'Rol',
             fecha: 'Fecha',
             tipo: 'Tipo',
-            division_id: 'Divisi├│n',
+            division_id: 'División',
             alumno_id: 'Alumno',
-            asignacion_id: 'Asignaci├│n',
+            asignacion_id: 'Asignación',
             contenido: 'Contenido del Mensaje',
             destinatario_id: 'ID Destinatario',
             destinatario_nombre: 'Destinatario',

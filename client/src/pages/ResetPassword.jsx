@@ -31,7 +31,7 @@ const ResetPassword = () => {
         setError(null);
 
         if (password.length < 6) {
-            setError('La contrase├▒a debe tener al menos 6 caracteres.');
+            setError('La contraseña debe tener al menos 6 caracteres.');
             setLoading(false);
             return;
         }
@@ -39,7 +39,7 @@ const ResetPassword = () => {
         try {
             const { error } = await supabase.auth.updateUser({ password });
             if (error) throw error;
-            setMessage('Contrase├▒a actualizada correctamente. Redirigiendo...');
+            setMessage('Contraseña actualizada correctamente. Redirigiendo...');
             setTimeout(() => navigate('/dashboard'), 2000);
         } catch (err) {
             setError(err.message);
@@ -58,26 +58,26 @@ const ResetPassword = () => {
                 <div className="absolute top-0 left-0 w-full h-1 bg-tech-cyan"></div>
 
                 <div className="mb-8 text-center">
-                    <h2 className="text-2xl font-black text-tech-text uppercase tracking-tighter mb-2">Nueva Contrase├▒a</h2>
+                    <h2 className="text-2xl font-black text-tech-text uppercase tracking-tighter mb-2">Nueva Contraseña</h2>
                     <p className="text-tech-muted text-sm">Establece tu nueva clave de acceso seguro.</p>
                 </div>
 
                 {message ? (
                     <div className="bg-tech-success/10 border border-tech-success/20 p-6 rounded-xl text-center">
                         <CheckCircle2 className="mx-auto text-tech-success mb-4" size={40} />
-                        <h3 className="text-tech-success font-bold uppercase mb-2">┬íTodo Listo!</h3>
+                        <h3 className="text-tech-success font-bold uppercase mb-2">¡Todo Listo!</h3>
                         <p className="text-tech-text text-sm">{message}</p>
                     </div>
                 ) : (
                     <form onSubmit={handleUpdate} className="space-y-6">
                         <Input
-                            label="Nueva Contrase├▒a"
+                            label="Nueva Contraseña"
                             icon={Lock}
                             type="password"
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
+                            placeholder="••••••••"
                         />
 
                         {error && (

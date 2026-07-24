@@ -207,7 +207,7 @@ const DivisionEnrollment = () => {
                 if (insErr) throw insErr;
             }
 
-            alert('Agrupamiento guardado con ├⌐xito. Ahora el docente ver├í a estos alumnos en su planilla.');
+            alert('Agrupamiento guardado con éxito. Ahora el docente verá a estos alumnos en su planilla.');
         } catch (err) {
             alert('Error al guardar: ' + err.message);
         }
@@ -232,16 +232,16 @@ const DivisionEnrollment = () => {
                     </button>
                     <div>
                         <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
-                            Inscripci├│n de Alumnos
+                            Inscripción de Alumnos
                         </h1>
-                        <p className="text-tech-muted text-sm font-mono">ASIGNACI├ôN A CURSOS Y DISVISIONES</p>
+                        <p className="text-tech-muted text-sm font-mono">ASIGNACIÓN A CURSOS Y DISVISIONES</p>
                     </div>
                 </div>
                 <ThemeToggle />
             </header>
 
             <div className="max-w-7xl mx-auto space-y-8">
-                {/* Selector de Divisi├│n */}
+                {/* Selector de División */}
                 <div className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-lg relative overflow-hidden">
                     {/* Decorative Background */}
                     <div className="absolute -right-20 -top-20 w-64 h-64 bg-tech-cyan/5 rounded-full blur-3xl"></div>
@@ -249,7 +249,7 @@ const DivisionEnrollment = () => {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                         <div className="space-y-4 flex-grow">
                             <label className="text-xs font-bold text-tech-muted uppercase tracking-wider block flex items-center gap-2">
-                                <Layers size={14} className="text-tech-cyan" /> Seleccionar Divisi├│n
+                                <Layers size={14} className="text-tech-cyan" /> Seleccionar División
                             </label>
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                                 {divisions.map((div) => (
@@ -302,9 +302,9 @@ const DivisionEnrollment = () => {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
                                         <h4 className="text-sm font-bold text-tech-text uppercase flex items-center gap-2">
-                                            <Clipboard size={16} className="text-tech-cyan" /> Inscripci├│n en Lote
+                                            <Clipboard size={16} className="text-tech-cyan" /> Inscripción en Lote
                                         </h4>
-                                        <span className="text-[10px] text-tech-muted font-mono uppercase">Separa por l├¡neas o comas</span>
+                                        <span className="text-[10px] text-tech-muted font-mono uppercase">Separa por líneas o comas</span>
                                     </div>
                                     <textarea
                                         className="w-full h-40 p-4 bg-tech-primary border border-tech-surface rounded focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text font-mono text-sm custom-scrollbar"
@@ -330,7 +330,7 @@ const DivisionEnrollment = () => {
                                     {!bulkStats ? (
                                         <div className="text-center space-y-2 opacity-40">
                                             <Sparkles size={48} className="mx-auto mb-2" />
-                                            <p className="text-xs font-mono uppercase">Pega un listado para que la IA identifique a los alumnos autom├íticamente</p>
+                                            <p className="text-xs font-mono uppercase">Pega un listado para que la IA identifique a los alumnos automáticamente</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-4 animate-in fade-in">
@@ -355,7 +355,7 @@ const DivisionEnrollment = () => {
                                                         <AlertTriangle size={12} /> No se encontraron los siguientes alumnos:
                                                     </p>
                                                     <div className="max-h-20 overflow-y-auto text-[10px] font-mono text-tech-muted bg-tech-primary p-2 rounded custom-scrollbar">
-                                                        {bulkStats.missingList.map((m, i) => <div key={i}>ΓÇó {m}</div>)}
+                                                        {bulkStats.missingList.map((m, i) => <div key={i}>• {m}</div>)}
                                                     </div>
                                                 </div>
                                             )}
@@ -386,7 +386,7 @@ const DivisionEnrollment = () => {
             {!selectedDivisionId ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-tech-secondary/50 rounded border border-dashed border-tech-surface text-tech-muted mt-8">
                     <Layers size={64} className="mb-4 opacity-20" />
-                    <p className="text-xl font-light uppercase tracking-widest">Seleccionar Divisi├│n</p>
+                    <p className="text-xl font-light uppercase tracking-widest">Seleccionar División</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in duration-500 mt-4">
@@ -497,7 +497,7 @@ const DivisionEnrollment = () => {
                             {assignedStudents.length === 0 ? (
                                 <div className="p-10 text-center flex flex-col items-center">
                                     <Users size={32} className="text-tech-surface mb-2 opacity-50" />
-                                    <p className="text-tech-muted text-xs font-mono uppercase">Lista vac├¡a</p>
+                                    <p className="text-tech-muted text-xs font-mono uppercase">Lista vacía</p>
                                 </div>
                             ) : assignedStudents.map(s => (
                                 <div

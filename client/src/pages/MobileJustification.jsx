@@ -55,7 +55,7 @@ const MobileJustification = () => {
                                     <label className="block text-xs font-bold text-tech-muted uppercase mb-2">Motivo / Causa</label>
                                     <textarea
                                         rows="3"
-                                        placeholder="Ej: Problemas de salud, tr├ímite personal..."
+                                        placeholder="Ej: Problemas de salud, trámite personal..."
                                         className="w-full bg-tech-primary p-4 rounded-xl border border-tech-surface text-tech-text focus:border-tech-cyan outline-none"
                                         onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                                     ></textarea>
@@ -88,7 +88,7 @@ const MobileJustification = () => {
                                 <Camera size={40} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">Adjuntar Certificado</h3>
-                            <p className="text-tech-muted text-sm mb-8">Tome una foto del certificado m├⌐dico o comprobante para agilizar la validaci├│n.</p>
+                            <p className="text-tech-muted text-sm mb-8">Tome una foto del certificado médico o comprobante para agilizar la validación.</p>
 
                             <label className="block w-full py-8 border-2 border-dashed border-tech-surface rounded-2xl cursor-pointer hover:border-tech-cyan transition-colors bg-tech-primary/30">
                                 <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
@@ -108,7 +108,7 @@ const MobileJustification = () => {
                                 className="flex-1 border border-tech-surface"
                                 onClick={() => setStep(1)}
                             >
-                                Atr├ís
+                                Atrás
                             </Button>
                             <Button
                                 variant="primary"
@@ -132,8 +132,8 @@ const MobileJustification = () => {
                             <CheckCircle2 size={56} />
                         </div>
                         <div className="space-y-2">
-                            <h2 className="text-2xl font-black uppercase tracking-tight">┬íEnviado con ├ëxito!</h2>
-                            <p className="text-tech-muted font-mono max-w-xs mx-auto">La justificaci├│n fue registrada y est├í pendiente de revisi├│n por el preceptor.</p>
+                            <h2 className="text-2xl font-black uppercase tracking-tight">¡Enviado con Éxito!</h2>
+                            <p className="text-tech-muted font-mono max-w-xs mx-auto">La justificación fue registrada y está pendiente de revisión por el preceptor.</p>
                         </div>
                         <Button
                             variant="ghost"

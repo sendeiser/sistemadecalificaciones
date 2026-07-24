@@ -60,7 +60,7 @@ const DashboardStats = ({ role, profileId }) => {
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching stats:', err);
-                setError('No se pudieron cargar las estad├¡sticas. Verific├í la conexi├│n e intent├í de nuevo.');
+                setError('No se pudieron cargar las estadísticas. Verificá la conexión e intentá de nuevo.');
                 setLoading(false);
             }
         };
@@ -69,7 +69,7 @@ const DashboardStats = ({ role, profileId }) => {
     }, [role, profileId]);
 
     const radarData = useMemo(() => ({
-        labels: ['Exactas', 'Sociales', 'Lenguas', 'T├⌐cnicas', 'Art├¡sticas', 'Educ. F├¡sica'],
+        labels: ['Exactas', 'Sociales', 'Lenguas', 'Técnicas', 'Artísticas', 'Educ. Física'],
         datasets: [
             {
                 label: 'Promedio Institucional',
@@ -80,7 +80,7 @@ const DashboardStats = ({ role, profileId }) => {
                 pointBackgroundColor: 'rgba(34, 211, 238, 1)',
             },
             {
-                label: 'Meta Acad├⌐mica',
+                label: 'Meta Académica',
                 data: [9, 9, 9, 9, 9, 9],
                 backgroundColor: 'rgba(236, 72, 153, 0.05)',
                 borderColor: 'rgba(236, 72, 153, 0.5)',
@@ -162,7 +162,7 @@ const DashboardStats = ({ role, profileId }) => {
                     <div className="lg:col-span-2 bg-tech-secondary p-6 rounded border border-tech-surface">
                         <h3 className="text-xs font-bold text-tech-muted mb-6 flex items-center gap-2 uppercase tracking-widest">
                             <BarChart2 size={14} className="text-tech-cyan" />
-                            Distribuci├│n por Divisi├│n
+                            Distribución por División
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                             {stats.studentsPerDivision.map((div, index) => (
@@ -192,7 +192,7 @@ const DashboardStats = ({ role, profileId }) => {
                             Patrones de Asistencia Semanal
                         </h3>
                         <div className="grid grid-cols-5 gap-2 md:gap-4">
-                            {['Lunes', 'Martes', 'Mi├⌐rcoles', 'Jueves', 'Viernes'].map((day, idx) => {
+                            {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'].map((day, idx) => {
                                 const val = [94, 98, 92, 88, 79][idx]; // Lower on Fridays as an example
                                 const intensity = val > 90 ? 'bg-tech-success/40' : val > 85 ? 'bg-tech-cyan/40' : 'bg-tech-accent/40';
                                 return (
@@ -212,7 +212,7 @@ const DashboardStats = ({ role, profileId }) => {
                         <div className="lg:col-span-3 bg-tech-danger/10 border border-tech-danger/20 rounded p-6">
                             <h3 className="text-xs font-bold text-tech-danger mb-6 flex items-center gap-2 uppercase tracking-widest">
                                 <AlertCircle size={14} />
-                                Protocolo de Prevenci├│n: Alumnos en Riesgo
+                                Protocolo de Prevención: Alumnos en Riesgo
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {stats.atRiskStudents.map((s, idx) => (
@@ -223,7 +223,7 @@ const DashboardStats = ({ role, profileId }) => {
                                         </div>
                                         <div className="text-right">
                                             <div className="text-lg font-black text-tech-danger font-mono">{s.pct}%</div>
-                                            <div className="text-[8px] text-tech-danger uppercase font-bold">Inasistencia Cr├¡tica</div>
+                                            <div className="text-[8px] text-tech-danger uppercase font-bold">Inasistencia Crítica</div>
                                         </div>
                                     </div>
                                 ))}
@@ -262,14 +262,14 @@ const DashboardStats = ({ role, profileId }) => {
                     <div className="md:col-span-2 bg-tech-secondary border border-tech-danger/30 rounded p-6">
                         <h3 className="text-[10px] font-bold text-tech-danger mb-6 flex items-center gap-2 uppercase tracking-widest">
                             <AlertCircle size={14} />
-                            Alertas de Seguimiento Acad├⌐mico
+                            Alertas de Seguimiento Académico
                         </h3>
                         <div className="space-y-3">
                             {stats.atRiskStudents.map((s, idx) => (
                                 <div key={idx} className="flex items-center justify-between p-4 bg-tech-primary/30 rounded border border-tech-surface group hover:border-tech-danger/40 transition-colors">
                                     <div className="flex flex-col">
                                         <span className="font-bold text-tech-text text-sm">{s.nombre}</span>
-                                        <span className="text-[10px] text-tech-muted font-mono uppercase">{s.materia} ΓÇó {s.division}</span>
+                                        <span className="text-[10px] text-tech-muted font-mono uppercase">{s.materia} • {s.division}</span>
                                     </div>
                                     <div className="flex items-center gap-6">
                                         <div className="text-right">

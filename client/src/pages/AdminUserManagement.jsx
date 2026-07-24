@@ -71,14 +71,14 @@ const AdminUserManagement = () => {
             }
         } catch (err) {
             console.error(err);
-            alert('Error al generar invitaci├│n');
+            alert('Error al generar invitación');
         } finally {
             setGenerating(false);
         }
     };
 
     const handleDeleteInvite = async (token) => {
-        if (!window.confirm('┬┐Est├ís seguro de eliminar esta invitaci├│n?')) return;
+        if (!window.confirm('¿Estás seguro de eliminar esta invitación?')) return;
 
         try {
             const res = await fetch(getApiEndpoint(`/admin/invite/${token}`), {
@@ -94,7 +94,7 @@ const AdminUserManagement = () => {
             }
         } catch (err) {
             console.error(err);
-            alert('Error al eliminar invitaci├│n');
+            alert('Error al eliminar invitación');
         }
     };
 
@@ -118,7 +118,7 @@ const AdminUserManagement = () => {
             }
         } catch (err) {
             console.error(err);
-            alert('Error al actualizar invitaci├│n');
+            alert('Error al actualizar invitación');
         }
     };
 
@@ -153,10 +153,10 @@ const AdminUserManagement = () => {
                     </button>
                     <div>
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                            GESTI├ôN DE <span className="text-tech-cyan">USUARIOS</span>
+                            GESTIÓN DE <span className="text-tech-cyan">USUARIOS</span>
                         </h1>
                         <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
-                            Administraci├│n de invitaciones y privilegios
+                            Administración de invitaciones y privilegios
                         </p>
                     </div>
                 </div>
@@ -171,7 +171,7 @@ const AdminUserManagement = () => {
                     <div className="bg-tech-secondary p-6 rounded-2xl border border-tech-surface shadow-lg">
                         <h2 className="text-xl font-bold text-tech-text uppercase mb-6 flex items-center gap-2">
                             <UserPlus size={20} className="text-tech-cyan" />
-                            Nueva Invitaci├│n
+                            Nueva Invitación
                         </h2>
 
                         <form onSubmit={handleCreateInvite} className="space-y-4">
@@ -198,7 +198,7 @@ const AdminUserManagement = () => {
                                     value={newInvite.email}
                                     onChange={(e) => setNewInvite({ ...newInvite, email: e.target.value })}
                                 />
-                                <p className="text-[10px] text-tech-muted mt-2 font-mono">* Si se deja vac├¡o, cualquiera con el link puede registrarse.</p>
+                                <p className="text-[10px] text-tech-muted mt-2 font-mono">* Si se deja vacío, cualquiera con el link puede registrarse.</p>
                             </div>
 
                             <Button type="submit" disabled={generating} variant="primary" size="sm" className="w-full mt-2">
@@ -217,7 +217,7 @@ const AdminUserManagement = () => {
                                 className="bg-tech-secondary p-6 rounded-2xl border border-tech-success shadow-[0_10px_30px_rgba(16,185,129,0.1)]"
                             >
                                 <div className="flex items-center gap-2 text-tech-success mb-2 font-bold uppercase text-sm">
-                                    <CheckCircle2 size={16} /> Invitaci├│n Creada
+                                    <CheckCircle2 size={16} /> Invitación Creada
                                 </div>
                                 <div className="bg-tech-primary p-3 rounded-xl border border-tech-surface break-all font-mono text-xs text-tech-muted mb-4 select-all">
                                     {generatedLink}

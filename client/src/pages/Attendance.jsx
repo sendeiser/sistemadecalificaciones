@@ -313,7 +313,7 @@ const Attendance = () => {
                         </h1>
                         <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                             {selectedAssignment
-                                ? `${selectedAssignment.materia.nombre} ΓÇó ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
+                                ? `${selectedAssignment.materia.nombre} • ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
                                 : 'Registro centralizado de presentismo'}
                         </p>
                     </div>
@@ -357,7 +357,7 @@ const Attendance = () => {
                             <AlertCircle size={20} />
                             <span className="font-bold">{message.text}</span>
                         </div>
-                        <button onClick={() => setMessage(null)} className="text-current opacity-50 hover:opacity-100">├ù</button>
+                        <button onClick={() => setMessage(null)} className="text-current opacity-50 hover:opacity-100">×</button>
                     </div>
                 )}
 
@@ -568,7 +568,7 @@ const Attendance = () => {
 
                                     {students.length === 0 && (
                                         <div className="p-8 text-center text-tech-muted font-mono uppercase tracking-widest text-xs">
-                                            No hay alumnos en esta divisi├│n.
+                                            No hay alumnos en esta división.
                                         </div>
                                     )}
                                 </>

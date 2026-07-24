@@ -161,10 +161,10 @@ const GradeEntry = () => {
                 // Automate Trayecto Text & Achievement based on scale
                 let trayectoText = '';
                 const p = parseFloat(prom);
-                if (p >= 7) trayectoText = 'Profundizaci├│n de Saberes';
+                if (p >= 7) trayectoText = 'Profundización de Saberes';
                 else if (p >= 6) trayectoText = 'Fortalecimiento de Saberes'; // Corrected: Covers 6 to < 7
-                else if (p >= 4) trayectoText = 'Recuperaci├│n de Saberes';
-                else if (p >= 1) trayectoText = 'Apropiaci├│n de Saberes';
+                else if (p >= 4) trayectoText = 'Recuperación de Saberes';
+                else if (p >= 1) trayectoText = 'Apropiación de Saberes';
 
                 return {
                     ...updatedG,
@@ -219,7 +219,7 @@ const GradeEntry = () => {
         <div className="absolute z-50 mt-1 w-64 bg-tech-secondary border border-tech-cyan/30 rounded shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-2 px-1">
                 <span className="text-[10px] font-bold text-tech-cyan uppercase tracking-widest">Sugerencias</span>
-                <button onClick={onClose} className="text-tech-muted hover:text-white text-xs">├ù</button>
+                <button onClick={onClose} className="text-tech-muted hover:text-white text-xs">×</button>
             </div>
             <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-1">
                 {templates.map((t, idx) => (
@@ -238,7 +238,7 @@ const GradeEntry = () => {
     const handleDownloadPDF = async () => {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
-        if (!token) return alert('No hay sesi├│n activa');
+        if (!token) return alert('No hay sesión activa');
 
         const endpoint = getApiEndpoint(`/reports/division/${selectedAssignment}?token=${token}`);
         window.open(endpoint, '_blank');
@@ -258,7 +258,7 @@ const GradeEntry = () => {
             return '';
         };
 
-        const headers = ['N┬░', 'Estudiante', 'Perio. Intif', 'Logros Intif.', 'P1', 'P2', 'P3', 'P4', 'Promedio Parcial', 'Logros Prom.', '% Asist', 'Trayecto de Acompa├▒amiento', 'Logros Tray.', 'Observaciones', 'Promedio General'];
+        const headers = ['N┬░', 'Estudiante', 'Perio. Intif', 'Logros Intif.', 'P1', 'P2', 'P3', 'P4', 'Promedio Parcial', 'Logros Prom.', '% Asist', 'Trayecto de Acompañamiento', 'Logros Tray.', 'Observaciones', 'Promedio General'];
         const rows = grades.map((g, index) => [
             index + 1,
             g.student.nombre,
@@ -339,7 +339,7 @@ const GradeEntry = () => {
                     </h1>
                     <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                         {selectedAssignment
-                            ? `${fullAssignmentData?.materia?.nombre} ΓÇó ${fullAssignmentData?.division?.anio} ${fullAssignmentData?.division?.seccion}`
+                            ? `${fullAssignmentData?.materia?.nombre} • ${fullAssignmentData?.division?.anio} ${fullAssignmentData?.division?.seccion}`
                             : 'Selecciona una materia asignada para gestionar calificaciones'}
                     </p>
                 </div>
@@ -442,7 +442,7 @@ const GradeEntry = () => {
                                         <div className="flex-1 min-w-[70px] p-3 border-r border-tech-surface text-center flex items-center justify-center">DNI</div>
                                         {!isSecondSemester && (
                                             <div className="flex-[3] min-w-[100px] border-r border-tech-surface bg-tech-cyan/5 text-tech-cyan flex flex-col">
-                                                <div className="flex-1 flex items-center justify-center border-b border-tech-cyan/20">Intensificaci├│n</div>
+                                                <div className="flex-1 flex items-center justify-center border-b border-tech-cyan/20">Intensificación</div>
                                                 <div className="flex h-5 text-[8px] font-black">
                                                     <div className="flex-1 flex items-center justify-center border-r border-tech-cyan/10">Cal</div>
                                                     <div className="flex-1 flex items-center justify-center">Log</div>
@@ -464,7 +464,7 @@ const GradeEntry = () => {
                                         <div className="flex-[7] min-w-[180px] border-r border-tech-surface bg-purple-500/5 text-purple-400 flex flex-col">
                                             <div className="flex-1 flex items-center justify-center border-b border-purple-500/20">Trayecto</div>
                                             <div className="flex h-5 text-[8px]">
-                                                <div className="flex-[5] flex items-center justify-center border-r border-purple-500/10">Descripci├│n</div>
+                                                <div className="flex-[5] flex items-center justify-center border-r border-purple-500/10">Descripción</div>
                                                 <div className="flex-[2] flex items-center justify-center">Log</div>
                                             </div>
                                         </div>
@@ -477,7 +477,7 @@ const GradeEntry = () => {
                                 <div className="flex flex-col">
                                     {grades.length === 0 && !loading ? (
                                         <div className="p-12 text-center text-tech-muted italic font-medium">
-                                            No hay alumnos asignados a esta divisi├│n.
+                                            No hay alumnos asignados a esta división.
                                         </div>
                                     ) : grades.map((g, index) => (
                                         <div key={g.alumno_id} className="flex border-b border-tech-surface hover:bg-tech-surface/30 transition-colors group">
@@ -494,7 +494,7 @@ const GradeEntry = () => {
                                                 {g.student?.dni}
                                             </div>
 
-                                            {/* Intensificaci├│n */}
+                                            {/* Intensificación */}
                                             {!isSecondSemester && (
                                                 <>
                                                     <div className={`flex-[1.5] min-w-[50px] p-1 border-r border-tech-surface bg-tech-cyan/5 transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'nota_intensificacion' ? 'ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
@@ -657,7 +657,7 @@ const GradeEntry = () => {
                                         <div className="grid grid-cols-2 gap-4 pt-2">
                                             {!isSecondSemester && (
                                                 <div className="space-y-2">
-                                                    <div className="text-[10px] text-tech-muted uppercase font-bold tracking-widest border-l-2 border-tech-accent pl-2">Intensificaci├│n</div>
+                                                    <div className="text-[10px] text-tech-muted uppercase font-bold tracking-widest border-l-2 border-tech-accent pl-2">Intensificación</div>
                                                     <div className="flex items-center gap-2">
                                                         <input
                                                             type="number" min="0" max="10" step="0.5" placeholder="-"
@@ -760,8 +760,8 @@ const GradeEntry = () => {
 
                                     <div className="pt-12 flex flex-col items-center gap-4">
                                         <div className="flex gap-2 text-tech-muted font-mono text-[10px]">
-                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">Γåæ</kbd>
-                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">Γåô</kbd>
+                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">↑</kbd>
+                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">↓</kbd>
                                             <span>Navegar Alumnos</span>
                                             <span className="mx-2">|</span>
                                             <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">TAB</kbd>
@@ -772,7 +772,7 @@ const GradeEntry = () => {
                                             disabled={saving}
                                             className="px-8 py-4 bg-tech-cyan text-white rounded-xl font-bold uppercase tracking-widest shadow-xl hover:scale-105 transition-transform"
                                         >
-                                            {saving ? 'Guardando...' : 'Finalizar Sesi├│n Focus'}
+                                            {saving ? 'Guardando...' : 'Finalizar Sesión Focus'}
                                         </button>
                                     </div>
                                 </div>

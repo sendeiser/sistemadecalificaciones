@@ -52,7 +52,7 @@ const DivisionManagement = () => {
 
     const handleSave = async (id = null) => {
         if (!formData.anio.trim() || !formData.seccion.trim() || !formData.ciclo_lectivo_id) {
-            return alert('A├▒o, Secci├│n y Ciclo Lectivo son obligatorios');
+            return alert('Año, Sección y Ciclo Lectivo son obligatorios');
         }
 
         const payload = {
@@ -89,7 +89,7 @@ const DivisionManagement = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('┬┐Est├ís seguro de eliminar esta divisi├│n?')) return;
+        if (!confirm('¿Estás seguro de eliminar esta división?')) return;
 
         const { error } = await supabase
             .from('divisiones')
@@ -126,10 +126,10 @@ const DivisionManagement = () => {
                     </button>
                     <div>
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                            GESTI├ôN DE <span className="text-tech-cyan">DIVISIONES</span>
+                            GESTIÓN DE <span className="text-tech-cyan">DIVISIONES</span>
                         </h1>
                         <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
-                            Administraci├│n de cursos y secciones
+                            Administración de cursos y secciones
                         </p>
                     </div>
                 </div>
@@ -144,7 +144,7 @@ const DivisionManagement = () => {
                         className="flex items-center gap-2 px-5 py-2.5 bg-tech-accent hover:bg-violet-600 rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-accent/20 active:scale-95"
                     >
                         <Plus size={18} />
-                        Nueva Divisi├│n
+                        Nueva División
                     </button>
                     <ThemeToggle />
                 </div>
@@ -159,11 +159,11 @@ const DivisionManagement = () => {
                         </div>
                         <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-tech-text uppercase tracking-wider border-b border-tech-surface pb-2 relative z-10">
                             <Plus size={20} className="text-tech-accent" />
-                            Crear Nueva Divisi├│n
+                            Crear Nueva División
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
                             <div className="space-y-1">
-                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">A├▒o</label>
+                                <label className="text-xs text-tech-muted uppercase font-bold tracking-wider">Año</label>
                                 <select
                                     className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 focus:border-tech-accent focus:ring-1 focus:ring-tech-accent outline-none transition-all text-tech-text"
                                     value={formData.anio}
@@ -174,7 +174,7 @@ const DivisionManagement = () => {
                                 </select>
                             </div>
                             <Input
-                                label="Secci├│n"
+                                label="Sección"
                                 placeholder="Ej: A, B, 1ra..."
                                 value={formData.seccion}
                                 onChange={(e) => setFormData({ ...formData, seccion: e.target.value })}
@@ -195,7 +195,7 @@ const DivisionManagement = () => {
                         <div className="mt-6 flex gap-3 relative z-10">
                             <Button variant="primary" onClick={() => handleSave()}>
                                 <Save size={18} />
-                                Guardar Divisi├│n
+                                Guardar División
                             </Button>
                             <Button variant="ghost" onClick={() => setIsAdding(false)}>
                                 Cancelar
@@ -210,7 +210,7 @@ const DivisionManagement = () => {
                         <table className="w-full text-left">
                             <thead className="bg-tech-primary text-tech-muted text-sm border-b border-tech-surface font-heading">
                                 <tr>
-                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">A├▒o y Secci├│n</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Año y Sección</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Ciclo Lectivo</th>
                                     <th className="p-4 text-center uppercase text-[10px] font-bold tracking-widest">Acciones</th>
                                 </tr>
@@ -230,7 +230,7 @@ const DivisionManagement = () => {
                                                         value={formData.anio}
                                                         onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                                     >
-                                                        <option value="">A├æO</option>
+                                                        <option value="">AÑO</option>
                                                         {ANIOS.map(a => <option key={a} value={a}>{a}</option>)}
                                                     </select>
                                                     <Input
@@ -269,7 +269,7 @@ const DivisionManagement = () => {
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => navigate('/enrollment')}
-                                                    title="Inscribir Alumnos en esta Divisi├│n"
+                                                    title="Inscribir Alumnos en esta División"
                                                 >
                                                     <Users size={18} />
                                                     <span className="hidden xl:inline">Inscribir</span>
@@ -317,7 +317,7 @@ const DivisionManagement = () => {
                                                 className="border-tech-accent flex-1"
                                                 value={formData.anio}
                                                 onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
-                                                placeholder="A├▒o"
+                                                placeholder="Año"
                                             />
                                             <Input
                                                 className="border-tech-accent flex-1"

@@ -29,7 +29,7 @@ const SubjectManagement = () => {
             .select('anio')
             .order('anio');
         if (error) {
-            console.error("Error al obtener a├▒os de divisiones:", error.message);
+            console.error("Error al obtener años de divisiones:", error.message);
         } else if (data) {
             const unique = [...new Set(data.map(d => d.anio))].sort((a, b) => a.localeCompare(b));
             setDivisionAnios(unique);
@@ -83,7 +83,7 @@ const SubjectManagement = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('┬┐Est├ís seguro de eliminar esta materia?')) return;
+        if (!confirm('¿Estás seguro de eliminar esta materia?')) return;
 
         const { error } = await supabase.from('materias').delete().eq('id', id);
         if (error) {
@@ -118,10 +118,10 @@ const SubjectManagement = () => {
                     </button>
                     <div>
                         <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                            GESTI├ôN DE <span className="text-tech-cyan">MATERIAS</span>
+                            GESTIÓN DE <span className="text-tech-cyan">MATERIAS</span>
                         </h1>
                         <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
-                            Administraci├│n de unidades curriculares
+                            Administración de unidades curriculares
                         </p>
                     </div>
                 </div>
@@ -155,14 +155,14 @@ const SubjectManagement = () => {
                                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                             />
                             <Input
-                                label="Descripci├│n"
-                                placeholder="DESCRIPCI├ôN (OPCIONAL)"
+                                label="Descripción"
+                                placeholder="DESCRIPCIÓN (OPCIONAL)"
                                 value={formData.descripcion}
                                 onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                             />
                             <Input
-                                label="Campo de Formaci├│n"
-                                placeholder="CAMPO DE FORMACI├ôN"
+                                label="Campo de Formación"
+                                placeholder="CAMPO DE FORMACIÓN"
                                 value={formData.campo_formacion}
                                 onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
                             />
@@ -177,8 +177,8 @@ const SubjectManagement = () => {
                                 value={formData.anio}
                                 onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                             >
-                                <option value="">SELECCIONAR A├æO</option>
-                                {activeAnios.map(a => <option key={a} value={a}>{a} A├æO</option>)}
+                                <option value="">SELECCIONAR AÑO</option>
+                                {activeAnios.map(a => <option key={a} value={a}>{a} AÑO</option>)}
                             </select>
                         </div>
                         <div className="mt-4 flex gap-3">
@@ -195,9 +195,9 @@ const SubjectManagement = () => {
                             <thead className="bg-tech-primary text-tech-muted border-b border-tech-surface font-heading">
                                 <tr>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Nombre</th>
-                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">A├▒o</th>
-                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Descripci├│n</th>
-                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Campo Formaci├│n</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Año</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Descripción</th>
+                                    <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Campo Formación</th>
                                     <th className="p-4 uppercase text-[10px] font-bold tracking-widest">Ciclo</th>
                                     <th className="p-4 text-center uppercase text-[10px] font-bold tracking_widest">Acciones</th>
                                 </tr>
@@ -225,7 +225,7 @@ const SubjectManagement = () => {
                                                     value={formData.anio}
                                                     onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                                 >
-                                                    <option value="">A├æO</option>
+                                                    <option value="">AÑO</option>
                                                     {activeAnios.map(a => <option key={a} value={a}>{a}</option>)}
                                                 </select>
                                             ) : (
@@ -315,20 +315,20 @@ const SubjectManagement = () => {
                                             value={formData.anio}
                                             onChange={(e) => setFormData({ ...formData, anio: e.target.value })}
                                         >
-                                            <option value="">A├æO</option>
+                                            <option value="">AÑO</option>
                                             {activeAnios.map(a => <option key={a} value={a}>{a}</option>)}
                                         </select>
                                         <Input
                                             className="border-tech-cyan"
                                             value={formData.descripcion}
                                             onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                                            placeholder="Descripci├│n"
+                                            placeholder="Descripción"
                                         />
                                         <Input
                                             className="border-tech-cyan"
                                             value={formData.campo_formacion}
                                             onChange={(e) => setFormData({ ...formData, campo_formacion: e.target.value })}
-                                            placeholder="Campo de Formaci├│n"
+                                            placeholder="Campo de Formación"
                                         />
                                         <Input
                                             className="border-tech-cyan"
@@ -353,7 +353,7 @@ const SubjectManagement = () => {
                                                 <span className="px-1.5 py-0.5 bg-tech-cyan/20 text-tech-cyan rounded text-[9px] font-black">{s.anio || 'N/A'}</span>
                                             </div>
                                             <p className="text-tech-muted text-xs leading-relaxed">
-                                                {s.descripcion || <span className="italic opacity-50">Sin descripci├│n</span>}
+                                                {s.descripcion || <span className="italic opacity-50">Sin descripción</span>}
                                             </p>
                                             {(s.campo_formacion || s.ciclo) && (
                                                 <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px] font-mono text-tech-muted uppercase">

@@ -73,7 +73,7 @@ const TeacherReports = () => {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
         if (!token) {
-            setMessage({ type: 'error', text: 'No hay sesi├│n activa' });
+            setMessage({ type: 'error', text: 'No hay sesión activa' });
             return;
         }
 
@@ -109,7 +109,7 @@ const TeacherReports = () => {
                             MIS <span className="text-tech-cyan">REPORTES</span>
                         </h1>
                         <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
-                            Generaci├│n de planillas y reportes estad├¡sticos
+                            Generación de planillas y reportes estadísticos
                         </p>
                     </div>
                 </div>
@@ -119,11 +119,11 @@ const TeacherReports = () => {
                         variant="primary"
                         size="sm"
                         onClick={async () => {
-                            if (!confirm('┬┐Deseas descargar todas las planillas? Esto puede tomar unos momentos.')) return;
+                            if (!confirm('¿Deseas descargar todas las planillas? Esto puede tomar unos momentos.')) return;
                             const { data: { session } } = await supabase.auth.getSession();
                             const token = session?.access_token;
                             if (!token) {
-                                setMessage({ type: 'error', text: 'No hay sesi├│n activa' });
+                                setMessage({ type: 'error', text: 'No hay sesión activa' });
                                 return;
                             }
 
@@ -244,7 +244,7 @@ const TeacherReports = () => {
                                     <div className="p-3 bg-tech-cyan/10 rounded text-tech-cyan">
                                         <Users size={24} />
                                     </div>
-                                    <span className="text-[10px] font-mono text-tech-muted uppercase">Asignaci├│n: {assign.id.slice(0, 6)}</span>
+                                    <span className="text-[10px] font-mono text-tech-muted uppercase">Asignación: {assign.id.slice(0, 6)}</span>
                                 </div>
                                 <h3 className="text-xl font-bold text-tech-text mb-1 uppercase tracking-tight">{assign.materia.nombre}</h3>
                                 <p className="text-tech-accent font-mono text-sm mb-4 pb-4 border-b border-tech-surface/50">

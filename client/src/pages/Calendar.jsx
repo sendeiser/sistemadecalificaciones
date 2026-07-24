@@ -82,7 +82,7 @@ const Calendar = () => {
         { value: 'cierre_notas', label: 'Cierre de Notas', color: 'var(--tech-accent)' },
         { value: 'acto', label: 'Acto Escolar', color: 'var(--tech-cyan)' },
         { value: 'examen', label: 'Examen', color: 'var(--tech-accent)' },
-        { value: 'reunion', label: 'Reuni├│n', color: 'var(--tech-success)' },
+        { value: 'reunion', label: 'Reunión', color: 'var(--tech-success)' },
         { value: 'otro', label: 'Otro', color: 'var(--tech-muted)' }
     ];
 
@@ -165,7 +165,7 @@ const Calendar = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('┬┐Eliminar este evento?')) return;
+        if (!confirm('¿Eliminar este evento?')) return;
 
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -265,7 +265,7 @@ const Calendar = () => {
                             <div className="p-1.5 md:p-2 bg-tech-cyan/20 rounded text-tech-cyan">
                                 <CalendarIcon className="w-6 h-6 md:w-8 md:h-8" />
                             </div>
-                            Calendario Acad├⌐mico
+                            Calendario Académico
                         </h1>
                         <p className="text-tech-muted font-mono mt-1 text-xs md:text-sm capitalize flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
                             <span>Eventos, feriados y fechas importantes</span>
@@ -356,7 +356,7 @@ const Calendar = () => {
                     <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden">
                         {/* Weekday headers */}
                         <div className="grid grid-cols-7 bg-tech-primary border-b border-tech-surface">
-                            {['Dom', 'Lun', 'Mar', 'Mi├⌐', 'Jue', 'Vie', 'S├íb'].map(day => (
+                            {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
                                 <div key={day} className="p-3 text-center text-xs font-bold text-tech-muted uppercase">
                                     {day}
                                 </div>
@@ -459,7 +459,7 @@ const Calendar = () => {
                                                     <> - {new Date(event.fecha_fin).toLocaleDateString('es-AR')}</>
                                                 )}
                                                 {!event.todo_el_dia && event.hora_inicio && (
-                                                    <> ΓÇó {event.hora_inicio}</>
+                                                    <> • {event.hora_inicio}</>
                                                 )}
                                             </div>
                                         </div>
@@ -507,7 +507,7 @@ const Calendar = () => {
             >
                 <form id="event-form" onSubmit={handleSubmit} className="space-y-4">
                     <Input
-                        label="T├¡tulo *"
+                        label="Título *"
                         type="text"
                         required
                         value={formData.titulo}
@@ -515,7 +515,7 @@ const Calendar = () => {
                     />
 
                     <div>
-                        <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Descripci├│n</label>
+                        <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Descripción</label>
                         <textarea
                             value={formData.descripcion}
                             onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
@@ -569,7 +569,7 @@ const Calendar = () => {
                             className="w-4 h-4"
                         />
                         <label htmlFor="todo_el_dia" className="text-sm text-tech-text">
-                            Todo el d├¡a
+                            Todo el día
                         </label>
                     </div>
 
@@ -651,7 +651,7 @@ const Calendar = () => {
                         {selectedEvent?.todo_el_dia && (
                             <div className="flex items-center gap-3 pl-7">
                                 <span className="text-xs uppercase font-bold bg-tech-accent/10 text-tech-accent px-2 py-0.5 rounded">
-                                    D├¡a Completo
+                                    Día Completo
                                 </span>
                             </div>
                         )}

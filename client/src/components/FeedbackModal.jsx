@@ -85,13 +85,13 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
                 </div>
 
                 <div className="space-y-2">
-                    <label htmlFor="feedback-descripcion" className="label text-tech-muted pl-1">Descripci├│n de la Mejora</label>
+                    <label htmlFor="feedback-descripcion" className="label text-tech-muted pl-1">Descripción de la Mejora</label>
                     <textarea
                         id="feedback-descripcion"
                         required
                         value={contenido}
                         onChange={(e) => setContenido(e.target.value)}
-                        placeholder="Contanos qu├⌐ podemos mejorar o qu├⌐ falla encontraste..."
+                        placeholder="Contanos qué podemos mejorar o qué falla encontraste..."
                         className="w-full h-32 bg-tech-primary border border-tech-surface rounded-xl p-3 text-xs text-tech-text placeholder-tech-muted/50 outline-none focus:ring-2 focus:ring-tech-cyan transition-all resize-none"
                     />
                 </div>
@@ -101,7 +101,7 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
                 </Button>
 
                 <p className="mono text-tech-muted text-center italic text-[9px]">
-                    Tu feedback ser├í revisado directamente por el administrador.
+                    Tu feedback será revisado directamente por el administrador.
                 </p>
             </form>
         </Modal>
