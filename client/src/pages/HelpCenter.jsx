@@ -7,6 +7,7 @@ import {
     ChevronDown, Settings, Bell, Info
 } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
+import Button from '../components/ui/Button';
 
 const HelpCenter = () => {
     const { profile } = useAuth();
@@ -30,44 +31,44 @@ const HelpCenter = () => {
             roles: ['admin', 'docente', 'alumno', 'tutor', 'preceptor'],
             content: (
                 <div className="space-y-4 text-sm leading-relaxed text-tech-text">
-                    <p>Puedes personalizar tu cuenta desde la sección de <strong>Ajustes</strong> (icono de engranaje).</p>
+                    <p>Puedes personalizar tu cuenta desde la secci├│n de <strong>Ajustes</strong> (icono de engranaje).</p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li><strong>Foto de Perfil:</strong> Sube una imagen para que tus colegas y alumnos te identifiquen.</li>
-                        <li><strong>Nombre:</strong> Asegúrate de que tu nombre sea el correcto para los reportes oficiales.</li>
-                        <li><strong>Contraseña:</strong> Recomendamos cambiar tu clave cada 3 meses para mantener la seguridad.</li>
+                        <li><strong>Nombre:</strong> Aseg├║rate de que tu nombre sea el correcto para los reportes oficiales.</li>
+                        <li><strong>Contrase├▒a:</strong> Recomendamos cambiar tu clave cada 3 meses para mantener la seguridad.</li>
                     </ul>
                 </div>
             )
         },
         {
             id: 'preceptor_ops',
-            title: 'Gestión de Preceptoría',
+            title: 'Gesti├│n de Preceptor├¡a',
             icon: <Shield size={20} />,
             roles: ['preceptor', 'admin'],
             content: (
                 <div className="space-y-4 text-sm leading-relaxed text-tech-text">
-                    <p>Módulos críticos para el seguimiento diario del estudiante:</p>
+                    <p>M├│dulos cr├¡ticos para el seguimiento diario del estudiante:</p>
                     <ul className="list-disc pl-5 space-y-2">
-                        <li><strong>Asistencia y Justidicación:</strong> Registro de inasistencias y carga masiva de certificados (justificaciones).</li>
+                        <li><strong>Asistencia y Justidicaci├│n:</strong> Registro de inasistencias y carga masiva de certificados (justificaciones).</li>
                         <li><strong>Control de Discrepancias:</strong> Herramienta para validar que la asistencia tomada coincida con la del docente.</li>
-                        <li><strong>Alertas y Citaciones:</strong> Sistema automático para detectar alumnos en riesgo de perder la regularidad.</li>
-                        <li><strong>Reportes:</strong> Generación de boletines, sábanas de notas y listados de asistencia en PDF.</li>
+                        <li><strong>Alertas y Citaciones:</strong> Sistema autom├ítico para detectar alumnos en riesgo de perder la regularidad.</li>
+                        <li><strong>Reportes:</strong> Generaci├│n de boletines, s├íbanas de notas y listados de asistencia en PDF.</li>
                     </ul>
                 </div>
             )
         },
         {
             id: 'admin_base',
-            title: 'Configuración Institucional',
+            title: 'Configuraci├│n Institucional',
             icon: <Users size={20} />,
             roles: ['admin'],
             content: (
                 <div className="space-y-4 text-sm leading-relaxed text-tech-text">
-                    <p>Gestión de la infraestructura básica del sistema:</p>
+                    <p>Gesti├│n de la infraestructura b├ísica del sistema:</p>
                     <ul className="list-disc pl-5 space-y-2">
-                        <li><strong>Gestión Accesos:</strong> Creación de usuarios y control de invitaciones para personal nuevo.</li>
-                        <li><strong>Materias y Ciclos:</strong> Definición del plan de estudios y apertura/cierre de periodos de nota.</li>
-                        <li><strong>Auditoría:</strong> Revisión forense de cada cambio realizado en el sistema por cualquier usuario.</li>
+                        <li><strong>Gesti├│n Accesos:</strong> Creaci├│n de usuarios y control de invitaciones para personal nuevo.</li>
+                        <li><strong>Materias y Ciclos:</strong> Definici├│n del plan de estudios y apertura/cierre de periodos de nota.</li>
+                        <li><strong>Auditor├¡a:</strong> Revisi├│n forense de cada cambio realizado en el sistema por cualquier usuario.</li>
                     </ul>
                 </div>
             )
@@ -79,11 +80,11 @@ const HelpCenter = () => {
             roles: ['admin', 'docente'],
             content: (
                 <div className="space-y-4 text-sm leading-relaxed text-tech-text">
-                    <p>El sistema calcula el promedio y el nivel de logro automáticamente.</p>
+                    <p>El sistema calcula el promedio y el nivel de logro autom├íticamente.</p>
                     <ul className="list-disc pl-5 space-y-2">
-                        <li><strong>Carga:</strong> Ingresa valores numéricos del 1 al 10 en los parciales.</li>
-                        <li><strong>Logros:</strong> El sistema asigna LD (Destacado), LS (Satisfactorio), LB (Básico) o LI (Inicial).</li>
-                        <li><strong>Cuatrimestres:</strong> Puedes cambiar entre periodos para ver o editar notas específicas.</li>
+                        <li><strong>Carga:</strong> Ingresa valores num├⌐ricos del 1 al 10 en los parciales.</li>
+                        <li><strong>Logros:</strong> El sistema asigna LD (Destacado), LS (Satisfactorio), LB (B├ísico) o LI (Inicial).</li>
+                        <li><strong>Cuatrimestres:</strong> Puedes cambiar entre periodos para ver o editar notas espec├¡ficas.</li>
                     </ul>
                 </div>
             )
@@ -98,22 +99,22 @@ const HelpCenter = () => {
                     <p>Registra la presencialidad de tus alumnos de forma diaria:</p>
                     <ul className="list-disc pl-5 space-y-2">
                         <li><strong>Estados:</strong> Presente, Ausente, Tarde o Justificado.</li>
-                        <li><strong>Reportes:</strong> El sistema genera porcentajes de asistencia requeridos para la acreditación.</li>
+                        <li><strong>Reportes:</strong> El sistema genera porcentajes de asistencia requeridos para la acreditaci├│n.</li>
                     </ul>
                 </div>
             )
         },
         {
             id: 'student_view',
-            title: 'Consulta Académica',
+            title: 'Consulta Acad├⌐mica',
             icon: <Book size={20} />,
             roles: ['alumno', 'tutor'],
             content: (
                 <div className="space-y-4 text-sm leading-relaxed text-tech-text">
                     <p>Haz un seguimiento de tu progreso en tiempo real:</p>
                     <ul className="list-disc pl-5 space-y-2">
-                        <li><strong>Boletín:</strong> Descarga tu reporte oficial en PDF con código de verificación único.</li>
-                        <li><strong>Logros:</strong> Consulta tu desempeño por materia y cuatrimestre.</li>
+                        <li><strong>Bolet├¡n:</strong> Descarga tu reporte oficial en PDF con c├│digo de verificaci├│n ├║nico.</li>
+                        <li><strong>Logros:</strong> Consulta tu desempe├▒o por materia y cuatrimestre.</li>
                         <li><strong>Asistencia:</strong> Revisa tu porcentaje acumulado para evitar perder la regularidad.</li>
                     </ul>
                 </div>
@@ -121,7 +122,7 @@ const HelpCenter = () => {
         },
         {
             id: 'messaging',
-            title: 'Sistema de Mensajería y Avisos',
+            title: 'Sistema de Mensajer├¡a y Avisos',
             icon: <MessageSquare size={20} />,
             roles: ['admin', 'docente', 'alumno', 'tutor', 'preceptor'],
             content: (
@@ -143,13 +144,23 @@ const HelpCenter = () => {
     return (
         <PageTransition>
             <div className="max-w-3xl mx-auto pb-10">
-                <div className="mb-10">
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        CENTRO DE <span className="text-tech-cyan">AYUDA</span>
-                    </h1>
-                    <p className="text-tech-muted dark:text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2 font-bold">
-                        Guía de usuario para el rol <span className="text-tech-accent dark:text-tech-accent font-black border-b-2 border-tech-accent/20 pb-0.5">{role}</span>
-                    </p>
+                <div className="mb-10 flex items-center gap-4 border-b border-tech-surface pb-6">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate('/dashboard')}
+                        aria-label="Volver al panel"
+                    >
+                        <ArrowLeft size={24} />
+                    </Button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            CENTRO DE <span className="text-tech-cyan">AYUDA</span>
+                        </h1>
+                        <p className="text-tech-muted dark:text-tech-muted text-xs font-mono tracking-[0.3em] mt-2 font-bold">
+                            Gu├¡a de usuario para el rol <span className="text-tech-accent dark:text-tech-accent font-black border-b-2 border-tech-accent/20 pb-0.5">{role}</span>
+                        </p>
+                    </div>
                 </div>
 
                 {/* Intro Card */}
@@ -159,10 +170,10 @@ const HelpCenter = () => {
                     </div>
                     <h2 className="text-xl font-bold mb-3 flex items-center gap-2 text-tech-text">
                         <Info size={22} className="text-tech-cyan" />
-                        ¿Cómo funciona el sistema?
+                        ┬┐C├│mo funciona el sistema?
                     </h2>
                     <p className="text-tech-muted dark:text-tech-muted text-[15px] leading-relaxed font-medium">
-                        Bienvenido al manual interactivo. Aquí encontrarás instrucciones detalladas sobre las herramientas que tienes permitidas según tu nivel de acceso. Haz clic en cada sección para expandirla.
+                        Bienvenido al manual interactivo. Aqu├¡ encontrar├ís instrucciones detalladas sobre las herramientas que tienes permitidas seg├║n tu nivel de acceso. Haz clic en cada secci├│n para expandirla.
                     </p>
                 </div>
 
@@ -205,16 +216,16 @@ const HelpCenter = () => {
                 </div>
 
                 {/* Footer / Support */}
-                <div className="mt-12 text-center p-8 border-2 border-dashed border-tech-surface rounded-3xl">
+                <div className="mt-12 text-center p-8 border-2 border-dashed border-tech-surface rounded-2xl">
                     <Users size={32} className="mx-auto text-tech-muted mb-4 opacity-20" />
-                    <h3 className="text-sm font-black uppercase tracking-widest text-tech-muted mb-2">¿Necesitas más soporte?</h3>
-                    <p className="text-xs text-tech-muted mb-6">Si no encuentras la solución aquí, contacta al administrador de la institución.</p>
-                    <button
+                    <h3 className="text-sm font-black uppercase tracking-widest text-tech-muted mb-2">┬┐Necesitas m├ís soporte?</h3>
+                    <p className="text-xs text-tech-muted mb-6">Si no encuentras la soluci├│n aqu├¡, contacta al administrador de la instituci├│n.</p>
+                    <Button
+                        variant="primary"
                         onClick={() => navigate('/messages')}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-tech-surface hover:bg-tech-surface/80 text-tech-text rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-tech-surface"
                     >
                         <MessageSquare size={14} /> Enviar Mensaje a Soporte
-                    </button>
+                    </Button>
                 </div>
             </div>
         </PageTransition>

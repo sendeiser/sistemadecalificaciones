@@ -4,11 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
 import { motion } from 'framer-motion';
 import {
-    Settings, Shield, Database, Save,
-    RefreshCcw, Building2, Lock, UserCog,
-    AlertTriangle, Download, Trash2, Search, CheckCircle2, MessageCircle
+    Shield, Database, Save,
+    Building2, Lock, UserCog,
+    AlertTriangle, Download, Search, CheckCircle2, MessageCircle,
+    ArrowLeft
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const SystemSettings = () => {
     const { profile, session } = useAuth();
@@ -94,7 +97,61 @@ const SystemSettings = () => {
     };
 
     const handleSave = async () => {
-        alert('Guardar configuración: Pendiente de implementación');
+        setLoading(true);
+        setError(null);
+        setMessage(null);
+        try {
+            const res = await fetch(getApiEndpoint('/settings'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
+                body: JSON.stringify({
+                    key: 'school_info',
+                    value: settings.school_info
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Error al guardar');
+
+            setMessage('Configuraci├│n institucional guardada correctamente.');
+        } catch (err) {
+            setError(err.message || 'Error al guardar la configuraci├│n.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBackupExport = async () => {
+        setLoading(true);
+        setError(null);
+        setMessage(null);
+        try {
+            const res = await fetch(getApiEndpoint('/settings/backup'), {
+                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Error al descargar el backup');
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_calificaciones_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setMessage('Copia de seguridad descargada correctamente.');
+        } catch (err) {
+            setError(err.message || 'Error al exportar el backup.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     // ----- Security Functions -----
@@ -132,7 +189,7 @@ const SystemSettings = () => {
                 // Assuming global search exists from Phase 1.
                 setSearchResults([]);
             }
-        } catch (err) {
+        } catch {
             setError('Error al buscar usuarios.');
         } finally {
             setLoading(false);
@@ -141,7 +198,7 @@ const SystemSettings = () => {
 
     const handleResetPassword = async (userId) => {
         if (!newPassword || newPassword.length < 6) {
-            setError('La contraseña debe tener al menos 6 caracteres.');
+            setError('La contrase├▒a debe tener al menos 6 caracteres.');
             return;
         }
 
@@ -163,7 +220,7 @@ const SystemSettings = () => {
 
             if (!res.ok) throw new Error(data.error || 'Error al restablecer');
 
-            setMessage(`Contraseña actualizada para el usuario.`);
+            setMessage(`Contrase├▒a actualizada para el usuario.`);
             setResettingUserId(null);
             setNewPassword('');
         } catch (err) {
@@ -176,14 +233,23 @@ const SystemSettings = () => {
     return (
         <div className="space-y-8 pb-10">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        CONFIGURACIÓN DEL <span className="text-tech-cyan">SISTEMA</span>
-                    </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
-                        Variables Globales y Mantenimiento
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
+                        aria-label="Volver al panel"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            CONFIGURACI├ôN DEL <span className="text-tech-cyan">SISTEMA</span>
+                        </h1>
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
+                            Variables Globales y Mantenimiento
+                        </p>
+                    </div>
                 </div>
                 <ThemeToggle />
             </div>
@@ -191,30 +257,48 @@ const SystemSettings = () => {
             {/* Navigation Tabs */}
             <div className="flex flex-wrap gap-4 border-b border-tech-surface pb-4">
                 <button
-                    onClick={() => setActiveTab('general')}
+                    onClick={() => { setActiveTab('general'); setMessage(null); setError(null); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold uppercase text-xs transition-all ${activeTab === 'general' ? 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20' : 'text-tech-muted hover:bg-tech-surface'}`}
                 >
                     <Building2 size={16} /> Institucional
                 </button>
                 <button
-                    onClick={() => setActiveTab('security')}
+                    onClick={() => { setActiveTab('security'); setMessage(null); setError(null); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold uppercase text-xs transition-all ${activeTab === 'security' ? 'bg-tech-accent text-white shadow-lg shadow-tech-accent/20' : 'text-tech-muted hover:bg-tech-surface'}`}
                 >
                     <Shield size={16} /> Seguridad y Usuarios
                 </button>
                 <button
-                    onClick={() => setActiveTab('maintenance')}
+                    onClick={() => { setActiveTab('maintenance'); setMessage(null); setError(null); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold uppercase text-xs transition-all ${activeTab === 'maintenance' ? 'bg-tech-purple text-white shadow-lg shadow-purple-500/20' : 'text-tech-muted hover:bg-tech-surface'}`}
                 >
                     <Database size={16} /> Mantenimiento
                 </button>
                 <button
-                    onClick={() => setActiveTab('feedback')}
+                    onClick={() => { setActiveTab('feedback'); setMessage(null); setError(null); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold uppercase text-xs transition-all ${activeTab === 'feedback' ? 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20' : 'text-tech-muted hover:bg-tech-surface'}`}
                 >
                     <MessageCircle size={16} /> Feedback de Usuarios
                 </button>
             </div>
+
+            {/* Global Message/Error Banners */}
+            {(message || error) && (
+                <div className="max-w-7xl mb-4 animate-in fade-in duration-300">
+                    {message && (
+                        <div className="p-4 bg-tech-success/10 border border-tech-success/20 rounded-xl flex items-center gap-3">
+                            <CheckCircle2 className="text-tech-success flex-shrink-0" size={20} />
+                            <p className="text-tech-success text-xs font-bold uppercase">{message}</p>
+                        </div>
+                    )}
+                    {error && (
+                        <div className="p-4 bg-tech-danger/10 border border-tech-danger/20 rounded-xl flex items-center gap-3">
+                            <AlertTriangle className="text-tech-danger flex-shrink-0" size={20} />
+                            <p className="text-tech-danger text-xs font-bold uppercase">{error}</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Content Area */}
             <div className="min-h-[400px]">
@@ -240,26 +324,24 @@ const SystemSettings = () => {
                                     </h3>
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="text-xs font-bold text-tech-muted uppercase mb-1 block">Nombre Institución</label>
-                                            <input
+                                            <Input
+                                                label="Nombre Instituci├│n"
                                                 value={settings.school_info.name}
                                                 onChange={(e) => setSettings({ ...settings, school_info: { ...settings.school_info, name: e.target.value } })}
-                                                className="w-full bg-tech-primary border border-tech-surface rounded-xl px-4 py-3 text-tech-text focus:border-tech-cyan outline-none"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs font-bold text-tech-muted uppercase mb-1 block">Dirección</label>
-                                            <input
+                                            <Input
+                                                label="Direcci├│n"
                                                 value={settings.school_info.address}
                                                 onChange={(e) => setSettings({ ...settings, school_info: { ...settings.school_info, address: e.target.value } })}
-                                                className="w-full bg-tech-primary border border-tech-surface rounded-xl px-4 py-3 text-tech-text focus:border-tech-cyan outline-none"
                                             />
                                         </div>
                                     </div>
                                     <div className="mt-6 flex justify-end">
-                                        <button onClick={handleSave} className="px-6 py-2 bg-tech-cyan text-white rounded-lg font-bold uppercase text-xs hover:bg-cyan-600 transition-colors">
+                                        <Button onClick={handleSave} variant="primary">
                                             Guardar Cambios
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -269,34 +351,19 @@ const SystemSettings = () => {
                             <div className="bg-tech-secondary p-6 rounded-2xl border border-tech-surface">
                                 <h3 className="text-lg font-bold text-tech-text uppercase mb-6 flex items-center gap-2">
                                     <UserCog className="text-tech-accent" size={20} />
-                                    Gestión de Accesos
+                                    Gesti├│n de Accesos
                                 </h3>
-
-                                {message && (
-                                    <div className="mb-6 p-4 bg-tech-success/10 border border-tech-success/20 rounded-xl flex items-center gap-3">
-                                        <CheckCircle2 className="text-tech-success" size={20} />
-                                        <p className="text-tech-success text-xs font-bold uppercase">{message}</p>
-                                    </div>
-                                )}
-
-                                {error && (
-                                    <div className="mb-6 p-4 bg-tech-danger/10 border border-tech-danger/20 rounded-xl flex items-center gap-3">
-                                        <AlertTriangle className="text-tech-danger" size={20} />
-                                        <p className="text-tech-danger text-xs font-bold uppercase">{error}</p>
-                                    </div>
-                                )}
 
                                 <p className="text-tech-muted text-sm mb-6">Busque un usuario por Email o DNI para gestionar su acceso.</p>
 
                                 <div className="flex gap-4 mb-8">
                                     <div className="relative flex-1">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                        <input
+                                        <Input
+                                            icon={Search}
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                             placeholder="Buscar por Email o DNI..."
-                                            className="w-full bg-tech-primary pl-10 pr-4 py-3 rounded-xl border border-tech-surface focus:border-tech-accent outline-none text-tech-text"
                                         />
                                     </div>
                                     <button
@@ -328,36 +395,36 @@ const SystemSettings = () => {
                                                 <div className="flex items-center gap-2">
                                                     {resettingUserId === user.id ? (
                                                         <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
-                                                            <input
+                                                            <Input
+                                                                label="Nueva Contrase├▒a"
                                                                 type="password"
-                                                                placeholder="Nueva Contraseña"
+                                                                placeholder="Nueva Contrase├▒a"
                                                                 value={newPassword}
                                                                 onChange={(e) => setNewPassword(e.target.value)}
-                                                                className="w-40 bg-tech-surface border border-tech-surface rounded-lg px-3 py-2 text-sm outline-none focus:border-tech-accent text-tech-text"
+                                                                className="w-40"
                                                             />
-                                                            <button
+                                                            <Button
                                                                 onClick={() => handleResetPassword(user.id)}
                                                                 disabled={!newPassword}
-                                                                className="p-2 bg-tech-success text-white rounded-lg hover:bg-green-600 transition-colors"
+                                                                variant="ghost"
+                                                                size="sm"
                                                                 title="Confirmar"
                                                             >
                                                                 <CheckCircle2 size={18} />
-                                                            </button>
-                                                            <button
+                                                            </Button>
+                                                            <Button
                                                                 onClick={() => { setResettingUserId(null); setNewPassword(''); }}
-                                                                className="p-2 bg-tech-danger text-white rounded-lg hover:bg-red-600 transition-colors"
+                                                                variant="ghost"
+                                                                size="sm"
                                                                 title="Cancelar"
                                                             >
                                                                 <Lock size={18} />
-                                                            </button>
+                                                            </Button>
                                                         </div>
                                                     ) : (
-                                                        <button
-                                                            onClick={() => setResettingUserId(user.id)}
-                                                            className="px-4 py-2 border border-tech-surface hover:border-tech-accent text-tech-muted hover:text-tech-accent rounded-lg font-bold uppercase text-[10px] tracking-wider transition-all flex items-center gap-2"
-                                                        >
+                                                        <Button onClick={() => setResettingUserId(user.id)} variant="ghost" size="sm">
                                                             <Lock size={14} /> Resetear Clave
-                                                        </button>
+                                                        </Button>
                                                     )}
                                                 </div>
                                             </div>
@@ -365,7 +432,7 @@ const SystemSettings = () => {
                                     </div>
                                 ) : (
                                     <div className="p-8 text-center border-2 border-dashed border-tech-surface rounded-xl text-tech-muted text-sm font-mono">
-                                        {searched ? 'No se encontraron usuarios.' : 'Realice una búsqueda para ver resultados'}
+                                        {searched ? 'No se encontraron usuarios.' : 'Realice una b├║squeda para ver resultados'}
                                     </div>
                                 )}
                             </div>
@@ -379,8 +446,12 @@ const SystemSettings = () => {
                                         Backup de Datos
                                     </h3>
                                     <p className="text-tech-muted text-xs mb-4">Descargar copia completa de la base de datos en formato JSON.</p>
-                                    <button className="w-full py-3 border border-tech-success text-tech-success rounded-xl font-bold uppercase text-xs hover:bg-tech-success/10 transition-colors">
-                                        Exportar Todo
+                                    <button 
+                                        onClick={handleBackupExport}
+                                        disabled={loading}
+                                        className="w-full py-3 border border-tech-success text-tech-success rounded-xl font-bold uppercase text-xs hover:bg-tech-success/10 transition-colors disabled:opacity-50"
+                                    >
+                                        {loading ? 'Exportando...' : 'Exportar Todo'}
                                     </button>
                                 </div>
                             </div>
@@ -393,7 +464,7 @@ const SystemSettings = () => {
                                         <MessageCircle className="text-tech-cyan" size={20} />
                                         Sugerencias de Mejora
                                     </h3>
-                                    <p className="text-tech-muted text-xs mb-8">Aquí se listan todas las sugerencias, errores y preguntas enviadas por los usuarios del sistema.</p>
+                                    <p className="text-tech-muted text-xs mb-8">Aqu├¡ se listan todas las sugerencias, errores y preguntas enviadas por los usuarios del sistema.</p>
 
                                     {feedbacks.length === 0 ? (
                                         <div className="p-12 text-center border-2 border-dashed border-tech-surface rounded-2xl text-tech-muted font-mono italic">
@@ -440,7 +511,7 @@ const SystemSettings = () => {
                                                             className={`text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${f.leido ? 'text-tech-muted hover:text-tech-text' : 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20'
                                                                 }`}
                                                         >
-                                                            {f.leido ? 'Marcar como pendiente' : 'Marcar como leído'}
+                                                            {f.leido ? 'Marcar como pendiente' : 'Marcar como le├¡do'}
                                                         </button>
                                                     </div>
                                                 </div>

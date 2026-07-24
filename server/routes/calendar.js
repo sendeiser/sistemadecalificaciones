@@ -6,6 +6,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 // Apply auth middleware to all routes
 router.use(authMiddleware);
 
+const db = () => supabaseAdmin || supabase;
+
 /**
  * GET /api/calendar/events
  * Get calendar events with optional filtering
@@ -16,8 +18,7 @@ router.get('/events', async (req, res) => {
         const { start_date, end_date, tipo } = req.query;
         const userId = req.user.id;
 
-        // Get user's role
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile, error: profileError } = await db()
             .from('perfiles')
             .select('rol')
             .eq('id', userId)
@@ -25,13 +26,12 @@ router.get('/events', async (req, res) => {
 
         if (profileError) throw profileError;
 
-        let query = supabaseAdmin
+        let query = db()
             .from('eventos_calendario')
             .select('*')
             .contains('visible_para', [profile.rol])
             .order('fecha_inicio', { ascending: true });
 
-        // Apply date filters
         if (start_date) {
             query = query.gte('fecha_inicio', start_date);
         }
@@ -65,8 +65,7 @@ router.get('/upcoming', async (req, res) => {
         futureDate.setDate(futureDate.getDate() + 30);
         const future = futureDate.toISOString().split('T')[0];
 
-        // Get user's role
-        const { data: profile, error: profileError } = await supabaseAdmin
+        const { data: profile, error: profileError } = await db()
             .from('perfiles')
             .select('rol')
             .eq('id', userId)
@@ -74,7 +73,7 @@ router.get('/upcoming', async (req, res) => {
 
         if (profileError) throw profileError;
 
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await db()
             .from('eventos_calendario')
             .select('*')
             .contains('visible_para', [profile.rol])
@@ -112,8 +111,7 @@ router.post('/events', async (req, res) => {
             visible_para
         } = req.body;
 
-        // Verify admin role
-        const { data: profile, error: profileError } = await supabaseAdmin
+        const { data: profile, error: profileError } = await db()
             .from('perfiles')
             .select('rol')
             .eq('id', userId)
@@ -124,12 +122,11 @@ router.post('/events', async (req, res) => {
             return res.status(403).json({ error: 'No autorizado' });
         }
 
-        // Validate required fields
         if (!titulo || !fecha_inicio || !tipo) {
             return res.status(400).json({ error: 'Campos requeridos: titulo, fecha_inicio, tipo' });
         }
 
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await db()
             .from('eventos_calendario')
             .insert({
                 titulo,
@@ -149,7 +146,6 @@ router.post('/events', async (req, res) => {
 
         if (error) throw error;
 
-        // Log Audit
         const { logAudit } = require('../utils/auditLogger');
         await logAudit(
             req.user.id,
@@ -188,8 +184,7 @@ router.put('/events/:id', async (req, res) => {
             visible_para
         } = req.body;
 
-        // Verify admin role
-        const { data: profile, error: profileError } = await supabaseAdmin
+        const { data: profile, error: profileError } = await db()
             .from('perfiles')
             .select('rol')
             .eq('id', userId)
@@ -200,8 +195,7 @@ router.put('/events/:id', async (req, res) => {
             return res.status(403).json({ error: 'No autorizado' });
         }
 
-        // Fetch old data for update log
-        const { data: oldEvent } = await supabaseAdmin
+        const { data: oldEvent } = await db()
             .from('eventos_calendario')
             .select('*')
             .eq('id', id)
@@ -219,7 +213,7 @@ router.put('/events/:id', async (req, res) => {
         if (hora_fin !== undefined) updateData.hora_fin = hora_fin || null;
         if (visible_para !== undefined) updateData.visible_para = visible_para;
 
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await db()
             .from('eventos_calendario')
             .update(updateData)
             .eq('id', id)
@@ -228,7 +222,6 @@ router.put('/events/:id', async (req, res) => {
 
         if (error) throw error;
 
-        // Log Audit
         const { logAudit } = require('../utils/auditLogger');
         await logAudit(
             req.user.id,
@@ -255,32 +248,31 @@ router.delete('/events/:id', async (req, res) => {
         const userId = req.user.id;
         const { id } = req.params;
 
-        // Verify admin role
-        const { data: profile, error: profileError } = await supabaseAdmin
+        const { data: profile, error: profileError } = await db()
             .from('perfiles')
             .select('rol')
             .eq('id', userId)
             .single();
 
+        if (profileError) throw profileError;
         if (!['admin', 'preceptor'].includes(profile.rol)) {
             return res.status(403).json({ error: 'No autorizado' });
         }
 
-        const { error } = await supabaseAdmin
+        const { error } = await db()
             .from('eventos_calendario')
             .delete()
             .eq('id', id);
 
         if (error) throw error;
 
-        // Log Audit
         const { logAudit } = require('../utils/auditLogger');
         await logAudit(
             req.user.id,
             'evento_calendario',
             id,
             'DELETE',
-            { id }, // Minimal context
+            { id },
             null
         );
 

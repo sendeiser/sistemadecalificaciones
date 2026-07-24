@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
-import { Users, ChevronRight, ChevronLeft, Search, Save, BookOpen, Layers, ArrowLeft, Clipboard, X, CheckCircle2, AlertTriangle, Sparkles } from 'lucide-react';
+import { Users, ChevronRight, ChevronLeft, Search, Save, Layers, ArrowLeft, Clipboard, CheckCircle2, AlertTriangle, Sparkles } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const DivisionEnrollment = () => {
     const navigate = useNavigate();
@@ -205,7 +207,7 @@ const DivisionEnrollment = () => {
                 if (insErr) throw insErr;
             }
 
-            alert('Agrupamiento guardado con éxito. Ahora el docente verá a estos alumnos en su planilla.');
+            alert('Agrupamiento guardado con ├⌐xito. Ahora el docente ver├í a estos alumnos en su planilla.');
         } catch (err) {
             alert('Error al guardar: ' + err.message);
         }
@@ -230,16 +232,16 @@ const DivisionEnrollment = () => {
                     </button>
                     <div>
                         <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
-                            Inscripción de Alumnos
+                            Inscripci├│n de Alumnos
                         </h1>
-                        <p className="text-tech-muted text-sm font-mono">ASIGNACIÓN A CURSOS Y DISVISIONES</p>
+                        <p className="text-tech-muted text-sm font-mono">ASIGNACI├ôN A CURSOS Y DISVISIONES</p>
                     </div>
                 </div>
                 <ThemeToggle />
             </header>
 
             <div className="max-w-7xl mx-auto space-y-8">
-                {/* Selector de División */}
+                {/* Selector de Divisi├│n */}
                 <div className="bg-tech-secondary p-6 rounded border border-tech-surface shadow-lg relative overflow-hidden">
                     {/* Decorative Background */}
                     <div className="absolute -right-20 -top-20 w-64 h-64 bg-tech-cyan/5 rounded-full blur-3xl"></div>
@@ -247,7 +249,7 @@ const DivisionEnrollment = () => {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                         <div className="space-y-4 flex-grow">
                             <label className="text-xs font-bold text-tech-muted uppercase tracking-wider block flex items-center gap-2">
-                                <Layers size={14} className="text-tech-cyan" /> Seleccionar División
+                                <Layers size={14} className="text-tech-cyan" /> Seleccionar Divisi├│n
                             </label>
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                                 {divisions.map((div) => (
@@ -271,26 +273,24 @@ const DivisionEnrollment = () => {
 
                         {selectedDivisionId && (
                             <div className="flex flex-col gap-3">
-                                <div className="relative w-full md:w-64 self-end">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                    <input
-                                        type="text"
+                                <div className="w-full md:w-64 self-end">
+                                    <Input
+                                        icon={Search}
                                         placeholder="BUSCAR NOMBRE/DNI..."
-                                        className="w-full pl-10 pr-4 py-2 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan outline-none transition-all text-tech-text placeholder-tech-muted/50 font-mono text-sm"
+                                        className="font-mono text-sm"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <button
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={() => setIsBulkOpen(!isBulkOpen)}
-                                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded text-xs font-bold uppercase tracking-widest transition-all ${isBulkOpen
-                                            ? 'bg-tech-surface text-tech-text border border-tech-cyan/50'
-                                            : 'bg-tech-cyan/10 text-tech-cyan border border-tech-cyan/20 hover:bg-tech-cyan/20'
-                                        }`}
+                                    className={isBulkOpen ? 'bg-tech-surface border border-tech-cyan/50' : 'bg-tech-cyan/10 border border-tech-cyan/20'}
                                 >
                                     <Sparkles size={14} />
                                     Pegado Inteligente
-                                </button>
+                                </Button>
                             </div>
                         )}
                     </div>
@@ -302,9 +302,9 @@ const DivisionEnrollment = () => {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
                                         <h4 className="text-sm font-bold text-tech-text uppercase flex items-center gap-2">
-                                            <Clipboard size={16} className="text-tech-cyan" /> Inscripción en Lote
+                                            <Clipboard size={16} className="text-tech-cyan" /> Inscripci├│n en Lote
                                         </h4>
-                                        <span className="text-[10px] text-tech-muted font-mono uppercase">Separa por líneas o comas</span>
+                                        <span className="text-[10px] text-tech-muted font-mono uppercase">Separa por l├¡neas o comas</span>
                                     </div>
                                     <textarea
                                         className="w-full h-40 p-4 bg-tech-primary border border-tech-surface rounded focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text font-mono text-sm custom-scrollbar"
@@ -313,19 +313,16 @@ const DivisionEnrollment = () => {
                                         onChange={(e) => setBulkText(e.target.value)}
                                     ></textarea>
                                     <div className="flex justify-end gap-3">
-                                        <button
-                                            onClick={() => setIsBulkOpen(false)}
-                                            className="px-6 py-2 text-tech-muted hover:text-tech-text text-xs font-bold uppercase"
-                                        >
+                                        <Button variant="ghost" onClick={() => setIsBulkOpen(false)}>
                                             Cancelar
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
+                                            variant="primary"
                                             onClick={handleBulkProcess}
                                             disabled={bulkProcessing || !bulkText.trim()}
-                                            className="px-6 py-2 bg-tech-cyan text-white rounded text-xs font-bold uppercase hover:bg-sky-600 transition-all disabled:opacity-50"
                                         >
                                             {bulkProcessing ? 'Procesando...' : 'Analizar e Inscribir'}
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
 
@@ -333,7 +330,7 @@ const DivisionEnrollment = () => {
                                     {!bulkStats ? (
                                         <div className="text-center space-y-2 opacity-40">
                                             <Sparkles size={48} className="mx-auto mb-2" />
-                                            <p className="text-xs font-mono uppercase">Pega un listado para que la IA identifique a los alumnos automáticamente</p>
+                                            <p className="text-xs font-mono uppercase">Pega un listado para que la IA identifique a los alumnos autom├íticamente</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-4 animate-in fade-in">
@@ -358,7 +355,7 @@ const DivisionEnrollment = () => {
                                                         <AlertTriangle size={12} /> No se encontraron los siguientes alumnos:
                                                     </p>
                                                     <div className="max-h-20 overflow-y-auto text-[10px] font-mono text-tech-muted bg-tech-primary p-2 rounded custom-scrollbar">
-                                                        {bulkStats.missingList.map((m, i) => <div key={i}>• {m}</div>)}
+                                                        {bulkStats.missingList.map((m, i) => <div key={i}>ΓÇó {m}</div>)}
                                                     </div>
                                                 </div>
                                             )}
@@ -374,21 +371,22 @@ const DivisionEnrollment = () => {
                 </div>
 
                 <div className="flex justify-end">
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={handleSave}
                         disabled={saving || !selectedDivisionId}
-                        className="flex items-center gap-2 px-8 py-3 bg-tech-cyan hover:bg-sky-600 disabled:bg-tech-surface disabled:text-tech-muted rounded font-bold transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)] disabled:shadow-none uppercase tracking-wider text-sm text-white"
+                        size="lg"
                     >
                         <Save size={20} />
                         {saving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
-                    </button>
+                    </Button>
                 </div>
             </div>
 
             {!selectedDivisionId ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-tech-secondary/50 rounded border border-dashed border-tech-surface text-tech-muted mt-8">
                     <Layers size={64} className="mb-4 opacity-20" />
-                    <p className="text-xl font-light uppercase tracking-widest">Seleccionar División</p>
+                    <p className="text-xl font-light uppercase tracking-widest">Seleccionar Divisi├│n</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in duration-500 mt-4">
@@ -401,19 +399,21 @@ const DivisionEnrollment = () => {
                                 </h3>
                                 <div className="flex gap-2">
                                     {selectedAvailable.size > 0 && (
-                                        <button
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={moveSelectedToAssigned}
-                                            className="px-3 py-1 bg-tech-cyan/20 text-tech-cyan border border-tech-cyan/30 rounded text-[10px] font-bold uppercase hover:bg-tech-cyan hover:text-white transition-all animate-in fade-in"
                                         >
                                             Asignar {selectedAvailable.size}
-                                        </button>
+                                        </Button>
                                     )}
-                                    <button
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
                                         onClick={moveAllFilteredToAssigned}
-                                        className="px-3 py-1 bg-tech-surface text-tech-muted border border-tech-surface rounded text-[10px] font-bold uppercase hover:text-tech-text hover:border-tech-cyan transition-all"
                                     >
                                         Asignar Todos
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                             <span className="text-[10px] text-tech-muted font-mono uppercase tracking-widest italic flex items-center gap-2">
@@ -475,19 +475,21 @@ const DivisionEnrollment = () => {
                                 </h3>
                                 <div className="flex gap-2">
                                     {selectedAssigned.size > 0 && (
-                                        <button
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={moveSelectedToAvailable}
-                                            className="px-3 py-1 bg-tech-danger/20 text-tech-danger border border-tech-danger/30 rounded text-[10px] font-bold uppercase hover:bg-tech-danger hover:text-white transition-all animate-in fade-in"
                                         >
                                             Quitar {selectedAssigned.size}
-                                        </button>
+                                        </Button>
                                     )}
-                                    <button
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
                                         onClick={moveAllAssignedToAvailable}
-                                        className="px-3 py-1 bg-tech-surface/50 text-tech-muted border border-tech-surface rounded text-[10px] font-bold uppercase hover:text-tech-danger hover:border-tech-danger transition-all"
                                     >
                                         Quitar Todos
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -495,7 +497,7 @@ const DivisionEnrollment = () => {
                             {assignedStudents.length === 0 ? (
                                 <div className="p-10 text-center flex flex-col items-center">
                                     <Users size={32} className="text-tech-surface mb-2 opacity-50" />
-                                    <p className="text-tech-muted text-xs font-mono uppercase">Lista vacía</p>
+                                    <p className="text-tech-muted text-xs font-mono uppercase">Lista vac├¡a</p>
                                 </div>
                             ) : assignedStudents.map(s => (
                                 <div

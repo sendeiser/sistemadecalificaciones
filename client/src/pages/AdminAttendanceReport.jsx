@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { FileText, Calendar, Layers, Download, ArrowLeft, Search, FileDown } from 'lucide-react';
+import { Calendar, Layers, ArrowLeft, FileDown } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
@@ -19,7 +21,7 @@ const AdminAttendanceReport = () => {
 
     const fetchDivisions = async () => {
         try {
-            const { data, error } = await supabase.from('divisiones').select('*');
+            const { data, error } = await supabase.from('divisiones').select('*, ciclo_lectivo:ciclos_lectivos(anio)');
             if (error) throw error;
             setDivisions(data || []);
         } catch (error) {
@@ -30,10 +32,10 @@ const AdminAttendanceReport = () => {
     };
 
     const handleDownloadPDF = async () => {
-        if (!selectedDivision) return alert('Seleccione una división');
+        if (!selectedDivision) return alert('Seleccione una divisi├│n');
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
-        if (!token) return alert('No hay sesión activa');
+        if (!token) return alert('No hay sesi├│n activa');
 
         const endpoint = getApiEndpoint(`/reports/attendance/division/${selectedDivision}`);
 
@@ -47,14 +49,25 @@ const AdminAttendanceReport = () => {
     return (
         <div className="space-y-8 pb-10">
             {/* Action Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
-                        REPORTE DE <span className="text-tech-cyan">ASISTENCIA</span>
-                    </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
-                        Sistema central de control de presentismo
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-auto"
+                        onClick={() => navigate('/dashboard')}
+                        aria-label="Volver al panel"
+                    >
+                        <ArrowLeft size={24} />
+                    </Button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
+                            REPORTE DE <span className="text-tech-cyan">ASISTENCIA</span>
+                        </h1>
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
+                            Sistema central de control de presentismo
+                        </p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <ThemeToggle />
@@ -70,17 +83,17 @@ const AdminAttendanceReport = () => {
                         <div className="space-y-3">
                             <label className="text-sm font-bold uppercase tracking-widest text-tech-accent flex items-center gap-2">
                                 <Layers size={16} />
-                                Seleccionar División
+                                Seleccionar Divisi├│n
                             </label>
                             <select
                                 className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-tech-text font-mono focus:border-tech-accent outline-none transition-all"
                                 value={selectedDivision}
                                 onChange={e => setSelectedDivision(e.target.value)}
                             >
-                                <option value="">--- Seleccione una división ---</option>
+                                <option value="">--- Seleccione una divisi├│n ---</option>
                                 {divisions.map(d => (
                                     <option key={d.id} value={d.id}>
-                                        {d.anio} {d.seccion} - Ciclo {d.ciclo_lectivo}
+                                        {d.anio} {d.seccion} - Ciclo {d.ciclo_lectivo?.anio || d.ciclo_lectivo}
                                     </option>
                                 ))}
                             </select>
@@ -93,11 +106,10 @@ const AdminAttendanceReport = () => {
                                     <Calendar size={16} />
                                     Fecha Desde
                                 </label>
-                                <input
+                                <Input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-tech-text font-mono focus:border-tech-cyan outline-none transition-all"
                                 />
                             </div>
                             <div className="space-y-3">
@@ -105,27 +117,28 @@ const AdminAttendanceReport = () => {
                                     <Calendar size={16} />
                                     Fecha Hasta
                                 </label>
-                                <input
+                                <Input
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full p-4 bg-tech-primary border border-tech-surface rounded-lg text-tech-text font-mono focus:border-tech-cyan outline-none transition-all"
                                 />
                             </div>
                         </div>
 
                         {/* Action Button */}
                         <div className="pt-6 border-t border-tech-surface/50">
-                            <button
+                            <Button
+                                variant="primary"
+                                size="lg"
                                 onClick={handleDownloadPDF}
                                 disabled={!selectedDivision || loading}
-                                className="w-full flex items-center justify-center gap-3 px-8 py-5 bg-tech-accent hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-lg font-bold uppercase tracking-widest shadow-lg hover:shadow-amber-500/20 transition-all text-lg"
+                                className="w-full bg-tech-accent hover:bg-amber-600 shadow-lg hover:shadow-amber-500/20"
                             >
                                 <FileDown size={24} />
                                 Generar Reporte PDF
-                            </button>
+                            </Button>
                             <p className="text-center text-tech-muted text-xs mt-4 font-mono">
-                                El reporte incluirá todos los registros de asistencia del preceptor para el periodo seleccionado.
+                                El reporte incluir├í todos los registros de asistencia del preceptor para el periodo seleccionado.
                             </p>
                         </div>
                     </div>

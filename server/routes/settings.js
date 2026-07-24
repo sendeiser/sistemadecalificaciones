@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { supabase } = require('../config/supabaseClient');
+const { supabase, supabaseAdmin } = require('../config/supabaseClient');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Validar si el usuario es Admin
@@ -84,6 +84,65 @@ router.post('/', authMiddleware, requireAdmin, async (req, res) => {
     } catch (err) {
         console.error('Update settings error:', err);
         res.status(500).json({ error: 'Error al guardar configuración' });
+    }
+});
+
+// GET /api/settings/backup - Backup all database tables
+router.get('/backup', authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const tables = [
+            'perfiles',
+            'divisiones',
+            'materias',
+            'asignaciones',
+            'estudiantes_divisiones',
+            'calificaciones',
+            'periodos_calificacion',
+            'asistencias',
+            'asistencias_preceptor',
+            'mensajes',
+            'eventos_calendario',
+            'anuncios',
+            'anuncios_leidos',
+            'perfiles_logros',
+            'ai_diagnostics',
+            'invitaciones',
+            'tutores_alumnos',
+            'auditoria_notas',
+            'sistema_feedback',
+            'system_settings'
+        ];
+
+        const backupData = {};
+        const clientToUse = supabaseAdmin || supabase;
+
+        for (const table of tables) {
+            const { data, error } = await clientToUse
+                .from(table)
+                .select('*');
+
+            if (error) {
+                console.warn(`Backup: error reading table ${table}:`, error.message);
+                backupData[table] = { error: error.message };
+            } else {
+                backupData[table] = data || [];
+            }
+        }
+
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'sistema',
+            'all',
+            'BACKUP_DATABASE',
+            null,
+            { tables: tables.length }
+        );
+
+        res.json(backupData);
+    } catch (err) {
+        console.error('Backup error:', err);
+        res.status(500).json({ error: 'Error al generar la copia de seguridad' });
     }
 });
 

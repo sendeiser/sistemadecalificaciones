@@ -4,6 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import { motion } from 'framer-motion';
 import { Lock, Mail, ArrowRight, ShieldCheck, Terminal } from 'lucide-react';
+import Button from './ui/Button';
+import Input from './ui/Input';
 
 const Login = () => {
     const { signIn } = useAuth();
@@ -74,35 +76,25 @@ const Login = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-tech-muted uppercase tracking-widest ml-1">Email Institucional</label>
-                            <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted group-focus-within:text-tech-cyan transition-colors" size={18} />
-                                <input
-                                    type="email"
-                                    required
-                                    className="w-full pl-12 pr-4 py-4 bg-tech-primary/50 border border-tech-surface rounded-xl focus:ring-2 focus:ring-tech-cyan/20 focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/40 font-medium"
-                                    placeholder="usuario@eta.edu"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                        </div>
+                        <Input
+                            label="Email Institucional"
+                            icon={Mail}
+                            type="email"
+                            required
+                            placeholder="usuario@escuela.edu"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-tech-muted uppercase tracking-widest ml-1">Contraseña</label>
-                            <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted group-focus-within:text-tech-cyan transition-colors" size={18} />
-                                <input
-                                    type="password"
-                                    required
-                                    className="w-full pl-12 pr-4 py-4 bg-tech-primary/50 border border-tech-surface rounded-xl focus:ring-2 focus:ring-tech-cyan/20 focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/40 font-medium"
-                                    placeholder="••••••••"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </div>
-                        </div>
+                        <Input
+                            label="Contraseña"
+                            icon={Lock}
+                            type="password"
+                            required
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
 
                         {error && (
                             <motion.div
@@ -120,15 +112,15 @@ const Login = () => {
                             </Link>
                         </div>
 
-                        <button
+                        <Button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-4 bg-tech-cyan text-white rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-lg shadow-tech-cyan/30 hover:shadow-tech-cyan/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-3 group relative overflow-hidden"
+                            className="w-full"
+                            shine
                         >
-                            <span className="relative z-10">{loading ? 'Verificando Nodo...' : 'Iniciar Protocolo'}</span>
-                            <ArrowRight className="relative z-10 group-hover:translate-x-1 transition-transform" size={20} />
-                            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
-                        </button>
+                            {loading ? 'Verificando Nodo...' : 'Iniciar Protocolo'}
+                            <ArrowRight size={20} />
+                        </Button>
 
                         <div className="text-center pt-8 border-t border-tech-surface/50">
                             <p className="text-tech-muted text-xs font-medium">

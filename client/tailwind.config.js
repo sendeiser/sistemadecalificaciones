@@ -18,8 +18,8 @@ export default {
                 }
             },
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                mono: ['Roboto Mono', 'monospace'],
+                sans: ['Plus Jakarta Sans', 'sans-serif'],
+                mono: ['JetBrains Mono', 'monospace'],
             }
         },
     },

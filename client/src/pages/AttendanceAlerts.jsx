@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
-import { AlertTriangle, ArrowLeft, Search, FileText, Download, ShieldAlert, CheckCircle } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, FileText, ShieldAlert } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Table from '../components/ui/Table';
 import { getApiEndpoint } from '../utils/api';
 
 const AttendanceAlerts = () => {
@@ -88,9 +90,9 @@ const AttendanceAlerts = () => {
     };
 
     const getStatusInfo = (faltas) => {
-        if (faltas >= 25) return { label: 'CRÍTICO', color: 'text-tech-danger', bg: 'bg-tech-danger/10', border: 'border-tech-danger' };
+        if (faltas >= 25) return { label: 'CR├ìTICO', color: 'text-tech-danger', bg: 'bg-tech-danger/10', border: 'border-tech-danger' };
         if (faltas >= 15) return { label: 'ALERTA', color: 'text-tech-accent', bg: 'bg-tech-accent/10', border: 'border-tech-accent' };
-        if (faltas >= 10) return { label: 'PRECAUCIÓN', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/50' };
+        if (faltas >= 10) return { label: 'PRECAUCI├ôN', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/50' };
         return { label: 'NORMAL', color: 'text-tech-success', bg: 'bg-tech-success/10', border: 'border-tech-success' };
     };
 
@@ -133,9 +135,9 @@ const AttendanceAlerts = () => {
 
                         <div className="flex items-center gap-6 text-xs font-mono uppercase">
                             <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-tech-success"></span> Normal (0-9)</div>
-                            <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> Precaución (10-14)</div>
+                            <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> Precauci├│n (10-14)</div>
                             <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-tech-accent"></span> Alerta (15-24)</div>
-                            <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-tech-danger"></span> Crítico (25+)</div>
+                            <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-tech-danger"></span> Cr├¡tico (25+)</div>
                         </div>
                     </div>
                 </section>
@@ -146,59 +148,70 @@ const AttendanceAlerts = () => {
                     ) : !selectedDivisionId ? (
                         <div className="p-20 text-center text-tech-muted italic flex flex-col items-center gap-4">
                             <AlertTriangle size={48} className="opacity-20" />
-                            <p className="uppercase tracking-widest text-xs">Seleccione una división para procesar alertas.</p>
+                            <p className="uppercase tracking-widest text-xs">Seleccione una divisi├│n para procesar alertas.</p>
                         </div>
                     ) : students.length === 0 ? (
                         <div className="p-20 text-center text-tech-muted italic font-mono">No se encontraron alumnos registrados.</div>
                     ) : (
                         <>
                             {/* Desktop Table View */}
-                            <div className="hidden md:block overflow-x-auto">
-                                <table className="w-full">
-                                    <thead className="bg-tech-primary/50 text-tech-muted text-[10px] uppercase font-bold tracking-widest border-b border-tech-surface">
-                                        <tr>
-                                            <th className="p-4 text-left">Alumno</th>
-                                            <th className="p-4 text-center">Inasistencias</th>
-                                            <th className="p-4 text-center">Estado de Riesgo</th>
-                                            <th className="p-4 text-center">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-tech-surface">
-                                        {students.map(s => {
-                                            const status = getStatusInfo(s.faltas);
-                                            return (
-                                                <tr key={s.id} className="hover:bg-tech-surface/20 transition-colors">
-                                                    <td className="p-4">
-                                                        <div className="font-bold text-tech-text uppercase text-sm">{s.nombre}</div>
-                                                        <div className="text-[10px] text-tech-muted font-mono">{s.dni}</div>
-                                                    </td>
-                                                    <td className={`p-4 text-center font-bold text-xl ${status.color}`}>
-                                                        {s.faltas}
-                                                    </td>
-                                                    <td className="p-4 text-center">
-                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${status.bg} ${status.color} ${status.border} shadow-sm`}>
-                                                            {status.label}
-                                                        </span>
-                                                    </td>
-                                                    <td className="p-4 text-center">
-                                                        <button
-                                                            onClick={() => handleDownloadCitation(s)}
-                                                            disabled={generating === s.id}
-                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-secondary border border-tech-surface hover:border-tech-cyan/50 text-tech-muted hover:text-tech-cyan rounded transition-all text-[10px] font-bold uppercase tracking-wider disabled:opacity-50"
-                                                        >
-                                                            {generating === s.id ? (
-                                                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-                                                            ) : (
-                                                                <FileText size={14} />
-                                                            )}
-                                                            Generar Citación
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+                            <div className="hidden md:block">
+                                {(() => {
+                                    const columns = [
+                                        {
+                                            key: 'nombre',
+                                            label: 'Alumno',
+                                            render: (_, row) => (
+                                                <div>
+                                                    <div className="font-bold text-tech-text uppercase text-sm">{row.nombre}</div>
+                                                    <div className="text-[10px] text-tech-muted font-mono">{row.dni}</div>
+                                                </div>
+                                            )
+                                        },
+                                        {
+                                            key: 'faltas',
+                                            label: 'Inasistencias',
+                                            align: 'center',
+                                            render: (val) => (
+                                                <span className={`font-bold text-xl ${getStatusInfo(val).color}`}>{val}</span>
+                                            )
+                                        },
+                                        {
+                                            key: 'riesgo',
+                                            label: 'Estado de Riesgo',
+                                            align: 'center',
+                                            render: (_, row) => {
+                                                const status = getStatusInfo(row.faltas);
+                                                return (
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${status.bg} ${status.color} ${status.border} shadow-sm`}>
+                                                        {status.label}
+                                                    </span>
+                                                );
+                                            }
+                                        },
+                                        {
+                                            key: 'acciones',
+                                            label: 'Acciones',
+                                            align: 'center',
+                                            render: (_, row) => (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDownloadCitation(row)}
+                                                    disabled={generating === row.id}
+                                                >
+                                                    {generating === row.id ? (
+                                                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                                                    ) : (
+                                                        <FileText size={14} />
+                                                    )}
+                                                    Generar Citaci├│n
+                                                </Button>
+                                            )
+                                        }
+                                    ];
+                                    return <Table columns={columns} data={students} />;
+                                })()}
                             </div>
 
                             {/* Mobile Card View */}
@@ -220,18 +233,19 @@ const AttendanceAlerts = () => {
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${status.bg} ${status.color} ${status.border}`}>
                                                     {status.label}
                                                 </span>
-                                                <button
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
                                                     onClick={() => handleDownloadCitation(s)}
                                                     disabled={generating === s.id}
-                                                    className="flex items-center gap-2 px-3 py-1.5 bg-tech-cyan/10 hover:bg-tech-cyan/20 text-tech-cyan rounded-lg transition-all text-[10px] font-bold uppercase"
                                                 >
                                                     {generating === s.id ? (
                                                         <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
                                                     ) : (
                                                         <FileText size={12} />
                                                     )}
-                                                    Citación
-                                                </button>
+                                                    Citaci├│n
+                                                </Button>
                                             </div>
                                         </div>
                                     );

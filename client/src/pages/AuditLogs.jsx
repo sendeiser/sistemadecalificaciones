@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
-    Clock, ArrowLeft, ChevronLeft, ChevronRight, Database, User,
+    ArrowLeft, ChevronLeft, ChevronRight, Database, User,
     Activity, ChevronDown, ChevronUp, Trash2, Edit3, PlusCircle,
-    Shield, Filter, X, Calendar, RefreshCcw
+    Filter, X, RefreshCcw
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { getApiEndpoint } from '../utils/api';
@@ -13,7 +13,9 @@ import DiffViewer from '../components/DiffViewer';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { Download, FileDown, Table } from 'lucide-react';
+import { FileDown, Table } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const AuditLogs = () => {
     const { profile } = useAuth();
@@ -81,9 +83,9 @@ const AuditLogs = () => {
             rol: 'Rol',
             fecha: 'Fecha',
             tipo: 'Tipo',
-            division_id: 'División',
+            division_id: 'Divisi├│n',
             alumno_id: 'Alumno',
-            asignacion_id: 'Asignación',
+            asignacion_id: 'Asignaci├│n',
             contenido: 'Mensaje',
             destinatario_nombre: 'Destinatario'
         };
@@ -125,7 +127,7 @@ const AuditLogs = () => {
 
             if (format === 'pdf') {
                 const doc = new jsPDF('l', 'mm', 'a4');
-                const title = 'Reporte de Auditoría de Sistema';
+                const title = 'Reporte de Auditor├¡a de Sistema';
                 const timestamp = `Generado: ${new Date().toLocaleString('es-AR')}`;
 
                 doc.setFontSize(18);
@@ -144,7 +146,7 @@ const AuditLogs = () => {
                 ]);
 
                 autoTable(doc, {
-                    head: [['Fecha', 'Usuario', 'Acción', 'Cambios Realizados']],
+                    head: [['Fecha', 'Usuario', 'Acci├│n', 'Cambios Realizados']],
                     body: tableData,
                     startY: 35,
                     theme: 'grid',
@@ -169,7 +171,7 @@ const AuditLogs = () => {
                         const pageSize = doc.internal.pageSize;
                         const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
                         doc.setFontSize(8);
-                        doc.text(`Página ${data.pageNumber}`, data.settings.margin.left, pageHeight - 10);
+                        doc.text(`P├ígina ${data.pageNumber}`, data.settings.margin.left, pageHeight - 10);
                     }
                 });
                 doc.save(`Auditoria_Reporte_${new Date().getTime()}.pdf`);
@@ -177,7 +179,7 @@ const AuditLogs = () => {
                 const formattedData = exportLogs.map(log => ({
                     'Fecha y Hora': new Date(log.fecha).toLocaleString('es-AR'),
                     'Usuario Actor': log.usuario?.nombre || 'SISTEMA',
-                    'Acción': log.accion,
+                    'Acci├│n': log.accion,
                     'Cambios Realizados': getSimplifiedDiff(log.datos_anteriores, log.datos_nuevos)
                 }));
 
@@ -239,11 +241,6 @@ const AuditLogs = () => {
         };
     }, []);
 
-    const formatDiff = useCallback((data) => {
-        if (!data) return 'N/A';
-        return JSON.stringify(data, null, 2);
-    }, []);
-
     const hasActiveFilters = useMemo(() => {
         return filters.entidad_tipo || filters.accion || filters.desde || filters.hasta;
     }, [filters]);
@@ -257,60 +254,41 @@ const AuditLogs = () => {
         <PageTransition>
             <div className="space-y-8 pb-10">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                            REGISTRO DE <span className="text-tech-cyan">AUDITORÍA</span>
-                        </h1>
-                        <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
-                            Seguimiento de acciones críticas del sistema
-                        </p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
+                    <div className="flex items-center gap-4">
+                        <Button onClick={() => navigate('/dashboard')} variant="ghost" size="sm" aria-label="Volver al panel">
+                            <ArrowLeft size={24} />
+                        </Button>
+                        <div>
+                            <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                                REGISTRO DE <span className="text-tech-cyan">AUDITOR├ìA</span>
+                            </h1>
+                            <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
+                                Seguimiento de acciones cr├¡ticas del sistema
+                            </p>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                         {/* Refresh Button */}
-                        <button
-                            onClick={() => fetchLogs()}
-                            disabled={loading}
-                            className={`p-2.5 rounded-xl border transition-all shadow-lg ${loading
-                                ? 'bg-tech-surface opacity-50'
-                                : 'bg-tech-secondary border-tech-surface text-tech-muted hover:text-tech-cyan hover:border-tech-cyan/50'
-                                }`}
-                            title="Actualizar"
-                        >
+                        <Button onClick={() => fetchLogs()} disabled={loading} variant="ghost" size="sm" title="Actualizar">
                             <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
-                        </button>
+                        </Button>
 
                         {/* Export Buttons */}
                         <div className="flex items-center gap-2 bg-tech-secondary/50 p-1.5 rounded-xl border border-tech-surface shadow-inner">
-                            <button
-                                onClick={() => exportData('pdf')}
-                                disabled={loading || logs.length === 0}
-                                className="p-2 bg-tech-danger/10 text-tech-danger rounded-lg border border-tech-danger/20 hover:bg-tech-danger/20 transition-all disabled:opacity-50"
-                                title="Exportar PDF"
-                            >
+                            <Button onClick={() => exportData('pdf')} disabled={loading || logs.length === 0} variant="ghost" size="sm" title="Exportar PDF">
                                 <FileDown size={18} />
-                            </button>
-                            <button
-                                onClick={() => exportData('excel')}
-                                disabled={loading || logs.length === 0}
-                                className="p-2 bg-tech-success/10 text-tech-success rounded-lg border border-tech-success/20 hover:bg-tech-success/20 transition-all disabled:opacity-50"
-                                title="Exportar Excel"
-                            >
+                            </Button>
+                            <Button onClick={() => exportData('excel')} disabled={loading || logs.length === 0} variant="ghost" size="sm" title="Exportar Excel">
                                 <Table size={18} />
-                            </button>
+                            </Button>
                         </div>
 
                         {/* Filter Toggle (Mobile Only) */}
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className={`md:hidden p-2.5 rounded-xl border transition-all ${showFilters || hasActiveFilters
-                                ? 'bg-tech-cyan text-white border-tech-cyan shadow-lg shadow-tech-cyan/20'
-                                : 'bg-tech-secondary border-tech-surface text-tech-muted'
-                                }`}
-                        >
+                        <Button onClick={() => setShowFilters(!showFilters)} variant="ghost" size="sm" className="md:hidden">
                             <Filter size={18} />
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
@@ -337,12 +315,12 @@ const AuditLogs = () => {
                                     <option value="anuncio">Anuncios</option>
                                     <option value="evento_calendario">Calendario</option>
                                     <option value="logro">Logros/Medallas</option>
-                                    <option value="mensaje">Mensajería</option>
+                                    <option value="mensaje">Mensajer├¡a</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-[10px] uppercase font-black text-tech-muted mb-1.5 tracking-widest">
-                                    Acción
+                                    Acci├│n
                                 </label>
                                 <select
                                     value={filters.accion}
@@ -353,39 +331,33 @@ const AuditLogs = () => {
                                     <option value="INSERT">Creaciones</option>
                                     <option value="UPDATE">Modificaciones</option>
                                     <option value="DELETE">Eliminaciones</option>
-                                    <option value="SEND">Envíos (Mensajes)</option>
+                                    <option value="SEND">Env├¡os (Mensajes)</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-[10px] uppercase font-black text-tech-muted mb-1.5 tracking-widest">
                                     Desde
                                 </label>
-                                <input
-                                    type="date"
-                                    value={filters.desde}
-                                    onChange={(e) => setFilters({ ...filters, desde: e.target.value })}
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm focus:border-tech-cyan outline-none"
-                                />
+                                    <Input
+                                        type="date"
+                                        value={filters.desde}
+                                        onChange={(e) => setFilters({ ...filters, desde: e.target.value })}
+                                    />
                             </div>
                             <div>
                                 <label className="block text-[10px] uppercase font-black text-tech-muted mb-1.5 tracking-widest">
                                     Hasta
                                 </label>
                                 <div className="flex gap-2">
-                                    <input
+                                    <Input
                                         type="date"
                                         value={filters.hasta}
                                         onChange={(e) => setFilters({ ...filters, hasta: e.target.value })}
-                                        className="flex-grow bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm focus:border-tech-cyan outline-none"
                                     />
                                     {hasActiveFilters && (
-                                        <button
-                                            onClick={clearFilters}
-                                            className="p-2 bg-tech-danger/20 text-tech-danger rounded hover:bg-tech-danger/30 transition-all"
-                                            title="Limpiar filtros"
-                                        >
+                                        <Button onClick={clearFilters} variant="ghost" size="sm" title="Limpiar filtros">
                                             <X size={18} />
-                                        </button>
+                                        </Button>
                                     )}
                                 </div>
                             </div>
@@ -445,13 +417,10 @@ const AuditLogs = () => {
                                                     </div>
                                                 </div>
 
-                                                <button
-                                                    onClick={() => setExpandedLog(isExpanded ? null : log.id)}
-                                                    className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-tech-cyan hover:bg-tech-surface/30 rounded transition-colors"
-                                                >
+                                                <Button onClick={() => setExpandedLog(isExpanded ? null : log.id)} variant="ghost" size="sm" className="w-full">
                                                     {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                                     {isExpanded ? 'Ocultar Detalles' : 'Ver Detalles'}
-                                                </button>
+                                                </Button>
 
                                                 {isExpanded && (
                                                     <div className="mt-3">
@@ -479,7 +448,7 @@ const AuditLogs = () => {
                                                     Usuario
                                                 </th>
                                                 <th className="px-6 py-4 text-xs uppercase font-black text-tech-muted tracking-widest font-mono">
-                                                    Acción
+                                                    Acci├│n
                                                 </th>
                                                 <th className="px-6 py-4 text-xs uppercase font-black text-tech-muted tracking-widest font-mono">
                                                     Entidad
@@ -530,13 +499,10 @@ const AuditLogs = () => {
                                                                 </span>
                                                             </td>
                                                             <td className="px-6 py-4">
-                                                                <button
-                                                                    onClick={() => setExpandedLog(isExpanded ? null : log.id)}
-                                                                    className="flex items-center gap-1 text-xs font-bold text-tech-cyan hover:underline"
-                                                                >
+                                                                <Button onClick={() => setExpandedLog(isExpanded ? null : log.id)} variant="ghost" size="sm">
                                                                     {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                                                                     {isExpanded ? 'Ocultar' : 'Ver Data'}
-                                                                </button>
+                                                                </Button>
                                                             </td>
                                                         </tr>
                                                         {isExpanded && (
@@ -570,23 +536,15 @@ const AuditLogs = () => {
                     totalPages > 1 && (
                         <div className="flex justify-between items-center bg-tech-secondary p-3 md:p-4 rounded-xl border border-tech-surface font-mono text-xs">
                             <div className="text-tech-muted uppercase tracking-widest text-[10px] md:text-xs">
-                                Pág. <span className="text-tech-cyan">{page}</span>/<span className="text-tech-cyan">{totalPages}</span>
+                                P├íg. <span className="text-tech-cyan">{page}</span>/<span className="text-tech-cyan">{totalPages}</span>
                             </div>
                             <div className="flex gap-2">
-                                <button
-                                    disabled={page === 1}
-                                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                                    className="p-2 bg-tech-surface rounded disabled:opacity-30 hover:text-tech-cyan transition-colors disabled:cursor-not-allowed"
-                                >
+                                <Button disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))} variant="ghost" size="sm">
                                     <ChevronLeft size={18} />
-                                </button>
-                                <button
-                                    disabled={page === totalPages}
-                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                    className="p-2 bg-tech-surface rounded disabled:opacity-30 hover:text-tech-cyan transition-colors disabled:cursor-not-allowed"
-                                >
+                                </Button>
+                                <Button disabled={page === totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))} variant="ghost" size="sm">
                                     <ChevronRight size={18} />
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     )
@@ -606,7 +564,7 @@ const AuditLogs = () => {
                     border-radius: 2px;
                 }
                 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-                    background: #06b6d4;
+                    background: #dc2626;
                 }
             `}</style>
         </PageTransition >

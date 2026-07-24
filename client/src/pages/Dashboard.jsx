@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, PieChart, BarChart3, CheckSquare, Sun, Moon, Search, X, Bell, Calendar as CalendarIcon, AlertCircle, ShieldAlert, MessageSquare, Award } from 'lucide-react';
+import { Users, FileText, GraduationCap, BookOpen, Layers, Info, HelpCircle, ArrowRight, Clock, Settings, BarChart3, CheckSquare, Search, X, Bell, Calendar as CalendarIcon, AlertCircle, ShieldAlert, MessageSquare } from 'lucide-react';
+import { motion } from 'framer-motion';
 import MedalBadge from '../components/MedalBadge';
 import DashboardStats from '../components/DashboardStats';
 import AnnouncementTicker from '../components/AnnouncementTicker';
@@ -11,10 +11,11 @@ import { supabase } from '../supabaseClient';
 import { getApiEndpoint } from '../utils/api';
 import CriticalStudentsWidget from '../components/CriticalStudentsWidget';
 import useNotifications from '../hooks/useNotifications';
+import Input from '../components/ui/Input';
+import Tabs from '../components/ui/Tabs';
 
 const Dashboard = () => {
-    const { profile, signOut } = useAuth();
-    const { theme, toggleTheme } = useTheme();
+    const { profile } = useAuth();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -23,6 +24,23 @@ const Dashboard = () => {
     const [medals, setMedals] = useState([]);
     const [activeTab, setActiveTab] = useState('diario');
     const { unreadMessages, unreadAnnouncements } = useNotifications();
+
+    const sections = useMemo(() => {
+        const items = [
+            { key: 'ticker', render: () => (
+                <AnnouncementTicker />
+            )},
+            { key: 'stats', render: () => (
+                <DashboardStats role={profile.rol} profileId={profile.id} />
+            )},
+        ];
+        if (profile.rol === 'admin' || profile.rol === 'preceptor') {
+            items.push({ key: 'critical', render: () => (
+                <div className="mb-10"><CriticalStudentsWidget /></div>
+            )});
+        }
+        return items;
+    }, [profile]);
 
     React.useEffect(() => {
         if (profile?.rol === 'tutor') {
@@ -66,11 +84,6 @@ const Dashboard = () => {
         } catch (error) {
             console.error('Error fetching medals:', error);
         }
-    };
-
-    const handleLogout = async () => {
-        await signOut();
-        navigate('/login');
     };
 
     const handleSearch = async (e) => {
@@ -130,26 +143,26 @@ const Dashboard = () => {
                     <h1 className="text-3xl font-black text-tech-text tracking-tighter uppercase leading-none">
                         PANEL DE <span className="text-tech-cyan">CONTROL</span>
                     </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">Visión general y métricas en tiempo real</p>
+                    <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">Visi├│n general y m├⌐tricas en tiempo real</p>
                 </div>
 
                 {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
                     <div className="relative w-full lg:w-96">
                         <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted group-focus-within:text-tech-cyan transition-colors" size={18} />
-                            <input
+                            <Input
+                                icon={Search}
                                 type="text"
                                 value={searchQuery}
                                 onChange={handleSearch}
-                                placeholder="Búsqueda rápida…"
-                                aria-label="Búsqueda rápida de alumnos, divisiones o materias"
-                                className="w-full pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md border border-tech-surface rounded-2xl text-tech-text placeholder-tech-muted/70 text-sm focus:outline-none focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 focus-visible:ring-tech-cyan/30 transition-all shadow-xl"
+                                placeholder="B├║squeda r├ípidaΓÇª"
+                                aria-label="B├║squeda r├ípida de alumnos, divisiones o materias"
+                                className="pl-12 pr-10 py-3.5 bg-tech-secondary/50 backdrop-blur-md rounded-2xl text-sm placeholder-tech-muted/70 focus:border-tech-cyan/50 focus:ring-4 focus:ring-tech-cyan/5 focus-visible:ring-tech-cyan/30"
                             />
                             {searchQuery && (
                                 <button
                                     onClick={() => { setSearchQuery(''); setShowResults(false); }}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-tech-muted hover:text-tech-text focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded"
-                                    aria-label="Limpiar búsqueda"
+                                    aria-label="Limpiar b├║squeda"
                                 >
                                     <X size={16} />
                                 </button>
@@ -159,7 +172,7 @@ const Dashboard = () => {
                         {showResults && (
                             <div className="absolute top-full mt-3 w-full bg-tech-secondary border border-tech-surface rounded-2xl shadow-2xl z-50 max-h-80 overflow-y-auto border-t-4 border-t-tech-cyan animate-in fade-in slide-in-from-top-2 backdrop-blur-xl">
                                 {isSearching ? (
-                                    <div className="p-8 text-center text-tech-muted text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Consultando base de datos…</div>
+                                    <div className="p-8 text-center text-tech-muted text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Consultando base de datosΓÇª</div>
                                 ) : searchResults.length > 0 ? (
                                     <div className="p-2 space-y-1">
                                         {searchResults.map((res, i) => (
@@ -173,7 +186,7 @@ const Dashboard = () => {
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold text-tech-text text-sm group-hover:text-tech-cyan transition-colors">{res.title}</span>
-                                                    <span className="text-[10px] text-tech-muted uppercase font-black tracking-tighter">{res.type} {res.subtitle && `• ${res.subtitle}`}</span>
+                                                    <span className="text-[10px] text-tech-muted uppercase font-black tracking-tighter">{res.type} {res.subtitle && `ΓÇó ${res.subtitle}`}</span>
                                                 </div>
                                             </button>
                                         ))}
@@ -188,66 +201,38 @@ const Dashboard = () => {
             </div>
 
             <main>
-                {(profile.rol === 'admin' || profile.rol === 'docente' || profile.rol === 'alumno' || profile.rol === 'preceptor') && (
-                    <AnnouncementTicker />
-                )}
-
-                <DashboardStats role={profile.rol} profileId={profile.id} />
-
-                {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
-                    <div className="mb-10">
-                        <CriticalStudentsWidget />
-                    </div>
-                )}
+                {sections.map((section, idx) => (
+                    <motion.div
+                        key={section.key}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05, duration: 0.2, ease: 'easeOut' }}
+                    >
+                        {section.render()}
+                    </motion.div>
+                ))}
 
                 {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
                     <div className="space-y-8">
-                        {/* Pestañas de navegación para organizar secciones */}
-                        <div role="tablist" className="flex border-b border-tech-surface mb-8 gap-4 overflow-x-auto pb-2 scrollbar-thin">
-                            <button
-                                role="tab"
-                                aria-selected={activeTab === 'diario'}
-                                onClick={() => setActiveTab('diario')}
-                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl whitespace-nowrap ${
-                                    activeTab === 'diario'
-                                        ? 'border-tech-cyan text-tech-cyan font-black'
-                                        : 'border-transparent text-tech-muted hover:text-tech-text'
-                                }`}
-                            >
-                                Operación Diaria
-                            </button>
-                            <button
-                                role="tab"
-                                aria-selected={activeTab === 'academico'}
-                                onClick={() => setActiveTab('academico')}
-                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl whitespace-nowrap ${
-                                    activeTab === 'academico'
-                                        ? 'border-tech-cyan text-tech-cyan font-black'
-                                        : 'border-transparent text-tech-muted hover:text-tech-text'
-                                }`}
-                            >
-                                Configuración Académica
-                            </button>
-                            <button
-                                role="tab"
-                                aria-selected={activeTab === 'reportes'}
-                                onClick={() => setActiveTab('reportes')}
-                                className={`px-6 py-3 font-bold uppercase tracking-wider text-sm transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none rounded-t-xl whitespace-nowrap ${
-                                    activeTab === 'reportes'
-                                        ? 'border-tech-cyan text-tech-cyan font-black'
-                                        : 'border-transparent text-tech-muted hover:text-tech-text'
-                                }`}
-                            >
-                                Reportes y Estadísticas
-                            </button>
+                        <div className="mb-8 overflow-x-auto pb-2 scrollbar-thin">
+                            <Tabs
+                                variant="underline"
+                                tabs={[
+                                    { value: 'diario', label: 'Operaci├│n Diaria' },
+                                    { value: 'academico', label: 'Configuraci├│n Acad├⌐mica' },
+                                    { value: 'reportes', label: 'Reportes y Estad├¡sticas' }
+                                ]}
+                                activeTab={activeTab}
+                                onChange={setActiveTab}
+                            />
                         </div>
 
-                        {/* Renderizado de contenidos de pestaña */}
+                        {/* Renderizado de contenidos de pesta├▒a */}
                         {activeTab === 'diario' && (
                             <section className="space-y-6">
                                 <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest flex items-center gap-3">
                                     <span className="w-2 h-8 bg-tech-cyan rounded-full"></span>
-                                    Control Diario y Comunicación
+                                    Control Diario y Comunicaci├│n
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <button onClick={() => navigate('/admin/attendance-capture')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
@@ -267,7 +252,7 @@ const Dashboard = () => {
                                             <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
                                                 <FileText size={24} />
                                             </div>
-                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Justificación</h3>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Justificaci├│n</h3>
                                         </div>
                                         <p className="text-tech-muted text-sm font-mono">Carga masiva por rango de fechas.</p>
                                     </button>
@@ -313,7 +298,7 @@ const Dashboard = () => {
                                             </div>
                                             <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Calendario</h3>
                                         </div>
-                                        <p className="text-tech-muted text-sm font-mono">Eventos académicos.</p>
+                                        <p className="text-tech-muted text-sm font-mono">Eventos acad├⌐micos.</p>
                                     </button>
 
                                     <button onClick={() => navigate('/announcements')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] relative overflow-hidden">
@@ -356,7 +341,7 @@ const Dashboard = () => {
                                 <div className="space-y-6">
                                     <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest flex items-center gap-3">
                                         <span className="w-2 h-8 bg-tech-success rounded-full"></span>
-                                        Administración Base
+                                        Administraci├│n Base
                                     </h2>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         <button onClick={() => navigate('/students')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-success focus-visible:border-tech-success focus-visible:ring-2 focus-visible:ring-tech-success/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
@@ -399,7 +384,7 @@ const Dashboard = () => {
                                                     <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
                                                         <Users size={24} />
                                                     </div>
-                                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Gestión Accesos</h3>
+                                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Gesti├│n Accesos</h3>
                                                 </div>
                                                 <p className="text-tech-muted text-sm font-mono">Generar invitaciones para docentes.</p>
                                             </button>
@@ -412,7 +397,7 @@ const Dashboard = () => {
                                                     <div className="p-3 bg-tech-cyan/10 rounded-xl group-hover:bg-tech-cyan/20 group-focus-visible:bg-tech-cyan/20 transition-colors">
                                                         <ShieldAlert size={24} />
                                                     </div>
-                                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Auditoría</h3>
+                                                    <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Auditor├¡a</h3>
                                                 </div>
                                                 <p className="text-tech-muted text-sm font-mono">Historial completo de acciones.</p>
                                             </button>
@@ -423,7 +408,7 @@ const Dashboard = () => {
                                 <div className="space-y-6">
                                     <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest flex items-center gap-3">
                                         <span className="w-2 h-8 bg-tech-accent rounded-full"></span>
-                                        Configuración de Ciclo
+                                        Configuraci├│n de Ciclo
                                     </h2>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         <button onClick={() => navigate('/assignments')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
@@ -467,7 +452,7 @@ const Dashboard = () => {
                             <section className="space-y-6">
                                 <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest flex items-center gap-3">
                                     <span className="w-2 h-8 bg-tech-success rounded-full"></span>
-                                    Reportes y Análisis
+                                    Reportes y An├ílisis
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <button onClick={() => navigate('/admin/reports')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-success focus-visible:border-tech-success focus-visible:ring-2 focus-visible:ring-tech-success/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-hidden">
@@ -498,9 +483,9 @@ const Dashboard = () => {
                                             <div className="p-3 bg-tech-accent/10 rounded-xl group-hover:bg-tech-accent/20 group-focus-visible:bg-tech-accent/20 transition-colors">
                                                 <BarChart3 size={24} />
                                             </div>
-                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Estadísticas</h3>
+                                            <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Estad├¡sticas</h3>
                                         </div>
-                                        <p className="text-tech-muted text-sm font-mono">Gráficos de asistencia y progreso.</p>
+                                        <p className="text-tech-muted text-sm font-mono">Gr├íficos de asistencia y progreso.</p>
                                     </button>
                                 </div>
                             </section>
@@ -514,22 +499,22 @@ const Dashboard = () => {
                         <section>
                             <h2 className="text-xl font-bold text-tech-text uppercase tracking-widest mb-6 flex items-center gap-3">
                                 <span className="w-2 h-8 bg-tech-cyan rounded-full"></span>
-                                Tareas Rápidas
+                                Tareas R├ípidas
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {profile.rol === 'docente' && (
                                     <>
-                                        <div onClick={() => navigate('/attendance')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group rounded-xl flex items-center gap-4">
+                                        <div onClick={() => navigate('/attendance')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/attendance'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all cursor-pointer group rounded-xl flex items-center gap-4">
                                             <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform"><Clock size={32} /></div>
                                             <div><h3 className="text-lg font-bold text-tech-text uppercase">Asistencia</h3><p className="text-xs text-tech-muted font-mono">Registrar hoy</p></div>
                                         </div>
-                                        <div onClick={() => navigate('/grades')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-accent transition-all cursor-pointer group rounded-xl flex items-center gap-4">
+                                        <div onClick={() => navigate('/grades')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/grades'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 transition-all cursor-pointer group rounded-xl flex items-center gap-4">
                                             <div className="p-4 bg-tech-accent/10 rounded-lg text-tech-accent group-hover:scale-110 transition-transform"><GraduationCap size={32} /></div>
                                             <div><h3 className="text-lg font-bold text-tech-text uppercase">Cargar Notas</h3><p className="text-xs text-tech-muted font-mono">Actualizar materias</p></div>
                                         </div>
                                     </>
                                 )}
-                                <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group rounded-xl flex items-center gap-4">
+                                <div onClick={() => navigate('/messages')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/messages'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary/40 border-2 border-dashed border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all cursor-pointer group rounded-xl flex items-center gap-4">
                                     <div className="p-4 bg-tech-cyan/10 rounded-lg text-tech-cyan group-hover:scale-110 transition-transform relative">
                                         <MessageSquare size={32} />
                                         {unreadMessages > 0 && (
@@ -543,31 +528,31 @@ const Dashboard = () => {
                             </div>
                         </section>
                         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div onClick={() => navigate('/grades')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/grades')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/grades'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-cyan"><GraduationCap size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Mis Cursos</h3></div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Gestión de calificaciones por curso.</p>
-                                <button className="px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Abrir Planilla</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Gesti├│n de calificaciones por curso.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Abrir Planilla</span>
                             </div>
-                            <div onClick={() => navigate('/attendance')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/attendance')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/attendance'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-accent"><Clock size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Asistencia</h3></div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Control diario de inasistencias.</p>
-                                <button className="px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Tomar Lista</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Control diario de inasistencias.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Tomar Lista</span>
                             </div>
-                            <div onClick={() => navigate('/teacher/reports')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/teacher/reports')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/teacher/reports'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-success focus-visible:border-tech-success focus-visible:ring-2 focus-visible:ring-tech-success/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-success"><FileText size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Reportes</h3></div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Exportar boletines y planillas.</p>
-                                <button className="px-4 py-2 bg-tech-success text-white rounded font-bold uppercase tracking-widest text-xs">Ver PDF</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Exportar boletines y planillas.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-success text-white rounded font-bold uppercase tracking-widest text-xs">Ver PDF</span>
                             </div>
-                            <div onClick={() => navigate('/calendar')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/calendar')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/calendar'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-cyan"><CalendarIcon size={24} /><h3 className="text-xl font-bold text-tech-text uppercase">Calendario</h3></div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Cronograma del ciclo lectivo.</p>
-                                <button className="px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Ver Fechas</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Cronograma del ciclo lectivo.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-cyan text-white rounded font-bold uppercase tracking-widest text-xs">Ver Fechas</span>
                             </div>
-                            <div onClick={() => navigate('/announcements')} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all p-6 group cursor-pointer relative overflow-hidden">
+                            <div onClick={() => navigate('/announcements')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/announcements'); } }} role="button" tabIndex={0} className="bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 transition-all p-6 group cursor-pointer relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-accent">
                                     <div className="relative">
@@ -580,8 +565,8 @@ const Dashboard = () => {
                                     </div>
                                     <h3 className="text-xl font-bold text-tech-text uppercase">Anuncios</h3>
                                 </div>
-                                <p className="text-tech-muted mb-6 font-mono font-sm">Novedades institucionales.</p>
-                                <button className="px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Ver Noticias</button>
+                                <p className="text-tech-muted mb-6 font-mono text-sm">Novedades institucionales.</p>
+                                <span className="inline-block px-4 py-2 bg-tech-accent text-white rounded font-bold uppercase tracking-widest text-xs">Ver Noticias</span>
                             </div>
                         </section>
                     </div>
@@ -591,38 +576,38 @@ const Dashboard = () => {
                 {profile.rol === 'alumno' && (
                     <div className="space-y-12">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div onClick={() => navigate('/student/report')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success transition-all cursor-pointer group relative overflow-hidden">
+                            <div onClick={() => navigate('/student/report')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/student/report'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-success focus-visible:border-tech-success focus-visible:ring-2 focus-visible:ring-tech-success/30 transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-success opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4 text-tech-success"><FileText size={40} /><h3 className="text-xl font-bold text-tech-text uppercase">Mi Boletín</h3></div>
+                                <div className="flex items-center gap-4 mb-4 text-tech-success"><FileText size={40} /><h3 className="text-xl font-bold text-tech-text uppercase">Mi Bolet├¡n</h3></div>
                                 <p className="text-tech-muted font-mono text-sm">Visualizar calificaciones y asistencia.</p>
                             </div>
-                            <div onClick={() => navigate('/messages')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
+                            <div onClick={() => navigate('/messages')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/messages'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-cyan">
                                     <div className="relative">
                                         <MessageSquare size={40} />
                                         {unreadMessages > 0 && (
-                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse shadow-xl">
+                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
                                                 {unreadMessages}
                                             </span>
                                         )}
                                     </div>
                                     <h3 className="text-xl font-bold text-tech-text uppercase">Mensajes</h3>
                                 </div>
-                                <p className="text-tech-muted font-mono text-sm">Comunicación con docentes.</p>
+                                <p className="text-tech-muted font-mono text-sm">Comunicaci├│n con docentes.</p>
                             </div>
-                            <div onClick={() => navigate('/calendar')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer group relative overflow-hidden">
+                            <div onClick={() => navigate('/calendar')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/calendar'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-cyan"><CalendarIcon size={40} /><h3 className="text-xl font-bold text-tech-text uppercase">Calendario</h3></div>
-                                <p className="text-tech-muted font-mono text-sm">Fechas de exámenes y eventos.</p>
+                                <p className="text-tech-muted font-mono text-sm">Fechas de ex├ímenes y eventos.</p>
                             </div>
-                            <div onClick={() => navigate('/announcements')} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent transition-all cursor-pointer group relative overflow-hidden">
+                            <div onClick={() => navigate('/announcements')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/announcements'); } }} role="button" tabIndex={0} className="p-6 bg-tech-secondary rounded border border-tech-surface hover:border-tech-accent focus-visible:border-tech-accent focus-visible:ring-2 focus-visible:ring-tech-accent/30 transition-all cursor-pointer group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-4 mb-4 text-tech-accent">
                                     <div className="relative">
                                         <Bell size={40} />
                                         {unreadAnnouncements > 0 && (
-                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse shadow-xl">
+                                            <span className="absolute -top-2 -right-2 w-6 h-6 bg-tech-danger text-white text-[12px] flex items-center justify-center rounded-full border-2 border-tech-secondary font-black animate-pulse">
                                                 {unreadAnnouncements}
                                             </span>
                                         )}
@@ -650,18 +635,18 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* Guía Común */}
+                {/* Gu├¡a Com├║n */}
                 <div className="mt-16 border-t border-tech-surface pt-10">
                     <button
                         onClick={() => navigate('/help')}
-                        className="w-full text-left p-8 bg-tech-secondary/50 rounded-2xl border border-tech-surface hover:border-tech-cyan/40 focus-visible:border-tech-cyan/40 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group flex items-center gap-8 shadow-2xl"
+                        className="w-full text-left p-8 bg-tech-secondary/50 rounded-2xl border border-tech-surface hover:border-tech-cyan/40 focus-visible:border-tech-cyan/40 focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group flex items-center gap-8"
                     >
                         <div className="p-4 bg-tech-cyan/10 rounded-xl text-tech-cyan group-hover:scale-110 group-focus-visible:scale-110 transition-transform">
                             <Info size={40} />
                         </div>
                         <div className="flex-grow">
-                            <h3 className="text-2xl font-bold text-tech-text uppercase tracking-tight">Guía del Sistema</h3>
-                            <p className="text-tech-muted font-mono text-sm">Información técnica y operativa sobre la plataforma ETA.</p>
+                            <h3 className="text-2xl font-bold text-tech-text uppercase tracking-tight">Gu├¡a del Sistema</h3>
+                            <p className="text-tech-muted font-mono text-sm">Informaci├│n t├⌐cnica y operativa sobre la plataforma CGB.</p>
                         </div>
                         <ArrowRight size={32} className="text-tech-muted group-hover:translate-x-1 group-focus-visible:translate-x-1 transition-transform" />
                     </button>

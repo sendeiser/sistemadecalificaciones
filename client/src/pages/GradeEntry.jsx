@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Save, Plus, BookOpen, Users, Star, ClipboardList, AlertCircle, CheckCircle2, ArrowLeft, MessageSquare, FileText, Zap } from 'lucide-react';
+import { Save, BookOpen, ArrowLeft, MessageSquare, FileText, Zap } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { OBSERVATION_TEMPLATES, GET_GRADE_COLOR, GET_GRADE_BG } from '../utils/constants';
 import { getApiEndpoint } from '../utils/api';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { useToast } from '../components/ui/Toast';
 
 const GradeEntry = () => {
     const { profile } = useAuth();
@@ -17,7 +20,7 @@ const GradeEntry = () => {
     const [periods, setPeriods] = useState({});
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [message, setMessage] = useState(null);
+    const addToast = useToast();
     const [focusMode, setFocusMode] = useState(false);
     const [activeCell, setActiveCell] = useState({ row: 0, field: 'parcial_1' });
     const [isSecondSemester, setIsSecondSemester] = useState(new Date().getMonth() + 1 > 7);
@@ -48,7 +51,7 @@ const GradeEntry = () => {
                 id,
                 division_id,
                 materia:materias(nombre, descripcion),
-                division:divisiones(id, anio, seccion, ciclo_lectivo)
+                division:divisiones(id, anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
             `)
             .eq('docente_id', profile.id);
 
@@ -59,7 +62,6 @@ const GradeEntry = () => {
         setLoading(true);
         setSelectedAssignment(assignmentObj.id);
         setFullAssignmentData(assignmentObj);
-        if (!keepMessage) setMessage(null);
 
         try {
             // 1. Fetch all students in that division
@@ -110,7 +112,7 @@ const GradeEntry = () => {
             setGrades(mergedGrades);
         } catch (err) {
             console.error('Error fetching data:', err);
-            setMessage({ type: 'error', text: 'Error al cargar alumnos y notas' });
+            addToast('Error al cargar alumnos y notas', 'error');
         }
         setLoading(false);
     };
@@ -159,10 +161,10 @@ const GradeEntry = () => {
                 // Automate Trayecto Text & Achievement based on scale
                 let trayectoText = '';
                 const p = parseFloat(prom);
-                if (p >= 7) trayectoText = 'Profundización de Saberes';
+                if (p >= 7) trayectoText = 'Profundizaci├│n de Saberes';
                 else if (p >= 6) trayectoText = 'Fortalecimiento de Saberes'; // Corrected: Covers 6 to < 7
-                else if (p >= 4) trayectoText = 'Recuperación de Saberes';
-                else if (p >= 1) trayectoText = 'Apropiación de Saberes';
+                else if (p >= 4) trayectoText = 'Recuperaci├│n de Saberes';
+                else if (p >= 1) trayectoText = 'Apropiaci├│n de Saberes';
 
                 return {
                     ...updatedG,
@@ -217,7 +219,7 @@ const GradeEntry = () => {
         <div className="absolute z-50 mt-1 w-64 bg-tech-secondary border border-tech-cyan/30 rounded shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-2 px-1">
                 <span className="text-[10px] font-bold text-tech-cyan uppercase tracking-widest">Sugerencias</span>
-                <button onClick={onClose} className="text-tech-muted hover:text-white text-xs">×</button>
+                <button onClick={onClose} className="text-tech-muted hover:text-white text-xs">├ù</button>
             </div>
             <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-1">
                 {templates.map((t, idx) => (
@@ -236,7 +238,7 @@ const GradeEntry = () => {
     const handleDownloadPDF = async () => {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
-        if (!token) return alert('No hay sesión activa');
+        if (!token) return alert('No hay sesi├│n activa');
 
         const endpoint = getApiEndpoint(`/reports/division/${selectedAssignment}?token=${token}`);
         window.open(endpoint, '_blank');
@@ -256,7 +258,7 @@ const GradeEntry = () => {
             return '';
         };
 
-        const headers = ['N°', 'Estudiante', 'Perio. Intif', 'Logros Intif.', 'P1', 'P2', 'P3', 'P4', 'Promedio Parcial', 'Logros Prom.', '% Asist', 'Trayecto de Acompañamiento', 'Logros Tray.', 'Observaciones', 'Promedio General'];
+        const headers = ['N┬░', 'Estudiante', 'Perio. Intif', 'Logros Intif.', 'P1', 'P2', 'P3', 'P4', 'Promedio Parcial', 'Logros Prom.', '% Asist', 'Trayecto de Acompa├▒amiento', 'Logros Tray.', 'Observaciones', 'Promedio General'];
         const rows = grades.map((g, index) => [
             index + 1,
             g.student.nombre,
@@ -296,7 +298,6 @@ const GradeEntry = () => {
 
     const saveGrades = async () => {
         setSaving(true);
-        setMessage(null);
         try {
             const updates = grades.map(({ student, student_info, promedio, logro, ...g }) => ({
                 ...g,
@@ -319,16 +320,11 @@ const GradeEntry = () => {
                 .upsert(updates, { onConflict: 'alumno_id, asignacion_id, cuatrimestre' });
 
             if (error) throw error;
-            setMessage({ type: 'success', text: 'Calificaciones guardadas correctamente' });
-
-            // Auto-dismiss toast after 4 seconds
-            setTimeout(() => {
-                setMessage(null);
-            }, 4000);
+            addToast('Calificaciones guardadas correctamente', 'success');
 
             fetchGrades(fullAssignmentData, true);
         } catch (err) {
-            setMessage({ type: 'error', text: 'Error al guardar: ' + err.message });
+            addToast('Error al guardar: ' + err.message, 'error');
         }
         setSaving(false);
     };
@@ -341,9 +337,9 @@ const GradeEntry = () => {
                     <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">
                         {selectedAssignment ? <><span className="text-tech-cyan">CARGA</span> DE NOTAS</> : <>MIS <span className="text-tech-cyan">MATERIAS</span></>}
                     </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
+                    <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
                         {selectedAssignment
-                            ? `${fullAssignmentData?.materia?.nombre} • ${fullAssignmentData?.division?.anio} ${fullAssignmentData?.division?.seccion}`
+                            ? `${fullAssignmentData?.materia?.nombre} ΓÇó ${fullAssignmentData?.division?.anio} ${fullAssignmentData?.division?.seccion}`
                             : 'Selecciona una materia asignada para gestionar calificaciones'}
                     </p>
                 </div>
@@ -358,14 +354,10 @@ const GradeEntry = () => {
                             >
                                 <FileText size={20} />
                             </button>
-                            <button
-                                onClick={saveGrades}
-                                disabled={saving}
-                                className="flex items-center gap-2 px-6 py-2.5 bg-tech-cyan hover:bg-tech-cyan/80 disabled:bg-tech-surface rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-cyan/20 active:scale-95"
-                            >
+                            <Button onClick={saveGrades} disabled={saving}>
                                 {saving ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div> : <Save size={18} />}
                                 <span>{saving ? 'Guardando...' : 'Guardar Datos'}</span>
-                            </button>
+                            </Button>
                         </div>
                     )}
 
@@ -387,13 +379,10 @@ const GradeEntry = () => {
                     <div className="h-10 w-px bg-tech-surface mx-1 hidden lg:block"></div>
 
                     {selectedAssignment && (
-                        <button
-                            onClick={() => setSelectedAssignment(null)}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-tech-secondary hover:bg-tech-surface text-tech-muted rounded-xl border border-tech-surface transition-all active:scale-95 group font-bold text-xs uppercase"
-                        >
+                        <Button variant="ghost" onClick={() => setSelectedAssignment(null)} className="group">
                             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                             <span>Volver</span>
-                        </button>
+                        </Button>
                     )}
 
                     <button
@@ -422,7 +411,7 @@ const GradeEntry = () => {
                                         <BookOpen size={24} />
                                     </div>
                                     <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-tech-primary text-tech-cyan font-mono border border-tech-surface">
-                                        {a.division?.ciclo_lectivo}
+                                        {a.division?.ciclo_lectivo?.anio || a.division?.ciclo_lectivo}
                                     </span>
                                 </div>
                                 <div>
@@ -453,7 +442,7 @@ const GradeEntry = () => {
                                         <div className="flex-1 min-w-[70px] p-3 border-r border-tech-surface text-center flex items-center justify-center">DNI</div>
                                         {!isSecondSemester && (
                                             <div className="flex-[3] min-w-[100px] border-r border-tech-surface bg-tech-cyan/5 text-tech-cyan flex flex-col">
-                                                <div className="flex-1 flex items-center justify-center border-b border-tech-cyan/20">Intensificación</div>
+                                                <div className="flex-1 flex items-center justify-center border-b border-tech-cyan/20">Intensificaci├│n</div>
                                                 <div className="flex h-5 text-[8px] font-black">
                                                     <div className="flex-1 flex items-center justify-center border-r border-tech-cyan/10">Cal</div>
                                                     <div className="flex-1 flex items-center justify-center">Log</div>
@@ -475,7 +464,7 @@ const GradeEntry = () => {
                                         <div className="flex-[7] min-w-[180px] border-r border-tech-surface bg-purple-500/5 text-purple-400 flex flex-col">
                                             <div className="flex-1 flex items-center justify-center border-b border-purple-500/20">Trayecto</div>
                                             <div className="flex h-5 text-[8px]">
-                                                <div className="flex-[5] flex items-center justify-center border-r border-purple-500/10">Descripción</div>
+                                                <div className="flex-[5] flex items-center justify-center border-r border-purple-500/10">Descripci├│n</div>
                                                 <div className="flex-[2] flex items-center justify-center">Log</div>
                                             </div>
                                         </div>
@@ -488,7 +477,7 @@ const GradeEntry = () => {
                                 <div className="flex flex-col">
                                     {grades.length === 0 && !loading ? (
                                         <div className="p-12 text-center text-tech-muted italic font-medium">
-                                            No hay alumnos asignados a esta división.
+                                            No hay alumnos asignados a esta divisi├│n.
                                         </div>
                                     ) : grades.map((g, index) => (
                                         <div key={g.alumno_id} className="flex border-b border-tech-surface hover:bg-tech-surface/30 transition-colors group">
@@ -505,7 +494,7 @@ const GradeEntry = () => {
                                                 {g.student?.dni}
                                             </div>
 
-                                            {/* Intensificación */}
+                                            {/* Intensificaci├│n */}
                                             {!isSecondSemester && (
                                                 <>
                                                     <div className={`flex-[1.5] min-w-[50px] p-1 border-r border-tech-surface bg-tech-cyan/5 transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'nota_intensificacion' ? 'ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
@@ -668,7 +657,7 @@ const GradeEntry = () => {
                                         <div className="grid grid-cols-2 gap-4 pt-2">
                                             {!isSecondSemester && (
                                                 <div className="space-y-2">
-                                                    <div className="text-[10px] text-tech-muted uppercase font-bold tracking-widest border-l-2 border-tech-accent pl-2">Intensificación</div>
+                                                    <div className="text-[10px] text-tech-muted uppercase font-bold tracking-widest border-l-2 border-tech-accent pl-2">Intensificaci├│n</div>
                                                     <div className="flex items-center gap-2">
                                                         <input
                                                             type="number" min="0" max="10" step="0.5" placeholder="-"
@@ -771,8 +760,8 @@ const GradeEntry = () => {
 
                                     <div className="pt-12 flex flex-col items-center gap-4">
                                         <div className="flex gap-2 text-tech-muted font-mono text-[10px]">
-                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">↑</kbd>
-                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">↓</kbd>
+                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">Γåæ</kbd>
+                                            <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">Γåô</kbd>
                                             <span>Navegar Alumnos</span>
                                             <span className="mx-2">|</span>
                                             <kbd className="px-2 py-1 bg-tech-secondary rounded border border-tech-surface shadow-sm text-tech-text">TAB</kbd>
@@ -783,7 +772,7 @@ const GradeEntry = () => {
                                             disabled={saving}
                                             className="px-8 py-4 bg-tech-cyan text-white rounded-xl font-bold uppercase tracking-widest shadow-xl hover:scale-105 transition-transform"
                                         >
-                                            {saving ? 'Guardando...' : 'Finalizar Sesión Focus'}
+                                            {saving ? 'Guardando...' : 'Finalizar Sesi├│n Focus'}
                                         </button>
                                     </div>
                                 </div>
@@ -794,29 +783,7 @@ const GradeEntry = () => {
 
             </div>
 
-            {/* Custom Toast Notification */}
-            {message && (
-                <div className={`fixed bottom-6 right-6 p-4 rounded-lg shadow-2xl border flex items-center gap-3 animate-in slide-in-from-right-full duration-300 z-50 ${message.type === 'success'
-                    ? 'bg-tech-secondary border-tech-success text-tech-success'
-                    : 'bg-tech-secondary border-tech-danger text-tech-danger'
-                    }`}>
-                    <div className={`p-2 rounded-full ${message.type === 'success' ? 'bg-tech-success/10' : 'bg-tech-danger/10'}`}>
-                        {message.type === 'success' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-sm uppercase tracking-wide">
-                            {message.type === 'success' ? 'Éxito' : 'Error'}
-                        </h4>
-                        <p className="text-xs font-mono text-tech-muted">{message.text}</p>
-                    </div>
-                    <button
-                        onClick={() => setMessage(null)}
-                        className="ml-4 p-1 hover:bg-tech-surface rounded transition-colors text-tech-muted hover:text-tech-text"
-                    >
-                        <div className="h-4 w-4 flex items-center justify-center font-bold">×</div>
-                    </button>
-                </div>
-            )}
+            {/* Toast notifications handled by ToastProvider */}
         </div>
     );
 };

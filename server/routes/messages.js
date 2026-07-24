@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { supabaseAdmin } = require('../config/supabaseClient');
+const { supabaseAdmin, broadcastNewMessage } = require('../config/supabaseClient');
 const authMiddleware = require('../middleware/authMiddleware');
 
 router.use(authMiddleware);
@@ -80,18 +80,41 @@ router.post('/', async (req, res) => {
 
         if (error) throw error;
 
-        // Fetch recipient name for audit log
+        // Fetch sender and recipient profiles to enrich the broadcast payload
         let recipientName = 'N/A';
+        let senderProfile = null;
+        let destProfile = null;
+
+        const { data: senderData } = await supabaseAdmin
+            .from('perfiles')
+            .select('id, nombre, rol, email')
+            .eq('id', userId)
+            .single();
+        if (senderData) senderProfile = senderData;
+
         if (data.destinatario_id) {
-            const { data: destProfile } = await supabaseAdmin
+            const { data: destData } = await supabaseAdmin
                 .from('perfiles')
-                .select('nombre')
+                .select('id, nombre, rol, email')
                 .eq('id', data.destinatario_id)
                 .single();
-            if (destProfile) recipientName = destProfile.nombre;
+            if (destData) {
+                destProfile = destData;
+                recipientName = destData.nombre;
+            }
         } else if (data.rol_destinatario) {
             recipientName = `Rol: ${data.rol_destinatario}`;
         }
+
+        // Build enriched message for broadcast
+        const enrichedMessage = {
+            ...data,
+            remitente: senderProfile,
+            destinatario: destProfile
+        };
+
+        // Broadcast to all connected clients via Supabase Realtime
+        await broadcastNewMessage(enrichedMessage);
 
         // Log Audit
         const { logAudit } = require('../utils/auditLogger');
@@ -107,7 +130,7 @@ router.post('/', async (req, res) => {
             }
         );
 
-        res.status(201).json(data);
+        res.status(201).json(enrichedMessage);
     } catch (error) {
         console.error('Error sending message:', error);
         res.status(500).json({ error: 'Error al enviar mensaje' });

@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
 import QRScanner from '../components/QRScanner';
-import { QrCode, Clock, ArrowLeft, AlertCircle, Calendar, User, Save, Edit, Search, CheckCircle, X, Users, CheckSquare, Check, Wifi, WifiOff, RefreshCw } from 'lucide-react';
-import { db, saveAssignmentsToLocal, saveStudentsToLocal, addToSyncQueue, getPendingSyncs, markAsSynced, syncAllPending } from '../utils/db';
+import { QrCode, Clock, ArrowLeft, AlertCircle, Save, X, Users, CheckSquare, Check, Wifi, WifiOff, RefreshCw } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { db, saveAssignmentsToLocal, saveStudentsToLocal, addToSyncQueue, getPendingSyncs, syncAllPending } from '../utils/db';
 
 const Attendance = () => {
     const { profile } = useAuth();
@@ -20,7 +22,6 @@ const Attendance = () => {
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState(null);
     const [isScanning, setIsScanning] = useState(false);
-    const [lastScanned, setLastScanned] = useState(null);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     const [pendingSyncs, setPendingSyncs] = useState(0);
 
@@ -234,11 +235,6 @@ const Attendance = () => {
 
         if (student) {
             handleStatusChange(student.id, 'presente');
-            setLastScanned({
-                name: student.nombre,
-                status: 'presente',
-                time: new Date().toLocaleTimeString()
-            });
             // Optional: visual feedback
             setMessage({ type: 'success', text: `Presente registrado: ${student.nombre}` });
             setTimeout(() => setMessage(null), 3000);
@@ -296,16 +292,31 @@ const Attendance = () => {
     return (
         <div className="space-y-8 pb-10">
             {/* Header / Action Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        CONTROL DE <span className="text-tech-cyan">ASISTENCIA</span>
-                    </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
-                        {selectedAssignment
-                            ? `${selectedAssignment.materia.nombre} • ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
-                            : 'Registro centralizado de presentismo'}
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => {
+                            if (selectedAssignment) {
+                                setSelectedAssignment(null);
+                            } else {
+                                navigate('/dashboard');
+                            }
+                        }}
+                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
+                        aria-label="Volver"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            CONTROL DE <span className="text-tech-cyan">ASISTENCIA</span>
+                        </h1>
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
+                            {selectedAssignment
+                                ? `${selectedAssignment.materia.nombre} ΓÇó ${selectedAssignment.division.anio} "${selectedAssignment.division.seccion}"`
+                                : 'Registro centralizado de presentismo'}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
@@ -346,7 +357,7 @@ const Attendance = () => {
                             <AlertCircle size={20} />
                             <span className="font-bold">{message.text}</span>
                         </div>
-                        <button onClick={() => setMessage(null)} className="text-current opacity-50 hover:opacity-100">×</button>
+                        <button onClick={() => setMessage(null)} className="text-current opacity-50 hover:opacity-100">├ù</button>
                     </div>
                 )}
 
@@ -394,35 +405,39 @@ const Attendance = () => {
                         <div className="bg-tech-secondary p-4 md:p-6 rounded border border-tech-surface flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
                                 <label className="text-tech-muted font-mono uppercase text-sm whitespace-nowrap">Fecha:</label>
-                                <input
+                                <Input
                                     type="date"
                                     value={selectedDate}
                                     onChange={(e) => setSelectedDate(e.target.value)}
-                                    className="w-full sm:w-auto bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none font-mono"
+                                    className="w-full sm:w-auto"
                                 />
                             </div>
 
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
-                                <button
+                                <Button
+                                    variant="primary"
+                                    size="sm"
                                     onClick={() => setIsScanning(true)}
-                                    className="justify-center flex items-center gap-2 px-4 py-2 bg-tech-cyan/20 hover:bg-tech-cyan/30 text-tech-cyan rounded border border-tech-cyan/30 transition-all text-sm uppercase font-bold tracking-wider"
+                                    shine
                                 >
                                     <QrCode size={18} />
                                     <span>Escanear QR</span>
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={markAllPresent}
-                                    className="justify-center flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded border border-tech-surface transition-colors text-sm uppercase font-bold tracking-wider"
                                 >
                                     <CheckSquare size={18} />
                                     <span>Todos Presentes</span>
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={() => setSelectedAssignment(null)}
-                                    className="justify-center px-4 py-2 text-tech-muted hover:text-tech-text transition-colors text-sm underline"
                                 >
                                     Cambiar Curso
-                                </button>
+                                </Button>
                             </div>
                         </div>
 
@@ -484,12 +499,11 @@ const Attendance = () => {
                                                                 </div>
                                                             </td>
                                                             <td className="p-4">
-                                                                <input
-                                                                    type="text"
+                                                                <Input
+                                                                    className="w-full"
                                                                     placeholder="..."
                                                                     value={observationsMap[student.id] || ''}
                                                                     onChange={(e) => handleObservationChange(student.id, e.target.value)}
-                                                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text placeholder-tech-muted/50 focus:border-tech-cyan outline-none transition-colors"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -541,12 +555,11 @@ const Attendance = () => {
                                                         </button>
                                                     </div>
 
-                                                    <input
-                                                        type="text"
+                                                    <Input
+                                                        className="w-full"
                                                         placeholder="Observaciones..."
                                                         value={observationsMap[student.id] || ''}
                                                         onChange={(e) => handleObservationChange(student.id, e.target.value)}
-                                                        className="w-full bg-tech-primary border border-tech-surface rounded-lg px-4 py-3 text-sm text-tech-text focus:border-tech-cyan outline-none transition-colors placeholder-tech-muted/50"
                                                     />
                                                 </div>
                                             );
@@ -555,7 +568,7 @@ const Attendance = () => {
 
                                     {students.length === 0 && (
                                         <div className="p-8 text-center text-tech-muted font-mono uppercase tracking-widest text-xs">
-                                            No hay alumnos en esta división.
+                                            No hay alumnos en esta divisi├│n.
                                         </div>
                                     )}
                                 </>
@@ -564,10 +577,12 @@ const Attendance = () => {
 
                         {/* Save Button */}
                         <div className="flex justify-end pt-4">
-                            <button
+                            <Button
+                                variant="primary"
+                                size="lg"
                                 onClick={saveAttendance}
                                 disabled={saving || students.length === 0}
-                                className="flex items-center gap-2 px-8 py-4 bg-tech-cyan hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded font-bold uppercase tracking-wider shadow-lg hover:shadow-cyan-500/20 transition-all text-lg"
+                                className="shadow-lg hover:shadow-cyan-500/20"
                             >
                                 {saving ? (
                                     <>
@@ -580,7 +595,7 @@ const Attendance = () => {
                                         Guardar Asistencia
                                     </>
                                 )}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}

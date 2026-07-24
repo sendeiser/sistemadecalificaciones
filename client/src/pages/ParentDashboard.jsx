@@ -6,9 +6,9 @@ import { getApiEndpoint } from '../utils/api';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import useNotifications from '../hooks/useNotifications';
+import Button from '../components/ui/Button';
 
 const ParentDashboard = () => {
-    const { profile } = useAuth();
     const navigate = useNavigate();
     const [children, setChildren] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -52,17 +52,18 @@ const ParentDashboard = () => {
                             Portal de <span className="text-tech-cyan">Tutores</span>
                         </h1>
                         <p className="text-tech-muted font-mono mt-1 uppercase text-xs tracking-widest">
-                            Seguimiento Académico Institucional
+                            Seguimiento Acad├⌐mico Institucional
                         </p>
                     </div>
                     <div className="flex items-center gap-4">
-                        <button
+                        <Button
+                            variant="danger"
+                            size="sm"
                             onClick={() => supabase.auth.signOut()}
-                            className="flex items-center gap-2 px-4 py-2 bg-tech-danger/10 hover:bg-tech-danger/20 text-tech-danger rounded-xl font-bold transition-all uppercase text-xs tracking-widest border border-tech-danger/30"
                         >
                             <LogOut size={16} />
                             Salir
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </header>
@@ -75,10 +76,10 @@ const ParentDashboard = () => {
                     </h2>
 
                     {children.length === 0 ? (
-                        <div className="p-12 bg-tech-secondary/30 rounded-3xl border border-tech-surface border-dashed text-center">
+                        <div className="p-12 bg-tech-secondary/30 rounded-2xl border border-tech-surface border-dashed text-center">
                             <Users className="mx-auto text-tech-muted mb-4 opacity-50" size={48} />
                             <p className="text-tech-muted font-mono">No hay estudiantes vinculados a tu cuenta actualmente.</p>
-                            <p className="text-tech-muted text-xs mt-2">Contacta a secretaría para vincular a tu hijo/a.</p>
+                            <p className="text-tech-muted text-xs mt-2">Contacta a secretar├¡a para vincular a tu hijo/a.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -94,18 +95,18 @@ const ParentDashboard = () => {
                     )}
                 </div>
 
-                {/* Accesos Rápidos Generales */}
+                {/* Accesos R├ípidos Generales */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <QuickAccessCard
                         icon={<Calendar />}
                         title="Calendario Escolar"
-                        desc="Fechas de exámenes y eventos"
+                        desc="Fechas de ex├ímenes y eventos"
                         onClick={() => navigate('/calendar')}
                     />
                     <QuickAccessCard
                         icon={<MessageSquare />}
-                        title="Mensajería"
-                        desc="Comunicación con la escuela"
+                        title="Mensajer├¡a"
+                        desc="Comunicaci├│n con la escuela"
                         onClick={() => navigate('/messages')}
                         badgeCount={unreadMessages}
                     />
@@ -129,7 +130,7 @@ const ChildCard = ({ child, relationship, onClick }) => {
         <motion.div
             whileHover={{ scale: 1.02 }}
             onClick={onClick}
-            className="group relative bg-tech-secondary p-6 rounded-3xl border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer overflow-hidden shadow-xl"
+            className="group relative bg-tech-secondary p-6 rounded-2xl border border-tech-surface hover:border-tech-cyan transition-all cursor-pointer overflow-hidden shadow-xl"
         >
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                 <GraduationCap size={80} />

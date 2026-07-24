@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { Calendar, Download, FileText, ArrowLeft, BarChart3, Users, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
@@ -71,7 +73,7 @@ const TeacherReports = () => {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
         if (!token) {
-            setMessage({ type: 'error', text: 'No hay sesión activa' });
+            setMessage({ type: 'error', text: 'No hay sesi├│n activa' });
             return;
         }
 
@@ -91,24 +93,37 @@ const TeacherReports = () => {
     return (
         <div className="space-y-8 pb-10">
             {/* Header / Action Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        MIS <span className="text-tech-cyan">REPORTES</span>
-                    </h1>
-                    <p className="text-tech-muted text-xs font-mono uppercase tracking-[0.3em] mt-2">
-                        Generación de planillas y reportes estadísticos
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 h-auto"
+                        onClick={() => navigate('/dashboard')}
+                        aria-label="Volver al panel"
+                    >
+                        <ArrowLeft size={24} />
+                    </Button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            MIS <span className="text-tech-cyan">REPORTES</span>
+                        </h1>
+                        <p className="text-tech-muted text-xs font-mono tracking-[0.3em] mt-2">
+                            Generaci├│n de planillas y reportes estad├¡sticos
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                    <button
+                    <Button
+                        variant="primary"
+                        size="sm"
                         onClick={async () => {
-                            if (!confirm('¿Deseas descargar todas las planillas? Esto puede tomar unos momentos.')) return;
+                            if (!confirm('┬┐Deseas descargar todas las planillas? Esto puede tomar unos momentos.')) return;
                             const { data: { session } } = await supabase.auth.getSession();
                             const token = session?.access_token;
                             if (!token) {
-                                setMessage({ type: 'error', text: 'No hay sesión activa' });
+                                setMessage({ type: 'error', text: 'No hay sesi├│n activa' });
                                 return;
                             }
 
@@ -145,11 +160,11 @@ const TeacherReports = () => {
                             setTimeout(() => setMessage(null), 5000);
                         }}
                         disabled={isExportingAll || assignments.length === 0}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-tech-cyan hover:bg-tech-cyan/80 disabled:bg-tech-surface rounded-xl text-white font-black uppercase text-xs tracking-widest transition-all shadow-lg shadow-tech-cyan/20 active:scale-95"
+                        className="shadow-lg shadow-tech-cyan/20"
                     >
                         <Download size={18} />
                         <span>{isExportingAll ? 'Procesando...' : 'Exportar Todo'}</span>
-                    </button>
+                    </Button>
                     <ThemeToggle />
                 </div>
             </div>
@@ -164,7 +179,7 @@ const TeacherReports = () => {
                             {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
                             <p className="font-mono text-sm uppercase tracking-wider font-bold">{message.text}</p>
                         </div>
-                        <button onClick={() => setMessage(null)} className="opacity-50 hover:opacity-100 transition-opacity">✕</button>
+                        <button onClick={() => setMessage(null)} className="opacity-50 hover:opacity-100 transition-opacity">Γ£ò</button>
                     </div>
                 )}
                 {/* Date Filters */}
@@ -178,13 +193,13 @@ const TeacherReports = () => {
                             onClick={() => setIsSecondSemester(false)}
                             className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all ${!isSecondSemester ? 'bg-tech-cyan text-white shadow-lg shadow-cyan-500/20' : 'text-tech-muted hover:text-tech-text'}`}
                         >
-                            1° Cuatrimestre
+                            1┬░ Cuatrimestre
                         </button>
                         <button
                             onClick={() => setIsSecondSemester(true)}
                             className={`px-4 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all ${isSecondSemester ? 'bg-tech-cyan text-white shadow-lg shadow-cyan-500/20' : 'text-tech-muted hover:text-tech-text'}`}
                         >
-                            2° Cuatrimestre
+                            2┬░ Cuatrimestre
                         </button>
                     </div>
 
@@ -197,20 +212,20 @@ const TeacherReports = () => {
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                             <label className="text-xs text-tech-muted font-mono uppercase">Desde:</label>
-                            <input
+                            <Input
                                 type="date"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full sm:w-auto bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text focus:border-tech-cyan outline-none font-mono"
+                                className="w-full sm:w-auto"
                             />
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                             <label className="text-xs text-tech-muted font-mono uppercase">Hasta:</label>
-                            <input
+                            <Input
                                 type="date"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full sm:w-auto bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text focus:border-tech-cyan outline-none font-mono"
+                                className="w-full sm:w-auto"
                             />
                         </div>
                     </div>
@@ -229,7 +244,7 @@ const TeacherReports = () => {
                                     <div className="p-3 bg-tech-cyan/10 rounded text-tech-cyan">
                                         <Users size={24} />
                                     </div>
-                                    <span className="text-[10px] font-mono text-tech-muted uppercase">Asignación: {assign.id.slice(0, 6)}</span>
+                                    <span className="text-[10px] font-mono text-tech-muted uppercase">Asignaci├│n: {assign.id.slice(0, 6)}</span>
                                 </div>
                                 <h3 className="text-xl font-bold text-tech-text mb-1 uppercase tracking-tight">{assign.materia.nombre}</h3>
                                 <p className="text-tech-accent font-mono text-sm mb-4 pb-4 border-b border-tech-surface/50">
@@ -254,20 +269,24 @@ const TeacherReports = () => {
                                 )}
 
                                 <div className="space-y-3">
-                                    <button
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
                                         onClick={() => downloadPDF(assign, 'notas')}
-                                        className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-cyan"
+                                        className="w-full border border-tech-surface"
                                     >
-                                        <FileText size={16} className="text-tech-cyan" />
+                                        <FileText size={16} />
                                         Planilla de Notas
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
                                         onClick={() => downloadPDF(assign, 'asistencia')}
-                                        className="w-full flex items-center justify-center gap-2 py-2 bg-tech-surface hover:bg-tech-secondary text-tech-text rounded transition-all text-xs font-bold uppercase tracking-widest border border-tech-surface hover:border-tech-accent"
+                                        className="w-full border border-tech-surface"
                                     >
-                                        <Clock size={16} className="text-tech-accent" />
+                                        <Clock size={16} />
                                         Registro Asistencia
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ))}

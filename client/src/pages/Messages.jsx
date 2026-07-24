@@ -1,10 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Send, User, Users, Search, Inbox, MessageSquare, ShieldCheck, Zap, ArrowLeft, CheckCircle2, X as CloseIcon } from 'lucide-react';
+import { 
+    Send, User, Users, Search, Inbox, MessageSquare, 
+    ShieldCheck, ArrowLeft, X as CloseIcon, MoreVertical, 
+    Check, CheckCheck, Megaphone, Bell
+} from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { useToast } from '../components/ui/Toast';
 
 const Messages = () => {
     const { user, profile } = useAuth();
@@ -12,21 +19,23 @@ const Messages = () => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newMessage, setNewMessage] = useState('');
-    const [replyText, setReplyText] = useState('');
-    const [replyingTo, setReplyingTo] = useState(null); // ID del mensaje que se está respondiendo
-    const [statusMessage, setStatusMessage] = useState(null); // { type, text }
-    const [selectedRecipient, setSelectedRecipient] = useState(null); // { id, nombre, rol }
+    const [activeChatKey, setActiveChatKey] = useState(null); // ID del usuario o 'role_X'
+    const addToast = useToast();
     const [availableUsers, setAvailableUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState('received'); // 'received', 'sent'
+    const [conversationsQuery, setConversationsQuery] = useState('');
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-    const [showCompose, setShowCompose] = useState(false);
+    const [showComposeModal, setShowComposeModal] = useState(false);
+
+    const messagesEndRef = useRef(null);
+    const messagesRef = useRef(messages);
+    useEffect(() => {
+        messagesRef.current = messages;
+    }, [messages]);
 
     useEffect(() => {
         const handleResize = () => {
-            const mobile = window.innerWidth < 1024;
-            setIsMobile(mobile);
-            if (!mobile) setShowCompose(true);
+            setIsMobile(window.innerWidth < 1024);
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -37,17 +46,180 @@ const Messages = () => {
         fetchUsers();
     }, [profile]);
 
+    // Realtime subscription: listens to messages_broadcast channel
+    // The server explicitly broadcasts each new message after INSERT
+    // This is reliable regardless of RLS or service-role key complications
     useEffect(() => {
-        if (activeTab === 'received' && messages.length > 0) {
-            const unreadIds = messages
-                .filter(m => !m.leido && (m.destinatario_id === user?.id || m.rol_destinatario === profile?.rol))
-                .map(m => m.id);
+        if (!user?.id || !profile?.rol) return;
 
-            if (unreadIds.length > 0) {
-                markAllAsRead(unreadIds);
+        console.log('≡ƒöî Conectando a canal de mensajes en tiempo real...');
+
+        const channel = supabase
+            .channel('messages_broadcast')
+            // Broadcast: server sends new messages explicitly after insert
+            .on('broadcast', { event: 'new_message' }, (event) => {
+                const msg = event.payload?.message;
+                if (!msg) return;
+
+                console.log('≡ƒô¿ Mensaje recibido en tiempo real:', msg);
+
+                const isRelevant =
+                    msg.remitente_id === user.id ||
+                    msg.destinatario_id === user.id ||
+                    msg.rol_destinatario === profile.rol;
+
+                if (isRelevant) {
+                    setMessages(prev => {
+                        if (prev.some(m => m.id === msg.id)) return prev;
+                        return [msg, ...prev].sort((a, b) => {
+                            const dateA = new Date(a.fecha_envio || a.created_at || 0);
+                            const dateB = new Date(b.fecha_envio || b.created_at || 0);
+                            return dateB - dateA;
+                        });
+                    });
+                }
+            })
+            // postgres_changes as fallback (works if REPLICA IDENTITY FULL is set)
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'mensajes' },
+                (payload) => {
+                    const msg = payload.new;
+                    const isRelevant =
+                        msg.remitente_id === user.id ||
+                        msg.destinatario_id === user.id ||
+                        msg.rol_destinatario === profile.rol;
+                    if (isRelevant) {
+                        fetchSingleMessage(msg.id);
+                    }
+                }
+            )
+            .subscribe((status, err) => {
+                console.log('≡ƒôí Estado del canal realtime:', status, err || '');
+            });
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [user?.id, profile?.rol]);
+
+
+
+    const fetchSingleMessage = async (msgId) => {
+        // Avoid duplicate fetch
+        if (messagesRef.current.some(m => m.id === msgId)) return;
+
+        try {
+            const { data, error } = await supabase
+                .from('mensajes')
+                .select(`
+                    *,
+                    remitente:perfiles!remitente_id(id, nombre, rol, email),
+                    destinatario:perfiles!destinatario_id(id, nombre, rol, email)
+                `)
+                .eq('id', msgId)
+                .single();
+
+            if (data && !error) {
+                setMessages(prev => {
+                    if (prev.some(m => m.id === msgId)) return prev;
+                    return [data, ...prev].sort((a, b) => {
+                        const dateA = new Date(a.fecha_envio || a.created_at || 0);
+                        const dateB = new Date(b.fecha_envio || b.created_at || 0);
+                        return dateB - dateA;
+                    });
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching single message:', error);
+        }
+    };
+
+
+    // Group messages into conversations
+    const getConversations = () => {
+        const conversationsMap = {};
+
+        if (!Array.isArray(messages)) return [];
+
+        messages.forEach(m => {
+            let key = '';
+            let chatUser = null;
+            let isRole = false;
+
+            if (m.tipo === 'rol' || m.rol_destinatario) {
+                isRole = true;
+                key = `role_${m.rol_destinatario}`;
+                chatUser = {
+                    id: key,
+                    nombre: `Difusi├│n a ${
+                        m.rol_destinatario === 'admin' ? 'Administradores' : 
+                        m.rol_destinatario === 'preceptor' ? 'Preceptores' : 
+                        m.rol_destinatario === 'docente' ? 'Docentes' : 'Alumnos'
+                    }`,
+                    rol: m.rol_destinatario,
+                    isRole: true
+                };
+            } else {
+                const isSent = m.remitente_id === user?.id;
+                chatUser = isSent ? m.destinatario : m.remitente;
+                if (!chatUser) return;
+                key = chatUser.id;
+            }
+
+            if (!conversationsMap[key]) {
+                conversationsMap[key] = {
+                    key,
+                    user: chatUser,
+                    messages: [],
+                    lastMessage: m,
+                    unreadCount: 0
+                };
+            }
+
+            conversationsMap[key].messages.push(m);
+
+            const currentLastDate = new Date(conversationsMap[key].lastMessage.fecha_envio || conversationsMap[key].lastMessage.created_at || 0);
+            const mDate = new Date(m.fecha_envio || m.created_at || 0);
+            if (mDate > currentLastDate) {
+                conversationsMap[key].lastMessage = m;
+            }
+
+            // Unread count (only for private received messages)
+            if (!m.leido && !isRole && m.destinatario_id === user?.id) {
+                conversationsMap[key].unreadCount++;
+            }
+        });
+
+        // Sort by last message date desc
+        return Object.values(conversationsMap).sort((a, b) => {
+            const dateA = new Date(a.lastMessage.fecha_envio || a.lastMessage.created_at || 0);
+            const dateB = new Date(b.lastMessage.fecha_envio || b.lastMessage.created_at || 0);
+            return dateB - dateA;
+        });
+    };
+
+    const conversations = getConversations();
+
+    // Mark messages as read when active chat changes
+    useEffect(() => {
+        if (activeChatKey) {
+            const activeConv = conversations.find(c => c.key === activeChatKey);
+            if (activeConv && activeConv.unreadCount > 0) {
+                const unreadIds = activeConv.messages
+                    .filter(m => !m.leido && m.destinatario_id === user?.id)
+                    .map(m => m.id);
+                if (unreadIds.length > 0) {
+                    markAllAsRead(unreadIds);
+                }
             }
         }
-    }, [activeTab, messages, user, profile]);
+    }, [activeChatKey, messages]);
+
+    // Scroll to bottom on message updates
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [activeChatKey, messages]);
 
     const fetchMessages = async () => {
         try {
@@ -60,9 +232,17 @@ const Messages = () => {
             const data = await response.json();
 
             if (Array.isArray(data)) {
-                setMessages(data);
+                // Deduplicate by ID
+                const uniqueData = [];
+                const seen = new Set();
+                data.forEach(m => {
+                    if (!seen.has(m.id)) {
+                        seen.add(m.id);
+                        uniqueData.push(m);
+                    }
+                });
+                setMessages(uniqueData);
             } else {
-                console.error('Expected array of messages, got:', data);
                 setMessages([]);
             }
         } catch (error) {
@@ -110,13 +290,26 @@ const Messages = () => {
         }
     };
 
-    const sendMessage = async (e, customData = null) => {
+    const sendMessage = async (e) => {
         if (e) e.preventDefault();
+        if (!newMessage.trim() || !activeChatKey) return;
 
-        const content = customData ? customData.contenido : newMessage;
-        const recipient = customData ? customData.destinatario_id : selectedRecipient?.id;
+        const activeConv = conversations.find(c => c.key === activeChatKey) || {
+            user: activeChatKey.startsWith('role_')
+                ? { isRole: true, rol: activeChatKey.replace('role_', '') }
+                : availableUsers.find(u => u.id === activeChatKey)
+        };
 
-        if (!content.trim() || !recipient) return;
+        const isBroadcast = activeConv.user?.isRole;
+        const payload = isBroadcast ? {
+            rol_destinatario: activeConv.user.rol,
+            contenido: newMessage,
+            tipo: 'rol'
+        } : {
+            destinatario_id: activeConv.user.id,
+            contenido: newMessage,
+            tipo: 'privado'
+        };
 
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -128,337 +321,458 @@ const Messages = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${session.access_token}`
                 },
-                body: JSON.stringify({
-                    destinatario_id: recipient,
-                    contenido: content,
-                    tipo: 'privado'
-                })
+                body: JSON.stringify(payload)
             });
 
             if (response.ok) {
-                if (!customData) {
-                    setNewMessage('');
-                    setSelectedRecipient(null);
-                } else {
-                    setReplyText('');
-                    setReplyingTo(null);
+                const createdMsg = await response.json();
+                
+                // Pre-populate sender profile info
+                createdMsg.remitente = {
+                    id: user.id,
+                    nombre: profile.nombre,
+                    rol: profile.rol,
+                    email: user.email
+                };
+                
+                // Pre-populate receiver profile info if private
+                if (!isBroadcast && activeConv.user) {
+                    createdMsg.destinatario = {
+                        id: activeConv.user.id,
+                        nombre: activeConv.user.nombre,
+                        rol: activeConv.user.rol,
+                        email: activeConv.user.email
+                    };
                 }
-                showStatus('Mensaje enviado correctamente');
+                
+                setNewMessage('');
+                
+                // Add to messages state immediately to show it in the chat box at once
+                setMessages(prev => {
+                    if (prev.some(m => m.id === createdMsg.id)) return prev;
+                    return [createdMsg, ...prev].sort((a, b) => {
+                        const dateA = new Date(a.fecha_envio || a.created_at || 0);
+                        const dateB = new Date(b.fecha_envio || b.created_at || 0);
+                        return dateB - dateA;
+                    });
+                });
+
+                // Fetch in background for eventual consistency
                 fetchMessages();
             } else {
-                showStatus('Error al enviar el mensaje', 'error');
+                addToast('Error al enviar el mensaje', 'error');
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            showStatus('Fallo en la conexión', 'error');
+            addToast('Fallo en la conexi├│n', 'error');
         }
     };
 
-    const showStatus = (text, type = 'success') => {
-        setStatusMessage({ text, type });
-        setTimeout(() => setStatusMessage(null), 3000);
+    // Filter active chats by search
+    const filteredConversations = conversations.filter(c => 
+        c.user?.nombre.toLowerCase().includes(conversationsQuery.toLowerCase()) ||
+        c.lastMessage?.contenido.toLowerCase().includes(conversationsQuery.toLowerCase())
+    );
+
+    // Get list of targets for starting new conversation (including roles for admin/preceptors)
+    const getNewChatOptions = () => {
+        let options = [...availableUsers];
+        
+        if (profile?.rol === 'admin' || profile?.rol === 'preceptor') {
+            const roles = [
+                { id: 'role_docente', nombre: '≡ƒôó Todos los Docentes', rol: 'docente', isRole: true },
+                { id: 'role_alumno', nombre: '≡ƒôó Todos los Alumnos', rol: 'alumno', isRole: true },
+                { id: 'role_preceptor', nombre: '≡ƒôó Todos los Preceptores', rol: 'preceptor', isRole: true },
+                { id: 'role_admin', nombre: '≡ƒôó Todos los Administradores', rol: 'admin', isRole: true }
+            ];
+            options = [...roles, ...options];
+        }
+
+        if (!searchQuery) return options;
+        return options.filter(o => 
+            o.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            o.rol.toLowerCase().includes(searchQuery.toLowerCase())
+        );
     };
 
-    const filteredMessages = Array.isArray(messages) ? messages.filter(m => {
-        if (activeTab === 'received') return m.destinatario_id === user?.id || m.rol_destinatario === profile?.rol;
-        if (activeTab === 'sent') return m.remitente_id === user?.id;
-        return true;
-    }) : [];
+    const newChatOptions = getNewChatOptions();
+
+    // Active Chat details
+    const activeConv = conversations.find(c => c.key === activeChatKey);
+    const activeUser = activeConv ? activeConv.user : (
+        activeChatKey?.startsWith('role_')
+            ? {
+                id: activeChatKey,
+                nombre: `Difusi├│n a ${activeChatKey.replace('role_', '').toUpperCase()}S`,
+                rol: activeChatKey.replace('role_', ''),
+                isRole: true
+              }
+            : availableUsers.find(u => u.id === activeChatKey)
+    );
+
+    const activeChatMessages = activeConv 
+        ? [...activeConv.messages].sort((a, b) => new Date(a.fecha_envio || a.created_at) - new Date(b.fecha_envio || b.created_at))
+        : [];
+
+    const formatMessageTime = (dateStr) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const formatChatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (d.toDateString() === today.toDateString()) return 'Hoy';
+        if (d.toDateString() === yesterday.toDateString()) return 'Ayer';
+        return d.toLocaleDateString([], { day: 'numeric', month: 'long' });
+    };
+
+    const renderChecks = (msg) => {
+        if (msg.remitente_id !== user?.id) return null;
+        if (msg.leido) {
+            return <CheckCheck size={14} className="text-tech-cyan inline ml-1" />;
+        }
+        return <Check size={14} className="text-tech-muted inline ml-1" />;
+    };
 
     return (
-        <div className="min-h-screen bg-tech-primary pt-24 pb-12 px-4 md:px-8">
-            <div className="max-w-6xl mx-auto">
-                <header className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => navigate('/dashboard')}
-                                className="p-2 mr-2 hover:bg-tech-surface rounded-xl text-tech-muted hover:text-tech-cyan transition-all"
-                                title="Volver al Dashboard"
-                            >
-                                <ArrowLeft size={24} />
-                            </button>
-                            <div className="p-3 bg-tech-cyan/20 rounded-2xl">
-                                <MessageSquare className="text-tech-cyan" size={32} />
-                            </div>
-                            <h1 className="text-4xl font-black text-tech-text uppercase tracking-tighter">Mensajería Interna</h1>
-                        </div>
-                        <p className="text-tech-muted font-mono text-sm tracking-widest uppercase ml-14">Canal de Comunicación Institucional</p>
-                    </div>
-
-                    <div className="flex p-1 bg-tech-secondary rounded-xl border border-tech-surface shadow-inner">
-                        {[
-                            { id: 'received', label: 'Recibidos', icon: Inbox },
-                            { id: 'sent', label: 'Enviados', icon: Send }
-                        ].map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === tab.id ? 'bg-tech-cyan text-white shadow-lg' : 'text-tech-muted hover:text-tech-text'}`}
-                            >
-                                <tab.icon size={16} />
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-                </header>
-
-                <AnimatePresence>
-                    {statusMessage && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className={`fixed top-24 right-8 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border ${statusMessage.type === 'error'
-                                ? 'bg-tech-danger/10 border-tech-danger text-tech-danger'
-                                : 'bg-tech-success/10 border-tech-success text-tech-success'
-                                }`}
-                        >
-                            {statusMessage.type === 'error' ? <Zap size={20} /> : <CheckCircle2 size={20} />}
-                            <span className="font-bold tracking-tight">{statusMessage.text}</span>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative">
-                    {/* Lista de Mensajes */}
-                    <div className={`lg:col-span-2 space-y-6 ${isMobile && showCompose ? 'hidden' : 'block'}`}>
-                        {loading ? (
-                            <div className="space-y-4">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="h-24 bg-tech-secondary rounded-2xl animate-pulse" />
-                                ))}
-                            </div>
-                        ) : filteredMessages.length === 0 ? (
-                            <div className="bg-tech-secondary rounded-3xl p-12 text-center border border-dashed border-tech-surface">
-                                <div className="mx-auto w-20 h-20 bg-tech-surface rounded-full flex items-center justify-center mb-6">
-                                    <Inbox className="text-tech-muted" size={40} />
-                                </div>
-                                <h3 className="text-xl font-bold text-tech-text mb-2">No hay mensajes</h3>
-                                <p className="text-tech-muted">Inicia una conversación buscando a un usuario.</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {filteredMessages.map((m, idx) => (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: idx * 0.05 }}
-                                        key={m.id}
-                                        className={`glass-panel p-6 rounded-3xl border border-tech-surface/30 hover:shadow-2xl transition-all ${!m.leido && m.destinatario_id === user.id ? 'border-l-4 border-l-tech-cyan' : ''}`}
-                                    >
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-tech-surface rounded-2xl flex items-center justify-center font-bold text-tech-cyan text-xl">
-                                                    {(activeTab === 'sent' ? m.destinatario?.nombre : m.remitente?.nombre)?.[0]}
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-bold text-tech-text leading-tight">
-                                                        {activeTab === 'sent' ? m.destinatario?.nombre || m.rol_destinatario : m.remitente?.nombre}
-                                                    </h4>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] uppercase font-bold text-tech-muted bg-tech-primary px-2 py-0.5 rounded border border-tech-surface">
-                                                            {activeTab === 'sent' ? (m.destinatario?.rol || m.rol_destinatario) : m.remitente?.rol}
-                                                        </span>
-                                                        <span className="text-xs text-tech-muted">• {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-2">
-                                                {m.tipo === 'rol' && (
-                                                    <div className="flex items-center gap-2 text-tech-accent text-[10px] font-black uppercase tracking-widest bg-tech-accent/10 px-3 py-1 rounded-full border border-tech-accent/20">
-                                                        <Users size={12} />
-                                                        Difusión
-                                                    </div>
-                                                )}
-                                                {activeTab === 'received' && (
-                                                    <button
-                                                        onClick={() => {
-                                                            setReplyingTo(replyingTo === m.id ? null : m.id);
-                                                            setReplyText('');
-                                                        }}
-                                                        className={`p-2 rounded-xl transition-all ${replyingTo === m.id ? 'bg-tech-cyan text-white shadow-lg' : 'text-tech-cyan hover:bg-tech-cyan/10'}`}
-                                                        title="Responder"
-                                                    >
-                                                        <MessageSquare size={18} />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <p className="text-tech-text leading-relaxed pl-16 mb-4">{m.contenido}</p>
-
-                                        <AnimatePresence>
-                                            {replyingTo === m.id && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    className="overflow-hidden bg-tech-primary/50 rounded-2xl p-4 border border-tech-surface mt-2 ml-16"
-                                                >
-                                                    <textarea
-                                                        autoFocus
-                                                        value={replyText}
-                                                        onChange={(e) => setReplyText(e.target.value)}
-                                                        placeholder="Escribe tu respuesta..."
-                                                        className="w-full bg-transparent border-none focus:ring-0 text-sm text-tech-text placeholder:text-tech-muted min-h-[80px] resize-none"
-                                                    />
-                                                    <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-tech-surface">
-                                                        <button
-                                                            onClick={() => setReplyingTo(null)}
-                                                            className="px-4 py-2 text-xs font-bold text-tech-muted hover:text-tech-text uppercase transition-colors"
-                                                        >
-                                                            Cancelar
-                                                        </button>
-                                                        <button
-                                                            onClick={() => sendMessage(null, {
-                                                                destinatario_id: m.remitente_id,
-                                                                contenido: replyText
-                                                            })}
-                                                            disabled={!replyText.trim()}
-                                                            className="px-6 py-2 bg-tech-cyan text-white rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-all hover:bg-tech-cyan/80"
-                                                        >
-                                                            Enviar Respuesta
-                                                        </button>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Nueva Conversación */}
-                    <div className={`space-y-8 ${isMobile && !showCompose ? 'hidden' : 'block'}`}>
-                        <section className="bg-tech-secondary rounded-[2rem] p-8 border border-tech-surface shadow-xl sticky top-28">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-2xl font-black text-tech-text uppercase tracking-tighter flex items-center gap-2">
-                                    <Send className="text-tech-cyan" size={20} />
-                                    Nuevo Mensaje
-                                </h3>
-                                {isMobile && (
+        <div className="w-full h-full flex flex-col bg-tech-primary font-sans p-0 lg:p-4 justify-center">
+            <div className="w-full h-full lg:max-w-6xl lg:mx-auto bg-tech-secondary/40 lg:border lg:border-tech-surface lg:rounded-2xl overflow-hidden shadow-2xl flex-grow flex flex-col lg:h-[calc(100vh-120px)] lg:max-h-[780px]">
+                
+                {/* Main Split Layout */}
+                <div className="flex flex-grow h-full overflow-hidden">
+                    
+                    {/* Left Pane: Conversation List */}
+                    <div className={`w-full lg:w-[350px] border-r border-tech-surface flex-col ${isMobile && activeChatKey ? 'hidden' : 'flex'}`}>
+                        {/* List Header */}
+                        <div className="p-4 border-b border-tech-surface space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
                                     <button
-                                        onClick={() => setShowCompose(false)}
-                                        className="p-2 hover:bg-tech-surface rounded-xl text-tech-muted"
+                                        onClick={() => navigate('/dashboard')}
+                                        className="p-1.5 hover:bg-tech-surface rounded-lg text-tech-muted hover:text-tech-cyan transition-all"
+                                        title="Volver"
                                     >
                                         <ArrowLeft size={20} />
                                     </button>
-                                )}
-                            </div>
-
-                            <div className="space-y-6">
-                                {/* Selector de Destinatario */}
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-bold text-tech-muted uppercase tracking-widest pl-1">Destinatario</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-4 flex items-center text-tech-muted">
-                                            <Search size={18} />
-                                        </div>
-                                        <input
-                                            type="text"
-                                            placeholder="Buscar usuario..."
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full pl-12 pr-4 py-4 bg-tech-primary rounded-2xl border border-tech-surface focus:border-tech-cyan focus:ring-4 focus:ring-tech-cyan/10 outline-none font-bold text-tech-text transition-all"
-                                        />
-
-                                        {searchQuery && (
-                                            <div className="absolute top-full left-0 right-0 mt-2 bg-tech-secondary border border-tech-surface rounded-2xl shadow-2xl max-h-64 overflow-y-auto z-50 p-2 space-y-1">
-                                                {availableUsers
-                                                    .filter(u => u.nombre.toLowerCase().includes(searchQuery.toLowerCase()))
-                                                    .map(u => (
-                                                        <button
-                                                            key={u.id}
-                                                            onClick={() => {
-                                                                setSelectedRecipient(u);
-                                                                setSearchQuery('');
-                                                            }}
-                                                            className="w-full flex items-center gap-3 p-3 hover:bg-tech-primary rounded-xl transition-all"
-                                                        >
-                                                            <div className="w-8 h-8 bg-tech-surface rounded-lg flex items-center justify-center text-tech-cyan">
-                                                                <User size={16} />
-                                                            </div>
-                                                            <div className="text-left">
-                                                                <p className="text-sm font-bold text-tech-text">{u.nombre}</p>
-                                                                <p className="text-[10px] text-tech-muted uppercase font-bold">{u.rol}</p>
-                                                            </div>
-                                                        </button>
-                                                    ))}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {selectedRecipient && (
-                                        <div className="flex items-center justify-between p-4 bg-tech-cyan/5 rounded-2xl border border-tech-cyan/20">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-tech-cyan rounded-xl text-white">
-                                                    <User size={16} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-tech-text">{selectedRecipient.nombre}</p>
-                                                    <p className="text-xs text-tech-muted uppercase font-bold">{selectedRecipient.rol}</p>
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => setSelectedRecipient(null)}
-                                                className="text-tech-muted hover:text-tech-danger p-1"
-                                            >
-                                                <CloseIcon size={18} />
-                                            </button>
-                                        </div>
-                                    )}
+                                    <h2 className="text-xl font-black text-tech-text uppercase tracking-tight">Chats</h2>
                                 </div>
-
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-bold text-tech-muted uppercase tracking-widest pl-1">Mensaje</label>
-                                    <textarea
-                                        rows="4"
-                                        placeholder="Escribe algo importante..."
-                                        value={newMessage}
-                                        onChange={(e) => setNewMessage(e.target.value)}
-                                        className="w-full p-6 bg-tech-primary rounded-3xl border border-tech-surface focus:border-tech-cyan focus:ring-4 focus:ring-tech-cyan/10 outline-none font-medium text-tech-text transition-all resize-none"
-                                    />
-                                </div>
-
                                 <button
-                                    onClick={sendMessage}
-                                    disabled={!newMessage.trim() || !selectedRecipient}
-                                    className="w-full py-5 bg-tech-cyan text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-tech-cyan/20 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:grayscale transition-all flex items-center justify-center gap-3"
+                                    onClick={() => setShowComposeModal(true)}
+                                    className="px-3 py-1.5 bg-tech-cyan/15 hover:bg-tech-cyan/20 border border-tech-cyan/35 text-tech-cyan rounded-xl text-xs font-bold uppercase transition-all active:scale-95"
                                 >
-                                    <Send size={20} />
-                                    Enviar Mensaje
+                                    Nuevo Chat
                                 </button>
                             </div>
-                        </section>
 
-                        <div className="p-8 bg-tech-surface/20 rounded-3xl border border-dashed border-tech-surface">
-                            <h4 className="flex items-center gap-2 text-tech-text font-bold mb-3">
-                                <ShieldCheck className="text-tech-success" size={18} />
-                                Comunicación Segura
-                            </h4>
-                            <p className="text-xs text-tech-muted leading-relaxed font-medium">
-                                Los mensajes son privados y registrados para auditoría. Mantén un lenguaje profesional acorde a la institución.
-                            </p>
+                            {/* Search bar */}
+                            <div className="relative">
+                                <Search className="absolute left-3 top-2.5 text-tech-muted" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar chat o mensaje..."
+                                    value={conversationsQuery}
+                                    onChange={(e) => setConversationsQuery(e.target.value)}
+                                    className="w-full bg-tech-primary/60 border border-tech-surface rounded-xl pl-9 pr-4 py-2 text-sm text-tech-text focus:border-tech-cyan/50 focus:ring-1 focus:ring-tech-cyan/50 outline-none transition-all placeholder:text-tech-muted"
+                                />
+                            </div>
                         </div>
+
+                        {/* Chats scroll area */}
+                        <div className="flex-grow overflow-y-auto custom-scrollbar divide-y divide-tech-surface/40 p-2 space-y-1">
+                            {loading ? (
+                                <div className="p-4 space-y-3">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <div key={`loader-chat-${i}`} className="flex gap-3 items-center">
+                                            <div className="w-10 h-10 bg-tech-surface rounded-xl animate-pulse" />
+                                            <div className="flex-1 space-y-2">
+                                                <div className="h-3 bg-tech-surface rounded w-2/3 animate-pulse" />
+                                                <div className="h-2.5 bg-tech-surface rounded w-1/2 animate-pulse" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : filteredConversations.length === 0 ? (
+                                <div className="p-8 text-center text-tech-muted space-y-2">
+                                    <Inbox size={32} className="mx-auto opacity-50" />
+                                    <p className="text-xs uppercase font-mono tracking-wider">Sin conversaciones activas</p>
+                                </div>
+                            ) : (
+                                filteredConversations.map((conv, idx) => {
+                                    const isActive = conv.key === activeChatKey;
+                                    const isSent = conv.lastMessage?.remitente_id === user?.id;
+                                    return (
+                                        <button
+                                            key={`chat-conv-${conv.key || `idx-${idx}`}-${idx}`}
+                                            onClick={() => setActiveChatKey(conv.key)}
+                                            className={`w-full text-left flex gap-3 p-3 rounded-xl transition-all border ${
+                                                isActive 
+                                                    ? 'bg-tech-cyan/10 border-tech-cyan/20' 
+                                                    : 'hover:bg-tech-primary/30 border-transparent'
+                                            }`}
+                                        >
+                                            {/* Avatar */}
+                                            <div className="relative shrink-0">
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm uppercase ${
+                                                    conv.user.isRole 
+                                                        ? 'bg-tech-accent/20 text-tech-accent border border-tech-accent/30' 
+                                                        : 'bg-tech-cyan/10 text-tech-cyan border border-tech-cyan/35'
+                                                }`}>
+                                                    {conv.user.isRole ? <Megaphone size={16} /> : conv.user.nombre?.[0]}
+                                                </div>
+                                                {conv.unreadCount > 0 && (
+                                                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-tech-cyan text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-tech-secondary animate-pulse">
+                                                        {conv.unreadCount}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Info */}
+                                            <div className="flex-grow min-w-0">
+                                                <div className="flex justify-between items-baseline mb-1">
+                                                    <h4 className="font-bold text-xs text-tech-text truncate uppercase tracking-tight">
+                                                        {conv.user.nombre}
+                                                    </h4>
+                                                    <span className="text-[9px] text-tech-muted shrink-0 font-mono">
+                                                        {formatMessageTime(conv.lastMessage?.fecha_envio || conv.lastMessage?.created_at)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between items-center gap-2">
+                                                    <p className="text-xs text-tech-muted truncate flex-grow">
+                                                        {isSent && <span className="text-[10px] uppercase font-bold text-tech-cyan mr-1 font-mono">T├║:</span>}
+                                                        {conv.lastMessage?.contenido}
+                                                    </p>
+                                                    {conv.user.isRole && (
+                                                        <span className="text-[8px] uppercase font-black tracking-widest bg-tech-accent/10 text-tech-accent px-1.5 py-0.5 rounded border border-tech-accent/20">
+                                                            Rol
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Right Pane: Conversation Window */}
+                    <div className={`flex-grow flex-col bg-tech-primary/10 overflow-hidden ${isMobile && !activeChatKey ? 'hidden' : 'flex'}`}>
+                        {activeUser ? (
+                            <>
+                                {/* Conversation Header */}
+                                <div className="p-3 border-b border-tech-surface bg-tech-secondary/30 flex items-center justify-between shrink-0">
+                                    <div className="flex items-center gap-3">
+                                        {isMobile && (
+                                            <button
+                                                onClick={() => setActiveChatKey(null)}
+                                                className="p-1.5 hover:bg-tech-surface rounded-lg text-tech-muted hover:text-tech-cyan mr-1"
+                                            >
+                                                <ArrowLeft size={20} />
+                                            </button>
+                                        )}
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm uppercase ${
+                                            activeUser.isRole 
+                                                ? 'bg-tech-accent/20 text-tech-accent border border-tech-accent/30' 
+                                                : 'bg-tech-cyan/10 text-tech-cyan border border-tech-cyan/35'
+                                        }`}>
+                                            {activeUser.isRole ? <Megaphone size={16} /> : activeUser.nombre?.[0]}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-sm text-tech-text uppercase tracking-tight leading-tight">{activeUser.nombre}</h3>
+                                            <span className="text-[9px] uppercase font-black tracking-widest text-tech-muted bg-tech-primary px-1.5 py-0.5 rounded border border-tech-surface">
+                                                {activeUser.isRole ? 'Difusi├│n General' : activeUser.rol}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button className="p-1.5 hover:bg-tech-surface rounded-lg text-tech-muted">
+                                        <MoreVertical size={18} />
+                                    </button>
+                                </div>
+
+                                {/* Message List */}
+                                <div className="flex-grow overflow-y-auto p-4 space-y-4 custom-scrollbar bg-tech-primary/5">
+                                    {activeChatMessages.length === 0 ? (
+                                        <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+                                            <div className="w-14 h-14 bg-tech-surface rounded-2xl flex items-center justify-center text-tech-cyan">
+                                                <MessageSquare size={24} />
+                                            </div>
+                                            <h4 className="font-bold text-tech-text uppercase text-sm tracking-wide">Comienzo de la Conversaci├│n</h4>
+                                            <p className="text-xs text-tech-muted max-w-xs leading-relaxed">
+                                                Env├¡a un mensaje privado para iniciar el di├ílogo directo con {activeUser.nombre}.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        (() => {
+                                            let lastDateLabel = '';
+                                            return activeChatMessages.map((msg, i) => {
+                                                const isSentByMe = msg.remitente_id === user?.id;
+                                                const messageDate = msg.fecha_envio || msg.created_at;
+                                                const dateLabel = formatChatDate(messageDate);
+                                                const showDateDivider = dateLabel !== lastDateLabel;
+                                                lastDateLabel = dateLabel;
+
+                                                return (
+                                                    <div key={`msg-item-${msg.id || i}`} className="space-y-3">
+                                                        {showDateDivider && (
+                                                            <div className="flex justify-center my-3">
+                                                                <span className="bg-tech-surface/50 border border-tech-surface px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider text-tech-muted">
+                                                                    {dateLabel}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        <div className={`flex ${isSentByMe ? 'justify-end' : 'justify-start'}`}>
+                                                            <div className={`max-w-[85%] lg:max-w-[75%] rounded-2xl px-4 py-2 border relative shadow-md ${
+                                                                isSentByMe 
+                                                                    ? 'bg-tech-cyan/15 border-tech-cyan/25 rounded-tr-none text-tech-text' 
+                                                                    : 'bg-tech-secondary/60 border-tech-surface/40 rounded-tl-none text-tech-text'
+                                                            }`}>
+                                                                {!isSentByMe && activeUser.isRole && (
+                                                                    <p className="text-[9px] font-bold text-tech-cyan uppercase tracking-tighter mb-1 font-mono">
+                                                                        {msg.remitente?.nombre} ({msg.remitente?.rol})
+                                                                    </p>
+                                                                )}
+                                                                <p className="text-xs leading-relaxed break-words whitespace-pre-wrap pb-2 pr-8">{msg.contenido}</p>
+                                                                <div className="absolute bottom-1 right-2 flex items-center gap-1">
+                                                                    <span className="text-[8px] text-tech-muted font-mono">
+                                                                        {formatMessageTime(messageDate)}
+                                                                    </span>
+                                                                    {isSentByMe && renderChecks(msg)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            });
+                                        })()
+                                    )}
+                                    <div ref={messagesEndRef} />
+                                </div>
+
+                                {/* Message Input */}
+                                <form onSubmit={sendMessage} className="flex gap-2 p-3 border-t border-tech-surface bg-tech-secondary/20 shrink-0">
+                                    <input
+                                        type="text"
+                                        value={newMessage}
+                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                sendMessage(e);
+                                            }
+                                        }}
+                                        placeholder={activeUser.isRole && profile?.rol !== 'admin' && profile?.rol !== 'preceptor' 
+                                            ? 'No tienes permisos para escribir en este canal' 
+                                            : 'Escribe un mensaje...'
+                                        }
+                                        disabled={activeUser.isRole && profile?.rol !== 'admin' && profile?.rol !== 'preceptor'}
+                                        className="flex-grow bg-tech-primary border border-tech-surface rounded-xl px-4 py-2.5 text-sm text-tech-text focus:border-tech-cyan/50 focus:ring-1 focus:ring-tech-cyan/50 outline-none transition-all placeholder:text-tech-muted disabled:opacity-50"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={!newMessage.trim() || (activeUser.isRole && profile?.rol !== 'admin' && profile?.rol !== 'preceptor')}
+                                        className="w-10 h-10 shrink-0 bg-tech-cyan hover:bg-tech-cyan/85 border border-tech-cyan/30 text-white rounded-xl flex items-center justify-center transition-all disabled:opacity-50 active:scale-95 shadow-md shadow-tech-cyan/15"
+                                    >
+                                        <Send size={16} />
+                                    </button>
+                                </form>
+                            </>
+                        ) : (
+                            /* Empty State Chat Placeholder */
+                            <div className="flex-grow flex flex-col items-center justify-center text-center p-8 space-y-4">
+                                <div className="p-4 bg-tech-cyan/10 border border-tech-cyan/20 rounded-full animate-bounce">
+                                    <MessageSquare className="text-tech-cyan" size={40} />
+                                </div>
+                                <h3 className="text-2xl font-black text-tech-text uppercase tracking-tighter">MENSAJER├ìA BELGRANO</h3>
+                                <p className="text-sm text-tech-muted max-w-sm leading-relaxed">
+                                    Selecciona una conversaci├│n del panel de la izquierda o inicia una nueva con profesores, preceptores, alumnos o administradores.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* FAB for Mobile */}
-                {isMobile && (
-                    <motion.button
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => setShowCompose(!showCompose)}
-                        className="fixed bottom-8 right-8 z-[60] w-16 h-16 bg-tech-cyan text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-tech-cyan/80 transition-all border-4 border-tech-primary"
-                    >
-                        {showCompose ? <CloseIcon size={32} /> : <MessageSquare size={32} />}
-                    </motion.button>
-                )}
+                {/* Compose New Chat Modal */}
+                <AnimatePresence>
+                    {showComposeModal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 lg:p-4 bg-black/75 backdrop-blur-sm">
+                            <motion.div
+                                initial={{ opacity: 0, y: isMobile ? '100%' : 20, scale: isMobile ? 1 : 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: isMobile ? '100%' : 20, scale: isMobile ? 1 : 0.95 }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+                                className="bg-tech-secondary border border-tech-surface w-full h-full lg:h-auto lg:max-h-[500px] lg:max-w-md lg:rounded-2xl overflow-hidden flex flex-col shadow-2xl"
+                            >
+                                <div className="p-4 border-b border-tech-surface flex justify-between items-center bg-tech-primary/30 shrink-0">
+                                    <h3 className="font-bold text-sm text-tech-text uppercase tracking-wider flex items-center gap-2">
+                                        <Users size={16} className="text-tech-cyan" />
+                                        Nueva conversaci├│n
+                                    </h3>
+                                    <button 
+                                        onClick={() => {
+                                            setShowComposeModal(false);
+                                            setSearchQuery('');
+                                        }}
+                                        className="p-2 hover:bg-tech-surface rounded-xl text-tech-muted hover:text-tech-text"
+                                    >
+                                        <CloseIcon size={20} />
+                                    </button>
+                                </div>
+
+                                <div className="p-4 border-b border-tech-surface bg-tech-primary/10 shrink-0">
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-2.5 text-tech-muted" size={16} />
+                                        <input
+                                            type="text"
+                                            placeholder="Buscar usuario o grupo..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="w-full bg-tech-primary border border-tech-surface rounded-xl pl-9 pr-4 py-2 text-sm text-tech-text focus:border-tech-cyan focus:ring-1 focus:ring-tech-cyan/50 outline-none transition-all placeholder:text-tech-muted"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex-grow overflow-y-auto custom-scrollbar p-2 space-y-1">
+                                    {newChatOptions.length === 0 ? (
+                                        <p className="p-6 text-center text-xs text-tech-muted uppercase font-mono tracking-wider">No se encontraron usuarios</p>
+                                    ) : (
+                                        newChatOptions.map((opt, optIdx) => (
+                                            <button
+                                                key={`new-chat-opt-${opt.id || `idx-${optIdx}`}-${optIdx}`}
+                                                onClick={() => {
+                                                    setActiveChatKey(opt.id);
+                                                    setShowComposeModal(false);
+                                                    setSearchQuery('');
+                                                }}
+                                                className="w-full flex items-center gap-3 p-3 hover:bg-tech-primary/50 rounded-xl transition-all border border-transparent hover:border-tech-surface/40"
+                                            >
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs uppercase ${
+                                                    opt.isRole 
+                                                        ? 'bg-tech-accent/20 text-tech-accent border border-tech-accent/30' 
+                                                        : 'bg-tech-cyan/10 text-tech-cyan border border-tech-cyan/35'
+                                                }`}>
+                                                    {opt.isRole ? <Megaphone size={14} /> : opt.nombre?.[0]}
+                                                </div>
+                                                <div className="text-left min-w-0">
+                                                    <p className="text-xs font-bold text-tech-text truncate">{opt.nombre}</p>
+                                                    <p className="text-[9px] text-tech-muted uppercase font-bold tracking-wider font-mono">
+                                                        {opt.isRole ? 'Canal de Difusi├│n' : opt.rol}
+                                                    </p>
+                                                </div>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+
             </div>
         </div>
     );

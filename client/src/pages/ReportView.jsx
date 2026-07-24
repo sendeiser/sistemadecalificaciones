@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Search, Download, ArrowLeft } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 import ThemeToggle from '../components/ThemeToggle';
 
 import { getApiEndpoint } from '../utils/api';
@@ -106,7 +108,7 @@ const ReportView = () => {
 
     const getStudentDivisionLabel = (studentId) => {
         const enrollment = enrollments.find(e => e.alumno_id === studentId);
-        if (!enrollment) return 'Sin División';
+        if (!enrollment) return 'Sin Divisi├│n';
         const div = divisions.find(d => d.id === enrollment.division_id);
         return div ? `${div.anio} ${div.seccion}` : 'N/A';
     };
@@ -126,7 +128,7 @@ const ReportView = () => {
                         <h1 className="text-3xl font-bold text-tech-text">
                             Reportes
                         </h1>
-                        <p className="text-tech-muted text-sm">Generar boletines de acreditación de saberes.</p>
+                        <p className="text-tech-muted text-sm">Generar boletines de acreditaci├│n de saberes.</p>
                     </div>
                 </div>
                 <ThemeToggle />
@@ -134,12 +136,10 @@ const ReportView = () => {
 
             <div className="max-w-6xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8">
-                    <div className="relative flex-grow max-w-xl">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                        <input
-                            type="text"
+                    <div className="flex-grow max-w-xl">
+                        <Input
+                            icon={Search}
                             placeholder="Buscar alumno por nombre o DNI..."
-                            className="w-full pl-10 pr-4 py-2 bg-tech-secondary border border-tech-surface rounded-xl focus:ring-2 focus:ring-tech-cyan outline-none transition-all text-tech-text placeholder-tech-muted/50 font-mono text-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -177,18 +177,20 @@ const ReportView = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <button
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="p-3 h-auto w-auto"
                                     onClick={() => downloadReport(student.id)}
                                     disabled={downloading === student.id}
-                                    className="p-3 bg-tech-cyan/10 hover:bg-tech-cyan text-tech-cyan hover:text-white rounded-lg transition-all active:scale-95 disabled:opacity-50"
-                                    title="Descargar Boletín"
+                                    title="Descargar Bolet├¡n"
                                 >
                                     {downloading === student.id ? (
                                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
                                     ) : (
                                         <Download size={20} />
                                     )}
-                                </button>
+                                </Button>
                             </div>
                         )) : (
                             <div className="col-span-full py-20 text-center text-tech-muted bg-tech-secondary/50 rounded-xl border border-dashed border-tech-surface">

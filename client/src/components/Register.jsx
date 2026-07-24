@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import { getApiEndpoint } from '../utils/api';
-import { UserPlus, Mail, Lock, User, CreditCard, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, CreditCard, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import Button from './ui/Button';
+import Input from './ui/Input';
 
 const Register = () => {
-    const { signUp } = useAuth();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
@@ -34,7 +34,7 @@ const Register = () => {
 
     useEffect(() => {
         if (!token) {
-            setInviteState({ loading: false, valid: false, error: 'Se requiere una invitación para registrarse.' });
+            setInviteState({ loading: false, valid: false, error: 'Se requiere una invitaci├│n para registrarse.' });
             return;
         }
         validateToken();
@@ -60,14 +60,14 @@ const Register = () => {
                 setInviteState({
                     loading: false,
                     valid: false,
-                    error: data.error || 'Invitación inválida'
+                    error: data.error || 'Invitaci├│n inv├ílida'
                 });
             }
-        } catch (err) {
+        } catch {
             setInviteState({
                 loading: false,
                 valid: false,
-                error: 'Error al validar invitación'
+                error: 'Error al validar invitaci├│n'
             });
         }
     };
@@ -84,7 +84,7 @@ const Register = () => {
         setError(null);
 
         if (formData.password !== formData.confirmPassword) {
-            setError('Las contraseñas no coinciden');
+            setError('Las contrase├▒as no coinciden');
             setLoading(false);
             return;
         }
@@ -127,11 +127,11 @@ const Register = () => {
                     </div>
                     <h2 className="text-2xl font-bold text-tech-text uppercase mb-2">Registro Cerrado</h2>
                     <p className="text-tech-muted font-mono text-sm mb-6">
-                        {inviteState.error || 'El registro público está deshabilitado. Debes utilizar el enlace de invitación proporcionado por la administración.'}
+                        {inviteState.error || 'El registro p├║blico est├í deshabilitado. Debes utilizar el enlace de invitaci├│n proporcionado por la administraci├│n.'}
                     </p>
-                    <Link to="/login" className="px-6 py-3 bg-tech-surface hover:bg-tech-primary rounded text-sm font-bold uppercase tracking-wider transition-colors inline-block">
+                    <Button variant="ghost" onClick={() => navigate('/login')}>
                         Volver al Login
-                    </Link>
+                    </Button>
                 </div>
             </div>
         );
@@ -148,7 +148,7 @@ const Register = () => {
                             <CheckCircle2 className="text-tech-success" size={64} />
                         </div>
                     </div>
-                    <h2 className="text-3xl font-bold text-tech-text tracking-tight uppercase">¡Registro Exitoso!</h2>
+                    <h2 className="text-3xl font-bold text-tech-text tracking-tight uppercase">┬íRegistro Exitoso!</h2>
                     <p className="text-tech-muted font-mono text-sm leading-relaxed">
                         Tu cuenta de <strong>{inviteState.rol}</strong> ha sido creada.
                     </p>
@@ -156,7 +156,7 @@ const Register = () => {
                         onClick={() => navigate('/login')}
                         className="w-full py-4 font-bold text-white bg-tech-cyan rounded hover:bg-sky-600 transition duration-200 shadow-[0_0_20px_rgba(14,165,233,0.3)] flex items-center justify-center gap-2 uppercase tracking-wider group"
                     >
-                        Ir al Inicio de Sesión
+                        Ir al Inicio de Sesi├│n
                         <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
@@ -171,7 +171,7 @@ const Register = () => {
             </div>
 
             <div className="w-full max-w-lg p-8 space-y-8 bg-tech-secondary rounded border border-tech-surface shadow-[0_0_50px_rgba(0,0,0,0.5)] relative z-10">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tech-cyan to-purple-600"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-tech-cyan"></div>
 
                 <div className="text-center">
                     <div className="inline-flex p-3 bg-tech-accent/10 rounded mb-4 border border-tech-accent/20">
@@ -180,87 +180,68 @@ const Register = () => {
                     <h2 className="text-3xl font-bold text-tech-text tracking-tight uppercase">
                         Registro de {inviteState.rol}
                     </h2>
-                    <p className="text-tech-muted mt-2 font-mono text-sm">Invitación verificada. Completa tus datos.</p>
+                    <p className="text-tech-muted mt-2 font-mono text-sm">Invitaci├│n verificada. Completa tus datos.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     {/* Form Fields ... similar to before but email might be locked */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                                <User size={14} /> Nombre Completo
-                            </label>
-                            <input
-                                name="nombre"
-                                type="text"
-                                required
-                                placeholder="Ej: Juan Pérez"
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                                value={formData.nombre}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                                <CreditCard size={14} /> DNI
-                            </label>
-                            <input
-                                name="dni"
-                                type="text"
-                                required
-                                placeholder="Sin puntos ni espacios"
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                                value={formData.dni}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                            <Mail size={14} /> Correo Electrónico
-                        </label>
-                        <input
-                            name="email"
-                            type="email"
+                        <Input
+                            label="Nombre Completo"
+                            icon={User}
+                            name="nombre"
+                            type="text"
                             required
-                            readOnly={!!inviteState.email}
-                            placeholder="docente@escuela.edu.ar"
-                            className={`w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50 ${inviteState.email ? 'opacity-75 cursor-not-allowed' : ''}`}
-                            value={formData.email}
+                            placeholder="Ej: Juan P├⌐rez"
+                            value={formData.nombre}
                             onChange={handleChange}
                         />
-                        {inviteState.email && <span className="text-[10px] text-tech-accent block pt-1">* El correo está vinculado a la invitación</span>}
+                        <Input
+                            label="DNI"
+                            icon={CreditCard}
+                            name="dni"
+                            type="text"
+                            required
+                            placeholder="Sin puntos ni espacios"
+                            value={formData.dni}
+                            onChange={handleChange}
+                        />
                     </div>
 
+                    <Input
+                        label="Correo Electr├│nico"
+                        icon={Mail}
+                        name="email"
+                        type="email"
+                        required
+                        readOnly={!!inviteState.email}
+                        placeholder="docente@escuela.edu.ar"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={inviteState.email ? 'opacity-75' : ''}
+                    />
+                    {inviteState.email && <span className="text-[10px] text-tech-accent block pt-1">* El correo est├í vinculado a la invitaci├│n</span>}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                                <Lock size={14} /> Contraseña
-                            </label>
-                            <input
-                                name="password"
-                                type="password"
-                                required
-                                minLength="6"
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-tech-muted uppercase flex items-center gap-2 tracking-wider">
-                                <Lock size={14} /> Confirmar
-                            </label>
-                            <input
-                                name="confirmPassword"
-                                type="password"
-                                required
-                                className="w-full px-4 py-3 bg-tech-primary border border-tech-surface rounded focus:ring-1 focus:ring-tech-cyan focus:border-tech-cyan focus:outline-none text-tech-text transition-all placeholder-tech-muted/50"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                            />
-                        </div>
+                        <Input
+                            label="Contrase├▒a"
+                            icon={Lock}
+                            name="password"
+                            type="password"
+                            required
+                            minLength="6"
+                            value={formData.password}
+                            onChange={handleChange}
+                        />
+                        <Input
+                            label="Confirmar"
+                            icon={Lock}
+                            name="confirmPassword"
+                            type="password"
+                            required
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                        />
                     </div>
 
                     {error && (
@@ -269,20 +250,21 @@ const Register = () => {
                         </div>
                     )}
 
-                    <button
+                    <Button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-4 font-bold text-white bg-tech-cyan rounded hover:bg-sky-600 transition duration-300 shadow-[0_0_20px_rgba(14,165,233,0.3)] disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2 uppercase tracking-wider group"
+                        className="w-full"
+                        shine
                     >
                         {loading ? 'Procesando...' : 'Crear Cuenta'}
-                        {!loading && <UserPlus size={20} className="group-hover:translate-x-1 transition-transform" />}
-                    </button>
+                        {!loading && <UserPlus size={20} />}
+                    </Button>
 
                     <div className="text-center pt-2 border-t border-tech-surface mt-6">
                         <p className="text-tech-muted text-sm">
-                            ¿Ya tienes una cuenta? {' '}
+                            ┬┐Ya tienes una cuenta? {' '}
                             <Link to="/login" className="text-tech-cyan font-bold hover:text-tech-text transition-colors uppercase text-xs tracking-wider">
-                                Iniciar Sesión
+                                Iniciar Sesi├│n
                             </Link>
                         </p>
                     </div>

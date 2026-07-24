@@ -8,27 +8,30 @@ import {
     ArrowLeft,
     Edit,
     Trash2,
-    X,
     Clock,
     ChevronLeft,
     ChevronRight,
     Info,
-    MapPin,
     AlignLeft
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Tabs from '../components/ui/Tabs';
+import Modal from '../components/ui/Modal';
+import { useToast } from '../components/ui/Toast';
 import { getApiEndpoint } from '../utils/api';
 
 const Calendar = () => {
     const { profile } = useAuth();
     const navigate = useNavigate();
+    const addToast = useToast();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [viewMode, setViewMode] = useState('month'); // 'month' or 'list'
     const [showModal, setShowModal] = useState(false);
     const [editingEvent, setEditingEvent] = useState(null);
-    const [message, setMessage] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
 
@@ -75,12 +78,12 @@ const Calendar = () => {
     });
 
     const eventTypes = [
-        { value: 'feriado', label: 'Feriado', color: '#ef4444' },
-        { value: 'cierre_notas', label: 'Cierre de Notas', color: '#f59e0b' },
-        { value: 'acto', label: 'Acto Escolar', color: '#0ea5e9' },
-        { value: 'examen', label: 'Examen', color: '#a855f7' },
-        { value: 'reunion', label: 'Reunión', color: '#10b981' },
-        { value: 'otro', label: 'Otro', color: '#6b7280' }
+        { value: 'feriado', label: 'Feriado', color: 'var(--tech-cyan)' },
+        { value: 'cierre_notas', label: 'Cierre de Notas', color: 'var(--tech-accent)' },
+        { value: 'acto', label: 'Acto Escolar', color: 'var(--tech-cyan)' },
+        { value: 'examen', label: 'Examen', color: 'var(--tech-accent)' },
+        { value: 'reunion', label: 'Reuni├│n', color: 'var(--tech-success)' },
+        { value: 'otro', label: 'Otro', color: 'var(--tech-muted)' }
     ];
 
     useEffect(() => {
@@ -116,7 +119,7 @@ const Calendar = () => {
             setEvents(data);
         } catch (error) {
             console.error('Error fetching events:', error);
-            setMessage({ type: 'error', text: 'Error al cargar eventos' });
+            addToast('Error al cargar eventos', 'error');
         } finally {
             setLoading(false);
         }
@@ -151,18 +154,18 @@ const Calendar = () => {
 
             if (!response.ok) throw new Error('Error al guardar evento');
 
-            setMessage({ type: 'success', text: editingEvent ? 'Evento actualizado' : 'Evento creado' });
+            addToast(editingEvent ? 'Evento actualizado' : 'Evento creado', 'success');
             setShowModal(false);
             resetForm();
             fetchEvents();
         } catch (error) {
             console.error('Error saving event:', error);
-            setMessage({ type: 'error', text: 'Error al guardar evento' });
+            addToast('Error al guardar evento', 'error');
         }
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('¿Eliminar este evento?')) return;
+        if (!confirm('┬┐Eliminar este evento?')) return;
 
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -177,11 +180,11 @@ const Calendar = () => {
 
             if (!response.ok) throw new Error('Error al eliminar evento');
 
-            setMessage({ type: 'success', text: 'Evento eliminado' });
+            addToast('Evento eliminado', 'success');
             fetchEvents();
         } catch (error) {
             console.error('Error deleting event:', error);
-            setMessage({ type: 'error', text: 'Error al eliminar evento' });
+            addToast('Error al eliminar evento', 'error');
         }
     };
 
@@ -262,7 +265,7 @@ const Calendar = () => {
                             <div className="p-1.5 md:p-2 bg-tech-cyan/20 rounded text-tech-cyan">
                                 <CalendarIcon className="w-6 h-6 md:w-8 md:h-8" />
                             </div>
-                            Calendario Académico
+                            Calendario Acad├⌐mico
                         </h1>
                         <p className="text-tech-muted font-mono mt-1 text-xs md:text-sm capitalize flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
                             <span>Eventos, feriados y fechas importantes</span>
@@ -273,29 +276,16 @@ const Calendar = () => {
                 <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                     <ThemeToggle />
                     {profile?.rol === 'admin' && (
-                        <button
-                            onClick={() => { resetForm(); setShowModal(true); }}
-                            className="flex items-center gap-2 px-4 py-2 bg-tech-cyan hover:bg-sky-600 text-white rounded font-bold transition-all uppercase tracking-wider text-xs md:text-sm shadow-lg shadow-tech-cyan/20"
-                        >
+                        <Button onClick={() => { resetForm(); setShowModal(true); }}>
                             <Plus size={18} />
                             <span className="hidden xs:inline">Nuevo Evento</span>
                             <span className="xs:hidden">Nuevo</span>
-                        </button>
+                        </Button>
                     )}
                 </div>
             </header>
 
             <main className="max-w-7xl mx-auto">
-                {message && (
-                    <div className={`mb-6 p-4 rounded border flex items-center justify-between ${message.type === 'error'
-                        ? 'bg-tech-danger/10 border-tech-danger text-tech-danger'
-                        : 'bg-tech-success/10 border-tech-success text-tech-success'
-                        }`}>
-                        <span>{message.text}</span>
-                        <button onClick={() => setMessage(null)} className="text-current opacity-50 hover:opacity-100">×</button>
-                    </div>
-                )}
-
                 {/* Calendar Controls & Navigation */}
                 <div className="mb-6 flex flex-col lg:flex-row items-center justify-between gap-4 bg-tech-secondary/30 p-4 rounded-xl border border-tech-surface">
                     {/* Month/Year Selectors */}
@@ -336,33 +326,16 @@ const Calendar = () => {
                         </button>
                     </div>
 
-                    <button
-                        onClick={() => setCurrentDate(new Date())}
-                        className="px-4 py-1.5 bg-tech-surface/50 hover:bg-tech-surface text-tech-muted hover:text-tech-text rounded border border-tech-surface transition-colors text-xs uppercase font-bold tracking-wider"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setCurrentDate(new Date())}>
                         Volver a Hoy
-                    </button>
+                    </Button>
 
-                    <div className="flex items-center gap-2 w-full lg:w-auto justify-center">
-                        <button
-                            onClick={() => setViewMode('month')}
-                            className={`flex-1 lg:flex-none px-4 py-2 rounded text-sm uppercase font-bold transition-all ${viewMode === 'month'
-                                ? 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20'
-                                : 'bg-tech-primary hover:bg-tech-surface text-tech-muted border border-tech-surface'
-                                }`}
-                        >
-                            Mes
-                        </button>
-                        <button
-                            onClick={() => setViewMode('list')}
-                            className={`flex-1 lg:flex-none px-4 py-2 rounded text-sm uppercase font-bold transition-all ${viewMode === 'list'
-                                ? 'bg-tech-cyan text-white shadow-lg shadow-tech-cyan/20'
-                                : 'bg-tech-primary hover:bg-tech-surface text-tech-muted border border-tech-surface'
-                                }`}
-                        >
-                            Lista
-                        </button>
-                    </div>
+                    <Tabs
+                        tabs={[{ value: 'month', label: 'Mes' }, { value: 'list', label: 'Lista' }]}
+                        activeTab={viewMode}
+                        onChange={setViewMode}
+                        variant="pills"
+                    />
                 </div>
 
                 {/* Event Legend */}
@@ -383,7 +356,7 @@ const Calendar = () => {
                     <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden">
                         {/* Weekday headers */}
                         <div className="grid grid-cols-7 bg-tech-primary border-b border-tech-surface">
-                            {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
+                            {['Dom', 'Lun', 'Mar', 'Mi├⌐', 'Jue', 'Vie', 'S├íb'].map(day => (
                                 <div key={day} className="p-3 text-center text-xs font-bold text-tech-muted uppercase">
                                     {day}
                                 </div>
@@ -486,7 +459,7 @@ const Calendar = () => {
                                                     <> - {new Date(event.fecha_fin).toLocaleDateString('es-AR')}</>
                                                 )}
                                                 {!event.todo_el_dia && event.hora_inicio && (
-                                                    <> • {event.hora_inicio}</>
+                                                    <> ΓÇó {event.hora_inicio}</>
                                                 )}
                                             </div>
                                         </div>
@@ -516,224 +489,175 @@ const Calendar = () => {
             </main>
 
             {/* Event Modal */}
-            {showModal && profile?.rol === 'admin' && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
-                    <div className="bg-tech-secondary border border-tech-surface rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-tech-text uppercase">
-                                {editingEvent ? 'Editar Evento' : 'Nuevo Evento'}
-                            </h2>
-                            <button
-                                onClick={() => { setShowModal(false); resetForm(); }}
-                                className="text-tech-muted hover:text-white transition-colors"
-                            >
-                                <X size={24} />
-                            </button>
+            <Modal
+                open={showModal && profile?.rol === 'admin'}
+                onClose={() => { setShowModal(false); resetForm(); }}
+                title={editingEvent ? 'Editar Evento' : 'Nuevo Evento'}
+                size="md"
+                footer={
+                    <>
+                        <Button variant="ghost" onClick={() => { setShowModal(false); resetForm(); }}>
+                            Cancelar
+                        </Button>
+                        <Button type="submit" form="event-form">
+                            {editingEvent ? 'Actualizar' : 'Crear'}
+                        </Button>
+                    </>
+                }
+            >
+                <form id="event-form" onSubmit={handleSubmit} className="space-y-4">
+                    <Input
+                        label="T├¡tulo *"
+                        type="text"
+                        required
+                        value={formData.titulo}
+                        onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                    />
+
+                    <div>
+                        <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Descripci├│n</label>
+                        <textarea
+                            value={formData.descripcion}
+                            onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                            className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
+                            rows="3"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input
+                            label="Fecha Inicio *"
+                            type="date"
+                            required
+                            value={formData.fecha_inicio}
+                            onChange={(e) => setFormData({ ...formData, fecha_inicio: e.target.value })}
+                        />
+                        <Input
+                            label="Fecha Fin"
+                            type="date"
+                            value={formData.fecha_fin}
+                            onChange={(e) => setFormData({ ...formData, fecha_fin: e.target.value })}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Tipo *</label>
+                        <select
+                            value={formData.tipo}
+                            onChange={(e) => {
+                                const selectedType = eventTypes.find(t => t.value === e.target.value);
+                                setFormData({
+                                    ...formData,
+                                    tipo: e.target.value,
+                                    color: selectedType?.color || '#0ea5e9'
+                                });
+                            }}
+                            className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
+                        >
+                            {eventTypes.map(type => (
+                                <option key={type.value} value={type.value}>{type.label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id="todo_el_dia"
+                            checked={formData.todo_el_dia}
+                            onChange={(e) => setFormData({ ...formData, todo_el_dia: e.target.checked })}
+                            className="w-4 h-4"
+                        />
+                        <label htmlFor="todo_el_dia" className="text-sm text-tech-text">
+                            Todo el d├¡a
+                        </label>
+                    </div>
+
+                    {!formData.todo_el_dia && (
+                        <div className="grid grid-cols-2 gap-4">
+                            <Input
+                                label="Hora Inicio"
+                                type="time"
+                                value={formData.hora_inicio}
+                                onChange={(e) => setFormData({ ...formData, hora_inicio: e.target.value })}
+                            />
+                            <Input
+                                label="Hora Fin"
+                                type="time"
+                                value={formData.hora_fin}
+                                onChange={(e) => setFormData({ ...formData, hora_fin: e.target.value })}
+                            />
                         </div>
-
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Título *</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={formData.titulo}
-                                    onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Descripción</label>
-                                <textarea
-                                    value={formData.descripcion}
-                                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                    rows="3"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Fecha Inicio *</label>
-                                    <input
-                                        type="date"
-                                        required
-                                        value={formData.fecha_inicio}
-                                        onChange={(e) => setFormData({ ...formData, fecha_inicio: e.target.value })}
-                                        className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Fecha Fin</label>
-                                    <input
-                                        type="date"
-                                        value={formData.fecha_fin}
-                                        onChange={(e) => setFormData({ ...formData, fecha_fin: e.target.value })}
-                                        className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Tipo *</label>
-                                <select
-                                    value={formData.tipo}
-                                    onChange={(e) => {
-                                        const selectedType = eventTypes.find(t => t.value === e.target.value);
-                                        setFormData({
-                                            ...formData,
-                                            tipo: e.target.value,
-                                            color: selectedType?.color || '#0ea5e9'
-                                        });
-                                    }}
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                >
-                                    {eventTypes.map(type => (
-                                        <option key={type.value} value={type.value}>{type.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="todo_el_dia"
-                                    checked={formData.todo_el_dia}
-                                    onChange={(e) => setFormData({ ...formData, todo_el_dia: e.target.checked })}
-                                    className="w-4 h-4"
-                                />
-                                <label htmlFor="todo_el_dia" className="text-sm text-tech-text">
-                                    Todo el día
-                                </label>
-                            </div>
-
-                            {!formData.todo_el_dia && (
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Hora Inicio</label>
-                                        <input
-                                            type="time"
-                                            value={formData.hora_inicio}
-                                            onChange={(e) => setFormData({ ...formData, hora_inicio: e.target.value })}
-                                            className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-tech-muted uppercase mb-2">Hora Fin</label>
-                                        <input
-                                            type="time"
-                                            value={formData.hora_fin}
-                                            onChange={(e) => setFormData({ ...formData, hora_fin: e.target.value })}
-                                            className="w-full bg-tech-primary border border-tech-surface rounded px-4 py-2 text-tech-text focus:border-tech-cyan outline-none"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="flex justify-end gap-3 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => { setShowModal(false); resetForm(); }}
-                                    className="px-6 py-2 bg-tech-surface hover:bg-tech-primary text-tech-text rounded transition-colors uppercase font-bold"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-6 py-2 bg-tech-cyan hover:bg-sky-600 text-white rounded transition-colors uppercase font-bold"
-                                >
-                                    {editingEvent ? 'Actualizar' : 'Crear'}
-                                </button>
-                            </div>
-                        </form>
+                    )}
+                </form>
+            </Modal>
+            {/* Event Detail Modal (Quick View) */}
+            <Modal
+                open={showDetailModal}
+                onClose={() => setShowDetailModal(false)}
+                size="sm"
+                footer={profile?.rol === 'admin' && selectedEvent ? (
+                    <Button variant="ghost" onClick={() => openEditModal(selectedEvent)}>
+                        <Edit size={16} /> Editar
+                    </Button>
+                ) : null}
+            >
+                <div className="-mx-6 -mt-6 mb-6 h-2" style={{ backgroundColor: selectedEvent?.color }}></div>
+                <div className="flex items-start justify-between mb-4">
+                    <div>
+                        <span className="text-xs font-bold uppercase tracking-wider px-2 py-1 rounded bg-tech-surface text-tech-muted mb-2 inline-block">
+                            {eventTypes.find(t => t.value === selectedEvent?.tipo)?.label}
+                        </span>
+                        <h2 className="text-2xl font-bold text-tech-text mt-1">{selectedEvent?.titulo}</h2>
                     </div>
                 </div>
-            )}
-            {/* Event Detail Modal (Quick View) */}
-            {showDetailModal && selectedEvent && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 animate-in fade-in duration-200">
-                    <div className="bg-tech-secondary border border-tech-surface rounded-xl p-0 w-full max-w-md shadow-2xl overflow-hidden">
-                        {/* Modal Header with Color Strip */}
-                        <div className="h-2 w-full" style={{ backgroundColor: selectedEvent.color }}></div>
 
-                        <div className="p-6">
-                            <div className="flex items-start justify-between mb-4">
-                                <div>
-                                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-1 rounded bg-tech-surface text-tech-muted mb-2 inline-block">
-                                        {eventTypes.find(t => t.value === selectedEvent.tipo)?.label}
-                                    </span>
-                                    <h2 className="text-2xl font-bold text-tech-text mt-1">{selectedEvent.titulo}</h2>
-                                </div>
-                                <button
-                                    onClick={() => setShowDetailModal(false)}
-                                    className="text-tech-muted hover:text-white transition-colors bg-tech-surface/50 rounded-full p-1"
-                                >
-                                    <X size={20} />
-                                </button>
+                <div className="space-y-4">
+                    {selectedEvent?.descripcion && (
+                        <div className="bg-tech-primary/50 p-3 rounded border border-tech-surface/50">
+                            <div className="flex gap-2">
+                                <AlignLeft size={16} className="text-tech-muted mt-0.5 flex-shrink-0" />
+                                <p className="text-tech-text text-sm leading-relaxed whitespace-pre-wrap">
+                                    {selectedEvent.descripcion}
+                                </p>
                             </div>
+                        </div>
+                    )}
 
-                            <div className="space-y-4">
-                                {selectedEvent.descripcion && (
-                                    <div className="bg-tech-primary/50 p-3 rounded border border-tech-surface/50">
-                                        <div className="flex gap-2">
-                                            <AlignLeft size={16} className="text-tech-muted mt-0.5 flex-shrink-0" />
-                                            <p className="text-tech-text text-sm leading-relaxed whitespace-pre-wrap">
-                                                {selectedEvent.descripcion}
-                                            </p>
-                                        </div>
+                    <div className="space-y-3 font-mono text-sm text-tech-muted bg-tech-primary/30 p-4 rounded-lg">
+                        <div className="flex items-center gap-3">
+                            <Clock size={16} className="text-tech-cyan" />
+                            <div>
+                                <div className="text-tech-text font-bold">
+                                    {selectedEvent?.fecha_inicio && new Date(selectedEvent.fecha_inicio).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                </div>
+                                {(selectedEvent?.fecha_fin && selectedEvent.fecha_fin !== selectedEvent.fecha_inicio) && (
+                                    <div className="text-xs">
+                                        Hasta: {new Date(selectedEvent.fecha_fin).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
                                     </div>
                                 )}
+                            </div>
+                        </div>
 
-                                <div className="space-y-3 font-mono text-sm text-tech-muted bg-tech-primary/30 p-4 rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <Clock size={16} className="text-tech-cyan" />
-                                        <div>
-                                            <div className="text-tech-text font-bold">
-                                                {new Date(selectedEvent.fecha_inicio).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                                            </div>
-                                            {(selectedEvent.fecha_fin && selectedEvent.fecha_fin !== selectedEvent.fecha_inicio) && (
-                                                <div className="text-xs">
-                                                    Hasta: {new Date(selectedEvent.fecha_fin).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {!selectedEvent.todo_el_dia && selectedEvent.hora_inicio && (
-                                        <div className="flex items-center gap-3 pl-7">
-                                            <div className="bg-tech-cyan/10 text-tech-cyan px-2 py-0.5 rounded text-xs font-bold">
-                                                {selectedEvent.hora_inicio}
-                                                {selectedEvent.hora_fin ? ` - ${selectedEvent.hora_fin}` : ''}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {selectedEvent.todo_el_dia && (
-                                        <div className="flex items-center gap-3 pl-7">
-                                            <span className="text-xs uppercase font-bold bg-tech-accent/10 text-tech-accent px-2 py-0.5 rounded">
-                                                Día Completo
-                                            </span>
-                                        </div>
-                                    )}
+                        {!selectedEvent?.todo_el_dia && selectedEvent?.hora_inicio && (
+                            <div className="flex items-center gap-3 pl-7">
+                                <div className="bg-tech-cyan/10 text-tech-cyan px-2 py-0.5 rounded text-xs font-bold">
+                                    {selectedEvent.hora_inicio}
+                                    {selectedEvent.hora_fin ? ` - ${selectedEvent.hora_fin}` : ''}
                                 </div>
                             </div>
+                        )}
 
-                            {profile?.rol === 'admin' && (
-                                <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-tech-surface">
-                                    <button
-                                        onClick={() => openEditModal(selectedEvent)}
-                                        className="flex items-center gap-2 px-4 py-2 bg-tech-surface hover:bg-tech-primary text-tech-cyan rounded font-bold transition-colors text-sm uppercase"
-                                    >
-                                        <Edit size={16} /> Editar
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        {selectedEvent?.todo_el_dia && (
+                            <div className="flex items-center gap-3 pl-7">
+                                <span className="text-xs uppercase font-bold bg-tech-accent/10 text-tech-accent px-2 py-0.5 rounded">
+                                    D├¡a Completo
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </div>
-            )}
+            </Modal>
         </div>
     );
 };

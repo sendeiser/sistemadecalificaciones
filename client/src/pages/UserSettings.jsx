@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import PageTransition from '../components/PageTransition';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const UserSettings = () => {
     const { profile, user, signOut, refreshProfile } = useAuth();
@@ -105,12 +107,12 @@ const UserSettings = () => {
     const handlePasswordChange = async (e) => {
         e.preventDefault();
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            setMessage({ type: 'error', text: 'Las contraseñas no coinciden' });
+            setMessage({ type: 'error', text: 'Las contrase├▒as no coinciden' });
             return;
         }
 
         if (passwordData.newPassword.length < 6) {
-            setMessage({ type: 'error', text: 'La contraseña debe tener al menos 6 caracteres' });
+            setMessage({ type: 'error', text: 'La contrase├▒a debe tener al menos 6 caracteres' });
             return;
         }
 
@@ -124,11 +126,11 @@ const UserSettings = () => {
 
             if (error) throw error;
 
-            setMessage({ type: 'success', text: 'Contraseña actualizada con éxito.' });
+            setMessage({ type: 'success', text: 'Contrase├▒a actualizada con ├⌐xito.' });
             setPasswordData({ newPassword: '', confirmPassword: '' });
         } catch (error) {
             console.error('Error changing password:', error);
-            setMessage({ type: 'error', text: 'Error al cambiar la contraseña: ' + error.message });
+            setMessage({ type: 'error', text: 'Error al cambiar la contrase├▒a: ' + error.message });
         } finally {
             setLoading(false);
         }
@@ -139,13 +141,22 @@ const UserSettings = () => {
     return (
         <PageTransition>
             <div className="max-w-4xl mx-auto pb-10">
-                <div className="mb-10">
-                    <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
-                        AJUSTES DE <span className="text-tech-cyan">PERFIL</span>
-                    </h1>
-                    <p className="text-tech-text/70 dark:text-tech-muted font-mono text-xs uppercase tracking-[0.3em] mt-2 font-bold">
-                        Gestión de seguridad y datos personales
-                    </p>
+                <div className="mb-10 flex items-center gap-4 border-b border-tech-surface pb-6">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
+                        aria-label="Volver al panel"
+                    >
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black uppercase tracking-tighter leading-none text-tech-text">
+                            AJUSTES DE <span className="text-tech-cyan">PERFIL</span>
+                        </h1>
+                        <p className="text-tech-text/70 dark:text-tech-muted font-mono text-xs uppercase tracking-[0.3em] mt-2 font-bold">
+                            Gesti├│n de seguridad y datos personales
+                        </p>
+                    </div>
                 </div>
 
                 {/* Notification Banner */}
@@ -219,13 +230,10 @@ const UserSettings = () => {
                             </div>
                         </div>
 
-                        <button
-                            onClick={signOut}
-                            className="hidden md:flex w-full items-center justify-center gap-2 p-4 border-2 border-tech-danger/20 text-tech-danger hover:bg-tech-danger/10 hover:border-tech-danger/40 rounded-2xl transition-all font-black uppercase text-[11px] tracking-widest shadow-lg shadow-tech-danger/5"
-                        >
+                        <Button onClick={signOut} variant="danger" size="md" className="hidden md:flex w-full">
                             <LogOut size={16} />
-                            Terminar Sesión Segura
-                        </button>
+                            Terminar Sesi├│n Segura
+                        </Button>
                     </div>
 
                     {/* Main Content: Forms */}
@@ -234,19 +242,16 @@ const UserSettings = () => {
                         <div className="bg-tech-secondary border border-tech-surface rounded-2xl p-6 md:p-8 shadow-2xl">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-tech-cyan/20 rounded-lg text-tech-cyan"><User size={20} /></div>
-                                <h3 className="text-lg font-bold text-tech-text uppercase tracking-tight">Información Personal</h3>
+                                <h3 className="text-lg font-bold text-tech-text uppercase tracking-tight">Informaci├│n Personal</h3>
                             </div>
 
                             <form onSubmit={handleProfileUpdate} className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] uppercase font-black text-tech-muted tracking-widest ml-1">
-                                        Nombre Completo
-                                    </label>
-                                    <input
+                                    <Input
+                                        label="Nombre Completo"
                                         type="text"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-tech-surface border border-tech-surface focus:border-tech-cyan rounded-xl p-4 text-tech-text transition-all focus:outline-none"
                                         placeholder="Tu nombre completo"
                                         required
                                     />
@@ -254,7 +259,7 @@ const UserSettings = () => {
 
                                 <div className="space-y-2 opacity-60">
                                     <label className="text-[10px] uppercase font-black text-tech-muted tracking-widest ml-1">
-                                        Correo Electrónico (Solo Lectura)
+                                        Correo Electr├│nico (Solo Lectura)
                                     </label>
                                     <div className="w-full bg-tech-primary border border-tech-surface rounded-xl p-4 cursor-not-allowed flex items-center gap-3">
                                         <Mail size={18} className="text-tech-muted" />
@@ -262,14 +267,14 @@ const UserSettings = () => {
                                     </div>
                                 </div>
 
-                                <button
+                                <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-tech-cyan text-white rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-tech-cyan/80 transition-all shadow-lg shadow-tech-cyan/20 disabled:opacity-50"
+                                    variant="primary"
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                                     Guardar Cambios
-                                </button>
+                                </Button>
                             </form>
                         </div>
 
@@ -283,55 +288,45 @@ const UserSettings = () => {
                             <form onSubmit={handlePasswordChange} className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] uppercase font-black text-tech-muted tracking-widest ml-1">
-                                            Nueva Contraseña
-                                        </label>
-                                        <div className="relative">
-                                            <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                            <input
-                                                type="password"
-                                                value={passwordData.newPassword}
-                                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                                className="w-full bg-tech-surface border border-tech-surface focus:border-tech-accent rounded-xl p-4 pl-12 text-tech-text transition-all focus:outline-none"
-                                                placeholder="••••••••"
-                                                minLength={6}
-                                            />
-                                        </div>
+                                        <Input
+                                            label="Nueva Contrase├▒a"
+                                            type="password"
+                                            icon={Key}
+                                            value={passwordData.newPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                            placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
+                                            minLength={6}
+                                        />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] uppercase font-black text-tech-muted tracking-widest ml-1">
-                                            Confirmar Contraseña
-                                        </label>
-                                        <div className="relative">
-                                            <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-tech-muted" size={18} />
-                                            <input
-                                                type="password"
-                                                value={passwordData.confirmPassword}
-                                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                                className="w-full bg-tech-surface border border-tech-surface focus:border-tech-accent rounded-xl p-4 pl-12 text-tech-text transition-all focus:outline-none"
-                                                placeholder="••••••••"
-                                                minLength={6}
-                                            />
-                                        </div>
+                                        <Input
+                                            label="Confirmar Contrase├▒a"
+                                            type="password"
+                                            icon={Key}
+                                            value={passwordData.confirmPassword}
+                                            onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                            placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
+                                            minLength={6}
+                                        />
                                     </div>
                                 </div>
 
                                 <div className="p-4 bg-tech-primary/50 border border-tech-surface rounded-xl flex gap-3">
                                     <AlertCircle className="text-tech-accent shrink-0" size={18} />
                                     <p className="text-xs text-tech-muted leading-relaxed">
-                                        Al cambiar tu contraseña deberás usar la nueva credencial en tu próximo inicio de sesión. Asegúrate de que tenga al menos 6 caracteres.
+                                        Al cambiar tu contrase├▒a deber├ís usar la nueva credencial en tu pr├│ximo inicio de sesi├│n. Aseg├║rate de que tenga al menos 6 caracteres.
                                     </p>
                                 </div>
 
-                                <button
+                                <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-tech-accent text-white rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-tech-accent/80 transition-all shadow-lg shadow-tech-accent/20 disabled:opacity-50"
+                                    variant="primary"
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={16} /> : <Key size={16} />}
-                                    Actualizar Contraseña
-                                </button>
+                                    Actualizar Contrase├▒a
+                                </Button>
                             </form>
                         </div>
                     </div>

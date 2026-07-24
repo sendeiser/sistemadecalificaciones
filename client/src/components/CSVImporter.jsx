@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { Upload, FileText, Check, AlertCircle, RefreshCw } from 'lucide-react';
-import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import Button from './ui/Button';
+import Table from './ui/Table';
 
 const CSVImporter = ({ endpoint, onComplete, requiredColumns = [] }) => {
     const { session } = useAuth();
@@ -125,9 +126,9 @@ const CSVImporter = ({ endpoint, onComplete, requiredColumns = [] }) => {
                                 <FileText size={48} className="text-tech-cyan" />
                                 <span className="font-bold text-lg text-white">{file.name}</span>
                                 <span className="text-tech-muted text-sm">{(file.size / 1024).toFixed(2)} KB</span>
-                                <button onClick={reset} className="text-tech-danger hover:underline text-sm mt-2">
+                                <Button variant="ghost" size="sm" onClick={reset} className="text-tech-danger hover:underline">
                                     Cambiar archivo
-                                </button>
+                                </Button>
                             </div>
                         ) : (
                             <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => fileInputRef.current.click()}>
@@ -148,31 +149,17 @@ const CSVImporter = ({ endpoint, onComplete, requiredColumns = [] }) => {
                     {preview.length > 0 && (
                         <div className="mt-6">
                             <h4 className="text-sm font-bold text-tech-muted uppercase tracking-wider mb-2">Vista Previa (Primeras 5 filas)</h4>
-                            <div className="overflow-x-auto border border-tech-surface rounded">
-                                <table className="w-full text-sm font-mono">
-                                    <thead className="bg-tech-primary text-tech-muted">
-                                        <tr>
-                                            {Object.keys(preview[0]).map(header => (
-                                                <th key={header} className="p-2 text-left border-r border-tech-surface last:border-0">{header}</th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {preview.map((row, i) => (
-                                            <tr key={i} className="border-t border-tech-surface">
-                                                {Object.values(row).map((val, j) => (
-                                                    <td key={j} className="p-2 text-tech-muted border-r border-tech-surface last:border-0">{val}</td>
-                                                ))}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <Table
+                                columns={Object.keys(preview[0]).map(header => ({ key: header, label: header, mono: true }))}
+                                data={preview}
+                                className="border border-tech-surface rounded"
+                            />
 
-                            <button
-                                onClick={handleUpload}
+                            <Button
+                                variant="primary"
                                 disabled={uploading}
-                                className="w-full mt-6 py-3 bg-tech-cyan hover:bg-sky-600 text-white rounded font-bold uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                                className="w-full mt-6"
+                                onClick={handleUpload}
                             >
                                 {uploading ? (
                                     <>
@@ -182,10 +169,10 @@ const CSVImporter = ({ endpoint, onComplete, requiredColumns = [] }) => {
                                 ) : (
                                     <>
                                         <Upload size={20} />
-                                        Confirmar Importación
+                                        Confirmar Importaci├│n
                                     </>
                                 )}
-                            </button>
+                            </Button>
                         </div>
                     )}
                 </>
@@ -202,7 +189,7 @@ const CSVImporter = ({ endpoint, onComplete, requiredColumns = [] }) => {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-tech-primary p-4 rounded border border-tech-success/30">
                             <span className="block text-3xl font-bold text-tech-success">{results.success.length}</span>
-                            <span className="text-tech-muted text-sm uppercase">Importados con éxito</span>
+                            <span className="text-tech-muted text-sm uppercase">Importados con ├⌐xito</span>
                         </div>
                         <div className="bg-tech-primary p-4 rounded border border-tech-danger/30">
                             <span className="block text-3xl font-bold text-tech-danger">{results.errors.length}</span>
@@ -223,13 +210,14 @@ const CSVImporter = ({ endpoint, onComplete, requiredColumns = [] }) => {
                         </div>
                     )}
 
-                    <button
+                    <Button
+                        variant="primary"
+                        className="w-full"
                         onClick={reset}
-                        className="w-full py-3 bg-tech-surface hover:bg-slate-600 text-white rounded font-bold uppercase tracking-wider transition-colors flex justify-center items-center gap-2"
                     >
                         <RefreshCw size={20} />
                         Importar Otro Archivo
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

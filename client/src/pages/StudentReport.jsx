@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FileText, Download, ArrowLeft, GraduationCap, Clock, AlertCircle, BookOpen, Brain } from 'lucide-react';
+import { Download, ArrowLeft, GraduationCap, AlertCircle, BookOpen, Brain } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 import { getApiEndpoint } from '../utils/api';
@@ -9,6 +9,8 @@ import { QRCodeSVG } from 'qrcode.react';
 import { QrCode, Sparkles, Award } from 'lucide-react';
 import AiInsights from '../components/AiInsights';
 import MedalBadge from '../components/MedalBadge';
+import Button from '../components/ui/Button';
+import Modal from '../components/ui/Modal';
 
 const StudentReport = () => {
     const { profile } = useAuth();
@@ -81,11 +83,11 @@ const StudentReport = () => {
                 setAiData(data);
             } else {
                 const err = await res.json();
-                alert(`${err.error || 'Error al generar diagnóstico'}${err.details ? ': ' + err.details : ''}`);
+                alert(`${err.error || 'Error al generar diagn├│stico'}${err.details ? ': ' + err.details : ''}`);
             }
         } catch (error) {
             console.error('Error generating AI diagnostic:', error);
-            alert('Error de conexión con el servicio de IA');
+            alert('Error de conexi├│n con el servicio de IA');
         } finally {
             setAiLoading(false);
         }
@@ -93,9 +95,9 @@ const StudentReport = () => {
 
     const fetchData = async () => {
         try {
-            console.log('🔍 [StudentReport] Starting data fetch...');
-            console.log('🔍 [StudentReport] Student ID:', studentId);
-            console.log('🔍 [StudentReport] Logged-in Profile ID:', profile.id);
+            console.log('≡ƒöì [StudentReport] Starting data fetch...');
+            console.log('≡ƒöì [StudentReport] Student ID:', studentId);
+            console.log('≡ƒöì [StudentReport] Logged-in Profile ID:', profile.id);
 
             // If viewing another student's report, fetch their info
             if (studentId !== profile.id) {
@@ -105,10 +107,10 @@ const StudentReport = () => {
                     .eq('id', studentId)
                     .single();
 
-                console.log('👤 [StudentReport] Student info query:', { student, error: sErr });
+                console.log('≡ƒæñ [StudentReport] Student info query:', { student, error: sErr });
 
                 if (sErr) {
-                    console.error('❌ [StudentReport] Error fetching student info:', sErr);
+                    console.error('Γ¥î [StudentReport] Error fetching student info:', sErr);
                     throw sErr;
                 }
                 setStudentInfo(student);
@@ -120,14 +122,14 @@ const StudentReport = () => {
             // 1. Fetch Student Division
             const { data: enrollment, error: eErr } = await supabase
                 .from('estudiantes_divisiones')
-                .select('division:divisiones(*)')
+                .select('division:divisiones(*, ciclo_lectivo:ciclos_lectivos(anio))')
                 .eq('alumno_id', studentId)
                 .single();
 
-            console.log('📚 [StudentReport] Enrollment query result:', { enrollment, error: eErr });
+            console.log('≡ƒôÜ [StudentReport] Enrollment query result:', { enrollment, error: eErr });
 
             if (eErr) {
-                console.error('❌ [StudentReport] Error fetching enrollment:', eErr);
+                console.error('Γ¥î [StudentReport] Error fetching enrollment:', eErr);
                 throw eErr;
             }
             setDivision(enrollment.division);
@@ -138,10 +140,10 @@ const StudentReport = () => {
                 .select('id, materia:materias(nombre), docente:perfiles(nombre)')
                 .eq('division_id', enrollment.division.id);
 
-            console.log('📋 [StudentReport] Assignments query result:', { assignments, error: aErr });
+            console.log('≡ƒôï [StudentReport] Assignments query result:', { assignments, error: aErr });
 
             if (aErr) {
-                console.error('❌ [StudentReport] Error fetching assignments:', aErr);
+                console.error('Γ¥î [StudentReport] Error fetching assignments:', aErr);
                 throw aErr;
             }
 
@@ -151,12 +153,12 @@ const StudentReport = () => {
                 .select('*')
                 .eq('alumno_id', studentId);
 
-            console.log('📊 [StudentReport] Grades query result:', { myGrades, error: gErr });
-            console.log('📊 [StudentReport] Number of grades found:', myGrades?.length || 0);
+            console.log('≡ƒôè [StudentReport] Grades query result:', { myGrades, error: gErr });
+            console.log('≡ƒôè [StudentReport] Number of grades found:', myGrades?.length || 0);
 
             if (gErr) {
-                console.error('❌ [StudentReport] Error fetching grades:', gErr);
-                console.error('❌ [StudentReport] Error details:', JSON.stringify(gErr, null, 2));
+                console.error('Γ¥î [StudentReport] Error fetching grades:', gErr);
+                console.error('Γ¥î [StudentReport] Error details:', JSON.stringify(gErr, null, 2));
                 throw gErr;
             }
 
@@ -176,13 +178,13 @@ const StudentReport = () => {
                 };
             }).sort((a, b) => a.materia.localeCompare(b.materia));
 
-            console.log('✅ [StudentReport] Final report:', report);
-            console.log('✅ [StudentReport] Number of subjects:', report.length);
+            console.log('Γ£à [StudentReport] Final report:', report);
+            console.log('Γ£à [StudentReport] Number of subjects:', report.length);
 
             setGrades(report);
         } catch (error) {
-            console.error('💥 [StudentReport] Fatal error:', error);
-            console.error('💥 [StudentReport] Error stack:', error.stack);
+            console.error('≡ƒÆÑ [StudentReport] Fatal error:', error);
+            console.error('≡ƒÆÑ [StudentReport] Error stack:', error.stack);
         } finally {
             setLoading(false);
         }
@@ -200,7 +202,7 @@ const StudentReport = () => {
                 }
             });
 
-            if (!response.ok) throw new Error('Error al descargar el boletín');
+            if (!response.ok) throw new Error('Error al descargar el bolet├¡n');
 
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
@@ -230,40 +232,41 @@ const StudentReport = () => {
         <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
             <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row items-start md:items-center justify-between border-b border-tech-surface pb-6 gap-6">
                 <div className="flex items-center gap-4">
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text border border-transparent hover:border-tech-surface"
                     >
                         <ArrowLeft size={24} />
-                    </button>
+                    </Button>
                     <div className="min-w-0 flex-1">
                         <h1 className="text-lg md:text-3xl font-bold text-tech-text uppercase tracking-tight">
                             <div className="flex items-center gap-2 md:gap-3">
                                 <div className="p-1.5 md:p-2 bg-tech-success/20 rounded text-tech-success shrink-0">
                                     <GraduationCap className="w-6 h-6 md:w-8 md:h-8" />
                                 </div>
-                                <span className="break-words leading-tight">Mi Boletín de Calificaciones</span>
+                                <span className="break-words leading-tight">Mi Bolet├¡n de Calificaciones</span>
                             </div>
                         </h1>
                         <p className="text-tech-muted font-mono mt-2 text-xs md:text-sm">
-                            {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo} ` : 'Cargando división...'}
+                            {division ? `${division.anio} "${division.seccion}" - Ciclo ${division.ciclo_lectivo?.anio || division.ciclo_lectivo} ` : 'Cargando divisi├│n...'}
                         </p>
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <ThemeToggle />
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={() => setShowQR(true)}
-                        className="flex items-center gap-2 px-4 py-3 bg-tech-secondary hover:bg-tech-surface text-tech-cyan rounded font-bold transition-all border border-tech-cyan/30 uppercase tracking-widest text-sm"
                         title="Mostrar mi QR de asistencia"
                     >
                         <QrCode size={20} />
                         <span className="hidden sm:inline">Mi Credencial</span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        variant="primary"
                         onClick={downloadPDF}
                         disabled={downloading}
-                        className="flex items-center gap-2 px-6 py-3 bg-tech-success hover:bg-emerald-600 text-white rounded font-bold transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest shadow-[0_0_15px_rgba(16,185,129,0.2)]"
                     >
                         {downloading ? (
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -271,42 +274,28 @@ const StudentReport = () => {
                             <Download size={20} />
                         )}
                         Descargar PDF
-                    </button>
+                    </Button>
                 </div>
             </header>
 
             <main className="max-w-7xl mx-auto">
-                {showQR && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={() => setShowQR(false)}>
-                        <div className="bg-tech-secondary border border-tech-cyan/30 rounded-2xl p-8 max-w-xs w-full text-center space-y-6 animate-in zoom-in-95 duration-200 shadow-[0_0_50px_rgba(14,165,233,0.2)]" onClick={e => e.stopPropagation()}>
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-bold text-tech-text uppercase tracking-tighter">Credencial Digital</h3>
-                                <p className="text-[10px] text-tech-muted font-mono uppercase">Escolares • Asistencia</p>
-                            </div>
-
-                            <div className="bg-white p-4 rounded-xl inline-block shadow-inner mx-auto">
-                                <QRCodeSVG
-                                    value={studentInfo?.dni || studentInfo?.id || ''}
-                                    size={180}
-                                    level="H"
-                                    includeMargin={true}
-                                />
-                            </div>
-
-                            <div className="space-y-1 pb-2">
-                                <div className="font-black text-tech-text uppercase text-lg leading-tight">{studentInfo?.nombre}</div>
-                                <div className="text-sm text-tech-cyan font-mono font-bold tracking-widest">DNI: {studentInfo?.dni}</div>
-                            </div>
-
-                            <button
-                                onClick={() => setShowQR(false)}
-                                className="w-full py-3 bg-tech-surface hover:bg-tech-primary text-tech-muted hover:text-white rounded-xl transition-colors font-bold uppercase text-xs tracking-widest border border-tech-surface"
-                            >
-                                Cerrar
-                            </button>
+                <Modal open={showQR} onClose={() => setShowQR(false)} size="sm" title="Credencial Digital">
+                    <div className="text-center space-y-6">
+                        <p className="text-[10px] text-tech-muted font-mono uppercase">Escolares ΓÇó Asistencia</p>
+                        <div className="bg-white p-4 rounded-xl inline-block shadow-inner mx-auto">
+                            <QRCodeSVG
+                                value={studentInfo?.dni || studentInfo?.id || ''}
+                                size={180}
+                                level="H"
+                                includeMargin={true}
+                            />
+                        </div>
+                        <div className="space-y-1 pb-2">
+                            <div className="font-black text-tech-text uppercase text-lg leading-tight">{studentInfo?.nombre}</div>
+                            <div className="text-sm text-tech-cyan font-mono font-bold tracking-widest">DNI: {studentInfo?.dni}</div>
                         </div>
                     </div>
-                )}
+                </Modal>
 
                 {/* Seccion de Logros */}
                 {medals.length > 0 && (
@@ -334,9 +323,9 @@ const StudentReport = () => {
                         <h2 className="text-xl font-black text-tech-text uppercase tracking-widest">Inteligencia Educativa</h2>
                     </div>
                     {(!aiData && profile.rol === 'alumno') ? (
-                        <div className="p-8 bg-tech-secondary/30 rounded-3xl border border-tech-surface border-dashed text-center">
+                        <div className="p-8 bg-tech-secondary/30 rounded-2xl border border-tech-surface border-dashed text-center">
                             <Brain className="mx-auto text-tech-muted mb-4 opacity-50" size={48} />
-                            <p className="text-tech-muted font-mono text-sm uppercase">El equipo docente aún no ha generado un diagnóstico pedagógico para tu perfil.</p>
+                            <p className="text-tech-muted font-mono text-sm uppercase">El equipo docente a├║n no ha generado un diagn├│stico pedag├│gico para tu perfil.</p>
                         </div>
                     ) : (
                         <AiInsights
@@ -461,8 +450,8 @@ const StudentReport = () => {
                 <div className="mt-8 bg-tech-secondary/30 p-6 rounded border border-tech-surface border-dashed flex items-center gap-4 text-tech-muted">
                     <AlertCircle size={24} className="text-tech-cyan shrink-0" />
                     <p className="text-sm font-mono italic">
-                        Este boletín muestra las calificaciones cargadas hasta la fecha por los docentes.
-                        Para reclamos o consultas, dirígete a preceptoría.
+                        Este bolet├¡n muestra las calificaciones cargadas hasta la fecha por los docentes.
+                        Para reclamos o consultas, dir├¡gete a preceptor├¡a.
                     </p>
                 </div>
             </main>

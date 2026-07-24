@@ -39,13 +39,13 @@ const CriticalStudentsWidget = () => {
             <div className="p-3 bg-tech-success/10 rounded-full text-tech-success mb-3">
                 <CheckSquare size={24} />
             </div>
-            <h3 className="text-tech-text font-bold uppercase">Sin Alumnos Críticos</h3>
+            <h3 className="text-tech-text font-bold uppercase">Sin Alumnos Cr├¡ticos</h3>
             <p className="text-tech-muted text-xs font-mono mt-1">No se detectaron casos de alto riesgo.</p>
         </div>
     );
 
     return (
-        <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden flex flex-col h-full shadow-lg shadow-red-500/5">
+        <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden flex flex-col h-full ">
             <div className="p-4 border-b border-tech-surface flex justify-between items-center bg-tech-danger/5">
                 <div className="flex items-center gap-2 text-tech-danger">
                     <AlertTriangle size={20} />
