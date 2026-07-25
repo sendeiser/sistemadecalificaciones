@@ -25,8 +25,8 @@ router.get('/', async (req, res) => {
             .from('mensajes')
             .select(`
                 *,
-                remitente:perfiles!remitente_id(nombre, rol, email),
-                destinatario:perfiles!destinatario_id(nombre, rol, email)
+                remitente:perfiles!remitente_id(id, nombre, rol, email),
+                destinatario:perfiles!destinatario_id(id, nombre, rol, email)
             `)
             .or(`remitente_id.eq.${userId},destinatario_id.eq.${userId},rol_destinatario.eq.${profile.rol}`)
             .order('created_at', { ascending: false });
