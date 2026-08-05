@@ -8,13 +8,13 @@ export default {
         extend: {
             colors: {
                 tech: {
-                    primary: '#faf5f5',
-                    secondary: '#ffffff',
-                    surface: '#e5e0e0',
-                    cyan: '#dc2626',       // Rojo Institucional
-                    accent: '#4b5563',     // Gris Comercial
-                    success: '#16a34a',    // Verde gestión
-                    danger: '#b91c1c',     // Rojo Oscuro
+                    primary: 'var(--tech-primary)',
+                    secondary: 'var(--tech-secondary)',
+                    surface: 'var(--tech-surface)',
+                    cyan: 'var(--tech-cyan)',
+                    accent: 'var(--tech-accent)',
+                    success: 'var(--tech-success)',
+                    danger: 'var(--tech-danger)',
                 }
             },
             fontFamily: {
