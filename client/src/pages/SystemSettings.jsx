@@ -170,13 +170,13 @@ const SystemSettings = () => {
         }
     };
 
-    const handleBackupExport = async () => {
+    const handleBackupExport = async (format = 'json') => {
         setLoading(true);
         setError(null);
         setMessage(null);
         try {
             const token = await getAuthToken();
-            const res = await fetch(getApiEndpoint('/settings/backup'), {
+            const res = await fetch(getApiEndpoint(`/settings/backup?format=${format}`), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -189,11 +189,12 @@ const SystemSettings = () => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `backup_calificaciones_${new Date().toISOString().split('T')[0]}.json`;
+            const ext = format === 'sql' ? 'sql' : 'json';
+            a.download = `backup_calificaciones_${new Date().toISOString().split('T')[0]}.${ext}`;
             document.body.appendChild(a);
             a.click();
             a.remove();
-            setMessage('Copia de seguridad descargada correctamente.');
+            setMessage(`Copia de seguridad (${format.toUpperCase()}) descargada correctamente.`);
         } catch (err) {
             setError(err.message || 'Error al exportar el backup.');
         } finally {
@@ -571,18 +572,29 @@ const SystemSettings = () => {
                                             Copia de Seguridad (Backup)
                                         </h3>
                                         <p className="text-tech-muted text-xs leading-relaxed mb-6 font-mono">
-                                            Exporta el estado completo de la base de datos (Calificaciones, Asistencias, Usuarios, Divisiones) en formato JSON estructurado.
+                                            Exporta el estado completo de la base de datos en formato JSON estructurado o mediante sentencias ejecutable en SQL.
                                         </p>
                                     </div>
-                                    <Button
-                                        onClick={handleBackupExport}
-                                        disabled={loading}
-                                        variant="primary"
-                                        className="w-full flex justify-center items-center gap-2"
-                                    >
-                                        <Download size={18} />
-                                        {loading ? 'Generando Backup...' : 'Exportar Base de Datos'}
-                                    </Button>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <Button
+                                            onClick={() => handleBackupExport('json')}
+                                            disabled={loading}
+                                            variant="primary"
+                                            className="w-full flex justify-center items-center gap-2 text-xs"
+                                        >
+                                            <Download size={16} />
+                                            {loading ? '...' : 'Exportar JSON'}
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleBackupExport('sql')}
+                                            disabled={loading}
+                                            variant="ghost"
+                                            className="w-full flex justify-center items-center gap-2 border border-tech-cyan text-tech-cyan hover:bg-tech-cyan/10 text-xs"
+                                        >
+                                            <Database size={16} />
+                                            {loading ? '...' : 'Exportar SQL'}
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 {/* Diagnóstico y Modo Mantenimiento */}
