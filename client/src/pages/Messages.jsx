@@ -150,13 +150,16 @@ const Messages = () => {
             if (m.tipo === 'rol' || m.rol_destinatario) {
                 isRole = true;
                 key = `role_${m.rol_destinatario}`;
+                let groupLabel = 'Grupo';
+                if (m.rol_destinatario === 'admin') groupLabel = 'Administradores';
+                else if (m.rol_destinatario === 'preceptor') groupLabel = 'Preceptores';
+                else if (m.rol_destinatario === 'docente') groupLabel = 'Docentes';
+                else if (m.rol_destinatario === 'alumno') groupLabel = 'Alumnos';
+                else if (m.rol_destinatario?.startsWith('anio_')) groupLabel = `${m.rol_destinatario.replace('anio_', '')}° Año`;
+
                 chatUser = {
                     id: key,
-                    nombre: `Difusión a ${
-                        m.rol_destinatario === 'admin' ? 'Administradores' : 
-                        m.rol_destinatario === 'preceptor' ? 'Preceptores' : 
-                        m.rol_destinatario === 'docente' ? 'Docentes' : 'Alumnos'
-                    }`,
+                    nombre: `Difusión a ${groupLabel}`,
                     rol: m.rol_destinatario,
                     isRole: true
                 };
@@ -374,7 +377,7 @@ const Messages = () => {
         c.lastMessage?.cuerpo.toLowerCase().includes(conversationsQuery.toLowerCase())
     );
 
-    // Get list of targets for starting new conversation (including roles for admin/preceptors)
+    // Get list of targets for starting new conversation (including roles and course years for admin/preceptors)
     const getNewChatOptions = () => {
         let options = [...availableUsers];
         
@@ -383,7 +386,13 @@ const Messages = () => {
                 { id: 'role_docente', nombre: '📢 Todos los Docentes', rol: 'docente', isRole: true },
                 { id: 'role_alumno', nombre: '📢 Todos los Alumnos', rol: 'alumno', isRole: true },
                 { id: 'role_preceptor', nombre: '📢 Todos los Preceptores', rol: 'preceptor', isRole: true },
-                { id: 'role_admin', nombre: '📢 Todos los Administradores', rol: 'admin', isRole: true }
+                { id: 'role_admin', nombre: '📢 Todos los Administradores', rol: 'admin', isRole: true },
+                { id: 'role_anio_1', nombre: '🏫 Difusión: 1er Año', rol: 'anio_1', isRole: true },
+                { id: 'role_anio_2', nombre: '🏫 Difusión: 2do Año', rol: 'anio_2', isRole: true },
+                { id: 'role_anio_3', nombre: '🏫 Difusión: 3er Año', rol: 'anio_3', isRole: true },
+                { id: 'role_anio_4', nombre: '🏫 Difusión: 4to Año', rol: 'anio_4', isRole: true },
+                { id: 'role_anio_5', nombre: '🏫 Difusión: 5to Año', rol: 'anio_5', isRole: true },
+                { id: 'role_anio_6', nombre: '🏫 Difusión: 6to Año', rol: 'anio_6', isRole: true }
             ];
             options = [...roles, ...options];
         }
@@ -397,13 +406,23 @@ const Messages = () => {
 
     const newChatOptions = getNewChatOptions();
 
+    const getRoleTitle = (r) => {
+        if (!r) return '';
+        if (r === 'admin') return 'ADMINISTRADORES';
+        if (r === 'preceptor') return 'PRECEPTORES';
+        if (r === 'docente') return 'DOCENTES';
+        if (r === 'alumno') return 'ALUMNOS';
+        if (r.startsWith('anio_')) return `${r.replace('anio_', '')}° AÑO`;
+        return r.toUpperCase();
+    };
+
     // Active Chat details
     const activeConv = conversations.find(c => c.key === activeChatKey);
     const activeUser = activeConv ? activeConv.user : (
         activeChatKey?.startsWith('role_')
             ? {
                 id: activeChatKey,
-                nombre: `Difusión a ${activeChatKey.replace('role_', '').toUpperCase()}S`,
+                nombre: `Difusión a ${getRoleTitle(activeChatKey.replace('role_', ''))}`,
                 rol: activeChatKey.replace('role_', ''),
                 isRole: true
               }
