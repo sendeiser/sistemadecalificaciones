@@ -33,6 +33,7 @@ const VerifyDocument = () => {
             <div className="w-full max-w-lg">
                 {/* Logo / Header */}
                 <div className="text-center mb-10">
+                    <img src="/logoeta.png" alt="Logo ETA" className="w-16 h-16 mx-auto mb-3 object-contain" />
                     <h1 className="text-4xl font-black text-tech-text tracking-tighter flex items-center justify-center gap-2">
                         <span className="text-tech-cyan italic underline decoration-tech-accent decoration-4 underline-offset-4">ETA</span>TECNICA
                     </h1>

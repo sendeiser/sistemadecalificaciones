@@ -112,8 +112,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         className="flex items-center gap-3 cursor-pointer group"
                         onClick={() => navigate('/dashboard')}
                     >
-                        <div className="w-10 h-10 bg-tech-cyan rounded-xl flex items-center justify-center text-white shadow-lg shadow-tech-cyan/20 group-hover:scale-105 transition-transform">
-                            <GraduationCap size={24} />
+                        <div className="w-10 h-10 bg-tech-primary/80 rounded-xl overflow-hidden flex items-center justify-center border border-tech-surface shadow-lg shadow-tech-cyan/20 group-hover:scale-105 transition-transform p-1">
+                            <img src="/logoeta.png" alt="Logo ETA" className="w-full h-full object-contain" />
                         </div>
                         {isOpen && (
                             <div className="flex flex-col animate-in fade-in duration-300">
