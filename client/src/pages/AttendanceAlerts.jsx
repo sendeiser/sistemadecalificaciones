@@ -201,7 +201,7 @@ const AttendanceAlerts = () => {
                                                     disabled={generating === row.id}
                                                 >
                                                     {generating === row.id ? (
-                                                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                                                        <div className="animate-spin rounded-full h-3 w-3 border-2 border-current/30 border-t-current"></div>
                                                     ) : (
                                                         <FileText size={14} />
                                                     )}
@@ -240,7 +240,7 @@ const AttendanceAlerts = () => {
                                                     disabled={generating === s.id}
                                                 >
                                                     {generating === s.id ? (
-                                                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                                                        <div className="animate-spin rounded-full h-3 w-3 border-2 border-current/30 border-t-current"></div>
                                                     ) : (
                                                         <FileText size={12} />
                                                     )}

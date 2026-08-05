@@ -11,13 +11,14 @@ const Tabs = ({ tabs, activeTab, onChange, variant = 'pills' }) => {
             onClick={() => onChange(tab.value)}
             className={twMerge(
               clsx(
-                'px-6 py-3 text-[0.625rem] font-black tracking-[0.2em] uppercase transition-all duration-200 border-b-2 -mb-[1px]',
+                'flex items-center gap-2 px-6 py-3 text-[0.625rem] font-black tracking-[0.2em] uppercase transition-all duration-200 border-b-2 -mb-[1px]',
                 activeTab === tab.value
                   ? 'border-tech-cyan text-tech-cyan'
                   : 'border-transparent text-tech-muted hover:text-tech-text',
               ),
             )}
           >
+            {tab.icon && <span>{tab.icon}</span>}
             {tab.label}
           </button>
         ))}
@@ -33,13 +34,14 @@ const Tabs = ({ tabs, activeTab, onChange, variant = 'pills' }) => {
           onClick={() => onChange(tab.value)}
           className={twMerge(
             clsx(
-              'px-6 py-2.5 rounded-lg text-[0.625rem] font-black tracking-[0.2em] uppercase transition-all duration-200',
+              'flex items-center gap-2 px-6 py-2.5 rounded-lg text-[0.625rem] font-black tracking-[0.2em] uppercase transition-all duration-200',
               activeTab === tab.value
                 ? 'bg-tech-cyan text-white shadow-lg'
                 : 'text-tech-muted hover:text-tech-text',
             ),
           )}
         >
+          {tab.icon && <span>{tab.icon}</span>}
           {tab.label}
         </button>
       ))}

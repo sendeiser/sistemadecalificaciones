@@ -163,7 +163,7 @@ const CSVImporter = ({ endpoint, onComplete, requiredColumns = [] }) => {
                             >
                                 {uploading ? (
                                     <>
-                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
                                         Procesando...
                                     </>
                                 ) : (

@@ -430,7 +430,7 @@ const GradeEntry = () => {
                         <div className="bg-tech-secondary rounded border border-tech-surface overflow-hidden shadow-2xl relative">
                             {loading && (
                                 <div className="absolute inset-0 bg-tech-primary/80 backdrop-blur-[2px] flex items-center justify-center z-20">
-                                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-tech-cyan"></div>
+                                    <div className="animate-spin rounded-full h-10 w-10 border-2 border-tech-cyan/20 border-t-tech-cyan"></div>
                                 </div>
                             )}
 

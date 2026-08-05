@@ -54,7 +54,7 @@ const VerifyDocument = () => {
 
                     {status === 'loading' && (
                         <div className="text-center py-12">
-                            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-tech-cyan mx-auto mb-6"></div>
+                            <div className="animate-spin rounded-full h-16 w-16 border-2 border-tech-cyan/20 border-t-tech-cyan mx-auto mb-6"></div>
                             <p className="text-tech-muted font-mono uppercase tracking-widest text-sm">Verificando Hash...</p>
                         </div>
                     )}

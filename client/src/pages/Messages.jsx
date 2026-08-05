@@ -685,7 +685,7 @@ const Messages = () => {
                         ) : (
                             /* Empty State Chat Placeholder */
                             <div className="flex-grow flex flex-col items-center justify-center text-center p-8 space-y-4">
-                                <div className="p-4 bg-tech-cyan/10 border border-tech-cyan/20 rounded-full animate-bounce">
+                                <div className="p-4 bg-tech-cyan/10 border border-tech-cyan/20 rounded-full animate-pulse">
                                     <MessageSquare className="text-tech-cyan" size={40} />
                                 </div>
                                 <h3 className="text-2xl font-black text-tech-text uppercase tracking-tighter">MENSAJERÍA BELGRANO</h3>

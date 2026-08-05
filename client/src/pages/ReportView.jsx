@@ -186,7 +186,7 @@ const ReportView = () => {
                                     title="Descargar Boletín"
                                 >
                                     {downloading === student.id ? (
-                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
+                                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-current/30 border-t-current"></div>
                                     ) : (
                                         <Download size={20} />
                                     )}
