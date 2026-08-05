@@ -114,8 +114,9 @@ router.post('/', async (req, res) => {
         };
 
         // Broadcast to all connected clients via Supabase Realtime
-        // (more reliable than postgres_changes with service role inserts)
-        await broadcastNewMessage(enrichedMessage);
+        if (typeof broadcastNewMessage === 'function') {
+            await broadcastNewMessage(enrichedMessage);
+        }
 
         // Log Audit
         const { logAudit } = require('../utils/auditLogger');
