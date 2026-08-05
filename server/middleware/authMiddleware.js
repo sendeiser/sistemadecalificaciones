@@ -10,8 +10,8 @@ const authMiddleware = async (req, res, next) => {
     }
 
     try {
-        const clientToUse = supabaseAdmin || supabase;
-        const { data: { user }, error } = await clientToUse.auth.getUser(token);
+        // ALWAYS use standard supabase client to verify user JWT token via Supabase Auth
+        const { data: { user }, error } = await supabase.auth.getUser(token);
 
         if (error || !user) {
             console.error('Auth verification error:', error?.message);
@@ -19,7 +19,8 @@ const authMiddleware = async (req, res, next) => {
         }
 
         req.user = user;
-        req.supabase = clientToUse;
+        req.token = token;
+        req.supabase = supabaseAdmin || supabase;
         next();
     } catch (err) {
         console.error('Middleware error:', err);
