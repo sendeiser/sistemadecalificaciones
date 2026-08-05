@@ -62,25 +62,93 @@ router.get('/users', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const userId = req.user.id;
-        const { destinatario_id, rol_destinatario, contenido, tipo } = req.body;
+        const cuerpoMsg = req.body.cuerpo || req.body.contenido;
 
-        if (!contenido) return res.status(400).json({ error: 'Contenido requerido' });
+        if (!cuerpoMsg) return res.status(400).json({ error: 'Contenido requerido' });
 
-        const { data, error } = await supabaseAdmin
-            .from('mensajes')
-            .insert({
-                remitente_id: userId,
-                destinatario_id: destinatario_id || null,
-                rol_destinatario: rol_destinatario || null,
-                contenido,
-                tipo: tipo || 'privado'
-            })
-            .select()
-            .single();
+        let createdData = null;
 
-        if (error) throw error;
+        // If broadcast (by role or by course year)
+        if (rol_destinatario) {
+            let targetUserIds = [];
 
-        // Fetch sender and recipient profiles to enrich the broadcast payload
+            // Case A: Year broadcast (e.g., 'anio_1', 'anio_2', 'anio_3', 'anio_4', 'anio_5', 'anio_6')
+            if (rol_destinatario.startsWith('anio_')) {
+                const yearNum = parseInt(rol_destinatario.replace('anio_', ''), 10);
+                
+                // 1. Get division IDs for this year
+                const { data: divisions } = await supabaseAdmin
+                    .from('divisiones')
+                    .select('id')
+                    .eq('anio', yearNum);
+
+                if (divisions && divisions.length > 0) {
+                    const divIds = divisions.map(d => d.id);
+                    // 2. Get student IDs in those divisions
+                    const { data: studentDivs } = await supabaseAdmin
+                        .from('estudiantes_divisiones')
+                        .select('estudiante_id')
+                        .in('division_id', divIds);
+
+                    if (studentDivs) {
+                        targetUserIds = [...new Set(studentDivs.map(sd => sd.estudiante_id))];
+                    }
+                }
+            } else {
+                // Case B: Role broadcast (e.g., 'docente', 'alumno', 'preceptor', 'admin', 'tutor')
+                const { data: roleUsers } = await supabaseAdmin
+                    .from('perfiles')
+                    .select('id')
+                    .eq('rol', rol_destinatario)
+                    .neq('id', userId);
+
+                if (roleUsers) {
+                    targetUserIds = roleUsers.map(u => u.id);
+                }
+            }
+
+            // If we have target recipient IDs, insert individual messages for guaranteed DB compatibility & unread counts
+            if (targetUserIds.length > 0) {
+                const rowsToInsert = targetUserIds.map(destId => ({
+                    remitente_id: userId,
+                    destinatario_id: destId,
+                    rol_destinatario: rol_destinatario,
+                    cuerpo,
+                    tipo: 'rol'
+                }));
+
+                const { data: insertedRows, error: insertErr } = await supabaseAdmin
+                    .from('mensajes')
+                    .insert(rowsToInsert)
+                    .select();
+
+                if (insertErr) {
+                    console.warn('Batch insert broadcast warning, attempting single row insert:', insertErr.message);
+                } else if (insertedRows && insertedRows.length > 0) {
+                    createdData = insertedRows[0];
+                }
+            }
+        }
+
+        // Single row insert fallback (or private message)
+        if (!createdData) {
+            const { data, error } = await supabaseAdmin
+                .from('mensajes')
+                .insert({
+                    remitente_id: userId,
+                    destinatario_id: destinatario_id || null,
+                    rol_destinatario: rol_destinatario || null,
+                    cuerpo,
+                    tipo: tipo || 'privado'
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+            createdData = data;
+        }
+
+        // Fetch sender and recipient profiles to enrich payload
         let recipientName = 'N/A';
         let senderProfile = null;
         let destProfile = null;
@@ -92,23 +160,23 @@ router.post('/', async (req, res) => {
             .single();
         if (senderData) senderProfile = senderData;
 
-        if (data.destinatario_id) {
+        if (createdData.destinatario_id) {
             const { data: destData } = await supabaseAdmin
                 .from('perfiles')
                 .select('id, nombre, rol, email')
-                .eq('id', data.destinatario_id)
+                .eq('id', createdData.destinatario_id)
                 .single();
             if (destData) {
                 destProfile = destData;
                 recipientName = destData.nombre;
             }
-        } else if (data.rol_destinatario) {
-            recipientName = `Rol: ${data.rol_destinatario}`;
+        } else if (createdData.rol_destinatario) {
+            recipientName = `Difusión: ${createdData.rol_destinatario}`;
         }
 
         // Build enriched message for broadcast
         const enrichedMessage = {
-            ...data,
+            ...createdData,
             remitente: senderProfile,
             destinatario: destProfile
         };
@@ -123,11 +191,11 @@ router.post('/', async (req, res) => {
         await logAudit(
             userId,
             'mensaje',
-            data.id,
+            createdData.id,
             'SEND',
             null,
             {
-                ...data,
+                ...createdData,
                 destinatario_nombre: recipientName
             }
         );
