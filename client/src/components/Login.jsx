@@ -62,9 +62,9 @@ const Login = () => {
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="inline-flex p-4 bg-tech-cyan/10 rounded-2xl mb-6 border border-tech-cyan/20"
+                            className="inline-flex p-1.5 bg-tech-secondary/90 rounded-2xl mb-6 border border-tech-cyan/30 w-24 h-24 overflow-hidden items-center justify-center shadow-xl backdrop-blur-sm"
                         >
-                            <ShieldCheck className="text-tech-cyan" size={40} />
+                            <img src="/logoeta.png" alt="Logo ETA" className="w-full h-full object-cover rounded-xl" />
                         </motion.div>
                         <h2 className="text-3xl font-black text-tech-text tracking-tighter uppercase mb-2">
                             ETA <span className="text-tech-cyan">Terminal</span>

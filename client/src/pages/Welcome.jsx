@@ -111,9 +111,9 @@ const Welcome = () => {
                 >
                     <motion.div
                         variants={itemVariants}
-                        className="p-3 bg-tech-secondary/90 rounded-2xl border border-tech-cyan/30 mb-8 backdrop-blur-sm shadow-xl flex items-center justify-center w-24 h-24 overflow-hidden"
+                        className="p-1.5 bg-tech-secondary/90 rounded-2xl border border-tech-cyan/30 mb-8 backdrop-blur-sm shadow-xl flex items-center justify-center w-28 h-28 overflow-hidden"
                     >
-                        <img src="/logoeta.png" alt="Logo ETA" className="w-full h-full object-contain" />
+                        <img src="/logoeta.png" alt="Logo ETA" className="w-full h-full object-cover rounded-xl" />
                     </motion.div>
 
                     <motion.h1
