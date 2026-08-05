@@ -105,7 +105,7 @@ const Welcome = () => {
                         variants={itemVariants}
                         className="p-5 bg-tech-cyan/15 rounded-2xl border border-tech-cyan/20 mb-8 backdrop-blur-sm shadow-inner"
                     >
-                        <School className="text-tech-cyan" size={48} />
+                        <img src="/logo-comercio.jpeg" alt="Comercio Logo" className="w-20 h-20 object-cover rounded-xl shadow-md" />
                     </motion.div>
 
                     <motion.h1

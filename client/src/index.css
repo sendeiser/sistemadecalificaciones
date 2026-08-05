@@ -4,29 +4,29 @@
 :root {
   --tech-primary: #faf5f5;
   --tech-secondary: #ffffff;
-  --tech-surface: #e5e0e0;
-  --tech-cyan: #dc2626; /* Rojo Institucional */
-  --tech-accent: #4b5563; /* Gris Comercial */
-  --tech-success: #16a34a; /* Verde gestión */
-  --tech-danger: #b91c1c; /* Rojo Oscuro */
-  --tech-text-main: #1f1a1a; /* Carbón Grafito */
-  --tech-text-muted: #6b5c5c; /* Gris Tiza */
-  --tech-grid: rgba(220, 38, 38, 0.025);
-  --tech-glow: radial-gradient(circle, rgba(220, 38, 38, 0.04) 0%, transparent 70%);
+  --tech-surface: #e2e8f0; /* Slate 200 */
+  --tech-cyan: #2893fd; /* Azul Institucional */
+  --tech-accent: #475569; /* Gris Comercial */
+  --tech-success: #02aff1; /* Celeste Acento */
+  --tech-danger: #dc2626; /* Rojo Oscuro */
+  --tech-text-main: #0f172a; /* Carbón Grafito */
+  --tech-text-muted: #64748b; /* Gris Tiza */
+  --tech-grid: rgba(40, 147, 253, 0.025);
+  --tech-glow: radial-gradient(circle, rgba(40, 147, 253, 0.04) 0%, transparent 70%);
 }
 
 .dark {
   --tech-primary: #0f0b0b; /* Noche Carbonada */
   --tech-secondary: #1a1414; /* Estaño Oscuro */
-  --tech-surface: #2c2222; /* Cuero Roble */
-  --tech-cyan: #ef4444; /* Rojo Fuego */
-  --tech-accent: #9ca3af; /* Plata Comercial */
-  --tech-success: #22c55e; /* Verde Señal */
-  --tech-danger: #f87171; /* Rosa Alerta */
-  --tech-text-main: #faf0f0; /* Nieve Cálida */
-  --tech-text-muted: #9c8888; /* Gris Rosáceo */
-  --tech-grid: rgba(239, 68, 68, 0.035);
-  --tech-glow: radial-gradient(circle, rgba(239, 68, 68, 0.07) 0%, transparent 70%);
+  --tech-surface: #1e293b; /* Cuero Roble */
+  --tech-cyan: #3ba3ff; /* Azul Fuego */
+  --tech-accent: #94a3b8; /* Plata Comercial */
+  --tech-success: #38bdf8; /* Celeste Señal */
+  --tech-danger: #ef4444; /* Rosa Alerta */
+  --tech-text-main: #f8fafc; /* Nieve Cálida */
+  --tech-text-muted: #94a3b8; /* Gris Rosáceo */
+  --tech-grid: rgba(59, 163, 255, 0.035);
+  --tech-glow: radial-gradient(circle, rgba(59, 163, 255, 0.07) 0%, transparent 70%);
 }
 
 @theme {
