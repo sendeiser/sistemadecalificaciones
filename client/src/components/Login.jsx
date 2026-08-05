@@ -58,7 +58,7 @@ const Login = () => {
                             transition={{ delay: 0.2 }}
                             className="inline-flex p-4 bg-tech-cyan/10 rounded-2xl mb-6 border border-tech-cyan/20"
                         >
-                            <img src="/cgb_logo.svg" alt="CGB" className="w-12 h-12" />
+                            <img src="/logo-comercio.jpeg" alt="CGB" className="w-12 h-12 object-cover rounded-lg shadow-sm" />
                         </motion.div>
                         <h2 className="text-3xl font-black text-tech-text tracking-tighter uppercase mb-2">
                             CGB <span className="text-tech-cyan">Portal</span>

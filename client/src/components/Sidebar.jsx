@@ -113,7 +113,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         onClick={() => navigate('/dashboard')}
                     >
                         <div className="w-10 h-10 bg-tech-cyan rounded-xl flex items-center justify-center text-white shadow-lg shadow-tech-cyan/20 group-hover:scale-105 transition-transform">
-                            <img src="/cgb_logo.svg" alt="CGB" className="w-8 h-8" />
+                            <img src="/logo-comercio.jpeg" alt="CGB" className="w-8 h-8 object-cover rounded-md" />
                         </div>
                         {isOpen && (
                             <div className="flex flex-col animate-in fade-in duration-300">
