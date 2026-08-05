@@ -61,6 +61,8 @@ const GradeReport = () => {
 
             if (!res.ok) {
                 setMessage({ type: 'error', text: json.error || 'Error al generar el reporte' });
+                setLoading(false);
+                setTimeout(() => setMessage(null), 5000);
                 return;
             }
 
