@@ -78,8 +78,33 @@ router.get('/backup', authMiddleware, requireAdmin, async (req, res) => {
             'all',
             'BACKUP_DATABASE',
             null,
-            { tables: tables.length }
+            { tables: tables.length, format: req.query.format || 'json' }
         );
+
+        if (req.query.format === 'sql') {
+            let sqlContent = `-- BACKUP SISTEMA DE CALIFICACIONES CGB\n-- Fecha: ${new Date().toISOString()}\n\n`;
+            for (const table of tables) {
+                const rows = backupData[table];
+                if (Array.isArray(rows) && rows.length > 0) {
+                    sqlContent += `-- Tabla: ${table}\n`;
+                    for (const row of rows) {
+                        const keys = Object.keys(row);
+                        const cols = keys.join(', ');
+                        const vals = keys.map(k => {
+                            const val = row[k];
+                            if (val === null || val === undefined) return 'NULL';
+                            if (typeof val === 'number' || typeof val === 'boolean') return val;
+                            if (typeof val === 'object') return `'${JSON.stringify(val).replace(/'/g, "''")}'`;
+                            return `'${String(val).replace(/'/g, "''")}'`;
+                        }).join(', ');
+                        sqlContent += `INSERT INTO ${table} (${cols}) VALUES (${vals});\n`;
+                    }
+                    sqlContent += `\n`;
+                }
+            }
+            res.setHeader('Content-Type', 'application/sql');
+            return res.send(sqlContent);
+        }
 
         res.json(backupData);
     } catch (err) {

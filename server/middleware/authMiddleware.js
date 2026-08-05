@@ -1,4 +1,4 @@
-const { createClient } = require('@supabase/supabase-js');
+const { supabase, supabaseAdmin } = require('../config/supabaseClient');
 
 const authMiddleware = async (req, res, next) => {
     const authHeader = req.headers.authorization?.split(' ')[1];
@@ -10,28 +10,16 @@ const authMiddleware = async (req, res, next) => {
     }
 
     try {
-        // Create a client for the user to respect RLS
-        const supabase = createClient(
-            process.env.SUPABASE_URL,
-            process.env.SUPABASE_ANON_KEY,
-            {
-                global: {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                },
-            }
-        );
-
-        // Verify user
-        const { data: { user }, error } = await supabase.auth.getUser();
+        const clientToUse = supabaseAdmin || supabase;
+        const { data: { user }, error } = await clientToUse.auth.getUser(token);
 
         if (error || !user) {
+            console.error('Auth verification error:', error?.message);
             return res.status(401).json({ error: 'Invalid or expired token' });
         }
 
         req.user = user;
-        req.supabase = supabase;
+        req.supabase = clientToUse;
         next();
     } catch (err) {
         console.error('Middleware error:', err);
