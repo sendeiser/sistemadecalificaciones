@@ -6,7 +6,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 // Validar si el usuario es Admin
 const requireAdmin = async (req, res, next) => {
     try {
-        const { data: profile, error } = await supabase
+        const clientToUse = supabaseAdmin || supabase;
+        const { data: profile, error } = await clientToUse
             .from('perfiles')
             .select('rol')
             .eq('id', req.user.id)
