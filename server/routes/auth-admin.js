@@ -300,4 +300,43 @@ router.post('/admin/users/reset-password', authMiddleware, requireAdmin, async (
     }
 });
 
+// Admin Change User Role (Security)
+router.post('/admin/users/change-role', authMiddleware, requireAdmin, async (req, res) => {
+    const { userId, newRole } = req.body;
+
+    if (!userId || !newRole) {
+        return res.status(400).json({ error: 'Faltan datos requeridos (userId, newRole)' });
+    }
+
+    const validRoles = ['admin', 'docente', 'preceptor', 'alumno', 'tutor'];
+    if (!validRoles.includes(newRole)) {
+        return res.status(400).json({ error: 'Rol no válido' });
+    }
+
+    try {
+        const clientToUse = supabaseAdmin || supabase;
+        const { error } = await clientToUse
+            .from('perfiles')
+            .update({ rol: newRole })
+            .eq('id', userId);
+
+        if (error) throw error;
+
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'seguridad',
+            userId,
+            'CHANGE_ROLE',
+            null,
+            { target_user_id: userId, new_role: newRole }
+        );
+
+        res.json({ success: true, message: `Rol actualizado a ${newRole}` });
+    } catch (err) {
+        console.error('Admin change role error:', err);
+        res.status(500).json({ error: err.message || 'Error al cambiar rol' });
+    }
+});
+
 module.exports = router;
