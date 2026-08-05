@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 // Optimized Card Component with Memo to prevent unnecessary re-renders
-const FeatureCard = memo(({ icon: Icon, title, items, colorClass, delay }) => (
+const FeatureCard = memo(({ icon: Icon, title, items, theme, delay }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -31,17 +31,17 @@ const FeatureCard = memo(({ icon: Icon, title, items, colorClass, delay }) => (
         transition={{ duration: 0.5, delay }}
         className="bg-tech-secondary/80 dark:bg-tech-secondary/60 backdrop-blur-md rounded-2xl border border-tech-surface p-8 transition-all hover:border-tech-cyan/50 group flex flex-col h-full relative overflow-hidden shadow-sm hover:shadow-xl"
     >
-        <div className={`absolute top-0 right-0 w-24 h-24 ${colorClass}/5 blur-3xl -mr-8 -mt-8 group-hover:${colorClass}/10 transition-colors`}></div>
+        <div className={`absolute top-0 right-0 w-24 h-24 ${theme.glow} blur-3xl -mr-8 -mt-8 ${theme.glowHover} transition-colors`}></div>
         <div className="flex items-center gap-4 mb-6">
-            <div className={`p-3 ${colorClass}/10 rounded-xl group-hover:${colorClass}/20 transition-all scale-100 group-hover:scale-110`}>
-                <Icon className={colorClass.replace('bg-', 'text-')} size={24} />
+            <div className={`p-3 ${theme.bg} rounded-xl ${theme.bgHover} transition-all scale-100 group-hover:scale-110`}>
+                <Icon className={theme.text} size={24} />
             </div>
             <h2 className="text-xl font-bold uppercase tracking-tight text-tech-text">{title}</h2>
         </div>
         <div className="space-y-5 flex-grow font-sans text-sm">
             {items.map((item, idx) => (
                 <div key={idx} className="flex gap-3 group/item">
-                    <item.icon className={`${colorClass.replace('bg-', 'text-')} shrink-0 opacity-70 group-hover/item:opacity-100 transition-opacity`} size={18} />
+                    <item.icon className={`${theme.text} shrink-0 opacity-70 group-hover/item:opacity-100 transition-opacity`} size={18} />
                     <p className="text-tech-muted leading-snug">
                         <strong className="text-tech-text uppercase font-semibold">{item.label}:</strong> {item.text}
                     </p>
@@ -85,7 +85,11 @@ const Welcome = () => {
 
             {/* Optimized High-Contrast Background */}
             <div className="fixed inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-tech-primary via-tech-primary to-tech-primary/95"></div>
+                <div 
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: "url('/homecomercio.png')" }}
+                ></div>
+                <div className="absolute inset-0 bg-tech-primary/85 dark:bg-tech-primary/90 backdrop-blur-[1px]"></div>
             </div>
 
             {/* Low-complexity pattern for performance */}
@@ -103,9 +107,9 @@ const Welcome = () => {
                 >
                     <motion.div
                         variants={itemVariants}
-                        className="p-5 bg-tech-cyan/15 rounded-2xl border border-tech-cyan/20 mb-8 backdrop-blur-sm shadow-inner"
+                        className="mb-8 rounded-2xl border border-tech-cyan/20 shadow-lg overflow-hidden"
                     >
-                        <img src="/logo-comercio.jpeg" alt="Comercio Logo" className="w-20 h-20 object-cover rounded-xl shadow-md" />
+                        <img src="/logo-comercio.jpeg" alt="Comercio Logo" className="w-32 h-32 object-cover block" />
                     </motion.div>
 
                     <motion.h1
@@ -144,7 +148,7 @@ const Welcome = () => {
                 <FeatureCard
                     icon={Key}
                     title="Preceptoría"
-                    colorClass="bg-tech-cyan"
+                    theme={{ glow: 'bg-tech-cyan/5', glowHover: 'group-hover:bg-tech-cyan/10', bg: 'bg-tech-cyan/10', bgHover: 'group-hover:bg-tech-cyan/20', text: 'text-tech-cyan' }}
                     delay={0.1}
                     items={[
                         { icon: Users, label: "Activos", text: "Gestión centralizada de matrícula institucional." },
@@ -155,7 +159,7 @@ const Welcome = () => {
                 <FeatureCard
                     icon={ClipboardEdit}
                     title="Cátedra"
-                    colorClass="bg-tech-success"
+                    theme={{ glow: 'bg-tech-success/5', glowHover: 'group-hover:bg-tech-success/10', bg: 'bg-tech-success/10', bgHover: 'group-hover:bg-tech-success/20', text: 'text-tech-success' }}
                     delay={0.2}
                     items={[
                         { icon: Zap, label: "Smart", text: "Carga de notas optimizada con cálculo automático." },
@@ -165,7 +169,7 @@ const Welcome = () => {
                 <FeatureCard
                     icon={GraduationCap}
                     title="Alumnos"
-                    colorClass="bg-tech-accent"
+                    theme={{ glow: 'bg-indigo-500/5', glowHover: 'group-hover:bg-indigo-500/10', bg: 'bg-indigo-500/10', bgHover: 'group-hover:bg-indigo-500/20', text: 'text-indigo-500' }}
                     delay={0.3}
                     items={[
                         { icon: Search, label: "Insights", text: "Visualización de trayectoria académica 360°." },
