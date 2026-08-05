@@ -46,11 +46,17 @@ const SystemSettings = () => {
         if (activeTab === 'feedback') fetchFeedback();
     }, [profile, activeTab]);
 
+    const getAuthToken = async () => {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        return currentSession?.access_token || session?.access_token;
+    };
+
     const fetchFeedback = async () => {
         try {
             setLoading(true);
+            const token = await getAuthToken();
             const res = await fetch(getApiEndpoint('/feedback'), {
-                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
                 const data = await res.json();
@@ -65,11 +71,12 @@ const SystemSettings = () => {
 
     const handleToggleFeedbackRead = async (id, currentStatus) => {
         try {
+            const token = await getAuthToken();
             const res = await fetch(getApiEndpoint(`/feedback/${id}`), {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ leido: !currentStatus })
             });
@@ -84,8 +91,9 @@ const SystemSettings = () => {
     const fetchSettings = async () => {
         try {
             setLoading(true);
+            const token = await getAuthToken();
             const res = await fetch(getApiEndpoint('/settings'), {
-                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
                 const data = await res.json();
@@ -108,11 +116,12 @@ const SystemSettings = () => {
         setError(null);
         setMessage(null);
         try {
+            const token = await getAuthToken();
             const resSchool = await fetch(getApiEndpoint('/settings'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ key: 'school_info', value: settings.school_info })
             });
@@ -122,7 +131,7 @@ const SystemSettings = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ key: 'academic', value: settings.academic })
             });
@@ -142,11 +151,12 @@ const SystemSettings = () => {
         setError(null);
         setMessage(null);
         try {
+            const token = await getAuthToken();
             const res = await fetch(getApiEndpoint('/settings'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ key: 'maintenance_mode', value: nextMode })
             });
@@ -165,8 +175,9 @@ const SystemSettings = () => {
         setError(null);
         setMessage(null);
         try {
+            const token = await getAuthToken();
             const res = await fetch(getApiEndpoint('/settings/backup'), {
-                headers: { 'Authorization': `Bearer ${session?.access_token}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (!res.ok) {
@@ -228,11 +239,12 @@ const SystemSettings = () => {
         setError(null);
 
         try {
+            const token = await getAuthToken();
             const res = await fetch(getApiEndpoint('/admin/users/reset-password'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ userId, newPassword })
             });
@@ -255,11 +267,12 @@ const SystemSettings = () => {
         setMessage(null);
         setError(null);
         try {
+            const token = await getAuthToken();
             const res = await fetch(getApiEndpoint('/admin/users/change-role'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ userId, newRole })
             });
