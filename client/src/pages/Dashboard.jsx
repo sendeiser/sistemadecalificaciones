@@ -131,7 +131,7 @@ const Dashboard = () => {
     if (!profile) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-tech-primary text-tech-text">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tech-cyan"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-2 border-tech-cyan/20 border-t-tech-cyan"></div>
             </div>
         );
     }
@@ -171,7 +171,7 @@ const Dashboard = () => {
                         </div>
 
                         {showResults && (
-                            <div className="absolute top-full mt-3 w-full bg-tech-secondary border border-tech-surface rounded-2xl shadow-2xl z-50 max-h-80 overflow-y-auto border-t-4 border-t-tech-cyan animate-in fade-in slide-in-from-top-2 backdrop-blur-xl">
+                            <div className="absolute top-full mt-3 w-full bg-tech-secondary border border-tech-surface rounded-2xl shadow-2xl z-50 max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 backdrop-blur-xl">
                                 {isSearching ? (
                                     <div className="p-8 text-center text-tech-muted text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Consultando base de datos…</div>
                                 ) : searchResults.length > 0 ? (
@@ -219,9 +219,9 @@ const Dashboard = () => {
                             <Tabs
                                 variant="underline"
                                 tabs={[
-                                    { value: 'diario', label: 'Operación Diaria' },
-                                    { value: 'academico', label: 'Configuración Académica' },
-                                    { value: 'reportes', label: 'Reportes y Estadísticas' }
+                                    { value: 'diario', label: 'Operación Diaria', icon: <Clock size={16} /> },
+                                    { value: 'academico', label: 'Configuración Académica', icon: <Settings size={16} /> },
+                                    { value: 'reportes', label: 'Reportes y Estadísticas', icon: <BarChart3 size={16} /> }
                                 ]}
                                 activeTab={activeTab}
                                 onChange={setActiveTab}

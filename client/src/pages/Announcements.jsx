@@ -186,7 +186,7 @@ const Announcements = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-tech-primary text-tech-text">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tech-cyan"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-2 border-tech-cyan/20 border-t-tech-cyan"></div>
             </div>
         );
     }

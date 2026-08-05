@@ -304,7 +304,7 @@ const SystemSettings = () => {
             <div className="min-h-[400px]">
                 {loading && !searched && (
                     <div className="flex items-center justify-center h-64">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tech-cyan"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-tech-cyan/20 border-t-tech-cyan"></div>
                     </div>
                 )}
 

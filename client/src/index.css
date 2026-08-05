@@ -5,10 +5,10 @@
   --tech-primary: #f2faf6;
   --tech-secondary: #ffffff;
   --tech-surface: #d5ebd9;
-  --tech-cyan: #059669; /* Verde Cultivo Biotech */
+  --tech-cyan: #047857; /* Verde Cultivo Biotech (Accessible) */
   --tech-accent: #b45309; /* Tierra Ámbar */
   --tech-success: #15803d; /* Clorofila Viva */
-  --tech-danger: #e11d48; /* Fruto Rojo */
+  --tech-danger: #be123c; /* Fruto Rojo (Accessible) */
   --tech-text-main: #051c0e; /* Suelo Profundo */
   --tech-text-muted: #3c5443; /* Oliva Muted */
   --tech-grid: rgba(5, 150, 105, 0.025);
@@ -19,10 +19,10 @@
   --tech-primary: #050b08; /* Obsidiana de Bosque */
   --tech-secondary: #0a130f; /* Invernadero Oscuro */
   --tech-surface: #14281e; /* Estructura Botánica */
-  --tech-cyan: #10b981; /* Verde Fluor Clorofila */
+  --tech-cyan: #34d399; /* Verde Fluor Clorofila (Accessible) */
   --tech-accent: #f59e0b; /* Sol Ámbar */
   --tech-success: #34d399; /* Menta Viva */
-  --tech-danger: #f43f5e; /* Rosa Silvestre Alerta */
+  --tech-danger: #fb7185; /* Rosa Silvestre Alerta (Accessible) */
   --tech-text-main: #eefdf5; /* Nieve de Menta */
   --tech-text-muted: #748c7e; /* Verde Sabio Muted */
   --tech-grid: rgba(16, 185, 129, 0.035);

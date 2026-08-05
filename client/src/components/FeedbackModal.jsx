@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageSquare, Send, AlertCircle } from 'lucide-react';
+import { MessageSquare, Send, AlertCircle, Lightbulb, Bug, HelpCircle, ArrowDown, Minus, AlertTriangle } from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import Button from './ui/Button';
@@ -43,15 +43,15 @@ const FeedbackModal = ({ onClose, onSuccess }) => {
     };
 
     const tipoTabs = [
-        { value: 'sugerencia', label: 'Sugerencia' },
-        { value: 'error', label: 'Error' },
-        { value: 'pregunta', label: 'Pregunta' },
+        { value: 'sugerencia', label: 'Sugerencia', icon: <Lightbulb size={16} /> },
+        { value: 'error', label: 'Error', icon: <Bug size={16} /> },
+        { value: 'pregunta', label: 'Pregunta', icon: <HelpCircle size={16} /> },
     ];
 
     const prioridadTabs = [
-        { value: 'baja', label: 'Baja' },
-        { value: 'normal', label: 'Normal' },
-        { value: 'alta', label: 'Alta' },
+        { value: 'baja', label: 'Baja', icon: <ArrowDown size={16} /> },
+        { value: 'normal', label: 'Normal', icon: <Minus size={16} /> },
+        { value: 'alta', label: 'Alta', icon: <AlertTriangle size={16} /> },
     ];
 
     return (
