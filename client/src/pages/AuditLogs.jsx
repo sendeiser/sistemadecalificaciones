@@ -303,19 +303,19 @@ const AuditLogs = () => {
                                 <select
                                     value={filters.entidad_tipo}
                                     onChange={(e) => setFilters({ ...filters, entidad_tipo: e.target.value })}
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm focus:border-tech-cyan outline-none transition-colors"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text focus:border-tech-cyan outline-none transition-colors"
                                 >
-                                    <option value="">Todas</option>
-                                    <option value="calificacion">Calificaciones</option>
-                                    <option value="asistencia">Asistencia</option>
-                                    <option value="perfil">Usuarios/Alumnos</option>
-                                    <option value="invitacion">Invitaciones</option>
-                                    <option value="materia">Materias</option>
-                                    <option value="asignacion">Asignaciones</option>
-                                    <option value="anuncio">Anuncios</option>
-                                    <option value="evento_calendario">Calendario</option>
-                                    <option value="logro">Logros/Medallas</option>
-                                    <option value="mensaje">Mensajería</option>
+                                    <option value="" className="bg-tech-secondary text-tech-text">Todas</option>
+                                    <option value="calificacion" className="bg-tech-secondary text-tech-text">Calificaciones</option>
+                                    <option value="asistencia" className="bg-tech-secondary text-tech-text">Asistencia</option>
+                                    <option value="perfil" className="bg-tech-secondary text-tech-text">Usuarios/Alumnos</option>
+                                    <option value="invitacion" className="bg-tech-secondary text-tech-text">Invitaciones</option>
+                                    <option value="materia" className="bg-tech-secondary text-tech-text">Materias</option>
+                                    <option value="asignacion" className="bg-tech-secondary text-tech-text">Asignaciones</option>
+                                    <option value="anuncio" className="bg-tech-secondary text-tech-text">Anuncios</option>
+                                    <option value="evento_calendario" className="bg-tech-secondary text-tech-text">Calendario</option>
+                                    <option value="logro" className="bg-tech-secondary text-tech-text">Logros/Medallas</option>
+                                    <option value="mensaje" className="bg-tech-secondary text-tech-text">Mensajería</option>
                                 </select>
                             </div>
                             <div>
@@ -325,13 +325,13 @@ const AuditLogs = () => {
                                 <select
                                     value={filters.accion}
                                     onChange={(e) => setFilters({ ...filters, accion: e.target.value })}
-                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm focus:border-tech-cyan outline-none transition-colors"
+                                    className="w-full bg-tech-primary border border-tech-surface rounded px-3 py-2 text-sm text-tech-text focus:border-tech-cyan outline-none transition-colors"
                                 >
-                                    <option value="">Todas</option>
-                                    <option value="INSERT">Creaciones</option>
-                                    <option value="UPDATE">Modificaciones</option>
-                                    <option value="DELETE">Eliminaciones</option>
-                                    <option value="SEND">Envíos (Mensajes)</option>
+                                    <option value="" className="bg-tech-secondary text-tech-text">Todas</option>
+                                    <option value="INSERT" className="bg-tech-secondary text-tech-text">Creaciones</option>
+                                    <option value="UPDATE" className="bg-tech-secondary text-tech-text">Modificaciones</option>
+                                    <option value="DELETE" className="bg-tech-secondary text-tech-text">Eliminaciones</option>
+                                    <option value="SEND" className="bg-tech-secondary text-tech-text">Envíos (Mensajes)</option>
                                 </select>
                             </div>
                             <div>
@@ -404,7 +404,7 @@ const AuditLogs = () => {
                                                                 </span>
                                                                 <div className="flex items-center gap-1 text-tech-muted">
                                                                     {getActionIcon(action || type)}
-                                                                    <span className="text-[10px] font-mono uppercase font-bold">
+                                                                    <span className="text-[10px] font-mono uppercase font-bold text-tech-text">
                                                                         {action || type}
                                                                     </span>
                                                                 </div>
@@ -488,7 +488,7 @@ const AuditLogs = () => {
                                                             <td className="px-6 py-4">
                                                                 <div className="flex items-center gap-2">
                                                                     {getActionIcon(action || type)}
-                                                                    <span className="text-xs font-mono uppercase font-bold tracking-tighter">
+                                                                    <span className="text-xs font-mono uppercase font-bold tracking-tighter text-tech-text">
                                                                         {action || type}
                                                                     </span>
                                                                 </div>
