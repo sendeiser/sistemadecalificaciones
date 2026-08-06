@@ -7,6 +7,7 @@ const mockInsert = jest.fn();
 const mockUpsert = jest.fn();
 const mockEq = jest.fn();
 const mockSingle = jest.fn();
+const mockMaybeSingle = jest.fn();
 const mockOrder = jest.fn();
 
 // Chainable mock implementation
@@ -16,6 +17,7 @@ const mockSupabaseChain = {
     upsert: mockUpsert,
     eq: mockEq,
     single: mockSingle,
+    maybeSingle: mockMaybeSingle,
     order: mockOrder,
 };
 
@@ -26,6 +28,7 @@ mockUpsert.mockReturnValue(mockSupabaseChain);
 mockEq.mockReturnValue(mockSupabaseChain);
 mockOrder.mockReturnValue(mockSupabaseChain);
 mockSingle.mockResolvedValue({ data: {}, error: null });
+mockMaybeSingle.mockResolvedValue({ data: null, error: null });
 
 jest.mock('../config/supabaseClient', () => ({
     from: jest.fn(() => mockSupabaseChain),

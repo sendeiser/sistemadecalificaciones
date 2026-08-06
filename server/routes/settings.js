@@ -27,8 +27,6 @@ const requireAdmin = async (req, res, next) => {
     }
 };
 
-<<<<<<< HEAD
-=======
 // GET /api/settings/backup - Backup all database tables
 router.get('/backup', authMiddleware, requireAdmin, async (req, res) => {
     try {
