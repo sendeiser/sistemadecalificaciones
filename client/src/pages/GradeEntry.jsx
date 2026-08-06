@@ -449,7 +449,7 @@ const GradeEntry = () => {
                                                 </div>
                                             </div>
                                         )}
-                                        <div className="flex-[5] min-w-[160px] border-r border-tech-surface bg-tech-primary/30 flex flex-col">
+                                        <div className="flex-[5] min-w-[220px] border-r border-tech-surface bg-tech-primary/30 flex flex-col">
                                             <div className="flex-1 flex items-center justify-center border-b border-tech-surface/30">Parciales</div>
                                             <div className="flex h-5 text-[9px]">
                                                 <div className="flex-1 flex items-center justify-center border-r border-tech-surface/20">1</div>
@@ -458,9 +458,9 @@ const GradeEntry = () => {
                                                 <div className="flex-1 flex items-center justify-center">4</div>
                                             </div>
                                         </div>
-                                        <div className="flex-1 min-w-[45px] p-3 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan flex items-center justify-center">P.P</div>
-                                        <div className="flex-1 min-w-[45px] p-3 border-r border-tech-surface text-center flex items-center justify-center">%A</div>
-                                        <div className="flex-1 min-w-[45px] p-3 border-r border-tech-surface text-center text-tech-cyan flex items-center justify-center">Log</div>
+                                        <div className="flex-1 min-w-[48px] p-3 border-r border-tech-surface text-center bg-tech-cyan/5 text-tech-cyan flex items-center justify-center">P.P</div>
+                                        <div className="flex-1 min-w-[48px] p-3 border-r border-tech-surface text-center flex items-center justify-center">%A</div>
+                                        <div className="flex-1 min-w-[48px] p-3 border-r border-tech-surface text-center text-tech-cyan flex items-center justify-center">Log</div>
                                         <div className="flex-[7] min-w-[180px] border-r border-tech-surface bg-purple-500/5 text-purple-400 flex flex-col">
                                             <div className="flex-1 flex items-center justify-center border-b border-purple-500/20">Trayecto</div>
                                             <div className="flex h-5 text-[8px]">
@@ -497,14 +497,14 @@ const GradeEntry = () => {
                                             {/* Intensificación */}
                                             {!isSecondSemester && (
                                                 <>
-                                                    <div className={`flex-[1.5] min-w-[50px] p-1 border-r border-tech-surface bg-tech-cyan/5 transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'nota_intensificacion' ? 'ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
+                                                    <div className={`flex-[1.5] min-w-[55px] p-1 border-r border-tech-surface bg-tech-cyan/5 transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'nota_intensificacion' ? 'ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
                                                         <input
-                                                            type="number" min="0" max="10" step="0.5" placeholder="-"
+                                                            type="number" min="0" max="10" step="any" inputMode="decimal" placeholder="-"
                                                             value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
                                                             onFocus={() => setActiveCell({ row: index, field: 'nota_intensificacion' })}
                                                             onChange={e => handleGradeChange(g.alumno_id, 'nota_intensificacion', e.target.value)}
                                                             disabled={periods['nota_intensificacion'] === false}
-                                                            className={`w-full h-8 bg-tech-primary border rounded-md text-center text-xs font-black focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text transition-all ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : 'border-tech-surface/50'}`}
+                                                            className={`w-full h-8 bg-tech-primary border rounded-md text-center text-xs font-black focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none px-1 ${GET_GRADE_BG(g.nota_intensificacion)} ${periods['nota_intensificacion'] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : 'border-tech-surface/50'}`}
                                                         />
                                                     </div>
                                                     <div className="flex-[1.5] min-w-[50px] p-1 border-r border-tech-surface bg-tech-cyan/5 flex items-center justify-center font-black text-[10px]">
@@ -517,31 +517,31 @@ const GradeEntry = () => {
 
                                             {/* Parciales */}
                                             {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4'].map(field => (
-                                                <div key={field} className={`flex-1 min-w-[40px] p-1 border-r border-tech-surface transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === field ? 'bg-tech-cyan/5 ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
+                                                <div key={field} className={`flex-1 min-w-[55px] p-1 border-r border-tech-surface transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === field ? 'bg-tech-cyan/5 ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
                                                     <input
-                                                        type="number" min="0" max="10" step="0.5" placeholder="-"
+                                                        type="number" min="0" max="10" step="any" inputMode="decimal" placeholder="-"
                                                         value={g[field] === null ? '' : g[field]}
                                                         onFocus={() => setActiveCell({ row: index, field })}
                                                         onChange={e => handleGradeChange(g.alumno_id, field, e.target.value)}
                                                         disabled={periods[field] === false}
-                                                        className={`w-full h-8 bg-tech-primary border rounded-md text-center text-xs font-black focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text transition-all ${GET_GRADE_BG(g[field])} ${periods[field] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : 'border-tech-surface/50'}`}
+                                                        className={`w-full h-8 bg-tech-primary border rounded-md text-center text-xs font-black focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none px-1 ${GET_GRADE_BG(g[field])} ${periods[field] === false ? 'opacity-50 cursor-not-allowed bg-tech-surface' : 'border-tech-surface/50'}`}
                                                     />
                                                 </div>
                                             ))}
 
                                             {/* P.P */}
-                                            <div className="flex-1 min-w-[45px] p-1 border-r border-tech-surface bg-tech-cyan/5 flex items-center justify-center font-black text-xs">
+                                            <div className="flex-1 min-w-[48px] p-1 border-r border-tech-surface bg-tech-cyan/5 flex items-center justify-center font-black text-xs">
                                                 <div className={GET_GRADE_COLOR(g.promedio)}>{g.promedio || '-'}</div>
                                             </div>
 
                                             {/* %A */}
-                                            <div className={`flex-1 min-w-[45px] p-1 border-r border-tech-surface transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'asistencia' ? 'bg-tech-cyan/5 ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
+                                            <div className={`flex-1 min-w-[48px] p-1 border-r border-tech-surface transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'asistencia' ? 'bg-tech-cyan/5 ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
                                                 <input
-                                                    type="number" min="0" max="100"
+                                                    type="number" min="0" max="100" inputMode="numeric"
                                                     value={g.asistencia === null ? '' : g.asistencia}
                                                     onFocus={() => setActiveCell({ row: index, field: 'asistencia' })}
                                                     onChange={e => handleGradeChange(g.alumno_id, 'asistencia', e.target.value)}
-                                                    className="w-full h-8 bg-tech-primary border border-tech-surface/50 rounded-md text-center text-xs font-black focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text transition-all shadow-sm"
+                                                    className="w-full h-8 bg-tech-primary border border-tech-surface/50 rounded-md text-center text-xs font-black focus:ring-2 focus:ring-tech-cyan outline-none text-tech-text transition-all shadow-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none px-1"
                                                 />
                                             </div>
 
