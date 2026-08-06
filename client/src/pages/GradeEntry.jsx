@@ -497,7 +497,7 @@ const GradeEntry = () => {
                                             {/* Intensificación */}
                                             {!isSecondSemester && (
                                                 <>
-                                                    <div className={`flex-[1.5] min-w-[55px] p-1 border-r border-tech-surface bg-tech-cyan/5 transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'nota_intensificacion' ? 'ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
+                                                    <div className={`flex-[1.5] min-w-[50px] p-1 border-r border-tech-surface bg-tech-cyan/5 transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === 'nota_intensificacion' ? 'ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
                                                         <input
                                                             type="number" min="0" max="10" step="any" inputMode="decimal" placeholder="-"
                                                             value={g.nota_intensificacion === null ? '' : g.nota_intensificacion}
@@ -517,7 +517,7 @@ const GradeEntry = () => {
 
                                             {/* Parciales */}
                                             {['parcial_1', 'parcial_2', 'parcial_3', 'parcial_4'].map(field => (
-                                                <div key={field} className={`flex-1 min-w-[55px] p-1 border-r border-tech-surface transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === field ? 'bg-tech-cyan/5 ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
+                                                <div key={field} className={`flex-[1.25] min-w-[55px] p-1 border-r border-tech-surface transition-colors flex items-center justify-center ${activeCell.row === index && activeCell.field === field ? 'bg-tech-cyan/5 ring-2 ring-inset ring-tech-cyan/50' : ''}`}>
                                                     <input
                                                         type="number" min="0" max="10" step="any" inputMode="decimal" placeholder="-"
                                                         value={g[field] === null ? '' : g[field]}
@@ -546,17 +546,17 @@ const GradeEntry = () => {
                                             </div>
 
                                             {/* Log */}
-                                            <div className="flex-1 min-w-[45px] p-1 border-r border-tech-surface flex items-center justify-center font-black text-[10px]">
+                                            <div className="flex-1 min-w-[48px] p-1 border-r border-tech-surface flex items-center justify-center font-black text-[10px]">
                                                 <div className={GET_GRADE_COLOR(g.promedio)}>{getLogro(g.promedio) || '-'}</div>
                                             </div>
 
                                             {/* Trayecto (Lectura) */}
-                                            <div className="flex-[5] min-w-[120px] p-1 border-r border-tech-surface bg-purple-500/5 flex items-center overflow-hidden">
+                                            <div className="flex-[5] min-w-[128px] p-1 border-r border-tech-surface bg-purple-500/5 flex items-center overflow-hidden">
                                                 <div className={`text-[9px] font-bold truncate px-1 ${g.trayecto_acompanamiento ? 'text-purple-400' : 'text-purple-300/30'}`} title={g.trayecto_acompanamiento}>
                                                     {g.trayecto_acompanamiento || 'N/D'}
                                                 </div>
                                             </div>
-                                            <div className="flex-[2] min-w-[60px] p-1 border-r border-tech-surface bg-purple-500/5 text-center flex items-center justify-center">
+                                            <div className="flex-[2] min-w-[52px] p-1 border-r border-tech-surface bg-purple-500/5 text-center flex items-center justify-center">
                                                 <div className={`text-[10px] font-black w-full rounded py-1 ${GET_GRADE_BG(g.promedio)} ${GET_GRADE_COLOR(g.promedio)}`}>
                                                     {getLogro(g.promedio) || '-'}
                                                 </div>
