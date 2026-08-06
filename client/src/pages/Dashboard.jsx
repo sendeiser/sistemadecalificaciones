@@ -26,15 +26,16 @@ const Dashboard = () => {
     const { unreadMessages, unreadAnnouncements } = useNotifications();
 
     const sections = useMemo(() => {
+        if (!profile) return [];
         const items = [
             { key: 'ticker', render: () => (
                 <AnnouncementTicker />
             )},
             { key: 'stats', render: () => (
-                <DashboardStats role={profile.rol} profileId={profile.id} />
+                <DashboardStats role={profile?.rol} profileId={profile?.id} />
             )},
         ];
-        if (profile.rol === 'admin' || profile.rol === 'preceptor') {
+        if (profile?.rol === 'admin' || profile?.rol === 'preceptor') {
             items.push({ key: 'critical', render: () => (
                 <div className="mb-10"><CriticalStudentsWidget /></div>
             )});
