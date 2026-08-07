@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import ThemeToggle from '../components/ThemeToggle';
 import { Users, ChevronRight, ChevronLeft, Search, Save, ArrowLeft, Calendar, FileText, AlertCircle } from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
 
@@ -127,29 +126,32 @@ const MassJustification = () => {
     );
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            <header className="max-w-7xl mx-auto mb-10 border-b border-tech-surface pb-6 flex justify-between items-center">
-                <div className="flex items-center gap-4">
+        <div className="w-full min-h-full space-y-8 font-sans pb-16">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-tech-surface/60 pb-6">
+                <div className="flex items-center gap-3.5">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-surface rounded transition-colors text-tech-muted hover:text-tech-text"
+                        className="p-2.5 rounded-2xl bg-tech-secondary border border-tech-surface hover:bg-tech-surface/50 text-tech-muted hover:text-tech-cyan transition-all shadow-sm active:scale-95"
+                        title="Volver al Panel Principal"
                     >
-                        <ArrowLeft size={24} />
+                        <ArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-bold text-tech-text tracking-tight uppercase flex items-center gap-3">
-                            <div className="p-2 bg-tech-cyan/20 rounded text-tech-cyan">
-                                <FileText size={24} />
-                            </div>
-                            Justificación Masiva
-                        </h1>
-                        <p className="text-tech-muted text-sm font-mono mt-1">JUSTIFICAR INASISTENCIAS POR RANGO DE FECHA</p>
+                        <div className="flex items-center gap-2">
+                            <span className="p-1.5 rounded-lg bg-tech-cyan/15 text-tech-cyan border border-tech-cyan/25">
+                                <FileText size={18} />
+                            </span>
+                            <h1 className="text-xl md:text-2xl font-black text-tech-text uppercase tracking-tight">
+                                Justificación Masiva de Inasistencias
+                            </h1>
+                        </div>
+                        <p className="text-xs text-tech-muted mt-1 font-mono">
+                            Carga por lote de justificaciones por rango de fechas para uno o múltiples alumnos
+                        </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
-                    <ThemeToggle />
-                </div>
-            </header>
+            </div>
 
             <div className="max-w-7xl mx-auto space-y-8">
                 {message && (

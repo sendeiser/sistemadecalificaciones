@@ -54,37 +54,49 @@ async function getCriticalAttendance(req, res) {
     const { divisionId } = req.params;
 
     try {
-        // 1. Fetch Students in Division
-        const { data: enrollment, error: eErr } = await supabaseAdmin
+        let enrollmentQuery = supabaseAdmin
             .from('estudiantes_divisiones')
             .select(`
-                alumno:perfiles!alumno_id(id, nombre, dni)
-            `)
-            .eq('division_id', divisionId);
+                division_id,
+                alumno:perfiles!alumno_id(id, nombre, dni),
+                division:divisiones!division_id(anio, seccion)
+            `);
 
+        if (divisionId && divisionId !== 'all') {
+            enrollmentQuery = enrollmentQuery.eq('division_id', divisionId);
+        }
+
+        const { data: enrollment, error: eErr } = await enrollmentQuery;
         if (eErr) throw eErr;
 
-        // 2. Fetch all absences for these students in this division
-        const { data: absences, error: aErr } = await supabaseAdmin
+        let absenceQuery = supabaseAdmin
             .from('asistencias_preceptor')
-            .select('estudiante_id, estado')
-            .eq('division_id', divisionId)
+            .select('estudiante_id, estado, division_id')
             .eq('estado', 'ausente');
 
+        if (divisionId && divisionId !== 'all') {
+            absenceQuery = absenceQuery.eq('division_id', divisionId);
+        }
+
+        const { data: absences, error: aErr } = await absenceQuery;
         if (aErr) throw aErr;
 
-        // 3. Count absences per student
         const absenceMap = {};
-        absences.forEach(a => {
+        (absences || []).forEach(a => {
             absenceMap[a.estudiante_id] = (absenceMap[a.estudiante_id] || 0) + 1;
         });
 
-        const report = enrollment.map(e => ({
-            id: e.alumno.id,
-            nombre: e.alumno.nombre,
-            dni: e.alumno.dni,
-            faltas: absenceMap[e.alumno.id] || 0
-        })).sort((a, b) => b.faltas - a.faltas);
+        const report = (enrollment || []).map(e => {
+            const divLabel = e.division ? `${e.division.anio}° "${e.division.seccion}"` : 'Sin división';
+            return {
+                id: e.alumno?.id,
+                nombre: e.alumno?.nombre || 'Desconocido',
+                dni: e.alumno?.dni || 'N/A',
+                division: divLabel,
+                division_id: e.division_id,
+                faltas: absenceMap[e.alumno?.id] || 0
+            };
+        }).sort((a, b) => b.faltas - a.faltas);
 
         res.json(report);
     } catch (err) {
@@ -97,57 +109,69 @@ async function getCriticalAttendance(req, res) {
  * Compares preceptor attendance vs teacher attendance for a division and date.
  */
 async function getAttendanceDiscrepancies(req, res) {
-    const { divisionId } = req.params;
-    const { date } = req.query;
-
-    if (!divisionId || !date) {
-        return res.status(400).json({ error: 'Faltan parámetros: divisionId y date.' });
-    }
-
     try {
-        // 1. Fetch preceptor attendance
-        const { data: preceptorData } = await supabaseAdmin
+        const { divisionId } = req.params;
+        const date = req.query.date || new Date().toISOString().split('T')[0];
+
+        let preceptorQuery = supabaseAdmin
             .from('asistencias_preceptor')
-            .select('estudiante_id, estado, perfiles(nombre)')
-            .eq('division_id', divisionId)
+            .select('estudiante_id, estado, division_id, perfiles:estudiante_id(nombre), divisiones:division_id(anio, seccion)')
             .eq('fecha', date);
 
-        // 2. Fetch all subject assignments for this division
-        const { data: assignments } = await supabaseAdmin
-            .from('asignaciones')
-            .select('id, materias(nombre)')
-            .eq('division_id', divisionId);
+        if (divisionId && divisionId !== 'all') {
+            preceptorQuery = preceptorQuery.eq('division_id', divisionId);
+        }
 
-        const assignmentIds = assignments.map(a => a.id);
+        const { data: preceptorData, error: pErr } = await preceptorQuery;
+        if (pErr) throw pErr;
 
-        // 3. Fetch all teacher attendance for these assignments
-        const { data: teacherData } = await supabaseAdmin
-            .from('asistencias')
-            .select('estudiante_id, asignacion_id, estado')
-            .in('asignacion_id', assignmentIds)
-            .eq('fecha', date);
+        if (!preceptorData || preceptorData.length === 0) {
+            return res.json([]);
+        }
 
-        // 4. Group teacher data by student
+        let assignmentQuery = supabaseAdmin.from('asignaciones').select('id, division_id, materias(nombre)');
+        if (divisionId && divisionId !== 'all') {
+            assignmentQuery = assignmentQuery.eq('division_id', divisionId);
+        }
+        const { data: assignments } = await assignmentQuery;
+        const assignmentMap = {};
+        (assignments || []).forEach(a => { assignmentMap[a.id] = a; });
+        const assignmentIds = Object.keys(assignmentMap);
+
+        let teacherData = [];
+        if (assignmentIds.length > 0) {
+            const { data: tData } = await supabaseAdmin
+                .from('asistencias')
+                .select('estudiante_id, asignacion_id, estado')
+                .in('asignacion_id', assignmentIds)
+                .eq('fecha', date);
+            teacherData = tData || [];
+        }
+
         const teacherMap = {};
         teacherData.forEach(t => {
             if (!teacherMap[t.estudiante_id]) teacherMap[t.estudiante_id] = [];
-            const asig = assignments.find(a => a.id === t.asignacion_id);
-            teacherMap[t.estudiante_id].push({
-                materia: asig.materias.nombre,
-                estado: t.estado
-            });
+            const asig = assignmentMap[t.asignacion_id];
+            if (asig && asig.materias) {
+                teacherMap[t.estudiante_id].push({
+                    materia: asig.materias.nombre,
+                    estado: t.estado
+                });
+            }
         });
 
-        // 5. Compare
         const discrepancies = [];
-        preceptorData.forEach(p => {
+        (preceptorData || []).forEach(p => {
             const subjects = teacherMap[p.estudiante_id] || [];
             const hasConflict = subjects.some(s => s.estado !== p.estado);
+            const divName = p.divisiones ? `${p.divisiones.anio}° "${p.divisiones.seccion}"` : 'Sin división';
 
             if (hasConflict || (subjects.length === 0 && p.estado !== 'presente')) {
                 discrepancies.push({
                     estudiante_id: p.estudiante_id,
-                    nombre: p.perfiles.nombre,
+                    nombre: p.perfiles?.nombre || 'Desconocido',
+                    division: divName,
+                    division_id: p.division_id,
                     preceptor: p.estado,
                     materias: subjects
                 });
