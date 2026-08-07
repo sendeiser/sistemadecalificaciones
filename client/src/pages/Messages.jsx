@@ -448,14 +448,14 @@ const Messages = () => {
     };
 
     return (
-        <div className="w-full h-full flex flex-col bg-tech-primary font-sans p-0 overflow-hidden flex-1 min-h-0">
-            <div className="w-full h-full bg-tech-secondary/40 lg:border-t lg:border-tech-surface overflow-hidden flex-grow flex flex-col flex-1 min-h-0">
+        <div className="w-full h-full flex flex-col bg-tech-primary font-sans p-0 overflow-hidden flex-1 h-0">
+            <div className="w-full h-full bg-tech-secondary/40 lg:border-t lg:border-tech-surface overflow-hidden flex-grow flex flex-col flex-1 h-0">
                 
                 {/* Main Split Layout */}
-                <div className="flex flex-grow h-full overflow-hidden flex-1 min-h-0">
+                <div className="flex flex-grow h-full overflow-hidden flex-1 h-0">
                     
                     {/* Left Pane: Conversation List */}
-                    <div className={`w-full lg:w-[350px] border-r border-tech-surface flex-col h-full overflow-hidden shrink-0 min-h-0 ${activeChatKey ? 'hidden lg:flex' : 'flex'}`}>
+                    <div className={`w-full lg:w-[350px] border-r border-tech-surface h-full overflow-hidden shrink-0 ${activeChatKey ? 'hidden' : 'flex'} lg:flex lg:flex-col`}>
                         {/* List Header */}
                         <div className="p-4 border-b border-tech-surface space-y-3 bg-tech-secondary/30 shrink-0">
                             <div className="flex items-center justify-between">
@@ -599,9 +599,9 @@ const Messages = () => {
                     </div>
 
                     {/* Right Pane: Conversation Window */}
-                    <div className={`flex-grow flex-col bg-tech-primary/10 overflow-hidden h-full flex-1 min-h-0 min-w-0 ${!activeChatKey ? 'hidden lg:flex' : 'flex'}`}>
+                    <div className={`flex-1 bg-tech-primary/10 overflow-hidden h-full min-w-0 ${!activeChatKey ? 'hidden' : 'flex'} lg:flex lg:flex-col`}>
                         {activeUser ? (
-                            <div className="flex flex-col h-full overflow-hidden flex-1 min-h-0">
+                            <div className="flex flex-col h-full overflow-hidden flex-1 h-0">
                                 {/* Conversation Header */}
                                 <div className="p-3 border-b border-tech-surface bg-tech-secondary/80 backdrop-blur-md flex items-center justify-between shrink-0 z-10 shadow-sm">
                                     <div className="flex items-center gap-3">
@@ -646,7 +646,7 @@ const Messages = () => {
 
                                 {/* In-Chat Search Bar */}
                                 {chatSearchOpen && (
-                                    <div className="p-2 border-b border-tech-surface bg-tech-secondary/90 flex items-center gap-2 animate-in fade-in duration-200">
+                                    <div className="p-2 border-b border-tech-surface bg-tech-secondary/90 flex items-center gap-2 animate-in fade-in duration-200 shrink-0">
                                         <Search size={14} className="text-tech-cyan ml-2" />
                                         <input
                                             type="text"
@@ -664,11 +664,11 @@ const Messages = () => {
                                     </div>
                                 )}
 
-                                {/* Message List Container - Full Vertical Expansion */}
+                                {/* Message List Container - Full Vertical Expansion & Scroll */}
                                 <div 
                                     ref={messageContainerRef}
                                     onScroll={handleScroll}
-                                    className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-tech-primary/5 relative touch-pan-y overscroll-contain"
+                                    className="h-0 flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-tech-primary/5 relative touch-pan-y overscroll-contain"
                                 >
                                     {activeChatMessages.length === 0 ? (
                                         <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
