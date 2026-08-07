@@ -448,14 +448,14 @@ const Messages = () => {
     };
 
     return (
-        <div className="w-full h-full flex flex-col bg-tech-primary font-sans p-0 lg:p-4 overflow-hidden flex-1">
-            <div className="w-full h-full lg:max-w-6xl lg:mx-auto bg-tech-secondary/40 lg:border lg:border-tech-surface lg:rounded-2xl overflow-hidden shadow-2xl flex-grow flex flex-col flex-1">
+        <div className="w-full h-full flex flex-col bg-tech-primary font-sans p-0 overflow-hidden flex-1">
+            <div className="w-full h-full bg-tech-secondary/40 lg:border-t lg:border-tech-surface overflow-hidden flex-grow flex flex-col flex-1">
                 
                 {/* Main Split Layout */}
                 <div className="flex flex-grow h-full overflow-hidden flex-1">
                     
                     {/* Left Pane: Conversation List */}
-                    <div className={`w-full lg:w-[360px] border-r border-tech-surface flex-col h-full overflow-hidden ${isMobile && activeChatKey ? 'hidden' : 'flex'}`}>
+                    <div className={`w-full lg:w-[350px] border-r border-tech-surface flex-col h-full overflow-hidden shrink-0 ${activeChatKey ? 'hidden lg:flex' : 'flex'}`}>
                         {/* List Header */}
                         <div className="p-4 border-b border-tech-surface space-y-3 bg-tech-secondary/30 shrink-0">
                             <div className="flex items-center justify-between">
@@ -520,7 +520,7 @@ const Messages = () => {
                         </div>
 
                         {/* Chats scroll area */}
-                        <div className="flex-grow overflow-y-auto custom-scrollbar p-2 space-y-1 bg-tech-primary/10">
+                        <div className="flex-grow overflow-y-auto custom-scrollbar p-2 space-y-1 bg-tech-primary/10 touch-pan-y">
                             {loading ? (
                                 <div className="p-4 space-y-3">
                                     {[1, 2, 3, 4].map(i => (
@@ -599,23 +599,21 @@ const Messages = () => {
                     </div>
 
                     {/* Right Pane: Conversation Window */}
-                    <div className={`flex-grow flex-col bg-tech-primary/10 overflow-hidden h-full ${isMobile && !activeChatKey ? 'hidden' : 'flex'}`}>
+                    <div className={`flex-grow flex-col bg-tech-primary/10 overflow-hidden h-full flex-1 ${!activeChatKey ? 'hidden lg:flex' : 'flex'}`}>
                         {activeUser ? (
-                            <div className="flex flex-col h-full overflow-hidden">
+                            <div className="flex flex-col h-full overflow-hidden flex-1">
                                 {/* Conversation Header */}
                                 <div className="p-3 border-b border-tech-surface bg-tech-secondary/80 backdrop-blur-md flex items-center justify-between shrink-0 z-10 shadow-sm">
                                     <div className="flex items-center gap-3">
-                                        {/* Back Button ONLY in mobile mode, ONLY arrow icon without text */}
-                                        {isMobile && (
-                                            <button
-                                                onClick={() => setActiveChatKey(null)}
-                                                className="p-1.5 hover:bg-tech-surface/80 rounded-xl text-tech-muted hover:text-tech-cyan transition-all shrink-0 active:scale-95 border border-tech-surface/40"
-                                                title="Volver"
-                                                aria-label="Volver"
-                                            >
-                                                <ArrowLeft size={20} />
-                                            </button>
-                                        )}
+                                        {/* Back Button ONLY in mobile mode (lg:hidden), ONLY arrow icon without text */}
+                                        <button
+                                            onClick={() => setActiveChatKey(null)}
+                                            className="lg:hidden p-2 hover:bg-tech-surface/80 rounded-xl text-tech-muted hover:text-tech-cyan transition-all shrink-0 active:scale-95 border border-tech-surface/40 flex items-center justify-center"
+                                            title="Volver"
+                                            aria-label="Volver"
+                                        >
+                                            <ArrowLeft size={20} />
+                                        </button>
 
                                         <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs uppercase ${
                                             activeUser.isRole 
