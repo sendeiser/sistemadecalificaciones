@@ -104,7 +104,7 @@ function DateDivider({ label }) {
 function MessageBubble({ msg, isMine, showSender, renderContent }) {
     const date = msg.fecha_envio || msg.created_at;
     return (
-        <div className={`flex ${isMine ? "justify-end" : "justify-start"} mb-1.5`}>
+        <div className={`flex w-full ${isMine ? "justify-end" : "justify-start"} mb-1.5`}>
             <div className={`max-w-[78%] lg:max-w-[65%] rounded-2xl px-3.5 py-2.5 shadow-sm ${isMine ? "bg-tech-cyan/18 border border-tech-cyan/25 rounded-tr-sm" : "bg-tech-secondary border border-tech-surface/70 rounded-tl-sm"}`}>
                 {showSender && !isMine && (
                     <p className="text-[9px] font-black text-tech-cyan uppercase tracking-widest mb-1 font-mono">{msg.remitente?.nombre}</p>
@@ -530,7 +530,7 @@ const Messages = () => {
                                 </AnimatePresence>
 
                                 {/* Messages scroll area — KEY: flex-1 min-h-0 overflow-y-auto */}
-                                <div className="flex-1 min-h-0 overflow-y-auto px-3 py-4 custom-scrollbar">
+                                <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 py-4 custom-scrollbar">
                                     {displayMsgs.length === 0 ? (
                                         <div className="h-full flex flex-col items-center justify-center gap-3 text-center p-6">
                                             <div className="w-14 h-14 bg-tech-surface/50 rounded-2xl flex items-center justify-center text-tech-muted">
