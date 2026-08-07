@@ -40,10 +40,10 @@ const MainLayout = ({ children }) => {
                     isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
                 } ${
                     isMessagesPage 
-                        ? 'p-0 overflow-hidden flex flex-col h-full' 
+                        ? 'p-0 overflow-hidden flex flex-col h-full w-full' 
                         : 'p-6 md:p-10 overflow-y-auto custom-scrollbar'
                 }`}>
-                    <div className={isMessagesPage ? 'w-full h-full flex flex-col min-h-0' : 'max-w-[1600px] mx-auto'}>
+                    <div className={isMessagesPage ? 'w-full h-full flex flex-col min-h-0 flex-1 overflow-hidden' : 'max-w-[1600px] mx-auto'}>
                         {children}
                     </div>
                 </main>

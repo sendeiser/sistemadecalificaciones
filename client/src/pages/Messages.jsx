@@ -495,17 +495,17 @@ const Messages = () => {
         const textWithoutTags = content.replace(/\[img:.*?\]/g, '').replace(/\[file:.*?\]/g, '').trim();
 
         return (
-            <div className="space-y-2">
+            <div className="space-y-2 max-w-full overflow-hidden">
                 {textWithoutTags && (
                     <p className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap">{textWithoutTags}</p>
                 )}
                 {imgMatch && (
-                    <div className="mt-1 rounded-xl overflow-hidden border border-tech-surface max-w-xs">
-                        <img src={imgMatch[1]} alt="Adjunto" className="max-h-60 w-auto object-cover rounded-xl" />
+                    <div className="mt-1 rounded-xl overflow-hidden border border-tech-surface max-w-full">
+                        <img src={imgMatch[1]} alt="Adjunto" className="max-h-72 w-auto object-cover rounded-xl" />
                     </div>
                 )}
                 {fileMatch && (
-                    <div className="mt-1 flex items-center gap-2 p-2 bg-tech-primary/60 border border-tech-surface rounded-xl text-xs font-mono">
+                    <div className="mt-1 flex items-center gap-2 p-2 bg-tech-primary/60 border border-tech-surface rounded-xl text-xs font-mono max-w-full">
                         <FileText size={16} className="text-tech-cyan shrink-0" />
                         <span className="truncate">{fileMatch[1]}</span>
                     </div>
@@ -519,12 +519,12 @@ const Messages = () => {
             <div className="w-full h-full min-h-0 flex-1 bg-tech-secondary/40 border-none rounded-none overflow-hidden flex flex-col">
                 
                 {/* Layout Principal Flexible (100% Pantalla Completa) */}
-                <div className="flex flex-1 min-h-0 h-full overflow-hidden">
+                <div className="flex flex-1 min-h-0 w-full h-full overflow-hidden">
                     
                     {/* Panel Izquierdo: Lista de Chats */}
-                    <div className={`w-full lg:w-[360px] border-r border-tech-surface flex-col h-full bg-tech-secondary/30 ${isMobile && activeChatKey ? 'hidden' : 'flex'}`}>
+                    <div className={`w-full lg:w-[360px] xl:w-[380px] shrink-0 border-r border-tech-surface flex-col h-full bg-tech-secondary/30 ${isMobile && activeChatKey ? 'hidden' : 'flex'}`}>
                         {/* Cabecera del Panel de Chats */}
-                        <div className="p-3 md:p-4 border-b border-tech-surface space-y-3 bg-tech-secondary/60 shrink-0">
+                        <div className="p-3.5 border-b border-tech-surface space-y-3 bg-tech-secondary/60 shrink-0">
                             <div className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-2">
                                     <button
@@ -562,7 +562,7 @@ const Messages = () => {
                         <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-2 space-y-1">
                             {loading ? (
                                 <div className="p-4 space-y-3">
-                                    {[1, 2, 3, 4].map(i => (
+                                    {[1, 2, 3, 4, 5].map(i => (
                                         <div key={`loader-chat-${i}`} className="flex gap-3 items-center">
                                             <div className="w-10 h-10 bg-tech-surface rounded-xl animate-pulse" />
                                             <div className="flex-1 space-y-2">
@@ -646,7 +646,7 @@ const Messages = () => {
                         {activeUser ? (
                             <>
                                 {/* Cabecera de la conversación */}
-                                <div className="p-3 border-b border-tech-surface bg-tech-secondary/60 rounded-xl flex items-center justify-between shrink-0">
+                                <div className="p-3 border border-tech-surface/60 bg-tech-secondary/60 rounded-xl flex items-center justify-between shrink-0 shadow-sm">
                                     <div className="flex items-center gap-3">
                                         {/* Botón Volver a la lista de Chats en vista Mobile */}
                                         <button
@@ -708,7 +708,7 @@ const Messages = () => {
                                 )}
 
                                 {/* CAJA DEL HISTORIAL DE MENSAJES: CAJA INDEPENDIENTE CON SU PROPIO SCROLLBAR */}
-                                <div className="flex-1 min-h-0 my-2 bg-tech-primary/50 border border-tech-surface/80 rounded-2xl p-4 overflow-y-auto custom-scrollbar shadow-inner space-y-4">
+                                <div className="flex-1 min-h-0 my-2 bg-tech-primary/50 border border-tech-surface/80 rounded-2xl p-3 md:p-4 overflow-y-auto custom-scrollbar shadow-inner space-y-4">
                                     {activeChatMessages.length === 0 ? (
                                         <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
                                             <div className="w-14 h-14 bg-tech-surface rounded-2xl flex items-center justify-center text-tech-cyan">
@@ -856,15 +856,17 @@ const Messages = () => {
                                 </form>
                             </>
                         ) : (
-                            /* Estado vacío de selección de chat */
-                            <div className="flex-grow flex flex-col items-center justify-center text-center p-8 space-y-4">
-                                <div className="p-4 bg-tech-cyan/10 border border-tech-cyan/20 rounded-full animate-pulse">
-                                    <MessageSquare className="text-tech-cyan" size={40} />
+                            /* Estado vacío de selección de chat (Centrado perfecto ocupando 100% de la pantalla) */
+                            <div className="w-full h-full flex-1 flex flex-col items-center justify-center text-center p-6 space-y-4">
+                                <div className="p-8 bg-tech-secondary/60 border border-tech-surface/80 rounded-3xl shadow-xl flex flex-col items-center max-w-md w-full space-y-4">
+                                    <div className="w-16 h-16 bg-tech-cyan/10 border border-tech-cyan/30 rounded-2xl flex items-center justify-center text-tech-cyan shadow-md animate-pulse">
+                                        <MessageSquare size={32} />
+                                    </div>
+                                    <h3 className="text-xl md:text-2xl font-black text-tech-text uppercase tracking-tighter">MENSAJERÍA INSTITUCIONAL</h3>
+                                    <p className="text-xs md:text-sm text-tech-muted leading-relaxed">
+                                        Selecciona una conversación del panel de la izquierda o inicia una nueva con profesores, preceptores, alumnos o administradores.
+                                    </p>
                                 </div>
-                                <h3 className="text-2xl font-black text-tech-text uppercase tracking-tighter">MENSAJERÍA INSTITUCIONAL</h3>
-                                <p className="text-sm text-tech-muted max-w-sm leading-relaxed">
-                                    Selecciona una conversación del panel de la izquierda o inicia una nueva con profesores, preceptores, alumnos o administradores.
-                                </p>
                             </div>
                         )}
                     </div>
