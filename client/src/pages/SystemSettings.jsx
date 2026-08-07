@@ -10,7 +10,6 @@ import {
     AlertTriangle, Download, Search, CheckCircle2, MessageCircle,
     ArrowLeft, Server, Activity, Sliders, Check
 } from 'lucide-react';
-import ThemeToggle from '../components/ThemeToggle';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
@@ -311,7 +310,6 @@ const SystemSettings = () => {
                         </p>
                     </div>
                 </div>
-                <ThemeToggle />
             </div>
 
             {/* Navigation Tabs */}
