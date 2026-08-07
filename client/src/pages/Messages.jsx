@@ -13,6 +13,16 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useToast } from '../components/ui/Toast';
 
+const getRoleTitle = (r) => {
+    if (!r) return '';
+    if (r === 'admin') return 'ADMINISTRADORES';
+    if (r === 'preceptor') return 'PRECEPTORES';
+    if (r === 'docente') return 'DOCENTES';
+    if (r === 'alumno') return 'ALUMNOS';
+    if (r.startsWith('anio_')) return `${r.replace('anio_', '')}° AÑO`;
+    return r.toUpperCase();
+};
+
 const Messages = () => {
     const { user, profile } = useAuth();
     const navigate = useNavigate();
@@ -386,16 +396,6 @@ const Messages = () => {
     };
 
     const newChatOptions = getNewChatOptions();
-
-    const getRoleTitle = (r) => {
-        if (!r) return '';
-        if (r === 'admin') return 'ADMINISTRADORES';
-        if (r === 'preceptor') return 'PRECEPTORES';
-        if (r === 'docente') return 'DOCENTES';
-        if (r === 'alumno') return 'ALUMNOS';
-        if (r.startsWith('anio_')) return `${r.replace('anio_', '')}° AÑO`;
-        return r.toUpperCase();
-    };
 
     // Active Chat details
     const activeConv = conversations.find(c => c.key === activeChatKey);
