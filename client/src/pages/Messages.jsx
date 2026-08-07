@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -16,7 +16,7 @@ import { useToast } from '../components/ui/Toast';
 
 const QUICK_EMOJIS = ['👍', '❤️', '👏', '🔥', '🎉', '💡', '📌', '😊', '✅', '🙏', '🙌', '⭐'];
 
-const getRoleTitle = (r) => {
+function getRoleTitle(r) {
     if (!r) return '';
     if (r === 'admin') return 'ADMINISTRADORES';
     if (r === 'preceptor') return 'PRECEPTORES';
@@ -24,16 +24,35 @@ const getRoleTitle = (r) => {
     if (r === 'alumno') return 'ALUMNOS';
     if (r.startsWith('anio_')) return `${r.replace('anio_', '')}° AÑO`;
     return r.toUpperCase();
-};
+}
+
+function formatMessageTime(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatChatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (d.toDateString() === today.toDateString()) return 'Hoy';
+    if (d.toDateString() === yesterday.toDateString()) return 'Ayer';
+    return d.toLocaleDateString([], { day: 'numeric', month: 'long' });
+}
 
 const Messages = () => {
     const { user, profile } = useAuth();
     const navigate = useNavigate();
+    const addToast = useToast();
+
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newMessage, setNewMessage] = useState('');
     const [activeChatKey, setActiveChatKey] = useState(null); // ID del usuario o 'role_X'
-    const addToast = useToast();
     const [availableUsers, setAvailableUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [conversationsQuery, setConversationsQuery] = useState('');
@@ -54,6 +73,92 @@ const Messages = () => {
         messagesRef.current = messages;
     }, [messages]);
 
+    // Async Fetch Helpers
+    async function fetchSingleMessage(msgId) {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            const res = await fetch(getApiEndpoint(`/messages/${msgId}`), {
+                headers: { 'Authorization': `Bearer ${session.access_token}` }
+            });
+            if (res.ok) {
+                const msg = await res.json();
+                setMessages(prev => {
+                    if (prev.some(m => m.id === msg.id)) return prev;
+                    return [msg, ...prev].sort((a, b) => {
+                        const dateA = new Date(a.fecha_envio || a.created_at || 0);
+                        const dateB = new Date(b.fecha_envio || b.created_at || 0);
+                        return dateB - dateA;
+                    });
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching single message:', error);
+        }
+    }
+
+    async function fetchMessages() {
+        try {
+            setLoading(true);
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            const response = await fetch(getApiEndpoint('/messages'), {
+                headers: { 'Authorization': `Bearer ${session.access_token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setMessages(data);
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+            addToast('Error al cargar mensajes', 'error');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchUsers() {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            const response = await fetch(getApiEndpoint('/messages/users'), {
+                headers: { 'Authorization': `Bearer ${session.access_token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setAvailableUsers(data);
+            }
+        } catch (error) {
+            console.error('Error fetching available users:', error);
+        }
+    }
+
+    async function markAsRead(ids) {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            await Promise.all(ids.map(id =>
+                fetch(getApiEndpoint(`/messages/${id}/read`), {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${session.access_token}` }
+                })
+            ));
+
+            setMessages(prev => prev.map(m =>
+                ids.includes(m.id) ? { ...m, leido: true } : m
+            ));
+        } catch (error) {
+            console.error('Error marking messages as read:', error);
+        }
+    }
+
+    // Effect: Window Resize Listener
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth < 1024);
@@ -62,16 +167,17 @@ const Messages = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Effect: Initial Data Fetch
     useEffect(() => {
-        fetchMessages();
-        fetchUsers();
+        if (profile) {
+            fetchMessages();
+            fetchUsers();
+        }
     }, [profile]);
 
-    // Realtime subscription
+    // Effect: Realtime Subscription
     useEffect(() => {
         if (!user?.id || !profile?.rol) return;
-
-        console.log('📡 Conectando a canal de mensajes en tiempo real...');
 
         const channel = supabase
             .channel('messages_broadcast')
@@ -116,7 +222,7 @@ const Messages = () => {
         };
     }, [user, profile]);
 
-    // Auto-scroll al final del chat
+    // Auto-scroll to bottom of chat
     useEffect(() => {
         if (activeChatKey) {
             setTimeout(() => {
@@ -125,72 +231,8 @@ const Messages = () => {
         }
     }, [activeChatKey, messages]);
 
-    const fetchSingleMessage = async (msgId) => {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return;
-
-            const res = await fetch(getApiEndpoint(`/messages/${msgId}`), {
-                headers: { 'Authorization': `Bearer ${session.access_token}` }
-            });
-            if (res.ok) {
-                const msg = await res.json();
-                setMessages(prev => {
-                    if (prev.some(m => m.id === msg.id)) return prev;
-                    return [msg, ...prev].sort((a, b) => {
-                        const dateA = new Date(a.fecha_envio || a.created_at || 0);
-                        const dateB = new Date(b.fecha_envio || b.created_at || 0);
-                        return dateB - dateA;
-                    });
-                });
-            }
-        } catch (error) {
-            console.error('Error fetching single message:', error);
-        }
-    };
-
-    const fetchMessages = async () => {
-        try {
-            setLoading(true);
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return;
-
-            const response = await fetch(getApiEndpoint('/messages'), {
-                headers: { 'Authorization': `Bearer ${session.access_token}` }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setMessages(data);
-            }
-        } catch (error) {
-            console.error('Error fetching messages:', error);
-            addToast('Error al cargar mensajes', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchUsers = async () => {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return;
-
-            const response = await fetch(getApiEndpoint('/messages/users'), {
-                headers: { 'Authorization': `Bearer ${session.access_token}` }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setAvailableUsers(data);
-            }
-        } catch (error) {
-            console.error('Error fetching available users:', error);
-        }
-    };
-
-    // Group messages into conversations
-    const getConversations = () => {
+    // Group messages into conversations with useMemo
+    const conversations = useMemo(() => {
         const convMap = new Map();
 
         messages.forEach(msg => {
@@ -242,7 +284,6 @@ const Messages = () => {
         });
 
         const list = Array.from(convMap.values());
-        // Sort: Pinned first, then by latest message date
         return list.sort((a, b) => {
             const aPinned = pinnedChats.includes(a.key);
             const bPinned = pinnedChats.includes(b.key);
@@ -253,9 +294,7 @@ const Messages = () => {
             const dateB = new Date(b.lastMessage?.fecha_envio || b.lastMessage?.created_at || 0);
             return dateB - dateA;
         });
-    };
-
-    const conversations = getConversations();
+    }, [messages, user, availableUsers, pinnedChats]);
 
     // Mark active conversation messages as read
     useEffect(() => {
@@ -271,36 +310,16 @@ const Messages = () => {
                 markAsRead(unreadIds);
             }
         }
-    }, [activeChatKey, messages]);
+    }, [activeChatKey, conversations, user]);
 
-    const markAsRead = async (ids) => {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return;
-
-            await Promise.all(ids.map(id =>
-                fetch(getApiEndpoint(`/messages/${id}/read`), {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${session.access_token}` }
-                })
-            ));
-
-            setMessages(prev => prev.map(m =>
-                ids.includes(m.id) ? { ...m, leido: true } : m
-            ));
-        } catch (error) {
-            console.error('Error marking messages as read:', error);
-        }
-    };
-
-    const togglePinChat = (e, key) => {
+    function togglePinChat(e, key) {
         e.stopPropagation();
         setPinnedChats(prev => 
             prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
         );
-    };
+    }
 
-    const handleFileSelect = (e) => {
+    function handleFileSelect(e) {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -320,9 +339,9 @@ const Messages = () => {
             });
         };
         reader.readAsDataURL(file);
-    };
+    }
 
-    const sendMessage = async (e) => {
+    async function sendMessage(e) {
         if (e) e.preventDefault();
         if ((!newMessage.trim() && !attachment) || !activeChatKey) return;
 
@@ -405,14 +424,14 @@ const Messages = () => {
             console.error('Error sending message:', error);
             addToast('Fallo en la conexión', 'error');
         }
-    };
+    }
 
     const filteredConversations = conversations.filter(c => 
         c.user?.nombre.toLowerCase().includes(conversationsQuery.toLowerCase()) ||
         c.lastMessage?.contenido.toLowerCase().includes(conversationsQuery.toLowerCase())
     );
 
-    const getNewChatOptions = () => {
+    function getNewChatOptions() {
         let options = [...availableUsers];
         
         if (profile?.rol === 'admin' || profile?.rol === 'preceptor') {
@@ -436,19 +455,9 @@ const Messages = () => {
             o.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
             o.rol.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    };
+    }
 
     const newChatOptions = getNewChatOptions();
-
-    const getRoleTitle = (r) => {
-        if (!r) return '';
-        if (r === 'admin') return 'ADMINISTRADORES';
-        if (r === 'preceptor') return 'PRECEPTORES';
-        if (r === 'docente') return 'DOCENTES';
-        if (r === 'alumno') return 'ALUMNOS';
-        if (r.startsWith('anio_')) return `${r.replace('anio_', '')}° AÑO`;
-        return r.toUpperCase();
-    };
 
     const activeConv = conversations.find(c => c.key === activeChatKey);
     const activeUser = activeConv ? activeConv.user : (
@@ -470,36 +479,17 @@ const Messages = () => {
         ? activeChatMessagesRaw.filter(m => m.contenido.toLowerCase().includes(chatSearchQuery.toLowerCase()))
         : activeChatMessagesRaw;
 
-    const formatMessageTime = (dateStr) => {
-        if (!dateStr) return '';
-        const d = new Date(dateStr);
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    };
-
-    const formatChatDate = (dateStr) => {
-        if (!dateStr) return '';
-        const d = new Date(dateStr);
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        if (d.toDateString() === today.toDateString()) return 'Hoy';
-        if (d.toDateString() === yesterday.toDateString()) return 'Ayer';
-        return d.toLocaleDateString([], { day: 'numeric', month: 'long' });
-    };
-
-    const renderChecks = (msg) => {
+    function renderChecks(msg) {
         if (msg.remitente_id !== user?.id) return null;
         if (msg.leido) {
             return <CheckCheck size={14} className="text-tech-cyan inline ml-1" />;
         }
         return <Check size={14} className="text-tech-muted inline ml-1" />;
-    };
+    }
 
-    const renderMessageContent = (content) => {
+    function renderMessageContent(content) {
         if (!content) return null;
 
-        // Check for image tag [img:data...]
         const imgMatch = content.match(/\[img:(.*?)\]/);
         const fileMatch = content.match(/\[file:(.*?)\]/);
         const textWithoutTags = content.replace(/\[img:.*?\]/g, '').replace(/\[file:.*?\]/g, '').trim();
@@ -522,7 +512,7 @@ const Messages = () => {
                 )}
             </div>
         );
-    };
+    }
 
     return (
         <div className="w-full h-full min-h-0 flex-1 flex flex-col bg-tech-primary font-sans p-0 lg:p-4 overflow-hidden">
