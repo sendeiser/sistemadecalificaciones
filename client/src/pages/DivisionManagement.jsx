@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Layers, Plus, Pencil, Trash2, X, Check, Save, Users, ArrowLeft } from 'lucide-react';
+import { Layers, Plus, Pencil, Trash2, X, Check, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import ThemeToggle from '../components/ThemeToggle';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
@@ -136,7 +135,6 @@ const DivisionManagement = () => {
                         <Plus size={18} />
                         Nueva División
                     </button>
-                    <ThemeToggle />
                 </div>
             </div>
 

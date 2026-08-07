@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { FileText, Search, Download, ArrowLeft } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import ThemeToggle from '../components/ThemeToggle';
 
 import { getApiEndpoint } from '../utils/api';
 
@@ -114,25 +113,26 @@ const ReportView = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10">
+        <div className="w-full min-h-full space-y-8 font-sans pb-16">
             {/* Navigation Header */}
-            <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between border-b border-tech-surface pb-6">
-                <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-tech-surface/60 pb-6">
+                <div className="flex items-center gap-3.5">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-tech-secondary rounded-lg transition-colors text-tech-muted hover:text-tech-text"
+                        className="p-2.5 rounded-2xl bg-tech-secondary border border-tech-surface hover:bg-tech-surface/50 text-tech-muted hover:text-tech-cyan transition-all shadow-sm active:scale-95"
+                        title="Volver al Panel Principal"
                     >
-                        <ArrowLeft size={24} />
+                        <ArrowLeft size={20} />
                     </button>
-                    <div className="flex items-center gap-4">
-                        <h1 className="text-3xl font-bold text-tech-text">
-                            Reportes
+                    <div>
+                        <h1 className="text-xl md:text-2xl font-black text-tech-text uppercase tracking-tight flex items-center gap-2">
+                            <FileText className="text-tech-cyan" size={24} />
+                            Boletines de Acreditación de Saberes
                         </h1>
-                        <p className="text-tech-muted text-sm">Generar boletines de acreditación de saberes.</p>
+                        <p className="text-xs text-tech-muted mt-1 font-mono">Generación y descarga de boletines oficiales de estudiantes</p>
                     </div>
                 </div>
-                <ThemeToggle />
-            </header>
+            </div>
 
             <div className="max-w-6xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8">

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Users, Plus, Pencil, Trash2, X, Check, Search, Save, ArrowLeft, FileText, Upload, Link2, UserRound, KeyRound } from 'lucide-react';
-import ThemeToggle from '../components/ThemeToggle';
 import CSVImporter from '../components/CSVImporter';
 import { getApiEndpoint } from '../utils/api';
 import Button from '../components/ui/Button';
@@ -358,9 +357,6 @@ const StudentManagement = () => {
                 >
                     <Plus size={16} /> Nuevo Alumno
                 </Button>
-                <div className="ml-auto">
-                    <ThemeToggle />
-                </div>
             </div>
 
             <div className="max-w-7xl mx-auto">

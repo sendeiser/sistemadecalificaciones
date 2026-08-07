@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, X, Check, ArrowLeft } from 'lucide-react';
-import ThemeToggle from '../components/ThemeToggle';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
@@ -138,7 +137,6 @@ const SubjectManagement = () => {
                         <Plus size={18} />
                         Nueva Materia
                     </button>
-                    <ThemeToggle />
                 </div>
             </div>
 

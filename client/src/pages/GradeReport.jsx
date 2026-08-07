@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ThemeToggle from '../components/ThemeToggle';
 import { supabase } from '../supabaseClient';
 import { Download, Search, ArrowLeft, FileText, ClipboardList, AlertCircle, CheckCircle } from 'lucide-react';
 import { getApiEndpoint } from '../utils/api';
@@ -205,24 +204,24 @@ const GradeReport = () => {
     };
 
     return (
-        <div className="min-h-screen bg-tech-primary text-tech-text p-6 md:p-10 font-sans">
-            <header className="max-w-7xl mx-auto mb-10 border-b border-tech-surface pb-6">
+        <div className="w-full min-h-full space-y-8 font-sans pb-16">
+            <header className="max-w-7xl mx-auto border-b border-tech-surface/60 pb-6">
                 <div className="flex items-center justify-between mb-2">
-                    <h1 className="text-3xl font-bold text-tech-text flex items-center gap-3">
-                        <FileText className="text-tech-cyan" size={32} />
-                        Planilla de Calificaciones
-                    </h1>
-                    <div className="flex items-center gap-4">
-                        <ThemeToggle />
+                    <div className="flex items-center gap-3.5">
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="p-2 text-tech-muted hover:text-tech-text transition-colors"
+                            className="p-2.5 rounded-2xl bg-tech-secondary border border-tech-surface hover:bg-tech-surface/50 text-tech-muted hover:text-tech-cyan transition-all shadow-sm active:scale-95"
+                            title="Volver al Panel Principal"
                         >
-                            <ArrowLeft size={24} />
+                            <ArrowLeft size={20} />
                         </button>
+                        <h1 className="text-xl md:text-2xl font-black text-tech-text uppercase tracking-tight flex items-center gap-2">
+                            <FileText className="text-tech-cyan" size={24} />
+                            Planilla de Calificaciones
+                        </h1>
                     </div>
                 </div>
-                <p className="text-tech-muted font-mono text-sm uppercase tracking-widest">Generación y exportación de reportes académicos</p>
+                <p className="text-xs text-tech-muted font-mono tracking-wider">Generación y exportación de reportes académicos</p>
             </header>
 
             <div className="max-w-7xl mx-auto">

@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { Calendar, Download, FileText, ArrowLeft, BarChart3, Users, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import ThemeToggle from '../components/ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 import { getApiEndpoint } from '../utils/api';
 
@@ -91,7 +90,7 @@ const TeacherReports = () => {
     };
 
     return (
-        <div className="space-y-8 pb-10">
+        <div className="w-full min-h-full space-y-8 font-sans pb-16">
             {/* Header / Action Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-tech-surface pb-6">
                 <div className="flex items-center gap-4">
@@ -165,7 +164,6 @@ const TeacherReports = () => {
                         <Download size={18} />
                         <span>{isExportingAll ? 'Procesando...' : 'Exportar Todo'}</span>
                     </Button>
-                    <ThemeToggle />
                 </div>
             </div>
 
