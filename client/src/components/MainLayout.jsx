@@ -26,24 +26,26 @@ const MainLayout = ({ children }) => {
     const isMessagesPage = location.pathname === '/messages';
 
     return (
-        <div className="min-h-screen bg-tech-primary flex flex-col">
+        <div className={`bg-tech-primary flex flex-col ${
+            isMessagesPage ? 'h-screen h-[100dvh] max-h-[100dvh] overflow-hidden fixed inset-0' : 'min-h-screen'
+        }`}>
             <TopBar
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
                 unreadMessages={unreadMessages}
                 unreadAnnouncements={unreadAnnouncements}
             />
 
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 overflow-hidden h-full">
                 <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
                 <main className={`flex-1 transition-all duration-300 ${
                     isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
                 } ${
                     isMessagesPage 
-                        ? 'p-0 overflow-hidden flex flex-col h-[calc(100dvh-3.5rem)]' 
+                        ? 'p-0 overflow-hidden flex flex-col h-full flex-1' 
                         : 'p-6 md:p-10 overflow-y-auto custom-scrollbar'
                 }`}>
-                    <div className={isMessagesPage ? 'w-full h-full flex flex-col overflow-hidden' : 'max-w-[1600px] mx-auto'}>
+                    <div className={isMessagesPage ? 'w-full h-full flex flex-col overflow-hidden flex-1' : 'max-w-[1600px] mx-auto'}>
                         {children}
                     </div>
                 </main>
