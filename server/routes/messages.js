@@ -62,10 +62,14 @@ router.get('/users', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const userId = req.user.id;
-        const cuerpoMsg = req.body.cuerpo || req.body.contenido;
+        const { destinatario_id, rol_destinatario, tipo } = req.body;
+        const contenido = req.body.contenido || req.body.cuerpo;
 
-        if (!cuerpoMsg) return res.status(400).json({ error: 'Contenido requerido' });
+        if (!contenido || !contenido.trim()) {
+            return res.status(400).json({ error: 'Contenido requerido' });
+        }
 
+        const msgText = contenido.trim();
         let createdData = null;
 
         // If broadcast (by role or by course year)
@@ -113,7 +117,7 @@ router.post('/', async (req, res) => {
                     remitente_id: userId,
                     destinatario_id: destId,
                     rol_destinatario: rol_destinatario,
-                    cuerpo,
+                    contenido: msgText,
                     tipo: 'rol'
                 }));
 
@@ -138,7 +142,7 @@ router.post('/', async (req, res) => {
                     remitente_id: userId,
                     destinatario_id: destinatario_id || null,
                     rol_destinatario: rol_destinatario || null,
-                    cuerpo,
+                    contenido: msgText,
                     tipo: tipo || 'privado'
                 })
                 .select()
@@ -187,18 +191,22 @@ router.post('/', async (req, res) => {
         }
 
         // Log Audit
-        const { logAudit } = require('../utils/auditLogger');
-        await logAudit(
-            userId,
-            'mensaje',
-            createdData.id,
-            'SEND',
-            null,
-            {
-                ...createdData,
-                destinatario_nombre: recipientName
-            }
-        );
+        try {
+            const { logAudit } = require('../utils/auditLogger');
+            await logAudit(
+                userId,
+                'mensaje',
+                createdData.id,
+                'SEND',
+                null,
+                {
+                    ...createdData,
+                    destinatario_nombre: recipientName
+                }
+            );
+        } catch (auditErr) {
+            console.warn('Audit logger warning:', auditErr.message);
+        }
 
         res.status(201).json(enrichedMessage);
     } catch (error) {
@@ -208,7 +216,7 @@ router.post('/', async (req, res) => {
 });
 
 // Marcar mensaje como leído
-router.post('/:id/read', async (req, res) => {
+router.put('/:id/read', async (req, res) => {
     try {
         const userId = req.user.id;
         const { id } = req.params;

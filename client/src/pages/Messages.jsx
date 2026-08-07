@@ -605,15 +605,17 @@ const Messages = () => {
                                 {/* Conversation Header */}
                                 <div className="p-3 border-b border-tech-surface bg-tech-secondary/80 backdrop-blur-md flex items-center justify-between shrink-0 z-10 shadow-sm">
                                     <div className="flex items-center gap-3">
-                                        {/* Prominent Back Button on Mobile and Desktop */}
-                                        <button
-                                            onClick={() => setActiveChatKey(null)}
-                                            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-tech-surface hover:bg-tech-cyan/20 border border-tech-surface hover:border-tech-cyan/30 text-tech-text hover:text-tech-cyan rounded-xl text-xs font-bold transition-all active:scale-95"
-                                            title="Volver a la lista de mensajes"
-                                        >
-                                            <ArrowLeft size={16} />
-                                            <span className="font-mono text-[10px] uppercase tracking-wider">Atrás</span>
-                                        </button>
+                                        {/* Back Button ONLY in mobile mode, ONLY arrow icon without text */}
+                                        {isMobile && (
+                                            <button
+                                                onClick={() => setActiveChatKey(null)}
+                                                className="p-1.5 hover:bg-tech-surface/80 rounded-xl text-tech-muted hover:text-tech-cyan transition-all shrink-0 active:scale-95 border border-tech-surface/40"
+                                                title="Volver"
+                                                aria-label="Volver"
+                                            >
+                                                <ArrowLeft size={20} />
+                                            </button>
+                                        )}
 
                                         <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs uppercase ${
                                             activeUser.isRole 
