@@ -59,7 +59,7 @@ const Messages = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
     const [showComposeModal, setShowComposeModal] = useState(false);
 
-    // Nuevas funcionalidades de mensajería
+    // Funcionalidades avanzadas de mensajería
     const [showChatSearch, setShowChatSearch] = useState(false);
     const [chatSearchQuery, setChatSearchQuery] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -73,7 +73,7 @@ const Messages = () => {
         messagesRef.current = messages;
     }, [messages]);
 
-    // Async Fetch Helpers
+    // Helpers Async Fetch
     async function fetchSingleMessage(msgId) {
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -158,7 +158,7 @@ const Messages = () => {
         }
     }
 
-    // Effect: Window Resize Listener
+    // Listener de tamaño de ventana
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth < 1024);
@@ -167,7 +167,7 @@ const Messages = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Effect: Initial Data Fetch
+    // Carga de datos inicial
     useEffect(() => {
         if (profile) {
             fetchMessages();
@@ -175,7 +175,7 @@ const Messages = () => {
         }
     }, [profile]);
 
-    // Effect: Realtime Subscription
+    // Tiempo Real
     useEffect(() => {
         if (!user?.id || !profile?.rol) return;
 
@@ -222,7 +222,7 @@ const Messages = () => {
         };
     }, [user, profile]);
 
-    // Auto-scroll to bottom of chat
+    // Scroll automático al final del chat
     useEffect(() => {
         if (activeChatKey) {
             setTimeout(() => {
@@ -231,7 +231,7 @@ const Messages = () => {
         }
     }, [activeChatKey, messages]);
 
-    // Group messages into conversations with useMemo
+    // Agrupar mensajes en conversaciones
     const conversations = useMemo(() => {
         const convMap = new Map();
 
@@ -296,7 +296,7 @@ const Messages = () => {
         });
     }, [messages, user, availableUsers, pinnedChats]);
 
-    // Mark active conversation messages as read
+    // Marcar leídos
     useEffect(() => {
         if (!activeChatKey) return;
 
@@ -497,7 +497,7 @@ const Messages = () => {
         return (
             <div className="space-y-2">
                 {textWithoutTags && (
-                    <p className="text-xs leading-relaxed break-words whitespace-pre-wrap">{textWithoutTags}</p>
+                    <p className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap">{textWithoutTags}</p>
                 )}
                 {imgMatch && (
                     <div className="mt-1 rounded-xl overflow-hidden border border-tech-surface max-w-xs">
@@ -515,14 +515,14 @@ const Messages = () => {
     }
 
     return (
-        <div className="w-full h-full min-h-0 flex-1 flex flex-col bg-tech-primary font-sans p-0 lg:p-4 overflow-hidden">
-            <div className="w-full h-full min-h-0 flex-1 bg-tech-secondary/40 lg:border lg:border-tech-surface lg:rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+        <div className="w-full h-full min-h-0 flex-1 flex flex-col bg-tech-primary font-sans p-0 overflow-hidden">
+            <div className="w-full h-full min-h-0 flex-1 bg-tech-secondary/40 border-none rounded-none overflow-hidden flex flex-col">
                 
-                {/* Layout Principal Flexible */}
+                {/* Layout Principal Flexible (100% Pantalla Completa) */}
                 <div className="flex flex-1 min-h-0 h-full overflow-hidden">
                     
                     {/* Panel Izquierdo: Lista de Chats */}
-                    <div className={`w-full lg:w-[360px] border-r border-tech-surface flex-col h-full ${isMobile && activeChatKey ? 'hidden' : 'flex'}`}>
+                    <div className={`w-full lg:w-[360px] border-r border-tech-surface flex-col h-full bg-tech-secondary/30 ${isMobile && activeChatKey ? 'hidden' : 'flex'}`}>
                         {/* Cabecera del Panel de Chats */}
                         <div className="p-3 md:p-4 border-b border-tech-surface space-y-3 bg-tech-secondary/60 shrink-0">
                             <div className="flex items-center justify-between gap-2">
@@ -558,7 +558,7 @@ const Messages = () => {
                             </div>
                         </div>
 
-                        {/* Área desplazable de chats */}
+                        {/* Área desplazable de lista de chats */}
                         <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-2 space-y-1">
                             {loading ? (
                                 <div className="p-4 space-y-3">
@@ -642,11 +642,11 @@ const Messages = () => {
                     </div>
 
                     {/* Panel Derecho: Ventana del Chat Activo */}
-                    <div className={`flex-1 min-h-0 flex flex-col bg-tech-primary/20 overflow-hidden h-full ${isMobile && !activeChatKey ? 'hidden' : 'flex'}`}>
+                    <div className={`flex-1 min-h-0 flex flex-col bg-tech-primary/20 p-2 md:p-3 overflow-hidden h-full ${isMobile && !activeChatKey ? 'hidden' : 'flex'}`}>
                         {activeUser ? (
                             <>
                                 {/* Cabecera de la conversación */}
-                                <div className="p-3 border-b border-tech-surface bg-tech-secondary/50 flex items-center justify-between shrink-0">
+                                <div className="p-3 border-b border-tech-surface bg-tech-secondary/60 rounded-xl flex items-center justify-between shrink-0">
                                     <div className="flex items-center gap-3">
                                         {/* Botón Volver a la lista de Chats en vista Mobile */}
                                         <button
@@ -689,7 +689,7 @@ const Messages = () => {
 
                                 {/* Campo de Búsqueda Desplegable en Chat */}
                                 {showChatSearch && (
-                                    <div className="p-2 border-b border-tech-surface bg-tech-primary/80 flex items-center gap-2 shrink-0 animate-in fade-in slide-in-from-top-1">
+                                    <div className="mt-2 p-2 border border-tech-surface rounded-xl bg-tech-primary/80 flex items-center gap-2 shrink-0 animate-in fade-in slide-in-from-top-1">
                                         <Search size={14} className="text-tech-muted ml-2 shrink-0" />
                                         <input
                                             type="text"
@@ -707,8 +707,8 @@ const Messages = () => {
                                     </div>
                                 )}
 
-                                {/* Lista de Mensajes del Chat */}
-                                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-tech-primary/5">
+                                {/* CAJA DEL HISTORIAL DE MENSAJES: CAJA INDEPENDIENTE CON SU PROPIO SCROLLBAR */}
+                                <div className="flex-1 min-h-0 my-2 bg-tech-primary/50 border border-tech-surface/80 rounded-2xl p-4 overflow-y-auto custom-scrollbar shadow-inner space-y-4">
                                     {activeChatMessages.length === 0 ? (
                                         <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
                                             <div className="w-14 h-14 bg-tech-surface rounded-2xl flex items-center justify-center text-tech-cyan">
@@ -733,7 +733,7 @@ const Messages = () => {
                                                     <div key={`msg-item-${msg.id || i}`} className="space-y-3">
                                                         {showDateDivider && (
                                                             <div className="flex justify-center my-3">
-                                                                <span className="bg-tech-surface/60 border border-tech-surface/80 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider text-tech-muted font-mono">
+                                                                <span className="bg-tech-secondary/80 border border-tech-surface px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider text-tech-muted font-mono shadow-sm">
                                                                     {dateLabel}
                                                                 </span>
                                                             </div>
@@ -742,7 +742,7 @@ const Messages = () => {
                                                             <div className={`max-w-[88%] lg:max-w-[75%] rounded-2xl px-4 py-2.5 border relative shadow-md ${
                                                                 isSentByMe 
                                                                     ? 'bg-tech-cyan/15 border-tech-cyan/30 rounded-tr-none text-tech-text' 
-                                                                    : 'bg-tech-secondary/80 border-tech-surface/60 rounded-tl-none text-tech-text'
+                                                                    : 'bg-tech-secondary/90 border-tech-surface/70 rounded-tl-none text-tech-text'
                                                             }`}>
                                                                 {!isSentByMe && activeUser.isRole && (
                                                                     <p className="text-[9px] font-bold text-tech-cyan uppercase tracking-tighter mb-1 font-mono">
@@ -766,7 +766,7 @@ const Messages = () => {
 
                                 {/* Vista Previa de Archivo Adjunto */}
                                 {attachment && (
-                                    <div className="px-4 py-2 bg-tech-secondary border-t border-tech-surface flex items-center justify-between shrink-0">
+                                    <div className="px-4 py-2 bg-tech-secondary border border-tech-surface rounded-xl mb-2 flex items-center justify-between shrink-0">
                                         <div className="flex items-center gap-2 text-xs font-mono text-tech-cyan">
                                             {attachment.type === 'image' ? <ImageIcon size={16} /> : <FileText size={16} />}
                                             <span className="truncate max-w-xs">{attachment.name}</span>
@@ -782,7 +782,7 @@ const Messages = () => {
 
                                 {/* Selector de Emojis Rápido */}
                                 {showEmojiPicker && (
-                                    <div className="p-2 border-t border-tech-surface bg-tech-secondary/90 flex flex-wrap gap-2 shrink-0 animate-in fade-in slide-in-from-bottom-2">
+                                    <div className="p-2 mb-2 border border-tech-surface rounded-xl bg-tech-secondary/90 flex flex-wrap gap-2 shrink-0 animate-in fade-in slide-in-from-bottom-2">
                                         {QUICK_EMOJIS.map(emoji => (
                                             <button
                                                 key={emoji}
@@ -798,8 +798,8 @@ const Messages = () => {
                                     </div>
                                 )}
 
-                                {/* Input de Envío de Mensajes */}
-                                <form onSubmit={sendMessage} className="flex items-center gap-2 p-3 border-t border-tech-surface bg-tech-secondary/30 shrink-0">
+                                {/* Input de Envío de Mensajes (Fijo en la parte inferior) */}
+                                <form onSubmit={sendMessage} className="flex items-center gap-2 p-3 border border-tech-surface bg-tech-secondary/60 rounded-xl shrink-0">
                                     {/* Botón Adjuntar Archivo */}
                                     <input
                                         type="file"
@@ -856,7 +856,7 @@ const Messages = () => {
                                 </form>
                             </>
                         ) : (
-                            /* Estado vacio de selección de chat */
+                            /* Estado vacío de selección de chat */
                             <div className="flex-grow flex flex-col items-center justify-center text-center p-8 space-y-4">
                                 <div className="p-4 bg-tech-cyan/10 border border-tech-cyan/20 rounded-full animate-pulse">
                                     <MessageSquare className="text-tech-cyan" size={40} />
