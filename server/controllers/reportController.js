@@ -65,17 +65,13 @@ async function getGradeJSON(req, res) {
                 id,
                 docente:perfiles(nombre),
                 materia:materias(nombre, campo_formacion, ciclo),
-                division:divisiones(anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
+                division:divisiones(anio, seccion, ciclo_lectivo)
             `)
             .eq('division_id', division_id)
             .eq('materia_id', materia_id)
             .maybeSingle();
 
         if (!asignacion) return res.status(404).json({ error: 'Asignación no encontrada' });
-
-        if (asignacion && asignacion.division && asignacion.division.ciclo_lectivo) {
-            asignacion.division.ciclo_lectivo = asignacion.division.ciclo_lectivo.anio;
-        }
 
         // 1. Fetch Grades for specific semester
         const { data: gradesData } = await supabaseAdmin
@@ -169,7 +165,7 @@ async function generateGradeReport(req, res) {
                 id,
                 docente:perfiles(nombre),
                 materia:materias(nombre, campo_formacion, ciclo),
-                division:divisiones(id, anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
+                division:divisiones(id, anio, seccion, ciclo_lectivo)
             `);
 
         if (assignment_id) {
@@ -183,10 +179,6 @@ async function generateGradeReport(req, res) {
 
         if (asigErr) throw asigErr;
         if (!asignacion) return res.status(404).json({ error: 'Asignación no encontrada' });
-
-        if (asignacion && asignacion.division && asignacion.division.ciclo_lectivo) {
-            asignacion.division.ciclo_lectivo = asignacion.division.ciclo_lectivo.anio;
-        }
 
         // 3. Fetch Grades for specific semester
         const { data: gradesData, error: gradesErr } = await supabaseAdmin
@@ -272,12 +264,12 @@ async function generateGradeReport(req, res) {
         // --- Header Rendering ---
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text('Escuela Provincial de Comercio "Gral. Belgrano"', 148.5, 10, { align: 'center' });
+        doc.text('Escuela Técnico Agropecuaria', 148.5, 10, { align: 'center' });
         doc.setFont('helvetica', 'normal');
-        doc.text('CUE: 4600298 - 00', 148.5, 15, { align: 'center' });
-        doc.text('Castro Barros 96 - Chamical - La Rioja', 148.5, 20, { align: 'center' });
+        doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
+        doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
         doc.setFontSize(8);
-        doc.text('Tel: 03826-422154 | Email: escuela.comercio@yahoo.com.ar', 148.5, 24, { align: 'center' });
+        doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
 
         // Title box
         const cuatrimestreStr = activeSemester === 1 ? 'Primer Cuatrimestre' : 'Segundo Cuatrimestre';
@@ -286,7 +278,7 @@ async function generateGradeReport(req, res) {
         doc.rect(14, 25, 269, 7, 'F');
         doc.rect(14, 25, 269, 7, 'S'); // Border
         doc.setFont('helvetica', 'bold');
-        doc.text(`PLANILLAS DE CALIFICACIONES (${cuatrimestreStr})`, 148.5, 30, { align: 'center' });
+        doc.text(`PLANILLAS DE CALIFICACIONES - Acreditación de Saberes (${cuatrimestreStr})`, 148.5, 30, { align: 'center' });
 
         // Info Rows
         const startY = 32;
@@ -505,18 +497,25 @@ async function generateGradeReport(req, res) {
     }
 }
 
-// Attendance statistics for visualization
+// Attendance statistics for visualization and analytics dashboard
 async function getAttendanceStats(req, res) {
     const { division_id, start_date, end_date } = req.query;
 
-    if (!division_id) {
-        return res.status(400).json({ error: 'division_id required' });
-    }
     try {
         let query = supabaseAdmin
             .from('asistencias_preceptor')
-            .select('estado')
-            .eq('division_id', division_id);
+            .select(`
+                fecha,
+                estado,
+                division_id,
+                estudiante:perfiles!estudiante_id(id, nombre, dni),
+                division:divisiones!division_id(id, anio, seccion)
+            `)
+            .order('fecha', { ascending: true });
+
+        if (division_id && division_id !== 'all') {
+            query = query.eq('division_id', division_id);
+        }
 
         if (start_date) query = query.gte('fecha', start_date);
         if (end_date) query = query.lte('fecha', end_date);
@@ -524,29 +523,112 @@ async function getAttendanceStats(req, res) {
         const { data, error } = await query;
         if (error) throw error;
 
-        const totals = data.reduce((acc, cur) => {
-            acc.total++;
-            if (cur.estado === 'ausente') acc.absent++;
-            if (cur.estado === 'presente') acc.present++;
-            if (cur.estado === 'tarde') acc.late++;
-            if (cur.estado === 'justificado') acc.justified++;
-            return acc;
-        }, { total: 0, present: 0, absent: 0, late: 0, justified: 0 });
+        const totals = { total: 0, present: 0, absent: 0, late: 0, justified: 0 };
+        const divisionStatsMap = {};
+        const dateStatsMap = {};
+        const studentStatsMap = {};
 
-        // Calculate average attendance percentage
-        // Consider 'presente' and 'tarde' as attendance, 'ausente' as non-attendance
-        // 'justificado' can be counted as attendance for the percentage
+        (data || []).forEach(cur => {
+            totals.total++;
+            const st = cur.estado;
+            if (st === 'presente') totals.present++;
+            else if (st === 'ausente') totals.absent++;
+            else if (st === 'tarde') totals.late++;
+            else if (st === 'justificado') totals.justified++;
+
+            // Division aggregation
+            const divKey = cur.division_id || 'unassigned';
+            const divLabel = cur.division ? `${cur.division.anio}° "${cur.division.seccion}"` : 'Sin División';
+            if (!divisionStatsMap[divKey]) {
+                divisionStatsMap[divKey] = {
+                    id: divKey,
+                    name: divLabel,
+                    anio: cur.division?.anio || 0,
+                    seccion: cur.division?.seccion || '',
+                    total: 0, present: 0, absent: 0, late: 0, justified: 0
+                };
+            }
+            divisionStatsMap[divKey].total++;
+            if (st === 'presente') divisionStatsMap[divKey].present++;
+            else if (st === 'ausente') divisionStatsMap[divKey].absent++;
+            else if (st === 'tarde') divisionStatsMap[divKey].late++;
+            else if (st === 'justificado') divisionStatsMap[divKey].justified++;
+
+            // Date aggregation
+            const dateKey = cur.fecha;
+            if (dateKey) {
+                if (!dateStatsMap[dateKey]) {
+                    dateStatsMap[dateKey] = { fecha: dateKey, total: 0, present: 0, absent: 0, late: 0, justified: 0 };
+                }
+                dateStatsMap[dateKey].total++;
+                if (st === 'presente') dateStatsMap[dateKey].present++;
+                else if (st === 'ausente') dateStatsMap[dateKey].absent++;
+                else if (st === 'tarde') dateStatsMap[dateKey].late++;
+                else if (st === 'justificado') dateStatsMap[dateKey].justified++;
+            }
+
+            // Student aggregation
+            if (cur.estudiante?.id) {
+                const sId = cur.estudiante.id;
+                if (!studentStatsMap[sId]) {
+                    studentStatsMap[sId] = {
+                        id: sId,
+                        nombre: cur.estudiante.nombre || 'Desconocido',
+                        dni: cur.estudiante.dni || 'N/A',
+                        division: divLabel,
+                        total: 0, present: 0, absent: 0, late: 0, justified: 0
+                    };
+                }
+                studentStatsMap[sId].total++;
+                if (st === 'presente') studentStatsMap[sId].present++;
+                else if (st === 'ausente') studentStatsMap[sId].absent++;
+                else if (st === 'tarde') studentStatsMap[sId].late++;
+                else if (st === 'justificado') studentStatsMap[sId].justified++;
+            }
+        });
+
         const attendanceCount = totals.present + totals.late + totals.justified;
         const avgAsistencia = totals.total > 0
             ? Math.round((attendanceCount / totals.total) * 100)
             : 0;
 
+        const byDivision = Object.values(divisionStatsMap).map(div => {
+            const attC = div.present + div.late + div.justified;
+            const pct = div.total > 0 ? Math.round((attC / div.total) * 100) : 0;
+            return { ...div, avgAsistencia: pct };
+        }).sort((a, b) => a.anio - b.anio || a.seccion.localeCompare(b.seccion));
+
+        const byDate = Object.values(dateStatsMap).map(d => {
+            const attC = d.present + d.late + d.justified;
+            const pct = d.total > 0 ? Math.round((attC / d.total) * 100) : 0;
+            return { ...d, pct };
+        }).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+        const students = Object.values(studentStatsMap).map(s => {
+            const attC = s.present + s.late + s.justified;
+            const pct = s.total > 0 ? Math.round((attC / s.total) * 100) : 0;
+            return { ...s, pct, isRisk: pct < 75 && s.total >= 3 };
+        }).sort((a, b) => a.pct - b.pct);
+
+        const atRiskCount = students.filter(s => s.isRisk).length;
+        const bestDivision = byDivision.length > 0 ? [...byDivision].sort((a, b) => b.avgAsistencia - a.avgAsistencia)[0] : null;
+        const worstDivision = byDivision.length > 0 ? [...byDivision].sort((a, b) => a.avgAsistencia - b.avgAsistencia)[0] : null;
+
         res.json({
             ...totals,
-            avgAsistencia
+            avgAsistencia,
+            byDivision,
+            byDate,
+            students,
+            kpis: {
+                totalStudents: students.length,
+                atRiskCount,
+                bestDivision: bestDivision ? `${bestDivision.name} (${bestDivision.avgAsistencia}%)` : 'N/A',
+                worstDivision: worstDivision ? `${worstDivision.name} (${worstDivision.avgAsistencia}%)` : 'N/A'
+            }
         });
     } catch (e) {
-        console.error(e);
+        console.error('Error in getAttendanceStats:', e);
         res.status(500).json({ error: e.message });
     }
 }
@@ -693,17 +775,13 @@ async function generateAssignmentAttendancePDF(req, res) {
             .select(`
                 id,
                 materia:materias(nombre, ciclo, campo_formacion),
-                division:divisiones(anio, seccion, ciclo_lectivo:ciclos_lectivos(anio)),
+                division:divisiones(anio, seccion, ciclo_lectivo),
                 docente:perfiles(nombre)
             `)
             .eq('id', assignmentId)
             .single();
 
         if (aErr || !assignment) throw new Error('Asignación no encontrada');
-
-        if (assignment && assignment.division && assignment.division.ciclo_lectivo) {
-            assignment.division.ciclo_lectivo = assignment.division.ciclo_lectivo.anio;
-        }
 
         // 2. Fetch Records
         let query = supabaseAdmin
@@ -759,12 +837,12 @@ async function generateAssignmentAttendancePDF(req, res) {
         // Header Rendering
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text('Escuela Provincial de Comercio "Gral. Belgrano"', 148.5, 10, { align: 'center' });
+        doc.text('Escuela Técnico Agropecuaria', 148.5, 10, { align: 'center' });
         doc.setFont('helvetica', 'normal');
-        doc.text('CUE: 4600298 - 00', 148.5, 15, { align: 'center' });
-        doc.text('Castro Barros 96 - Chamical - La Rioja', 148.5, 20, { align: 'center' });
+        doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
+        doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
         doc.setFontSize(8);
-        doc.text('Tel: 03826-422154 | Facebook: facebook.com/comercio.belgrano', 148.5, 24, { align: 'center' });
+        doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
 
         // Title box
         doc.setFillColor(230, 230, 230);
@@ -865,7 +943,7 @@ async function generateStudentBulletinPDF(req, res) {
             .select(`
                 id, nombre, dni,
                 divisiones:estudiantes_divisiones(
-                    division:divisiones(id, anio, seccion, ciclo_lectivo:ciclos_lectivos(anio))
+                    division:divisiones(id, anio, seccion, ciclo_lectivo)
                 )
             `)
             .eq('id', studentId)
@@ -875,10 +953,6 @@ async function generateStudentBulletinPDF(req, res) {
 
         const division = student.divisiones?.[0]?.division;
         if (!division) throw new Error('Alumno no está asignado a ninguna división.');
-
-        if (division && division.ciclo_lectivo) {
-            division.ciclo_lectivo = division.ciclo_lectivo.anio;
-        }
 
         // 2. Fetch all subjects/assignments for this division
         const { data: assignments, error: aErr } = await supabaseAdmin
@@ -933,34 +1007,16 @@ async function generateStudentBulletinPDF(req, res) {
         res.setHeader('Content-Disposition', `attachment; filename=Boletin_${sanitize(student.nombre)}.pdf`);
         doc.pipe(res);
 
-        // School Header
-        doc.fontSize(12).font('Helvetica-Bold').text('Escuela Provincial de Comercio "Gral. Belgrano"', { align: 'center' });
-        doc.fontSize(8).font('Helvetica').text('CUE: 4600298 - 00 | Castro Barros 96 - Chamical - La Rioja', { align: 'center' });
-        doc.text('Tel: 03826-422154 | Facebook: facebook.com/comercio.belgrano', { align: 'center' });
-        doc.moveDown(0.5);
+        // Header
+        doc.fontSize(18).text('Boletín de Calificaciones', { align: 'center' });
+        doc.moveDown();
 
-        doc.fontSize(14).font('Helvetica-Bold').text('Boletín de Calificaciones', { align: 'center' });
-        doc.moveDown(0.5);
-
-        // Fetch Attendance (asistencias_preceptor) for this student
-        const { data: attPreceptor, error: attPreceptorErr } = await supabaseAdmin
-            .from('asistencias_preceptor')
-            .select('estado')
-            .eq('alumno_id', studentId);
-
-        let assistPct = '-';
-        if (!attPreceptorErr && attPreceptor && attPreceptor.length > 0) {
-            const presentCount = attPreceptor.filter(a => a.estado === 'presente' || a.estado === 'tarde').length;
-            assistPct = `${Math.round((presentCount / attPreceptor.length) * 100)}%`;
-        }
-
-        doc.fontSize(10).font('Helvetica');
+        doc.fontSize(10);
         doc.text(`Alumno: ${sanitize(student.nombre)}`, { continued: true });
         doc.text(`   DNI: ${sanitize(student.dni)}`, { align: 'right' });
         doc.text(`División: ${division.anio} ${division.seccion}`, { continued: true });
         doc.text(`   Ciclo Lectivo: ${division.ciclo_lectivo}`, { align: 'right' });
-        doc.text(`Asistencia General: ${assistPct}`);
-        doc.moveDown(0.5);
+        doc.moveDown();
         doc.moveTo(40, doc.y).lineTo(555, doc.y).stroke();
         doc.moveDown();
 
@@ -1161,12 +1217,12 @@ async function generateDivisionAttendancePDF(req, res) {
         // Header Rendering
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text('Escuela Provincial de Comercio "Gral. Belgrano"', 148.5, 10, { align: 'center' });
+        doc.text('Escuela Técnico Agropecuaria', 148.5, 10, { align: 'center' });
         doc.setFont('helvetica', 'normal');
-        doc.text('CUE: 4600298 - 00', 148.5, 15, { align: 'center' });
-        doc.text('Castro Barros 96 - Chamical - La Rioja', 148.5, 20, { align: 'center' });
+        doc.text('CUE: 4600328 - 00', 148.5, 15, { align: 'center' });
+        doc.text('Paraje San Bartolo Km 4.5; Ruta Prov. 25- Chamical - La Rioja', 148.5, 20, { align: 'center' });
         doc.setFontSize(8);
-        doc.text('Tel: 03826-422154 | Facebook: facebook.com/comercio.belgrano', 148.5, 24, { align: 'center' });
+        doc.text('Tel: 03826-424074 | Email: etachamical@gmail.com', 148.5, 24, { align: 'center' });
 
         // Title box
         doc.setFillColor(230, 230, 230);
