@@ -16,6 +16,16 @@ import { useToast } from '../components/ui/Toast';
 
 const QUICK_EMOJIS = ['👍', '❤️', '👏', '🔥', '🎉', '💡', '📌', '😊', '✅', '🙏', '🙌', '⭐'];
 
+const getRoleTitle = (r) => {
+    if (!r) return '';
+    if (r === 'admin') return 'ADMINISTRADORES';
+    if (r === 'preceptor') return 'PRECEPTORES';
+    if (r === 'docente') return 'DOCENTES';
+    if (r === 'alumno') return 'ALUMNOS';
+    if (r.startsWith('anio_')) return `${r.replace('anio_', '')}° AÑO`;
+    return r.toUpperCase();
+};
+
 const Messages = () => {
     const { user, profile } = useAuth();
     const navigate = useNavigate();
