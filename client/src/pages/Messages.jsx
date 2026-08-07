@@ -519,10 +519,10 @@ const Messages = () => {
             <div className="w-full h-full min-h-0 flex-1 bg-tech-secondary/40 border-none rounded-none overflow-hidden flex flex-col">
                 
                 {/* Layout Principal Flexible (100% Pantalla Completa) */}
-                <div className="flex flex-1 min-h-0 w-full h-full overflow-hidden">
+                <div className="flex flex-1 min-h-0 h-0 w-full overflow-hidden">
                     
                     {/* Panel Izquierdo: Lista de Chats */}
-                    <div className={`w-full lg:w-[360px] xl:w-[380px] shrink-0 border-r border-tech-surface flex-col h-full bg-tech-secondary/30 ${isMobile && activeChatKey ? 'hidden' : 'flex'}`}>
+                    <div className={`w-full lg:w-[360px] xl:w-[380px] shrink-0 border-r border-tech-surface flex flex-col h-full min-h-0 bg-tech-secondary/30 ${isMobile && activeChatKey ? 'hidden' : 'flex'}`}>
                         {/* Cabecera del Panel de Chats */}
                         <div className="p-3.5 border-b border-tech-surface space-y-3 bg-tech-secondary/60 shrink-0">
                             <div className="flex items-center justify-between gap-2">
@@ -559,7 +559,7 @@ const Messages = () => {
                         </div>
 
                         {/* Área desplazable de lista de chats */}
-                        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                        <div className="flex-1 min-h-0 h-0 overflow-y-auto custom-scrollbar p-2 space-y-1">
                             {loading ? (
                                 <div className="p-4 space-y-3">
                                     {[1, 2, 3, 4, 5].map(i => (
@@ -642,7 +642,7 @@ const Messages = () => {
                     </div>
 
                     {/* Panel Derecho: Ventana del Chat Activo */}
-                    <div className={`flex-1 min-h-0 flex flex-col bg-tech-primary/20 p-2 md:p-3 overflow-hidden h-full ${isMobile && !activeChatKey ? 'hidden' : 'flex'}`}>
+                    <div className={`flex-1 min-h-0 h-0 flex flex-col bg-tech-primary/20 p-2 md:p-3 overflow-hidden ${isMobile && !activeChatKey ? 'hidden' : 'flex'}`}>
                         {activeUser ? (
                             <>
                                 {/* Cabecera de la conversación */}
@@ -707,8 +707,8 @@ const Messages = () => {
                                     </div>
                                 )}
 
-                                {/* CAJA DEL HISTORIAL DE MENSAJES: CAJA INDEPENDIENTE CON SU PROPIO SCROLLBAR */}
-                                <div className="flex-1 min-h-0 my-2 bg-tech-primary/50 border border-tech-surface/80 rounded-2xl p-3 md:p-4 overflow-y-auto custom-scrollbar shadow-inner space-y-4">
+                                {/* CAJA DEL HISTORIAL DE MENSAJES: FLEX COMPRESIÓN ESTRICTA (flex-1 min-h-0 h-0) */}
+                                <div className="flex-1 min-h-0 h-0 my-2 bg-tech-primary/50 border border-tech-surface/80 rounded-2xl p-3 md:p-4 overflow-y-auto custom-scrollbar shadow-inner space-y-4">
                                     {activeChatMessages.length === 0 ? (
                                         <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
                                             <div className="w-14 h-14 bg-tech-surface rounded-2xl flex items-center justify-center text-tech-cyan">
@@ -856,7 +856,7 @@ const Messages = () => {
                                 </form>
                             </>
                         ) : (
-                            /* Estado vacío de selección de chat (Centrado perfecto ocupando 100% de la pantalla) */
+                            /* Estado vacío de selección de chat */
                             <div className="w-full h-full flex-1 flex flex-col items-center justify-center text-center p-6 space-y-4">
                                 <div className="p-8 bg-tech-secondary/60 border border-tech-surface/80 rounded-3xl shadow-xl flex flex-col items-center max-w-md w-full space-y-4">
                                     <div className="w-16 h-16 bg-tech-cyan/10 border border-tech-cyan/30 rounded-2xl flex items-center justify-center text-tech-cyan shadow-md animate-pulse">
