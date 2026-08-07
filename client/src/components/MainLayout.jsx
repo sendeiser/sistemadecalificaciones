@@ -36,14 +36,14 @@ const MainLayout = ({ children }) => {
             <div className="flex flex-1 min-h-0 overflow-hidden h-full">
                 <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-                <main className={`flex-1 min-h-0 transition-all duration-300 ${
+                <main className={`flex-1 min-w-0 min-h-0 transition-all duration-300 overflow-hidden ${
                     isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
                 } ${
                     isMessagesPage 
-                        ? 'p-0 overflow-hidden flex flex-col h-full w-full' 
+                        ? 'p-0 flex flex-col h-full' 
                         : 'p-6 md:p-10 overflow-y-auto custom-scrollbar'
                 }`}>
-                    <div className={isMessagesPage ? 'w-full h-full flex flex-col overflow-hidden' : 'max-w-[1600px] mx-auto'}>
+                    <div className={isMessagesPage ? 'h-full flex flex-col overflow-hidden' : 'max-w-[1600px] mx-auto'}>
                         {children}
                     </div>
                 </main>
