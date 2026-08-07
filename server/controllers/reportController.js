@@ -497,18 +497,25 @@ async function generateGradeReport(req, res) {
     }
 }
 
-// Attendance statistics for visualization
+// Attendance statistics for visualization and analytics dashboard
 async function getAttendanceStats(req, res) {
     const { division_id, start_date, end_date } = req.query;
 
-    if (!division_id) {
-        return res.status(400).json({ error: 'division_id required' });
-    }
     try {
         let query = supabaseAdmin
             .from('asistencias_preceptor')
-            .select('estado')
-            .eq('division_id', division_id);
+            .select(`
+                fecha,
+                estado,
+                division_id,
+                estudiante:perfiles!estudiante_id(id, nombre, dni),
+                division:divisiones!division_id(id, anio, seccion)
+            `)
+            .order('fecha', { ascending: true });
+
+        if (division_id && division_id !== 'all') {
+            query = query.eq('division_id', division_id);
+        }
 
         if (start_date) query = query.gte('fecha', start_date);
         if (end_date) query = query.lte('fecha', end_date);
@@ -516,29 +523,112 @@ async function getAttendanceStats(req, res) {
         const { data, error } = await query;
         if (error) throw error;
 
-        const totals = data.reduce((acc, cur) => {
-            acc.total++;
-            if (cur.estado === 'ausente') acc.absent++;
-            if (cur.estado === 'presente') acc.present++;
-            if (cur.estado === 'tarde') acc.late++;
-            if (cur.estado === 'justificado') acc.justified++;
-            return acc;
-        }, { total: 0, present: 0, absent: 0, late: 0, justified: 0 });
+        const totals = { total: 0, present: 0, absent: 0, late: 0, justified: 0 };
+        const divisionStatsMap = {};
+        const dateStatsMap = {};
+        const studentStatsMap = {};
 
-        // Calculate average attendance percentage
-        // Consider 'presente' and 'tarde' as attendance, 'ausente' as non-attendance
-        // 'justificado' can be counted as attendance for the percentage
+        (data || []).forEach(cur => {
+            totals.total++;
+            const st = cur.estado;
+            if (st === 'presente') totals.present++;
+            else if (st === 'ausente') totals.absent++;
+            else if (st === 'tarde') totals.late++;
+            else if (st === 'justificado') totals.justified++;
+
+            // Division aggregation
+            const divKey = cur.division_id || 'unassigned';
+            const divLabel = cur.division ? `${cur.division.anio}° "${cur.division.seccion}"` : 'Sin División';
+            if (!divisionStatsMap[divKey]) {
+                divisionStatsMap[divKey] = {
+                    id: divKey,
+                    name: divLabel,
+                    anio: cur.division?.anio || 0,
+                    seccion: cur.division?.seccion || '',
+                    total: 0, present: 0, absent: 0, late: 0, justified: 0
+                };
+            }
+            divisionStatsMap[divKey].total++;
+            if (st === 'presente') divisionStatsMap[divKey].present++;
+            else if (st === 'ausente') divisionStatsMap[divKey].absent++;
+            else if (st === 'tarde') divisionStatsMap[divKey].late++;
+            else if (st === 'justificado') divisionStatsMap[divKey].justified++;
+
+            // Date aggregation
+            const dateKey = cur.fecha;
+            if (dateKey) {
+                if (!dateStatsMap[dateKey]) {
+                    dateStatsMap[dateKey] = { fecha: dateKey, total: 0, present: 0, absent: 0, late: 0, justified: 0 };
+                }
+                dateStatsMap[dateKey].total++;
+                if (st === 'presente') dateStatsMap[dateKey].present++;
+                else if (st === 'ausente') dateStatsMap[dateKey].absent++;
+                else if (st === 'tarde') dateStatsMap[dateKey].late++;
+                else if (st === 'justificado') dateStatsMap[dateKey].justified++;
+            }
+
+            // Student aggregation
+            if (cur.estudiante?.id) {
+                const sId = cur.estudiante.id;
+                if (!studentStatsMap[sId]) {
+                    studentStatsMap[sId] = {
+                        id: sId,
+                        nombre: cur.estudiante.nombre || 'Desconocido',
+                        dni: cur.estudiante.dni || 'N/A',
+                        division: divLabel,
+                        total: 0, present: 0, absent: 0, late: 0, justified: 0
+                    };
+                }
+                studentStatsMap[sId].total++;
+                if (st === 'presente') studentStatsMap[sId].present++;
+                else if (st === 'ausente') studentStatsMap[sId].absent++;
+                else if (st === 'tarde') studentStatsMap[sId].late++;
+                else if (st === 'justificado') studentStatsMap[sId].justified++;
+            }
+        });
+
         const attendanceCount = totals.present + totals.late + totals.justified;
         const avgAsistencia = totals.total > 0
             ? Math.round((attendanceCount / totals.total) * 100)
             : 0;
 
+        const byDivision = Object.values(divisionStatsMap).map(div => {
+            const attC = div.present + div.late + div.justified;
+            const pct = div.total > 0 ? Math.round((attC / div.total) * 100) : 0;
+            return { ...div, avgAsistencia: pct };
+        }).sort((a, b) => a.anio - b.anio || a.seccion.localeCompare(b.seccion));
+
+        const byDate = Object.values(dateStatsMap).map(d => {
+            const attC = d.present + d.late + d.justified;
+            const pct = d.total > 0 ? Math.round((attC / d.total) * 100) : 0;
+            return { ...d, pct };
+        }).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+        const students = Object.values(studentStatsMap).map(s => {
+            const attC = s.present + s.late + s.justified;
+            const pct = s.total > 0 ? Math.round((attC / s.total) * 100) : 0;
+            return { ...s, pct, isRisk: pct < 75 && s.total >= 3 };
+        }).sort((a, b) => a.pct - b.pct);
+
+        const atRiskCount = students.filter(s => s.isRisk).length;
+        const bestDivision = byDivision.length > 0 ? [...byDivision].sort((a, b) => b.avgAsistencia - a.avgAsistencia)[0] : null;
+        const worstDivision = byDivision.length > 0 ? [...byDivision].sort((a, b) => a.avgAsistencia - b.avgAsistencia)[0] : null;
+
         res.json({
             ...totals,
-            avgAsistencia
+            avgAsistencia,
+            byDivision,
+            byDate,
+            students,
+            kpis: {
+                totalStudents: students.length,
+                atRiskCount,
+                bestDivision: bestDivision ? `${bestDivision.name} (${bestDivision.avgAsistencia}%)` : 'N/A',
+                worstDivision: worstDivision ? `${worstDivision.name} (${worstDivision.avgAsistencia}%)` : 'N/A'
+            }
         });
     } catch (e) {
-        console.error(e);
+        console.error('Error in getAttendanceStats:', e);
         res.status(500).json({ error: e.message });
     }
 }
