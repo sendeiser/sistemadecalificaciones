@@ -599,7 +599,7 @@ const Messages = () => {
                     </div>
 
                     {/* Right Pane: Conversation Window */}
-                    <div className={`flex-grow flex-col bg-tech-primary/10 overflow-hidden h-full flex-1 min-h-0 ${!activeChatKey ? 'hidden lg:flex' : 'flex'}`}>
+                    <div className={`flex-grow flex-col bg-tech-primary/10 overflow-hidden h-full flex-1 min-h-0 min-w-0 ${!activeChatKey ? 'hidden lg:flex' : 'flex'}`}>
                         {activeUser ? (
                             <div className="flex flex-col h-full overflow-hidden flex-1 min-h-0">
                                 {/* Conversation Header */}
@@ -646,7 +646,7 @@ const Messages = () => {
 
                                 {/* In-Chat Search Bar */}
                                 {chatSearchOpen && (
-                                    <div className="p-2 border-b border-tech-surface bg-tech-secondary/90 flex items-center gap-2 animate-in fade-in duration-200 shrink-0">
+                                    <div className="p-2 border-b border-tech-surface bg-tech-secondary/90 flex items-center gap-2 animate-in fade-in duration-200">
                                         <Search size={14} className="text-tech-cyan ml-2" />
                                         <input
                                             type="text"
@@ -664,11 +664,11 @@ const Messages = () => {
                                     </div>
                                 )}
 
-                                {/* Message List Container - Full Vertical Expansion & Scroll Fix */}
+                                {/* Message List Container - Full Vertical Expansion */}
                                 <div 
                                     ref={messageContainerRef}
                                     onScroll={handleScroll}
-                                    className="flex-1 min-h-0 h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-tech-primary/5 relative touch-pan-y overscroll-contain"
+                                    className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-tech-primary/5 relative touch-pan-y overscroll-contain"
                                 >
                                     {activeChatMessages.length === 0 ? (
                                         <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
