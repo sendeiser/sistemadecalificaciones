@@ -27,7 +27,7 @@ const MainLayout = ({ children }) => {
 
     return (
         <div className={`bg-tech-primary flex flex-col ${
-            isMessagesPage ? 'h-screen h-[100dvh] max-h-[100dvh] overflow-hidden fixed inset-0' : 'min-h-screen'
+            isMessagesPage ? 'h-screen h-[100dvh] max-h-[100dvh] overflow-hidden fixed inset-0 min-h-0' : 'min-h-screen'
         }`}>
             <TopBar
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -35,17 +35,17 @@ const MainLayout = ({ children }) => {
                 unreadAnnouncements={unreadAnnouncements}
             />
 
-            <div className="flex flex-1 overflow-hidden h-full">
+            <div className="flex flex-1 overflow-hidden h-full min-h-0">
                 <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-                <main className={`flex-1 transition-all duration-300 ${
+                <main className={`flex-1 transition-all duration-300 min-h-0 ${
                     isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
                 } ${
                     isMessagesPage 
-                        ? 'p-0 overflow-hidden flex flex-col h-full flex-1' 
+                        ? 'p-0 overflow-hidden flex flex-col h-full flex-1 min-h-0' 
                         : 'p-6 md:p-10 overflow-y-auto custom-scrollbar'
                 }`}>
-                    <div className={isMessagesPage ? 'w-full h-full flex flex-col overflow-hidden flex-1' : 'max-w-[1600px] mx-auto'}>
+                    <div className={isMessagesPage ? 'w-full h-full flex flex-col overflow-hidden flex-1 min-h-0' : 'max-w-[1600px] mx-auto'}>
                         {children}
                     </div>
                 </main>
