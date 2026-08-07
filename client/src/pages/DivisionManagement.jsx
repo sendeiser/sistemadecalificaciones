@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Layers, Plus, Pencil, Trash2, X, Check, Save, ArrowLeft } from 'lucide-react';
+import { Layers, Plus, Pencil, Trash2, X, Check, Save, ArrowLeft, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
