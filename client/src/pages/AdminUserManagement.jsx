@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getApiEndpoint } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
-import ThemeToggle from '../components/ThemeToggle';
 import { ArrowLeft, UserPlus, Mail, Copy, CheckCircle2, Clock, Trash2, RefreshCcw, Edit2, X, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../components/ui/Button';
@@ -159,9 +158,6 @@ const AdminUserManagement = () => {
                             Administración de invitaciones y privilegios
                         </p>
                     </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <ThemeToggle />
                 </div>
             </div>
 
