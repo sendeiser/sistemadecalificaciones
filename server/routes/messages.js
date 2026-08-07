@@ -21,7 +21,8 @@ router.get('/', async (req, res) => {
             return res.status(404).json({ error: 'Perfil no encontrado' });
         }
 
-        const { data, error } = await supabaseAdmin
+        // Intento 1: Con relación FK explícita de PostgREST
+        let { data, error } = await supabaseAdmin
             .from('mensajes')
             .select(`
                 *,
@@ -31,11 +32,35 @@ router.get('/', async (req, res) => {
             .or(`remitente_id.eq.${userId},destinatario_id.eq.${userId},rol_destinatario.eq.${profile.rol}`)
             .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        res.json(data);
+        // Fallback resiliente en caso de desajuste FK o error de PostgREST
+        if (error) {
+            console.warn('PostgREST query notice, utilizando consulta de respaldo:', error.message);
+            
+            const { data: flatData, error: flatError } = await supabaseAdmin
+                .from('mensajes')
+                .select('*')
+                .or(`remitente_id.eq.${userId},destinatario_id.eq.${userId},rol_destinatario.eq.${profile.rol}`)
+                .order('created_at', { ascending: false });
+
+            if (flatError) {
+                console.error('Error fetching flat messages:', flatError);
+                return res.status(200).json([]);
+            }
+
+            const { data: perfiles } = await supabaseAdmin.from('perfiles').select('id, nombre, rol, email');
+            const perfilesMap = new Map((perfiles || []).map(p => [p.id, p]));
+
+            data = (flatData || []).map(m => ({
+                ...m,
+                remitente: perfilesMap.get(m.remitente_id) || null,
+                destinatario: perfilesMap.get(m.destinatario_id) || null
+            }));
+        }
+
+        res.json(data || []);
     } catch (error) {
         console.error('Error fetching messages:', error);
-        res.status(500).json({ error: 'Error al obtener mensajes' });
+        res.status(200).json([]);
     }
 });
 
@@ -51,10 +76,70 @@ router.get('/users', async (req, res) => {
             .order('nombre');
 
         if (error) throw error;
-        res.json(data);
+        res.json(data || []);
     } catch (error) {
         console.error('Error fetching users for messaging:', error);
         res.status(500).json({ error: 'Error al obtener usuarios' });
+    }
+});
+
+// Obtener contador de mensajes no leídos para el usuario actual
+router.get('/unread-count', async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const { count, error } = await supabaseAdmin
+            .from('mensajes')
+            .select('*', { count: 'exact', head: true })
+            .eq('destinatario_id', userId)
+            .eq('leido', false);
+
+        if (error) throw error;
+        res.json({ count: count || 0 });
+    } catch (error) {
+        console.error('Error fetching unread messages count:', error);
+        res.json({ count: 0 });
+    }
+});
+
+// Obtener un mensaje individual por ID
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const { data, error } = await supabaseAdmin
+            .from('mensajes')
+            .select(`
+                *,
+                remitente:perfiles!remitente_id(id, nombre, rol, email),
+                destinatario:perfiles!destinatario_id(id, nombre, rol, email)
+            `)
+            .eq('id', id)
+            .maybeSingle();
+
+        if (error || !data) {
+            const { data: flatData } = await supabaseAdmin
+                .from('mensajes')
+                .select('*')
+                .eq('id', id)
+                .maybeSingle();
+
+            if (!flatData) return res.status(404).json({ error: 'Mensaje no encontrado' });
+
+            const { data: perfiles } = await supabaseAdmin.from('perfiles').select('id, nombre, rol, email');
+            const perfilesMap = new Map((perfiles || []).map(p => [p.id, p]));
+
+            return res.json({
+                ...flatData,
+                remitente: perfilesMap.get(flatData.remitente_id) || null,
+                destinatario: perfilesMap.get(flatData.destinatario_id) || null
+            });
+        }
+
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching single message:', error);
+        res.status(500).json({ error: 'Error al obtener mensaje' });
     }
 });
 
@@ -62,14 +147,11 @@ router.get('/users', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const userId = req.user.id;
-        const { destinatario_id, rol_destinatario, tipo } = req.body;
-        const contenido = req.body.contenido || req.body.cuerpo;
+        const { destinatario_id, rol_destinatario, tipo, cuerpo, contenido } = req.body;
+        const cuerpoMsg = cuerpo || contenido;
 
-        if (!contenido || !contenido.trim()) {
-            return res.status(400).json({ error: 'Contenido requerido' });
-        }
+        if (!cuerpoMsg) return res.status(400).json({ error: 'Contenido requerido' });
 
-        const msgText = contenido.trim();
         let createdData = null;
 
         // If broadcast (by role or by course year)
@@ -117,7 +199,7 @@ router.post('/', async (req, res) => {
                     remitente_id: userId,
                     destinatario_id: destId,
                     rol_destinatario: rol_destinatario,
-                    contenido: msgText,
+                    contenido: cuerpoMsg,
                     tipo: 'rol'
                 }));
 
@@ -142,7 +224,7 @@ router.post('/', async (req, res) => {
                     remitente_id: userId,
                     destinatario_id: destinatario_id || null,
                     rol_destinatario: rol_destinatario || null,
-                    contenido: msgText,
+                    contenido: cuerpoMsg,
                     tipo: tipo || 'privado'
                 })
                 .select()
@@ -205,7 +287,7 @@ router.post('/', async (req, res) => {
                 }
             );
         } catch (auditErr) {
-            console.warn('Audit logger warning:', auditErr.message);
+            console.warn('Audit log notice:', auditErr.message);
         }
 
         res.status(201).json(enrichedMessage);
@@ -216,7 +298,7 @@ router.post('/', async (req, res) => {
 });
 
 // Marcar mensaje como leído
-router.put('/:id/read', async (req, res) => {
+router.post('/:id/read', async (req, res) => {
     try {
         const userId = req.user.id;
         const { id } = req.params;
@@ -229,29 +311,10 @@ router.put('/:id/read', async (req, res) => {
             .select();
 
         if (error) throw error;
-        res.json(data);
+        res.json(data || []);
     } catch (error) {
         console.error('Error marking message as read:', error);
         res.status(500).json({ error: 'Error al actualizar mensaje' });
-    }
-});
-
-// Obtener contador de mensajes no leídos para el usuario actual
-router.get('/unread-count', async (req, res) => {
-    try {
-        const userId = req.user.id;
-
-        const { count, error } = await supabaseAdmin
-            .from('mensajes')
-            .select('*', { count: 'exact', head: true })
-            .eq('destinatario_id', userId)
-            .eq('leido', false);
-
-        if (error) throw error;
-        res.json({ count: count || 0 });
-    } catch (error) {
-        console.error('Error fetching unread messages count:', error);
-        res.status(500).json({ error: 'Error al obtener contador de mensajes' });
     }
 });
 
