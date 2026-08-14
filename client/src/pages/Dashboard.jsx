@@ -378,7 +378,7 @@ const Dashboard = () => {
                                             <p className="text-tech-muted text-sm font-mono">Gestionar cursos y secciones.</p>
                                         </button>
 
-                                        {profile.rol === 'admin' && (
+                                        {(profile.rol === 'admin' || profile.rol === 'preceptor') && (
                                             <button onClick={() => navigate('/admin/users')} className="w-full text-left p-6 bg-tech-secondary rounded-2xl border border-tech-surface hover:border-tech-cyan focus-visible:border-tech-cyan focus-visible:ring-2 focus-visible:ring-tech-cyan/30 focus:outline-none transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] relative overflow-hidden">
                                                 <div className="absolute top-0 left-0 w-1 h-full bg-tech-cyan opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"></div>
                                                 <div className="flex items-center gap-4 mb-3 text-tech-cyan">
@@ -387,7 +387,7 @@ const Dashboard = () => {
                                                     </div>
                                                     <h3 className="text-xl font-bold text-tech-text uppercase tracking-tight">Gestión Accesos</h3>
                                                 </div>
-                                                <p className="text-tech-muted text-sm font-mono">Generar invitaciones para docentes.</p>
+                                                <p className="text-tech-muted text-sm font-mono">Generar invitaciones para docentes y usuarios.</p>
                                             </button>
                                         )}
 

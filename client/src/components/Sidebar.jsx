@@ -73,7 +73,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 { path: '/admin/reports', label: 'Planilla Notas', icon: <FileText size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/reports', label: 'Boletines', icon: <GraduationCap size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/periods', label: 'Periodos', icon: <Settings size={20} />, roles: ['admin', 'preceptor'] },
-                { path: '/admin/users', label: 'Usuarios/Invit.', icon: <ShieldCheck size={20} />, roles: ['admin'] },
+                { path: '/admin/users', label: 'Usuarios/Invit.', icon: <ShieldCheck size={20} />, roles: ['admin', 'preceptor'] },
                 { path: '/admin/audit', label: 'Auditoría', icon: <FileText size={20} />, roles: ['admin'] },
                 { path: '/admin/system-settings', label: 'Config. Sistema', icon: <Settings size={20} />, roles: ['admin'] },
             ]

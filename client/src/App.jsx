@@ -208,7 +208,7 @@ function AnimatedRoutes() {
             </ProtectedRoute>
           } />
           <Route path="/admin/users" element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['admin', 'preceptor']}>
               <MainLayout><PageTransition><AdminUserManagement /></PageTransition></MainLayout>
             </ProtectedRoute>
           } />

@@ -183,8 +183,9 @@ const AdminUserManagement = () => {
                                     className="w-full bg-tech-primary border border-tech-surface rounded-xl px-3 py-3 text-sm focus:border-tech-cyan outline-none text-tech-text transition-all"
                                 >
                                     <option value="docente">Docente</option>
+                                    <option value="alumno">Alumno</option>
                                     <option value="tutor">Tutor (Padre/Madre)</option>
-                                    <option value="preceptor">Preceptor (Admin)</option>
+                                    <option value="preceptor">Preceptor</option>
                                     <option value="admin">Administrador (Total)</option>
                                 </select>
                             </div>
