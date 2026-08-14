@@ -216,16 +216,31 @@ router.post('/bulk-ai', isAdminOrPreceptor, async (req, res) => {
     }
 
     try {
-        console.log('Iniciando procesamiento con Gemini (gemini-1.5-flash)...');
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const prompt = `Extrae una lista de estudiantes del siguiente texto desordenado. 
-        Para cada estudiante necesito: NOMBRE completo, DNI (solo números) y EMAIL.
-        Devuelve SOLO un array JSON con el formato: [{"nombre": "...", "dni": "...", "email": "..."}]
-        Si falta algún dato inventa uno coherente (ej: si falta el email, genera uno basado en el nombre).
-        Si no hay estudiantes en el texto, devuelve un array vacío [].
-        Texto: ${rawText}`;
+        console.log('Iniciando procesamiento con Gemini AI...');
+        let result;
+        const modelsToTry = ["gemini-3.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"];
+        let lastError = null;
 
-        const result = await model.generateContent(prompt);
+        for (const modelName of modelsToTry) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                const prompt = `Extrae una lista de estudiantes del siguiente texto desordenado. 
+                Para cada estudiante necesito: NOMBRE completo, DNI (solo números) y EMAIL.
+                Devuelve SOLO un array JSON con el formato: [{"nombre": "...", "dni": "...", "email": "..."}]
+                Si falta algún dato inventa uno coherente (ej: si falta el email, genera uno basado en el nombre).
+                Si no hay estudiantes en el texto, devuelve un array vacío [].
+                Texto: ${rawText}`;
+
+                result = await model.generateContent(prompt);
+                if (result) break;
+            } catch (mErr) {
+                console.warn(`Model ${modelName} error, trying next fallback:`, mErr.message);
+                lastError = mErr;
+            }
+        }
+
+        if (!result) throw lastError || new Error("No se pudo obtener respuesta de Gemini API");
+
         const response = await result.response;
         const text = response.text();
 
