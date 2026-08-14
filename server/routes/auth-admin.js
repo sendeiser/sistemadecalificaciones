@@ -413,6 +413,12 @@ router.delete('/admin/users/:userId', authMiddleware, requireAdmin, async (req, 
         // 2. Limpiar registros relacionados en cascada para evitar bloqueos por Foreign Keys
         try {
             await Promise.allSettled([
+                clientToUse.from('auditoria_notas').delete().eq('usuario_id', userId),
+                clientToUse.from('estudiantes_divisiones').delete().eq('alumno_id', userId),
+                clientToUse.from('asistencias_preceptor').delete().eq('estudiante_id', userId),
+                clientToUse.from('ai_diagnostics').delete().eq('alumno_id', userId),
+                clientToUse.from('ai_diagnostics').delete().eq('docente_id', userId),
+                clientToUse.from('document_validations').delete().eq('created_by', userId),
                 clientToUse.from('inscripciones').delete().eq('estudiante_id', userId),
                 clientToUse.from('asistencias').delete().eq('alumno_id', userId),
                 clientToUse.from('calificaciones').delete().eq('alumno_id', userId),
