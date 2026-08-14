@@ -264,7 +264,10 @@ router.post('/bulk-ai', isAdminOrPreceptor, async (req, res) => {
 
         for (const student of extractedStudents) {
             try {
-                // 1. Create Auth User
+                const clientToUse = supabaseAdmin || req.supabase;
+                let userId = null;
+
+                // 1. Try Creating Auth User
                 const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
                     email: student.email,
                     password: defaultPassword,
@@ -276,12 +279,29 @@ router.post('/bulk-ai', isAdminOrPreceptor, async (req, res) => {
                     }
                 });
 
-                if (authError) throw authError;
+                if (authError) {
+                    if (authError.message?.includes('already been registered') || authError.code === 'email_exists') {
+                        // Locate existing user ID by email
+                        const { data: existingProfile } = await clientToUse
+                            .from('perfiles')
+                            .select('id')
+                            .eq('email', student.email)
+                            .maybeSingle();
 
-                const userId = authData.user.id;
+                        if (existingProfile) {
+                            userId = existingProfile.id;
+                        } else {
+                            const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
+                            const found = listData?.users?.find(u => u.email?.toLowerCase() === student.email?.toLowerCase());
+                            if (found) userId = found.id;
+                        }
+                    }
+                    if (!userId) throw authError;
+                } else {
+                    userId = authData.user.id;
+                }
 
-                // 2. Upsert Profile (Guarantees perfiles record exists)
-                const clientToUse = supabaseAdmin || req.supabase;
+                // 2. Upsert Profile (Guarantees perfiles record exists & is updated)
                 const { data: profile } = await clientToUse
                     .from('perfiles')
                     .upsert({
@@ -343,7 +363,10 @@ router.post('/import', isAdminOrPreceptor, upload.single('file'), async (req, re
             }
 
             try {
-                // 1. Create Auth User
+                const clientToUse = supabaseAdmin || req.supabase;
+                let userId = null;
+
+                // 1. Try Creating Auth User
                 const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
                     email: student.email,
                     password: defaultPassword,
@@ -355,12 +378,28 @@ router.post('/import', isAdminOrPreceptor, upload.single('file'), async (req, re
                     }
                 });
 
-                if (authError) throw authError;
+                if (authError) {
+                    if (authError.message?.includes('already been registered') || authError.code === 'email_exists') {
+                        const { data: existingProfile } = await clientToUse
+                            .from('perfiles')
+                            .select('id')
+                            .eq('email', student.email)
+                            .maybeSingle();
 
-                const userId = authData.user.id;
+                        if (existingProfile) {
+                            userId = existingProfile.id;
+                        } else {
+                            const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
+                            const found = listData?.users?.find(u => u.email?.toLowerCase() === student.email?.toLowerCase());
+                            if (found) userId = found.id;
+                        }
+                    }
+                    if (!userId) throw authError;
+                } else {
+                    userId = authData.user.id;
+                }
 
                 // 2. Upsert Profile
-                const clientToUse = supabaseAdmin || req.supabase;
                 const { data: profile } = await clientToUse
                     .from('perfiles')
                     .upsert({
