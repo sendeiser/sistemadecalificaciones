@@ -203,10 +203,10 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
  */
 router.post('/bulk-ai', isAdminOrPreceptor, async (req, res) => {
     const { rawText } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = req.body.apiKey || process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
 
     if (!apiKey) {
-        return res.status(500).json({ error: 'GEMINI_API_KEY no detectada en el servidor. Asegúrate de añadirla en server/.env y reiniciar el servidor.' });
+        return res.status(500).json({ error: 'GEMINI_API_KEY no detectada. Asegúrate de configurarla en las variables de entorno de Render (backend) o Netlify (VITE_GEMINI_API_KEY).' });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey); // Standard init, default usually v1beta or handles exp

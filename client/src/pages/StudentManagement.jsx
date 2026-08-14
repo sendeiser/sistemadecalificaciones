@@ -138,7 +138,10 @@ const StudentManagement = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
                 },
-                body: JSON.stringify({ rawText: bulkText })
+                body: JSON.stringify({
+                    rawText: bulkText,
+                    apiKey: import.meta.env.VITE_GEMINI_API_KEY
+                })
             });
 
             const result = await response.json();
