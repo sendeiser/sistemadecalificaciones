@@ -69,20 +69,21 @@ router.post('/register', isAdminOrPreceptor, async (req, res) => {
 
         const userId = authData.user.id;
 
-        // 2. Fetch the profile (auto-created by DB trigger)
-        const { data: profileData, error: profileError } = await req.supabase
+        // 2. Upsert Profile (Guarantees perfiles record exists)
+        const clientToUse = supabaseAdmin || req.supabase;
+        const { data: profileData } = await clientToUse
             .from('perfiles')
+            .upsert({
+                id: userId,
+                nombre: nombre || 'Nuevo Alumno',
+                dni: dni || '',
+                email: email,
+                rol: 'alumno'
+            }, { onConflict: 'id' })
             .select('*')
-            .eq('id', userId)
-            .single();
+            .maybeSingle();
 
-        if (profileError) {
-            // Rollback auth user creation if profile fetching fails (should be rare)
-            await supabaseAdmin.auth.admin.deleteUser(userId);
-            throw profileError;
-        }
-
-        res.status(201).json(profileData);
+        res.status(201).json(profileData || { id: userId, nombre, dni, email, rol: 'alumno' });
     } catch (err) {
         console.error('Registration error:', err);
         res.status(400).json({ error: err.message });
@@ -99,7 +100,7 @@ router.put('/:id', isAdminOrPreceptor, async (req, res) => {
             .update({ nombre, dni, email })
             .eq('id', id)
             .select()
-            .single();
+            .maybeSingle();
 
         if (error) throw error;
         res.json(data);
@@ -279,16 +280,21 @@ router.post('/bulk-ai', isAdminOrPreceptor, async (req, res) => {
 
                 const userId = authData.user.id;
 
-                // 2. Fetch Profile (Triggered automatically)
-                const { data: profile, error: profileError } = await req.supabase
+                // 2. Upsert Profile (Guarantees perfiles record exists)
+                const clientToUse = supabaseAdmin || req.supabase;
+                const { data: profile } = await clientToUse
                     .from('perfiles')
+                    .upsert({
+                        id: userId,
+                        nombre: student.nombre || 'Nuevo Alumno',
+                        dni: student.dni || '',
+                        email: student.email,
+                        rol: 'alumno'
+                    }, { onConflict: 'id' })
                     .select('*')
-                    .eq('id', userId)
-                    .single();
+                    .maybeSingle();
 
-                if (profileError) throw profileError;
-
-                results.success.push(profile);
+                results.success.push(profile || { id: userId, nombre: student.nombre, dni: student.dni, email: student.email, rol: 'alumno' });
             } catch (err) {
                 results.errors.push({
                     student: student.nombre || student.email,
@@ -353,16 +359,21 @@ router.post('/import', isAdminOrPreceptor, upload.single('file'), async (req, re
 
                 const userId = authData.user.id;
 
-                // 2. Fetch Profile
-                const { data: profile, error: profileError } = await req.supabase
+                // 2. Upsert Profile
+                const clientToUse = supabaseAdmin || req.supabase;
+                const { data: profile } = await clientToUse
                     .from('perfiles')
+                    .upsert({
+                        id: userId,
+                        nombre: student.nombre || 'Nuevo Alumno',
+                        dni: student.dni || '',
+                        email: student.email,
+                        rol: 'alumno'
+                    }, { onConflict: 'id' })
                     .select('*')
-                    .eq('id', userId)
-                    .single();
+                    .maybeSingle();
 
-                if (profileError) throw profileError;
-
-                results.success.push(profile);
+                results.success.push(profile || { id: userId, nombre: student.nombre, dni: student.dni, email: student.email, rol: 'alumno' });
             } catch (err) {
                 results.errors.push({
                     student: student.nombre,
