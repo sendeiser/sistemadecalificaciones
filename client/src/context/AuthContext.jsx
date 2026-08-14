@@ -49,11 +49,11 @@ export const AuthProvider = ({ children }) => {
                 .from('perfiles')
                 .select('*')
                 .eq('id', userId)
-                .single();
+                .maybeSingle();
             if (error) {
                 console.error("Error fetching profile from context:", error.message);
             }
-            if (data) setProfile(data);
+            setProfile(data ?? null);
         } catch (err) {
             console.error("Error fetching profile:", err);
         } finally {

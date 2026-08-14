@@ -105,7 +105,7 @@ const StudentReport = () => {
                     .from('perfiles')
                     .select('id, nombre, dni')
                     .eq('id', studentId)
-                    .single();
+                    .maybeSingle();
 
                 console.log('👤 [StudentReport] Student info query:', { student, error: sErr });
 
@@ -124,7 +124,7 @@ const StudentReport = () => {
                 .from('estudiantes_divisiones')
                 .select('division:divisiones(*, ciclo_lectivo:ciclos_lectivos(anio))')
                 .eq('alumno_id', studentId)
-                .single();
+                .maybeSingle();
 
             console.log('📚 [StudentReport] Enrollment query result:', { enrollment, error: eErr });
 
