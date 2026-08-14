@@ -360,4 +360,83 @@ router.post('/admin/users/change-role', authMiddleware, requireAdmin, async (req
     }
 });
 
+// Admin List All Users (Security)
+router.get('/admin/users', authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const { query } = req.query;
+        let dbQuery = supabaseAdmin
+            .from('perfiles')
+            .select('*')
+            .order('created_at', { ascending: false, nullsFirst: false });
+
+        if (query && query.trim()) {
+            const q = query.trim();
+            dbQuery = dbQuery.or(`email.ilike.%${q}%,nombre.ilike.%${q}%,dni.ilike.%${q}%`);
+        }
+
+        const { data, error } = await dbQuery;
+        if (error) throw error;
+
+        res.json(data || []);
+    } catch (err) {
+        console.error('Admin list users error:', err);
+        res.status(500).json({ error: err.message || 'Error al listar usuarios' });
+    }
+});
+
+// Admin Delete User Account (Security)
+router.delete('/admin/users/:userId', authMiddleware, requireAdmin, async (req, res) => {
+    const { userId } = req.params;
+
+    if (!userId) {
+        return res.status(400).json({ error: 'Falta ID de usuario' });
+    }
+
+    if (userId === req.user.id) {
+        return res.status(400).json({ error: 'No puedes eliminar tu propia cuenta de administrador' });
+    }
+
+    try {
+        // 1. Obtener email del usuario para auditoría
+        const { data: profile } = await supabaseAdmin
+            .from('perfiles')
+            .select('email, nombre, rol')
+            .eq('id', userId)
+            .maybeSingle();
+
+        // 2. Eliminar de public.perfiles
+        const { error: profileErr } = await supabaseAdmin
+            .from('perfiles')
+            .delete()
+            .eq('id', userId);
+
+        if (profileErr) {
+            console.error('Warning deleting profile:', profileErr);
+        }
+
+        // 3. Eliminar de Supabase Auth (auth.users)
+        const { error: authErr } = await supabaseAdmin.auth.admin.deleteUser(userId);
+        if (authErr) {
+            console.error('Error deleting auth user:', authErr);
+            throw authErr;
+        }
+
+        // 4. Log Audit
+        const { logAudit } = require('../utils/auditLogger');
+        await logAudit(
+            req.user.id,
+            'seguridad',
+            userId,
+            'DELETE_USER',
+            null,
+            { target_email: profile?.email || 'desconocido', target_name: profile?.nombre }
+        );
+
+        res.json({ success: true, message: 'Cuenta de usuario eliminada correctamente' });
+    } catch (err) {
+        console.error('Admin delete user error:', err);
+        res.status(500).json({ error: err.message || 'Error al eliminar usuario' });
+    }
+});
+
 module.exports = router;

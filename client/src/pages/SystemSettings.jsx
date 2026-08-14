@@ -8,7 +8,7 @@ import {
     Shield, Database, Save,
     Building2, Lock, UserCog,
     AlertTriangle, Download, Search, CheckCircle2, MessageCircle,
-    ArrowLeft, Server, Activity, Sliders, Check
+    ArrowLeft, Server, Activity, Sliders, Check, Trash2, Users, RefreshCw
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import Button from '../components/ui/Button';
@@ -33,6 +33,7 @@ const SystemSettings = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [searched, setSearched] = useState(false);
     const [resettingUserId, setResettingUserId] = useState(null);
+    const [deletingUser, setDeletingUser] = useState(null);
     const [newPassword, setNewPassword] = useState('');
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
@@ -44,6 +45,7 @@ const SystemSettings = () => {
         }
         fetchSettings();
         if (activeTab === 'feedback') fetchFeedback();
+        if (activeTab === 'security') fetchUsers('');
     }, [profile, activeTab]);
 
     const getAuthToken = async () => {
@@ -204,26 +206,63 @@ const SystemSettings = () => {
 
     // ----- Security Functions -----
 
-    const handleSearch = async () => {
-        if (!searchTerm.trim()) return;
+    const fetchUsers = async (term = searchTerm) => {
         setLoading(true);
         setError(null);
         setSearched(true);
-        setSearchResults([]);
 
         try {
-            // Direct search using Supabase profiles table
-            const { data, error: searchErr } = await supabase
-                .from('perfiles')
-                .select('*')
-                .or(`email.ilike.%${searchTerm}%,nombre.ilike.%${searchTerm}%,dni.ilike.%${searchTerm}%`)
-                .limit(10);
+            const token = await getAuthToken();
+            const queryParam = term.trim() ? `?query=${encodeURIComponent(term.trim())}` : '';
+            const res = await fetch(getApiEndpoint(`/admin/users${queryParam}`), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
-            if (searchErr) throw searchErr;
-            setSearchResults(data || []);
+            if (res.ok) {
+                const data = await res.json();
+                setSearchResults(data || []);
+            } else {
+                let query = supabase.from('perfiles').select('*').order('created_at', { ascending: false, nullsFirst: false });
+                if (term.trim()) {
+                    query = query.or(`email.ilike.%${term.trim()}%,nombre.ilike.%${term.trim()}%,dni.ilike.%${term.trim()}%`);
+                }
+                const { data: dbData, error: dbErr } = await query;
+                if (dbErr) throw dbErr;
+                setSearchResults(dbData || []);
+            }
         } catch (err) {
-            console.error('User search error:', err);
-            setError('Error al buscar usuarios.');
+            console.error('User fetch error:', err);
+            setError('Error al obtener la lista de usuarios.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSearch = () => {
+        fetchUsers(searchTerm);
+    };
+
+    const confirmDeleteUser = async () => {
+        if (!deletingUser) return;
+        setLoading(true);
+        setMessage(null);
+        setError(null);
+
+        try {
+            const token = await getAuthToken();
+            const res = await fetch(getApiEndpoint(`/admin/users/${deletingUser.id}`), {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Error al eliminar usuario');
+
+            setMessage(`La cuenta de "${deletingUser.nombre || deletingUser.email}" ha sido eliminada correctamente de la base de datos.`);
+            setSearchResults(prev => prev.filter(u => u.id !== deletingUser.id));
+            setDeletingUser(null);
+        } catch (err) {
+            setError(err.message);
         } finally {
             setLoading(false);
         }
@@ -464,12 +503,23 @@ const SystemSettings = () => {
                         {/* TAB 2: SEGURIDAD Y USUARIOS */}
                         {activeTab === 'security' && (
                             <div className="bg-tech-secondary p-6 rounded-2xl border border-tech-surface shadow-lg">
-                                <h3 className="text-lg font-bold text-tech-text uppercase mb-6 flex items-center gap-2 border-b border-tech-surface pb-3">
-                                    <UserCog className="text-tech-accent" size={20} />
-                                    Gestión de Accesos y Permisos
-                                </h3>
-
-                                <p className="text-tech-muted text-xs mb-6 font-mono">Busque un usuario por Nombre, Email o DNI para restablecer su clave o modificar su rol de acceso.</p>
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-tech-surface pb-4 mb-6">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-tech-text uppercase flex items-center gap-2">
+                                            <UserCog className="text-tech-accent" size={20} />
+                                            Gestión de Accesos y Permisos
+                                        </h3>
+                                        <p className="text-tech-muted text-xs font-mono mt-1">Busque un usuario por Nombre, Email o DNI para restablecer su clave, modificar su rol o eliminar cuentas.</p>
+                                    </div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="px-3 py-1 bg-tech-surface rounded-full text-xs font-bold text-tech-cyan border border-tech-cyan/20 flex items-center gap-1.5 font-mono">
+                                            <Users size={14} /> Total: {searchResults.length} {searchResults.length === 1 ? 'cuenta' : 'cuentas'}
+                                        </span>
+                                        <Button onClick={() => { setSearchTerm(''); fetchUsers(''); }} variant="ghost" size="sm" className="text-xs border border-tech-surface">
+                                            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Ver Todas
+                                        </Button>
+                                    </div>
+                                </div>
 
                                 <div className="flex gap-4 mb-8">
                                     <div className="relative flex-1">
@@ -477,17 +527,25 @@ const SystemSettings = () => {
                                             icon={Search}
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                            onKeyDown={(e) => e.key === 'Enter' && fetchUsers(searchTerm)}
                                             placeholder="Buscar por Nombre, Email o DNI..."
                                         />
                                     </div>
                                     <Button
-                                        onClick={handleSearch}
+                                        onClick={() => fetchUsers(searchTerm)}
                                         disabled={loading}
                                         variant="primary"
                                     >
-                                        {loading && searched ? 'Buscando...' : 'Buscar'}
+                                        {loading ? 'Buscando...' : 'Buscar'}
                                     </Button>
+                                    {searchTerm && (
+                                        <Button
+                                            onClick={() => { setSearchTerm(''); fetchUsers(''); }}
+                                            variant="ghost"
+                                        >
+                                            Limpiar
+                                        </Button>
+                                    )}
                                 </div>
 
                                 {searchResults.length > 0 ? (
@@ -496,7 +554,7 @@ const SystemSettings = () => {
                                             <div key={user.id} className="bg-tech-primary p-5 rounded-xl border border-tech-surface flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-12 h-12 rounded-full bg-tech-surface flex items-center justify-center text-tech-cyan font-bold uppercase text-lg border border-tech-cyan/20">
-                                                        {user.nombre?.charAt(0) || user.email.charAt(0)}
+                                                        {user.nombre?.charAt(0) || user.email?.charAt(0) || '?'}
                                                     </div>
                                                     <div>
                                                         <h4 className="font-bold text-tech-text">{user.nombre || 'Sin Nombre'}</h4>
@@ -504,7 +562,7 @@ const SystemSettings = () => {
                                                         <div className="flex items-center gap-2 mt-2">
                                                             <span className="text-[10px] font-black uppercase text-tech-muted">Rol:</span>
                                                             <select
-                                                                value={user.rol}
+                                                                value={user.rol || 'alumno'}
                                                                 onChange={(e) => handleChangeRole(user.id, e.target.value)}
                                                                 className="bg-tech-surface text-tech-text text-xs font-bold uppercase rounded px-2 py-1 border border-tech-surface outline-none focus:border-tech-cyan"
                                                             >
@@ -518,7 +576,7 @@ const SystemSettings = () => {
                                                     </div>
                                                 </div>
 
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 flex-wrap">
                                                     {resettingUserId === user.id ? (
                                                         <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
                                                             <Input
@@ -545,9 +603,20 @@ const SystemSettings = () => {
                                                             </Button>
                                                         </div>
                                                     ) : (
-                                                        <Button onClick={() => setResettingUserId(user.id)} variant="ghost" size="sm" className="border border-tech-surface">
-                                                            <Lock size={14} /> Resetear Clave
-                                                        </Button>
+                                                        <>
+                                                            <Button onClick={() => setResettingUserId(user.id)} variant="ghost" size="sm" className="border border-tech-surface text-xs">
+                                                                <Lock size={14} /> Resetear Clave
+                                                            </Button>
+                                                            <Button
+                                                                onClick={() => setDeletingUser(user)}
+                                                                disabled={user.id === profile?.id}
+                                                                size="sm"
+                                                                className="bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 text-xs transition-colors"
+                                                                title={user.id === profile?.id ? 'No puedes eliminar tu propia cuenta' : 'Eliminar cuenta definitivamente'}
+                                                            >
+                                                                <Trash2 size={14} /> Eliminar
+                                                            </Button>
+                                                        </>
                                                     )}
                                                 </div>
                                             </div>
@@ -555,7 +624,7 @@ const SystemSettings = () => {
                                     </div>
                                 ) : (
                                     <div className="p-8 text-center border-2 border-dashed border-tech-surface rounded-xl text-tech-muted text-sm font-mono">
-                                        {searched ? 'No se encontraron usuarios coincidentes.' : 'Ingrese un término y presione Buscar para ver resultados.'}
+                                        {searched ? 'No se encontraron usuarios coincidentes.' : 'No hay cuentas registradas en la base de datos.'}
                                     </div>
                                 )}
                             </div>
@@ -710,6 +779,50 @@ const SystemSettings = () => {
                     </motion.div>
                 ) : null}
             </div>
+
+            {/* Modal de Confirmación de Eliminación de Cuenta */}
+            {deletingUser && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+                    <div className="bg-tech-secondary border border-red-500/30 p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4">
+                        <div className="flex items-center gap-3 text-red-400">
+                            <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 flex-shrink-0">
+                                <AlertTriangle size={22} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg text-tech-text">Eliminar Cuenta de Usuario</h3>
+                                <p className="text-xs text-tech-muted font-mono">Esta acción no se puede deshacer</p>
+                            </div>
+                        </div>
+
+                        <p className="text-sm text-tech-muted leading-relaxed">
+                            ¿Estás seguro de que deseas eliminar permanentemente la cuenta de{' '}
+                            <strong className="text-tech-text">{deletingUser.nombre || deletingUser.email}</strong>{' '}
+                            (<span className="font-mono text-xs text-tech-cyan">{deletingUser.email}</span>)?
+                        </p>
+
+                        <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/20 text-xs text-red-400 font-mono space-y-1">
+                            <p>⚠️ Se eliminará su perfil de usuario y la cuenta de autenticación en la base de datos.</p>
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-2">
+                            <Button
+                                onClick={() => setDeletingUser(null)}
+                                variant="ghost"
+                                disabled={loading}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                onClick={confirmDeleteUser}
+                                disabled={loading}
+                                className="bg-red-600 hover:bg-red-700 text-white font-bold"
+                            >
+                                {loading ? 'Eliminando...' : 'Sí, Eliminar Cuenta'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
