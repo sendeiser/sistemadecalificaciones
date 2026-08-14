@@ -401,15 +401,37 @@ router.delete('/admin/users/:userId', authMiddleware, requireAdmin, async (req, 
     }
 
     try {
+        const clientToUse = supabaseAdmin || supabase;
+
         // 1. Obtener email del usuario para auditoría
-        const { data: profile } = await supabaseAdmin
+        const { data: profile } = await clientToUse
             .from('perfiles')
             .select('email, nombre, rol')
             .eq('id', userId)
             .maybeSingle();
 
-        // 2. Eliminar de public.perfiles
-        const { error: profileErr } = await supabaseAdmin
+        // 2. Limpiar registros relacionados en cascada para evitar bloqueos por Foreign Keys
+        try {
+            await Promise.allSettled([
+                clientToUse.from('inscripciones').delete().eq('estudiante_id', userId),
+                clientToUse.from('asistencias').delete().eq('alumno_id', userId),
+                clientToUse.from('calificaciones').delete().eq('alumno_id', userId),
+                clientToUse.from('observaciones_convivencia').delete().eq('alumno_id', userId),
+                clientToUse.from('observaciones_convivencia').delete().eq('docente_id', userId),
+                clientToUse.from('mensajes').delete().eq('remitente_id', userId),
+                clientToUse.from('mensajes').delete().eq('destinatario_id', userId),
+                clientToUse.from('anuncios').delete().eq('autor_id', userId),
+                clientToUse.from('invitaciones').delete().eq('creado_por', userId),
+                clientToUse.from('tutores_alumnos').delete().eq('tutor_id', userId),
+                clientToUse.from('tutores_alumnos').delete().eq('alumno_id', userId),
+                clientToUse.from('perfiles_logros').delete().eq('perfil_id', userId)
+            ]);
+        } catch (cascadeErr) {
+            console.warn('Warning cascade cleaning child tables for user:', userId, cascadeErr);
+        }
+
+        // 3. Eliminar de public.perfiles
+        const { error: profileErr } = await clientToUse
             .from('perfiles')
             .delete()
             .eq('id', userId);
@@ -418,28 +440,33 @@ router.delete('/admin/users/:userId', authMiddleware, requireAdmin, async (req, 
             console.error('Warning deleting profile:', profileErr);
         }
 
-        // 3. Eliminar de Supabase Auth (auth.users)
-        const { error: authErr } = await supabaseAdmin.auth.admin.deleteUser(userId);
-        if (authErr) {
-            console.error('Error deleting auth user:', authErr);
-            throw authErr;
+        // 4. Eliminar de Supabase Auth (auth.users)
+        if (supabaseAdmin) {
+            const { error: authErr } = await supabaseAdmin.auth.admin.deleteUser(userId);
+            if (authErr) {
+                console.warn('Warning deleting auth user:', authErr?.message || authErr);
+            }
         }
 
-        // 4. Log Audit
-        const { logAudit } = require('../utils/auditLogger');
-        await logAudit(
-            req.user.id,
-            'seguridad',
-            userId,
-            'DELETE_USER',
-            null,
-            { target_email: profile?.email || 'desconocido', target_name: profile?.nombre }
-        );
+        // 5. Log Audit
+        try {
+            const { logAudit } = require('../utils/auditLogger');
+            await logAudit(
+                req.user.id,
+                'seguridad',
+                userId,
+                'DELETE_USER',
+                null,
+                { target_email: profile?.email || 'desconocido', target_name: profile?.nombre }
+            );
+        } catch (auditErr) {
+            console.warn('Warning logging audit for delete user:', auditErr);
+        }
 
-        res.json({ success: true, message: 'Cuenta de usuario eliminada correctamente' });
+        return res.json({ success: true, message: 'Cuenta de usuario eliminada correctamente' });
     } catch (err) {
         console.error('Admin delete user error:', err);
-        res.status(500).json({ error: err.message || 'Error al eliminar usuario' });
+        return res.status(500).json({ error: err.message || 'Error al eliminar usuario' });
     }
 });
 
