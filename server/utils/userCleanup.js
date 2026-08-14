@@ -1,6 +1,6 @@
 /**
  * Utility to clean all child table references for a user before profile/auth deletion.
- * Prevents PostgreSQL foreign key constraint violations across all modules.
+ * Prevents PostgreSQL foreign key constraint violations across all modules (Academic, Physical Ed, Commercial, Admin).
  * 
  * @param {object} client - Supabase client (supabaseAdmin or regular client)
  * @param {string} userId - UUID of the user/student being deleted
@@ -10,9 +10,14 @@ const cleanUserReferences = async (client, userId) => {
 
     try {
         await Promise.allSettled([
-            // Physical Education & Sports
+            // Commercial Practices & Emprendedurismo Module
+            client.from('practicas_comerciales').delete().eq('alumno_id', userId),
+            client.from('practicas_comerciales').delete().eq('docente_id', userId),
+
+            // Physical Education & Sports Module
             client.from('evaluaciones_fisicas').delete().eq('alumno_id', userId),
             client.from('evaluaciones_fisicas').delete().eq('docente_id', userId),
+            client.from('rendimiento_deportivo').delete().eq('alumno_id', userId),
             client.from('participantes_torneo').delete().eq('alumno_id', userId),
             client.from('certificados_medicos').delete().eq('alumno_id', userId),
             client.from('asistencia_clase_deportiva').delete().eq('alumno_id', userId),
@@ -21,7 +26,7 @@ const cleanUserReferences = async (client, userId) => {
             client.from('evaluacion_desempeno').delete().eq('docente_id', userId),
             client.from('historial_medico').delete().eq('alumno_id', userId),
             
-            // Academic & Division Enrollments
+            // Academic, Assignments & Division Enrollments
             client.from('estudiantes_divisiones').delete().eq('alumno_id', userId),
             client.from('asistencias_preceptor').delete().eq('estudiante_id', userId),
             client.from('asistencias_preceptor').delete().eq('alumno_id', userId),
@@ -29,6 +34,7 @@ const cleanUserReferences = async (client, userId) => {
             client.from('asistencias').delete().eq('alumno_id', userId),
             client.from('asistencias').delete().eq('estudiante_id', userId),
             client.from('calificaciones').delete().eq('alumno_id', userId),
+            client.from('asignaciones').delete().eq('docente_id', userId),
             client.from('auditoria_notas').delete().eq('usuario_id', userId),
             
             // Behavior, Communication & Calendar
@@ -39,6 +45,9 @@ const cleanUserReferences = async (client, userId) => {
             client.from('anuncios').delete().eq('autor_id', userId),
             client.from('anuncios_leidos').delete().eq('usuario_id', userId),
             client.from('eventos_calendario').delete().eq('creado_por', userId),
+            client.from('eventos').delete().eq('creador_id', userId),
+            client.from('feedback').delete().eq('usuario_id', userId),
+            client.from('configuracion').delete().eq('actualizado_por', userId),
             
             // Invites, Tutoring, AI & Achievements
             client.from('invitaciones').delete().eq('creado_por', userId),
