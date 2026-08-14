@@ -236,6 +236,27 @@ router.post('/register-invite', async (req, res) => {
 
         if (authError) throw authError;
 
+        // 2b. Garantizar creación de Perfil en la DB (por si el Trigger de la DB no se ejecutó)
+        const { error: profileError } = await supabaseAdmin
+            .from('perfiles')
+            .upsert({
+                id: authData.user.id,
+                nombre: nombre || 'Nuevo Usuario',
+                dni: dni || '',
+                rol: invite.rol || 'alumno',
+                email: email
+            }, { onConflict: 'id' });
+
+        if (profileError) {
+            console.error('⚠️ [register-invite] Warning inserting profile into perfiles:', profileError);
+        }
+
+        // 2c. Marcar la invitación como usada
+        await supabaseAdmin
+            .from('invitaciones')
+            .update({ usado: true })
+            .eq('token', token);
+
         // 3. Log Audit (Registration)
         const { logAudit } = require('../utils/auditLogger');
         await logAudit(
