@@ -411,30 +411,8 @@ router.delete('/admin/users/:userId', authMiddleware, requireAdmin, async (req, 
             .maybeSingle();
 
         // 2. Limpiar registros relacionados en cascada para evitar bloqueos por Foreign Keys
-        try {
-            await Promise.allSettled([
-                clientToUse.from('auditoria_notas').delete().eq('usuario_id', userId),
-                clientToUse.from('estudiantes_divisiones').delete().eq('alumno_id', userId),
-                clientToUse.from('asistencias_preceptor').delete().eq('estudiante_id', userId),
-                clientToUse.from('ai_diagnostics').delete().eq('alumno_id', userId),
-                clientToUse.from('ai_diagnostics').delete().eq('docente_id', userId),
-                clientToUse.from('document_validations').delete().eq('created_by', userId),
-                clientToUse.from('inscripciones').delete().eq('estudiante_id', userId),
-                clientToUse.from('asistencias').delete().eq('alumno_id', userId),
-                clientToUse.from('calificaciones').delete().eq('alumno_id', userId),
-                clientToUse.from('observaciones_convivencia').delete().eq('alumno_id', userId),
-                clientToUse.from('observaciones_convivencia').delete().eq('docente_id', userId),
-                clientToUse.from('mensajes').delete().eq('remitente_id', userId),
-                clientToUse.from('mensajes').delete().eq('destinatario_id', userId),
-                clientToUse.from('anuncios').delete().eq('autor_id', userId),
-                clientToUse.from('invitaciones').delete().eq('creado_por', userId),
-                clientToUse.from('tutores_alumnos').delete().eq('tutor_id', userId),
-                clientToUse.from('tutores_alumnos').delete().eq('alumno_id', userId),
-                clientToUse.from('perfiles_logros').delete().eq('perfil_id', userId)
-            ]);
-        } catch (cascadeErr) {
-            console.warn('Warning cascade cleaning child tables for user:', userId, cascadeErr);
-        }
+        const { cleanUserReferences } = require('../utils/userCleanup');
+        await cleanUserReferences(clientToUse, userId);
 
         // 3. Eliminar de public.perfiles
         const { error: profileErr } = await clientToUse

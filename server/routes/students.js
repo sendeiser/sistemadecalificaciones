@@ -135,84 +135,33 @@ router.put('/:id/password', isAdminOrPreceptor, async (req, res) => {
 router.delete('/:id', isAdminOrPreceptor, async (req, res) => {
     try {
         const { id } = req.params;
-
-        if (!supabaseAdmin) {
-            return res.status(500).json({ error: 'Admin client not configured. Cannot delete Auth user.' });
-        }
+        const clientToUse = supabaseAdmin || req.supabase;
 
         // Fetch student profile before deletion for audit log
-        const { data: oldProfile } = await supabaseAdmin
+        const { data: oldProfile } = await clientToUse
             .from('perfiles')
             .select('*')
             .eq('id', id)
-            .single();
+            .maybeSingle();
 
-        // 1. Delete all related records first (to avoid foreign key constraint errors)
+        // 1. Delete all related records in cascade
+        const { cleanUserReferences } = require('../utils/userCleanup');
+        await cleanUserReferences(clientToUse, id);
 
-        // Delete attendance records (asistencias)
-        const { error: attError1 } = await supabaseAdmin
-            .from('asistencias')
-            .delete()
-            .eq('estudiante_id', id);
-
-        if (attError1) console.warn('Could not delete asistencias:', attError1.message);
-
-        // Delete preceptor attendance records (asistencias_preceptor)
-        const { error: attError2 } = await supabaseAdmin
-            .from('asistencias_preceptor')
-            .delete()
-            .eq('estudiante_id', id);
-
-        if (attError2) console.warn('Could not delete asistencias_preceptor:', attError2.message);
-
-        // Get all grade IDs for this student and delete audit logs
-        const { data: studentGrades } = await supabaseAdmin
-            .from('calificaciones')
-            .select('id')
-            .eq('alumno_id', id);
-
-        if (studentGrades && studentGrades.length > 0) {
-            const gradeIds = studentGrades.map(g => g.id);
-            const { error: auditError } = await supabaseAdmin
-                .from('auditoria_notas')
-                .delete()
-                .in('calificacion_id', gradeIds);
-
-            if (auditError) console.warn('Could not delete auditoria_notas:', auditError.message);
-        }
-
-        // Delete grades (calificaciones)
-        const { error: gradeError } = await supabaseAdmin
-            .from('calificaciones')
-            .delete()
-            .eq('alumno_id', id);
-
-        if (gradeError) console.warn('Could not delete calificaciones:', gradeError.message);
-
-        // Delete tutor relationships (tutores_alumnos)
-        const { error: tutorError } = await supabaseAdmin
-            .from('tutores_alumnos')
-            .delete()
-            .eq('alumno_id', id);
-
-        if (tutorError) console.warn('Could not delete tutores_alumnos:', tutorError.message);
-
-        // 2. Try to delete from Auth (may fail if user doesn't have Auth account)
-        try {
-            const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
-
-            // Only throw if it's not a "user not found" error
-            if (authError && !authError.message.includes('not found') && authError.code !== 'user_not_found') {
-                console.error('Auth deletion error:', authError);
-                throw authError;
+        // 2. Try to delete from Auth (may fail gracefully if not in Auth)
+        if (supabaseAdmin) {
+            try {
+                const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
+                if (authError && !authError.message.includes('not found') && authError.code !== 'user_not_found') {
+                    console.warn(`Could not delete Auth user ${id}:`, authError.message);
+                }
+            } catch (authErr) {
+                console.warn(`Auth delete exception for ${id}:`, authErr.message);
             }
-        } catch (authErr) {
-            // Log but continue - the profile deletion will clean up
-            console.warn(`Could not delete Auth user ${id}:`, authErr.message);
         }
 
         // 3. Delete from profiles table
-        const { error: profileError } = await req.supabase
+        const { error: profileError } = await clientToUse
             .from('perfiles')
             .delete()
             .eq('id', id);
@@ -223,20 +172,24 @@ router.delete('/:id', isAdminOrPreceptor, async (req, res) => {
         }
 
         // Log Audit
-        const { logAudit } = require('../utils/auditLogger');
-        await logAudit(
-            req.user.id,
-            'perfil',
-            id,
-            'DELETE',
-            oldProfile,
-            null
-        );
+        try {
+            const { logAudit } = require('../utils/auditLogger');
+            await logAudit(
+                req.user.id,
+                'perfil',
+                id,
+                'DELETE',
+                oldProfile,
+                null
+            );
+        } catch (auditErr) {
+            console.warn('Warning logging audit:', auditErr);
+        }
 
-        res.json({ message: 'Student and all related records deleted successfully' });
+        res.json({ message: 'Alumno y todos sus registros eliminados correctamente' });
     } catch (err) {
         console.error('Delete student error:', err);
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ error: err.message || 'Error al eliminar alumno' });
     }
 });
 
