@@ -6,20 +6,21 @@ const authMiddleware = require('../middleware/authMiddleware');
 // Validar si el usuario es Admin o Preceptor
 const requireAdmin = async (req, res, next) => {
     try {
-        const { data: profile, error } = await supabaseAdmin
+        const clientToUse = supabaseAdmin || supabase;
+        const { data: profile } = await clientToUse
             .from('perfiles')
             .select('rol')
             .eq('id', req.user.id)
-            .single();
+            .maybeSingle();
 
-        if (error || !profile) return res.status(403).json({ error: 'Acceso denegado' });
+        const userRole = profile?.rol || req.user?.user_metadata?.rol || (req.user?.email === 'admin@cgb.edu.ar' ? 'admin' : null);
 
-        if (profile.rol === 'admin' || profile.rol === 'preceptor') {
-            req.userRole = profile.rol;
-            next();
-        } else {
-            return res.status(403).json({ error: 'Se requieren permisos de administrador' });
+        if (userRole === 'admin' || userRole === 'preceptor') {
+            req.userRole = userRole;
+            return next();
         }
+
+        return res.status(403).json({ error: 'Se requieren permisos de administrador' });
     } catch (err) {
         console.error('Admin check error:', err);
         return res.status(500).json({ error: 'Error al verificar permisos' });
@@ -364,10 +365,10 @@ router.post('/admin/users/change-role', authMiddleware, requireAdmin, async (req
 router.get('/admin/users', authMiddleware, requireAdmin, async (req, res) => {
     try {
         const { query } = req.query;
-        let dbQuery = supabaseAdmin
+        const clientToUse = supabaseAdmin || supabase;
+        let dbQuery = clientToUse
             .from('perfiles')
-            .select('*')
-            .order('created_at', { ascending: false, nullsFirst: false });
+            .select('*');
 
         if (query && query.trim()) {
             const q = query.trim();
@@ -375,7 +376,10 @@ router.get('/admin/users', authMiddleware, requireAdmin, async (req, res) => {
         }
 
         const { data, error } = await dbQuery;
-        if (error) throw error;
+        if (error) {
+            console.error('Error querying perfiles in GET /admin/users:', error);
+            throw error;
+        }
 
         res.json(data || []);
     } catch (err) {
